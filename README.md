@@ -36,6 +36,7 @@ Rugby Orcos/
 │   │   ├── ClubContext.jsx      # Estado global, CRUD, permisos, sync Supabase
 │   │   └── ToastContext.jsx     # Notificaciones toast
 │   ├── components/
+│   │   ├── Login.jsx            # Login unificado (email/username + password)
 │   │   ├── Dashboard.jsx        # Panel principal (metricas, HIA, Sin-Bin, wellness)
 │   │   ├── Roster.jsx           # CRUD jugadores, atributos RPG, insignias, credenciales
 │   │   ├── CanchaTactica.jsx    # Pizarra con 11 formaciones + drag-and-drop
@@ -44,9 +45,10 @@ Rugby Orcos/
 │   │   ├── Finanzas.jsx         # Caja chica, membresias, inventario
 │   │   ├── TrainingHub.jsx      # Plan inteligente, rutinas, catalogo
 │   │   ├── AIChat.jsx           # Chat tactico multi-proveedor IA
-│   │   ├── Login.jsx            # Login unificado (email/username + password)
+│   │   ├── AwardsHall.jsx       # Salon de la Fama (43 premios + certificados)
+│   │   ├── MakgoraHub.jsx       # Torneo Mak'Gora (equipos, fixture, standings)
 │   │   ├── PlayerDashboard.jsx  # Vista personal del Guerrero
-│   │   ├── UserManagement.jsx   # Admin de usuarios y roles
+│   │   ├── UserManagement.jsx   # Admin de usuarios, roles y reset password
 │   │   ├── Settings.jsx         # Configuracion IA
 │   │   ├── Rivales.jsx          # Gestion de equipos rivales
 │   │   ├── AuthCallback.jsx     # Callback de autenticacion
@@ -58,30 +60,19 @@ Rugby Orcos/
 │   │   └── faultExerciseMap.js  # Mapa fallos → ejercicios correctivos
 │   └── engine/
 │       ├── assignmentEngine.js  # Motor de reglas para planes de entrenamiento
-│       ├── geminiCoach.js       # Integracion IA (Gemini/Groq/DeepSeek)
 │       ├── aiProvider.js        # Router multi-proveedor IA
-│       ├── aiConfig.js          # Configuracion de proveedores IA
-│       ├── aiCache.js           # Cache de respuestas IA
-│       ├── contentFilter.js     # Filtro rugby-only
-│       ├── matchAnalyzer.js     # Analisis tactico de partidos
-│       ├── promptBuilder.js     # Constructor de prompts con contexto
 │       └── providers/           # Gemini, Groq, DeepSeek, OpenAI Compatible
-├── supabase/migrations/         # Migraciones SQL
-│   ├── 001_schema.sql           # 18 tablas base + RLS
-│   ├── 002_users_roles.sql      # user_profiles, makgora_teams, tournaments, loans
-│   ├── 003_fix_rls.sql          # Fix recursion infinita en politicas RLS
-│   ├── 004_fix_create_user.sql  # (DEPRECATED) Funcion admin_create_user
-│   ├── 005_auto_profile_trigger.sql # Trigger auto-perfil al crear usuario
-│   ├── 006_player_auth.sql      # Username + auto-generacion para guerreros
-│   └── 007_player_auth_functions.sql # RPC para credenciales y reset password
-├── seed/
-│   └── seed-csv.mjs             # Importador CSV → Supabase (62 jugadores)
+├── supabase/migrations/
+│   ├── 00_reset_db.sql          # Destruye todo
+│   ├── 01_schema_v4.sql         # Schema limpio (27 tablas + RLS + funciones)
+│   ├── 02_fix_user_profiles_rls.sql  # Deshabilita RLS en user_profiles
+│   └── 03_admin_reset_staff_password.sql  # RPC para resetear password staff
+├── seed/seed-csv.mjs            # Importador CSV → Supabase
 ├── public/
 │   ├── manifest.json            # PWA manifest
 │   └── sw.js                    # Service Worker (offline)
-├── checklist.md                 # Plan de ejecucion detallado
+├── android/                     # Proyecto Android Capacitor
 ├── vercel.json                  # Config SPA fallback para Vercel
-├── vite.config.js               # Config Vite (puerto 3000)
 ├── capacitor.config.json        # Config Capacitor Android
 └── .env                         # Variables de entorno (NO COMMITEAR)
 ```
@@ -102,131 +93,60 @@ Rugby Orcos/
 
 ---
 
-## Modulos
-
-### Dashboard
-Panel de control con metricas del squad, protocolo HIA (conmociones), temporizador Sin-Bin, wellness check-in, proximos eventos, partidos recientes, cuenta regresiva de campeonatos, lesionados.
-
-### Roster
-CRUD completo de jugadores con atributos RPG (Fuerza, Velocidad, Resistencia, Tecnica) en escala 0-100. Historial fisico con grafico SVG. Lesiones con 4 fases de kinesiologia. Gimnasio con 1RM. Insignias automaticas. Tallas de uniforme. Protocolo HIA. **Forjar Credenciales** para dar acceso al Guerrero a su perfil.
-
-### Pizarra Tactica
-Campo de rugby interactivo con 11 formaciones. Nodos arrastrables con posiciones tacticas. Asignacion de jugadores del roster. Banco de suplentes. Orientacion horizontal/vertical. 3 tamanos. Notas tacticas con auto-guardado.
-
-### Tribunal Disciplinario
-Control de asistencia con penitencias automaticas (burpees + conos). Infracciones de partido. Redencion de deudas fisicas. Rankings: Honor, MVPs, Tries, Tackles, Penitencias.
-
-### Agenda
-Eventos con recurrencia semanal/quincenal. WhatsApp formatter para convocatorias. Fixture y resultados. Match Center con stats por jugador. Gestion de equipos rivales. Proximos partidos.
-
-### Finanzas
-Caja chica (ingresos/egresos). Membresias con abonos parciales ($10,000 COP base). Inventario de implementos con custodios y estados.
-
-### Entrenamientos
-Plan inteligente generado por motor de reglas + IA. Rutinas por posicion (13 predefinidas). Catalogo de 44 ejercicios. Checkboxes de completado. Calculo de cargas basado en 1RM.
-
-### IA Coach
-Chat tactico multi-proveedor (Gemini 2.0 Flash, Groq, DeepSeek) con failover automatico. 3 modos: General, Tactico, Reglas. Rate limit diario. Cache de respuestas. Analisis de partidos.
-
----
-
 ## Flujo de Login
 
 ### Staff (Arquitecto, Senor, Comandante, Maestro, Guardian, Juez)
-1. Ingresa su **email** + contrasena
-2. Supabase Auth valida credenciales
-3. Se carga su `user_profile` con el rol RPG
-4. Accede al panel completo segun sus permisos
+- Ingresa su **email** + contrasena → Supabase Auth → accede al panel completo segun permisos
 
 ### Guerrero (Jugador)
-1. Ingresa su **nombre de usuario** (ej: `freyder.andres`) + contrasena
-2. La app busca el username en `players`, obtiene su email interno
-3. Supabase Auth valida con ese email
-4. Accede a su **PlayerDashboard** personal (solo lectura + wellness)
+- Ingresa su **nombre de usuario** (ej: `freyder.andres`) + contrasena
+- La app busca el username en `players`, obtiene su email interno → login
+- Accede a su **PlayerDashboard** personal (atributos, insignias, wellness)
 
-### Fundar Reino (primer uso)
-1. Si `user_profiles` esta vacio, aparece el boton "Fundar un Nuevo Reino"
-2. Email + password + nombre → se crea el primer Arquitecto del Reino
-3. Los demas usuarios los crea el Arquitecto desde Admin > Miembros
+### Fundar Reino (primer uso / staff nuevo)
+- Admin > Miembros > crear usuario con email + password + rol
 
 ---
 
-## PlayerDashboard — Vista del Guerrero
+## Modulos
 
-Cuando un jugador inicia sesion, ve su panel personal con:
+### Dashboard
+Metricas del squad, protocolo HIA (conmociones), temporizador Sin-Bin, wellness check-in, eventos, partidos recientes.
 
-- **Atributos RPG**: barras de Fuerza, Velocidad, Resistencia, Tecnica
-- **Insignias**: Orco de Hierro, Muralla Verde, Demoledor, Gladiador MVP
-- **Estadisticas**: Tries, Conversiones, Tackles, Recuperaciones, MVPs, Partidos jugados
-- **Membresia**: barra de progreso de pagos
-- **Wellness Check-in**: puede registrar sueno, dolor muscular y estres (escala 1-5)
-- **Ultimas Rutinas**: ejercicios asignados por el Maestro de Armas
+### Roster
+CRUD de jugadores con atributos RPG (Fuerza, Velocidad, Resistencia, Tecnica). Historial fisico SVG. Lesiones 4 fases. Gimnasio 1RM. Insignias automaticas. **Forjar Credenciales** (genera username + password). **Restablecer Contrasena** de jugador.
 
----
+### Pizarra Tactica
+11 formaciones, drag-and-drop, asignacion de jugadores, banco de suplentes, orientacion H/V, 3 tamanos.
 
-## Seguridad
+### Tribunal Disciplinario
+Asistencia con penitencias (burpees, conos). Infracciones. Rankings: Honor, MVPs, Tries, Tackles.
 
-### Row Level Security (RLS)
-Todas las tablas en Supabase tienen politicas RLS. Cada usuario solo ve sus propios datos mediante `user_id = auth.uid()`.
+### Salon de la Fama
+**43 premios automaticos** basados en estadisticas (15 de Honor + 28 de la Taberna). Certificados HTML imprimibles.
 
-### Autenticacion
-- Staff: email + password via Supabase Auth
-- Guerreros: username → email interno → Supabase Auth
-- Sin magic link, sin OTP — contraseña tradicional
+### Mak'Gora
+Torneo interno con 6 equipos. Crear torneos, fixture round-robin, registrar resultados, tabla de posiciones (puntos bonus). Historial de campeones.
 
-### Manejo de Contraseñas
-- Staff: puede restablecer via email (Supabase reset flow)
-- Guerrero sin email: el Admin restablece desde Roster > "Restablecer Pass"
-- El Admin puede forjar credenciales para cualquier jugador
+### Agenda
+Eventos con recurrencia. WhatsApp formatter. Fixture y resultados. Match Center. Equipos rivales.
 
----
+### Finanzas
+Caja chica, membresias con abonos parciales ($10,000 COP), inventario con custodios.
 
-## Base de Datos — 18 Tablas
+### Entrenamientos
+Plan inteligente (motor de reglas + IA). 13 rutinas. 44 ejercicios. Calculo de cargas 1RM.
 
-| Tabla | Funcion |
-|-------|---------|
-| `players` | Jugadores con atributos RPG, username, datos personales |
-| `user_profiles` | Roles RPG, scopes de club/division |
-| `makgora_teams` | Equipos del torneo Mak'Gora (6 base) |
-| `tournaments` | Ediciones de torneo Mak'Gora |
-| `tournament_teams` | Equipos participantes por edicion |
-| `tournament_matches` | Partidos del torneo |
-| `tournament_standings` | Tabla de posiciones |
-| `tournament_player_stats` | Stats individuales Mak'Gora |
-| `player_loans` | Prestamos entre equipos |
-| `attribute_history` | Progresion de atributos RPG |
-| `injury_log` | Lesiones (4 fases kinesiologia) |
-| `attendance` | Asistencias individuales |
-| `player_attendance_summary` | Resumen denormalizado |
-| `penalties` | Penitencias (burpees, conos) |
-| `infractions` | Infracciones de partido |
-| `match_stats` | Stats por jugador por partido |
-| `wellness_logs` | Check-ins de bienestar |
-| `hia_assessments` | Protocolo HIA conmociones |
-| `workout_logs` | Rutinas de entrenamiento |
-| `schedule_events` | Agenda y convocatorias |
-| `championships` | Campeonatos e hitos |
-| `finances` | Caja chica y transacciones |
-| `inventory` | Inventario de implementos |
-| `fixtures` | Resultados de partidos |
-| `rivals` | Equipos rivales |
-| `future_fixtures` | Proximos partidos |
-| `lineups` | Alineaciones tacticas |
+### IA Coach
+Chat multi-proveedor (Gemini/Groq/DeepSeek) con failover. 3 modos. Rate limit y cache.
 
 ---
 
-## App Movil
+## Credenciales de Prueba
 
-### Android (APK nativo)
-```bash
-npm run build
-npm run cap:sync
-npm run cap:open-android   # Android Studio > Build APK
-```
-Gratis, sin Google Play (APK directo). Para Play Store: $25 unico.
-
-### iOS (PWA gratuita)
-Abrir Safari > ir a la URL > Compartir > "Agregar a pantalla de inicio". Funciona como app nativa sin App Store ni $99 anual.
+| Rol | Usuario | Contrasena |
+|-----|---------|-----------|
+| Arquitecto del Reino | admin@orcosnegros.com | OrcosAdmin2026! |
 
 ---
 
@@ -234,17 +154,30 @@ Abrir Safari > ir a la URL > Compartir > "Agregar a pantalla de inicio". Funcion
 
 ```bash
 git clone https://github.com/kentarodva/RugbyOrcos.git
-cd RugbyOrcos
+cd "Rugby Orcos"
 npm install
-cp .env.example .env
-# Editar .env con credenciales de Supabase
+# Crear .env con:
+#   VITE_SUPABASE_URL=https://qtvmqlbjcotvbzuwanjs.supabase.co
+#   VITE_SUPABASE_ANON_KEY=eyJ...
+#   SUPABASE_SERVICE_ROLE_KEY=eyJ...
 npm run dev   # http://localhost:3000
 ```
 
-### Credenciales de Prueba
-| Rol | Usuario | Contrasena |
-|-----|---------|-----------|
-| Arquitecto del Reino | admin@orcosnegros.com | OrcosAdmin2026! |
+### Setup Supabase (primera vez)
+
+1. Crear proyecto en [supabase.com](https://supabase.com)
+2. SQL Editor > ejecutar en orden:
+   - `supabase/migrations/00_reset_db.sql` (solo si hay que limpiar)
+   - `supabase/migrations/01_schema_v4.sql`
+   - `supabase/migrations/02_fix_user_profiles_rls.sql`
+   - `supabase/migrations/03_admin_reset_staff_password.sql`
+3. `node seed/seed-csv.mjs "ruta/al/archivo.csv"`
+4. Authentication > Providers > Email: habilitado
+
+### Setup Vercel
+
+1. Conectar repo `kentarodva/RugbyOrcos`
+2. Environment Variables: `VITE_SUPABASE_URL` + `VITE_SUPABASE_ANON_KEY`
 
 ---
 
@@ -266,13 +199,33 @@ npm run dev   # http://localhost:3000
 | Fase | Tarea | Estado |
 |:----:|-------|:------:|
 | 0 | Preparacion (Supabase, Vercel, Git) | ✅ |
-| 1 | Esquema SQL (18 tablas + RLS) | ✅ |
-| 2 | Auth email/password + Login + Fundar Reino | ✅ |
+| 1 | Schema SQL limpio (27 tablas + RLS + funciones) | ✅ |
+| 2 | Auth email/password + Login unificado + Fundar Reino | ✅ |
 | 3 | Roles RPG + Permisos + UserManagement | ✅ |
-| 4 | Acceso Guerreros + PlayerDashboard | ✅ |
-| 5 | Salon de la Fama + Premios + Certificados | ⬜ |
-| 6 | Modo Mak'Gora (torneos, fixture, standings, prestamos) | ⬜ |
-| 7 | Deploy final + APK Android | ⬜ |
+| 4 | Acceso Guerreros + PlayerDashboard + Forjar Credenciales | ✅ |
+| 5 | Salon de la Fama (43 premios + certificados) | ✅ |
+| 6 | Modo Mak'Gora (torneos, fixture, standings) | ✅ |
+| 7 | Restablecer contrasena staff (🔑) | ✅ |
+| 8 | Build APK Android | ⬜ |
+| 9 | Invitacion a equipos rivales (links publicos) | ⬜ |
+| 10 | Prestamos de jugadores entre equipos Mak'Gora | ⬜ |
+
+---
+
+### Bugs conocidos
+
+| Bug | Estado |
+|-----|--------|
+| `user_profiles.user_id` no coincide con `auth.users.id` para usuarios antiguos | Arreglar con SQL manual (ver abajo) |
+
+#### Fix para perfil roto
+
+```sql
+-- Si un usuario de UserManagement no puede loguear, reparar su perfil:
+UPDATE user_profiles 
+SET user_id = (SELECT id FROM auth.users WHERE email = 'el-email-del-usuario@gmail.com')
+WHERE display_name = 'Nombre del usuario';
+```
 
 ---
 
