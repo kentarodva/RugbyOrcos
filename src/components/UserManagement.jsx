@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient.js';
-import { getRpgRole } from '../context/ClubContext.jsx';
+import { getRpgRole, CLUBS_LABELS } from '../context/ClubContext.jsx';
 
 function UserManagement() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showCreate, setShowCreate] = useState(false);
-  const [form, setForm] = useState({ email: '', password: '', displayName: '', systemRole: 'jugador', clubScope: '', divisionScope: '' });
+  const [form, setForm] = useState({ email: '', password: '', displayName: '', systemRole: 'jugador', clubScope: '' });
   const [error, setError] = useState('');
 
   useEffect(() => { loadUsers(); }, []);
@@ -25,19 +25,19 @@ function UserManagement() {
     if (!form.email || !form.password || !form.displayName) { setError('Llena todos los campos.'); return; }
     if (form.password.length < 6) { setError('Contrasena: minimo 6 caracteres.'); return; }
 
-    const { data: authData, error: authError } = await supabase.auth.admin.createUser({
-      email: form.email, password: form.password, email_confirm: true,
+    const { data, error: rpcError } = await supabase.rpc('admin_create_user', {
+      p_email: form.email,
+      p_password: form.password,
+      p_display_name: form.displayName,
+      p_system_role: form.systemRole,
+      p_club_scope: form.clubScope || null,
     });
-    if (authError) { setError(authError.message); return; }
 
-    const { error: profileError } = await supabase.from('user_profiles').insert({
-      user_id: authData.user.id, display_name: form.displayName, system_role: form.systemRole,
-      club_scope: form.clubScope || null, division_scope: form.divisionScope || null,
-    });
-    if (profileError) { setError(profileError.message); return; }
+    if (rpcError) { setError(rpcError.message); return; }
+    if (data?.error) { setError(data.error); return; }
 
     setShowCreate(false);
-    setForm({ email: '', password: '', displayName: '', systemRole: 'jugador', clubScope: '', divisionScope: '' });
+    setForm({ email: '', password: '', displayName: '', systemRole: 'jugador', clubScope: '' });
     loadUsers();
   };
 
@@ -84,19 +84,24 @@ function UserManagement() {
             <label style={labelS}>Rango</label>
             <select value={form.systemRole} onChange={e => setForm({...form, systemRole: e.target.value})}
               style={{...inputS, cursor: 'pointer'}}>
-              <option value="jugador">Guerrero</option>
-              <option value="entrenador">Maestro de Armas</option>
-              <option value="tesorero">Guardian del Botin</option>
-              <option value="arbitro">Juez del Coliseo</option>
-              <option value="promotor">Comandante de Horda</option>
-              <option value="presidente">Senor de la Guerra</option>
-              <option value="desarrollador">Arquitecto del Reino</option>
+              <option value="jugador">👹 Guerrero</option>
+              <option value="entrenador">🏋️ Maestro de Armas</option>
+              <option value="tesorero">💰 Guardian del Botin</option>
+              <option value="arbitro">⚖️ Juez del Coliseo</option>
+              <option value="promotor">🛡️ Comandante de Horda</option>
+              <option value="presidente">⚔️ Senor de la Guerra</option>
+              <option value="desarrollador">🏰 Arquitecto del Reino</option>
             </select>
           </div>
           <div>
-            <label style={labelS}>Club (opcional)</label>
-            <input type="text" value={form.clubScope} onChange={e => setForm({...form, clubScope: e.target.value})}
-              placeholder="orcos" style={inputS} />
+            <label style={labelS}>Club</label>
+            <select value={form.clubScope} onChange={e => setForm({...form, clubScope: e.target.value})}
+              style={{...inputS, cursor: 'pointer'}}>
+              <option value="">Todos los clubes</option>
+              {Object.entries(CLUBS_LABELS).map(([k, v]) => (
+                <option key={k} value={k}>{v}</option>
+              ))}
+            </select>
           </div>
           {error && <p style={{ gridColumn: 'span 2', color: 'var(--color-red)', fontSize: '0.8rem', fontWeight: 600 }}>{error}</p>}
           <button type="submit" className="btn-neon" style={{ gridColumn: 'span 2', padding: '12px', fontSize: '0.9rem' }}>
