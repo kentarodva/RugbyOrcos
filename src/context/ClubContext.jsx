@@ -104,50 +104,6 @@ Object.keys(CLUBS).forEach(cKey => {
   });
 });
 
-const INITIAL_PLAYERS = [];
-
-const INITIAL_SCHEDULE = [
-  {
-    id: 's1', title: 'Entrenamiento Tactico y Fuerza', date: '2026-05-19', time: '19:30',
-    location: 'Cancha Distrital La Fragua, Bogota', mapsLink: 'https://maps.google.com/?q=Cancha+La+Fragua+Bogota',
-    teamCategory: EQUIPOS.ORCOS_MASCULINA_MAYOR
-  },
-  {
-    id: 's2', title: 'Entrenamiento de Resistencia y Lineas', date: '2026-05-20', time: '19:30',
-    location: 'Parque Timiza, Cancha de Rugby', mapsLink: 'https://maps.google.com/?q=Parque+Timiza+Bogota',
-    teamCategory: EQUIPOS.CUERVOS_FEMENINA_MAYOR
-  },
-  {
-    id: 's3', title: 'PARTIDO vs Toros R.C. (Amistoso)', date: '2026-05-23', time: '14:00',
-    location: 'Cancha Polideportiva El Salitre', mapsLink: 'https://maps.google.com/?q=Polideportivo+El+Salitre+Bogota',
-    teamCategory: EQUIPOS.ORCOS_MASCULINA_MAYOR
-  }
-];
-
-const INITIAL_CHAMPIONSHIPS = [
-  {
-    id: 'c1', name: 'Torneo Apertura de Bogota 2026', deadlineDate: '2026-06-15',
-    description: 'Torneo de 15s de la liga regional de Rugby.', teamCategory: EQUIPOS.ORCOS_MASCULINA_MAYOR
-  },
-  {
-    id: 'c2', name: 'Copa Femenina Ten a Side (10s)', deadlineDate: '2026-06-28',
-    description: 'Circuito nacional de Rugby 10s femenino.', teamCategory: EQUIPOS.CUERVOS_FEMENINA_MAYOR
-  }
-];
-
-const INITIAL_FINANCES = [
-  { id: 'f1', type: 'ingreso', desc: 'Cuota de Membresia - Grom Hellscream', amount: 30000, date: '2026-05-01', teamCategory: EQUIPOS.ORCOS_MASCULINA_MAYOR },
-  { id: 'f2', type: 'ingreso', desc: 'Cuota de Membresia - Thrall Durotan', amount: 30000, date: '2026-05-02', teamCategory: EQUIPOS.ORCOS_MASCULINA_MAYOR },
-  { id: 'f3', type: 'egreso', desc: 'Compra de 2 Balones Gilbert #5', amount: 95000, date: '2026-05-05', teamCategory: EQUIPOS.ORCOS_MASCULINA_MAYOR }
-];
-
-const INITIAL_INVENTORY = [
-  { id: 'inv1', name: 'Balones Gilbert #5', total: 10, assignedTo: 'Thrall Durotan', status: 'Excelente' },
-  { id: 'inv2', name: 'Escudos de Tackle', total: 6, assignedTo: 'Grom Hellscream', status: 'Excelente' },
-  { id: 'inv3', name: 'Botiquin de Primeros Auxilios', total: 2, assignedTo: 'Garrosh Hellscream', status: 'Completo' },
-  { id: 'inv4', name: 'Conos de Entrenamiento', total: 50, assignedTo: 'Anduin Wrynn', status: 'Bueno' }
-];
-
 export const ClubProvider = ({ children }) => {
   const { user, profile } = useAuth();
 
@@ -228,48 +184,14 @@ export const ClubProvider = ({ children }) => {
     infractionLog: p.infractionLog || [],
   });
 
-  const [players, setPlayers] = useState(() => {
-    const saved = localStorage.getItem('orcos_players');
-    return saved ? JSON.parse(saved).map(normalizePlayer) : INITIAL_PLAYERS;
-  });
-
-  const [schedule, setSchedule] = useState(() => {
-    const saved = localStorage.getItem('orcos_schedule');
-    return saved ? JSON.parse(saved) : INITIAL_SCHEDULE;
-  });
-
-  const [championships, setChampionships] = useState(() => {
-    const saved = localStorage.getItem('orcos_championships');
-    return saved ? JSON.parse(saved) : INITIAL_CHAMPIONSHIPS;
-  });
-
-  const [finances, setFinances] = useState(() => {
-    const saved = localStorage.getItem('orcos_finances');
-    return saved ? JSON.parse(saved) : INITIAL_FINANCES;
-  });
-
-  const [inventory, setInventory] = useState(() => {
-    const saved = localStorage.getItem('orcos_inventory');
-    return saved ? JSON.parse(saved) : INITIAL_INVENTORY;
-  });
-
-  const [fixtures, setFixtures] = useState(() => {
-    const saved = localStorage.getItem('orcos_fixtures');
-    return saved ? JSON.parse(saved) : [
-      { id: 'fix1', date: '2026-05-10', opponent: 'Toros R.C.', orcosScore: 28, opponentScore: 12, tries: 4, mvp: 'Grom Hellscream', teamCategory: EQUIPOS.ORCOS_MASCULINA_MAYOR },
-      { id: 'fix2', date: '2026-05-11', opponent: 'Minotauros F.C.', orcosScore: 35, opponentScore: 10, tries: 5, mvp: 'Sylvanas Windrunner', teamCategory: EQUIPOS.CUERVOS_FEMENINA_MAYOR }
-    ];
-  });
-
-  const [rivals, setRivals] = useState(() => {
-    const saved = localStorage.getItem('orcos_rivals');
-    return saved ? JSON.parse(saved) : [];
-  });
-
-  const [futureFixtures, setFutureFixtures] = useState(() => {
-    const saved = localStorage.getItem('orcos_future_fixtures');
-    return saved ? JSON.parse(saved) : [];
-  });
+  const [players, setPlayers] = useState(() => []);
+  const [schedule, setSchedule] = useState(() => []);
+  const [championships, setChampionships] = useState(() => []);
+  const [finances, setFinances] = useState(() => []);
+  const [inventory, setInventory] = useState(() => []);
+  const [fixtures, setFixtures] = useState(() => []);
+  const [rivals, setRivals] = useState(() => []);
+  const [futureFixtures, setFutureFixtures] = useState(() => []);
 
   useEffect(() => {
     localStorage.setItem('orcos_active_team', activeTeam);
@@ -353,6 +275,11 @@ export const ClubProvider = ({ children }) => {
 
     const syncFromSupabase = async () => {
       setSyncStatus('syncing');
+      console.log('[Sync] Iniciando sync para user:', user.id);
+
+      localStorage.clear();
+      console.log('[Sync] localStorage limpiado, cargando desde Supabase...');
+
       try {
         console.log('[Sync] Iniciando sync para user:', user.id);
         const result = await supabase.from('players').select('*').eq('user_id', user.id);
