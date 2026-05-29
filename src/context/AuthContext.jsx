@@ -104,7 +104,7 @@ export function AuthProvider({ children }) {
     signUp,
     signOut,
     checkFirstRun,
-    isAuthenticated: !!user && !!profile,
+    isAuthenticated: !!user,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

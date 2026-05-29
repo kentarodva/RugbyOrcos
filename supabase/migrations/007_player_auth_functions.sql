@@ -50,6 +50,10 @@ BEGIN
     email = v_email
   WHERE id = p_player_id;
 
+  INSERT INTO user_profiles (user_id, display_name, system_role, club_scope)
+  VALUES (v_user_id, COALESCE(v_player.first_name || ' ' || v_player.last_name, 'Guerrero'), 'jugador', v_player.team_category)
+  ON CONFLICT (user_id) DO UPDATE SET display_name = EXCLUDED.display_name;
+
   RETURN jsonb_build_object('success', true, 'username', v_username, 'email', v_email, 'password', v_password);
 END;
 $$;
