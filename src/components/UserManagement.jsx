@@ -25,16 +25,29 @@ function UserManagement() {
     if (!form.email || !form.password || !form.displayName) { setError('Llena todos los campos.'); return; }
     if (form.password.length < 6) { setError('Contrasena: minimo 6 caracteres.'); return; }
 
-    const { data, error: rpcError } = await supabase.rpc('admin_create_user', {
-      p_email: form.email,
-      p_password: form.password,
-      p_display_name: form.displayName,
-      p_system_role: form.systemRole,
-      p_club_scope: form.clubScope || null,
+    const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+      email: form.email,
+      password: form.password,
+      options: {
+        data: { display_name: form.displayName },
+      },
     });
 
-    if (rpcError) { setError(rpcError.message); return; }
-    if (data?.error) { setError(data.error); return; }
+    if (signUpError) {
+      if (signUpError.message.includes('already registered') || signUpError.message.includes('already exists')) {
+        setError('Este email ya esta registrado.');
+      } else {
+        setError(signUpError.message);
+      }
+      return;
+    }
+
+    if (signUpData?.user) {
+      await supabase.from('user_profiles').update({
+        system_role: form.systemRole,
+        club_scope: form.clubScope || null,
+      }).eq('user_id', signUpData.user.id);
+    }
 
     setShowCreate(false);
     setForm({ email: '', password: '', displayName: '', systemRole: 'jugador', clubScope: '' });
