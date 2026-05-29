@@ -1,0 +1,172 @@
+import React, { useState, useEffect } from 'react';
+import { supabase } from '../supabaseClient.js';
+import { getRpgRole } from '../context/ClubContext.jsx';
+
+function UserManagement() {
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [showCreate, setShowCreate] = useState(false);
+  const [form, setForm] = useState({ email: '', password: '', displayName: '', systemRole: 'jugador', clubScope: '', divisionScope: '' });
+  const [error, setError] = useState('');
+
+  useEffect(() => { loadUsers(); }, []);
+
+  const loadUsers = async () => {
+    const { data, error } = await supabase.from('user_profiles').select('*');
+    if (!error && data) {
+      setUsers(data.map(u => ({ ...u, rpg: getRpgRole(u.system_role) })));
+    }
+    setLoading(false);
+  };
+
+  const handleCreateUser = async (e) => {
+    e.preventDefault();
+    setError('');
+    if (!form.email || !form.password || !form.displayName) { setError('Llena todos los campos.'); return; }
+    if (form.password.length < 6) { setError('Contrasena: minimo 6 caracteres.'); return; }
+
+    const { data: authData, error: authError } = await supabase.auth.admin.createUser({
+      email: form.email, password: form.password, email_confirm: true,
+    });
+    if (authError) { setError(authError.message); return; }
+
+    const { error: profileError } = await supabase.from('user_profiles').insert({
+      user_id: authData.user.id, display_name: form.displayName, system_role: form.systemRole,
+      club_scope: form.clubScope || null, division_scope: form.divisionScope || null,
+    });
+    if (profileError) { setError(profileError.message); return; }
+
+    setShowCreate(false);
+    setForm({ email: '', password: '', displayName: '', systemRole: 'jugador', clubScope: '', divisionScope: '' });
+    loadUsers();
+  };
+
+  const handleToggleActive = async (userId, currentActive) => {
+    await supabase.from('user_profiles').update({ is_active: !currentActive }).eq('user_id', userId);
+    loadUsers();
+  };
+
+  const handleRoleChange = async (userId, newRole) => {
+    await supabase.from('user_profiles').update({ system_role: newRole }).eq('user_id', userId);
+    loadUsers();
+  };
+
+  return (
+    <div>
+      <div style={{ marginBottom: '20px' }}>
+        <button onClick={() => setShowCreate(!showCreate)} className="btn-neon"
+          style={{ padding: '10px 20px', fontSize: '0.85rem' }}>
+          {showCreate ? 'Cancelar' : '+ Reclutar Miembro del Reino'}
+        </button>
+      </div>
+
+      {showCreate && (
+        <form onSubmit={handleCreateUser} style={{
+          background: 'rgba(255,255,255,0.03)', padding: '20px', borderRadius: 'var(--radius-md)',
+          marginBottom: '20px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px'
+        }}>
+          <div style={{ gridColumn: 'span 2' }}>
+            <label style={labelS}>Nombre en el Reino</label>
+            <input type="text" value={form.displayName} onChange={e => setForm({...form, displayName: e.target.value})}
+              placeholder="Ej: Thrain Puno de Hierro" style={inputS} />
+          </div>
+          <div>
+            <label style={labelS}>Email</label>
+            <input type="email" value={form.email} onChange={e => setForm({...form, email: e.target.value})}
+              placeholder="guerrero@orcos.com" style={inputS} />
+          </div>
+          <div>
+            <label style={labelS}>Contrasena</label>
+            <input type="password" value={form.password} onChange={e => setForm({...form, password: e.target.value})}
+              placeholder="Min. 6 caracteres" style={inputS} />
+          </div>
+          <div>
+            <label style={labelS}>Rango</label>
+            <select value={form.systemRole} onChange={e => setForm({...form, systemRole: e.target.value})}
+              style={{...inputS, cursor: 'pointer'}}>
+              <option value="jugador">Guerrero</option>
+              <option value="entrenador">Maestro de Armas</option>
+              <option value="tesorero">Guardian del Botin</option>
+              <option value="arbitro">Juez del Coliseo</option>
+              <option value="promotor">Comandante de Horda</option>
+              <option value="presidente">Senor de la Guerra</option>
+              <option value="desarrollador">Arquitecto del Reino</option>
+            </select>
+          </div>
+          <div>
+            <label style={labelS}>Club (opcional)</label>
+            <input type="text" value={form.clubScope} onChange={e => setForm({...form, clubScope: e.target.value})}
+              placeholder="orcos" style={inputS} />
+          </div>
+          {error && <p style={{ gridColumn: 'span 2', color: 'var(--color-red)', fontSize: '0.8rem', fontWeight: 600 }}>{error}</p>}
+          <button type="submit" className="btn-neon" style={{ gridColumn: 'span 2', padding: '12px', fontSize: '0.9rem' }}>
+            Reclutar
+          </button>
+        </form>
+      )}
+
+      {loading ? (
+        <p style={{ color: 'var(--color-text-muted)', textAlign: 'center', padding: '30px' }}>Cargando miembros...</p>
+      ) : (
+        <div style={{ overflowX: 'auto' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
+            <thead>
+              <tr style={{ borderBottom: '1px solid var(--border-glass)', textAlign: 'left' }}>
+                <th style={thS}>Nombre</th>
+                <th style={thS}>Rango RPG</th>
+                <th style={thS}>Club</th>
+                <th style={thS}>Estado</th>
+                <th style={thS}>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {users.map(u => (
+                <tr key={u.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', opacity: u.is_active ? 1 : 0.5 }}>
+                  <td style={tdS}>
+                    <span style={{ color: u.rpg.color, marginRight: '6px' }}>{u.rpg.icon}</span>
+                    {u.display_name}
+                  </td>
+                  <td style={{...tdS, color: u.rpg.color, fontWeight: 700}}>{u.rpg.rpg}</td>
+                  <td style={{...tdS, color: 'var(--color-text-muted)'}}>{u.club_scope || 'Todos'}</td>
+                  <td style={tdS}>
+                    <span style={{
+                      padding: '3px 10px', borderRadius: '10px', fontSize: '0.75rem', fontWeight: 700,
+                      background: u.is_active ? 'rgba(0,230,118,0.1)' : 'rgba(255,61,0,0.1)',
+                      color: u.is_active ? 'var(--color-primary)' : 'var(--color-red)'
+                    }}>{u.is_active ? 'Activo' : 'Inactivo'}</span>
+                  </td>
+                  <td style={tdS}>
+                    {u.system_role !== 'desarrollador' && (
+                      <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+                        <button onClick={() => handleToggleActive(u.user_id, u.is_active)}
+                          style={{
+                            background: u.is_active ? 'rgba(255,61,0,0.1)' : 'rgba(0,230,118,0.1)',
+                            border: `1px solid ${u.is_active ? 'var(--color-red)' : 'var(--color-primary)'}`,
+                            color: u.is_active ? 'var(--color-red)' : 'var(--color-primary)',
+                            padding: '4px 10px', borderRadius: 'var(--radius-sm)', cursor: 'pointer', fontSize: '0.7rem', fontWeight: 700
+                          }}>{u.is_active ? 'Desactivar' : 'Activar'}</button>
+                        <select value={u.system_role} onChange={e => handleRoleChange(u.user_id, e.target.value)}
+                          style={{...inputS, padding: '4px 8px', fontSize: '0.75rem', width: 'auto' }}>
+                          {['jugador','entrenador','tesorero','arbitro','promotor','presidente'].map(r => (
+                            <option key={r} value={r}>{getRpgRole(r).rpg}</option>
+                          ))}
+                        </select>
+                      </div>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
+}
+
+const labelS = { fontSize: '0.75rem', color: 'var(--color-gold)', fontWeight: 700, textTransform: 'uppercase', marginBottom: '6px', display: 'block' };
+const inputS = { width: '100%', boxSizing: 'border-box', background: 'var(--bg-input)', border: '1px solid var(--border-glass)', borderRadius: 'var(--radius-sm)', color: 'var(--color-text)', padding: '10px 14px', fontSize: '0.85rem', outline: 'none' };
+const thS = { padding: '10px 12px', color: 'var(--color-gold)', fontWeight: 700, textTransform: 'uppercase', fontSize: '0.75rem' };
+const tdS = { padding: '10px 12px', color: 'var(--color-text)' };
+
+export default UserManagement;

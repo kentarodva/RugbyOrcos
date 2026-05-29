@@ -62,6 +62,20 @@ export const SYSTEM_ROLES_LABELS = {
 
 export const SUPER_ROLES = [SYSTEM_ROLES.DESARROLLADOR, SYSTEM_ROLES.PRESIDENTE];
 
+export const RPG_ROLES = {
+  [SYSTEM_ROLES.DESARROLLADOR]: { rpg: 'Arquitecto del Reino', icon: '🏰', color: '#e040fb', tier: 0 },
+  [SYSTEM_ROLES.PRESIDENTE]:    { rpg: 'Señor de la Guerra',  icon: '⚔️', color: '#ffb300', tier: 1 },
+  [SYSTEM_ROLES.PROMOTOR]:      { rpg: 'Comandante de Horda', icon: '🛡️', color: '#ff6d00', tier: 2 },
+  [SYSTEM_ROLES.ENTRENADOR]:   { rpg: 'Maestro de Armas',    icon: '🏋️', color: '#00e676', tier: 3 },
+  [SYSTEM_ROLES.TESORERO]:     { rpg: 'Guardian del Botin',  icon: '💰', color: '#00b0ff', tier: 3 },
+  [SYSTEM_ROLES.ARBITRO]:      { rpg: 'Juez del Coliseo',     icon: '⚖️', color: '#ffea00', tier: 3 },
+  [SYSTEM_ROLES.JUGADOR]:       { rpg: 'Guerrero',            icon: '👹', color: '#9e9e9e', tier: 4 },
+};
+
+export function getRpgRole(role) {
+  return RPG_ROLES[role] || { rpg: role, icon: '', color: '#9e9e9e', tier: 4 };
+}
+
 export const DIVISIONES = {
   MASCULINA_MAYOR: 'masculina_mayor',
   FEMENINA_MAYOR: 'femenina_mayor',
@@ -134,11 +148,35 @@ const INITIAL_INVENTORY = [
 ];
 
 export const ClubProvider = ({ children }) => {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
 
   const currentUser = user ? { email: user.email, id: user.id } : null;
+  const userRole = profile?.system_role || SYSTEM_ROLES.JUGADOR;
+  const userTier = RPG_ROLES[userRole]?.tier ?? 4;
 
-  const isSuperRole = () => true;
+  const hasPermission = (action) => {
+    if (userTier <= 0) return true;
+    const role = userRole;
+
+    const permissions = {
+      view_all:         ['desarrollador','presidente'],
+      create_users:     ['desarrollador','presidente','promotor'],
+      manage_players:   ['desarrollador','presidente','promotor','entrenador'],
+      manage_finances:  ['desarrollador','presidente','promotor','tesorero'],
+      manage_discipline:['desarrollador','presidente','promotor','entrenador','arbitro'],
+      manage_training:  ['desarrollador','presidente','promotor','entrenador'],
+      manage_schedule:  ['desarrollador','presidente','promotor','entrenador'],
+      manage_inventory: ['desarrollador','presidente','promotor','entrenador','tesorero'],
+      manage_tactics:   ['desarrollador','presidente','promotor','entrenador'],
+      export_import:    ['desarrollador','presidente','promotor'],
+      config_ai:        ['desarrollador','presidente'],
+      admin_panel:      ['desarrollador','presidente'],
+    };
+
+    return (permissions[action] || []).includes(role);
+  };
+
+  const isSuperRole = () => userTier <= 1;
 
   const [syncStatus, setSyncStatus] = useState('idle');
 
@@ -896,7 +934,7 @@ export const ClubProvider = ({ children }) => {
       exportData, importData,
       fixtures, addFixture, deleteFixture,
       updateGymStats, logWorkout,
-      currentUser, isSuperRole, syncStatus,
+      currentUser, isSuperRole, syncStatus, hasPermission, userRole, userTier,
       dynamicClubs, getAllClubs, getAllClubsLabels, addClub, deleteClub,
       recordMembershipPayment,
       rivals, addRival, updateRival, deleteRival,
