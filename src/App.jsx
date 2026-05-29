@@ -14,6 +14,8 @@ import AIChat from './components/AIChat';
 import Settings from './components/Settings';
 import UserManagement from './components/UserManagement';
 import PlayerDashboard from './components/PlayerDashboard';
+import AwardsHall from './components/AwardsHall';
+import MakgoraHub from './components/MakgoraHub';
 import { isGeminiConfigured } from './engine/geminiCoach';
 
 const RPG_TITLES = {
@@ -342,6 +344,12 @@ function App() {
         <button onClick={() => setActiveTab('tribunal')} className={`tab-btn ${activeTab === 'tribunal' ? 'active' : ''}`}>
           Tribunal
         </button>
+        <button onClick={() => setActiveTab('awards')} className={`tab-btn ${activeTab === 'awards' ? 'active' : ''}`}>
+          Salon de la Fama
+        </button>
+        <button onClick={() => setActiveTab('makgora')} className={`tab-btn ${activeTab === 'makgora' ? 'active' : ''}`}>
+          Mak'Gora
+        </button>
         <button onClick={() => setActiveTab('calendario')} className={`tab-btn ${activeTab === 'calendario' ? 'active' : ''}`}>
           Agenda
         </button>
@@ -361,6 +369,8 @@ function App() {
         {activeTab === 'roster' && <Roster />}
         {activeTab === 'cancha' && <CanchaTactica />}
         {activeTab === 'tribunal' && <Tribunal />}
+        {activeTab === 'awards' && <AwardsHall />}
+        {activeTab === 'makgora' && <MakgoraHub />}
         {activeTab === 'calendario' && <Calendario />}
         {activeTab === 'finanzas' && <Finanzas />}
         {activeTab === 'entrenamientos' && <TrainingHub />}
