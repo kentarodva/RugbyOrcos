@@ -1,5 +1,6 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { ClubContext, SYSTEM_ROLES, SYSTEM_ROLES_LABELS } from '../context/ClubContext';
+import { useToast } from '../context/ToastContext';
 
 // Helper de Gamificación: Calcular Medallas del Clan
 const getPlayerBadges = (player) => {
@@ -39,8 +40,10 @@ function Roster() {
   const { 
     players, addPlayer, updatePlayer, deletePlayer, 
     recordPhysicalTest, recordInjury, updateInjuryPhase, activeTeam,
-    runHiaProtocol, updateClothingSizes, updateGymStats
+    runHiaProtocol, updateClothingSizes, updateGymStats,
+    createPlayerCredentials, resetPlayerPassword, hasPermission
   } = useContext(ClubContext);
+  const { showToast } = useToast();
 
   const [search, setSearch] = useState('');
   
@@ -51,6 +54,11 @@ function Roster() {
   
   // Selected Player for details/edit
   const [selectedPlayer, setSelectedPlayer] = useState(null);
+  const [showCredentialForm, setShowCredentialForm] = useState(false);
+  const [credentialPass, setCredentialPass] = useState('');
+  const [credentialResult, setCredentialResult] = useState(null);
+  const [showResetForm, setShowResetForm] = useState(false);
+  const [resetPass, setResetPass] = useState('');
 
   useEffect(() => {
     if (!selectedPlayer) return;
@@ -296,6 +304,40 @@ function Roster() {
   // Borrar Jugador
   const handleDelete = (id) => {
     setConfirmDeleteId(id);
+  };
+
+  const handleGenerateCredentials = async () => {
+    if (!selectedPlayer) return;
+    if (!credentialPass || credentialPass.length < 6) {
+      showToast('La contrasena debe tener al menos 6 caracteres.', 'error');
+      return;
+    }
+    const result = await createPlayerCredentials(selectedPlayer.id, credentialPass);
+    if (result.error) {
+      showToast(result.error, 'error');
+      return;
+    }
+    setCredentialResult(result);
+    setCredentialPass('');
+    showToast(`Credenciales forjadas! Usuario: ${result.username}`, 'success');
+    const fresh = players.find(p => p.id === selectedPlayer.id);
+    if (fresh) setSelectedPlayer(fresh);
+  };
+
+  const handleResetPassword = async () => {
+    if (!selectedPlayer) return;
+    if (!resetPass || resetPass.length < 6) {
+      showToast('La contrasena debe tener al menos 6 caracteres.', 'error');
+      return;
+    }
+    const result = await resetPlayerPassword(selectedPlayer.id, resetPass);
+    if (result.error) {
+      showToast(result.error, 'error');
+      return;
+    }
+    setResetPass('');
+    setShowResetForm(false);
+    showToast('Contrasena restablecida.', 'success');
   };
 
   // --- DIBUJADOR DE GRÁFICO SVG DE RENDIMIENTO FÍSICO ---
@@ -820,6 +862,19 @@ function Roster() {
                     ❌ Dar Baja
                   </button>
                 </div>
+                {hasPermission('create_users') && (
+                  <div style={{ display: 'flex', gap: '5px', marginTop: '4px' }}>
+                    {selectedPlayer.username ? (
+                      <button onClick={() => setShowResetForm(true)} className="btn-outline" style={{ padding: '4px 8px', fontSize: '0.7rem', color: '#ffb300', borderColor: 'rgba(255,179,0,0.3)' }}>
+                        🔑 Restablecer Pass
+                      </button>
+                    ) : (
+                      <button onClick={() => setShowCredentialForm(true)} className="btn-outline" style={{ padding: '4px 8px', fontSize: '0.7rem', color: '#00e676', borderColor: 'rgba(0,230,118,0.3)' }}>
+                        ⚔️ Forjar Credenciales
+                      </button>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
 
@@ -1361,6 +1416,58 @@ function Roster() {
               >
                 Confirmar Baja
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal: Forjar Credenciales */}
+      {showCredentialForm && selectedPlayer && (
+        <div className="modal-overlay" onClick={() => { setShowCredentialForm(false); setCredentialPass(''); }}>
+          <div className="modal-content glass-panel animated-slide" style={{ maxWidth: '420px', textAlign: 'center' }} onClick={e => e.stopPropagation()}>
+            <div style={{ fontSize: '2rem', marginBottom: '10px' }}>⚔️</div>
+            <h3 style={{ fontSize: '1.1rem', fontWeight: 800, fontFamily: 'Outfit', marginBottom: '8px', color: 'var(--color-gold)' }}>
+              Forjar Credenciales
+            </h3>
+            <p style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', marginBottom: '15px' }}>
+              {selectedPlayer.name}<br/>
+              Usuario: <strong style={{ color: 'var(--color-primary)' }}>{selectedPlayer.username || '(se generara auto)'}</strong>
+            </p>
+            <input type="password" value={credentialPass} onChange={e => setCredentialPass(e.target.value)}
+              placeholder="Contrasena (min. 6 caracteres)" className="form-input"
+              style={{ textAlign: 'center', padding: '12px', marginBottom: '15px', width: '100%', boxSizing: 'border-box' }} />
+            {credentialResult && (
+              <div style={{ background: 'rgba(0,230,118,0.08)', padding: '10px', borderRadius: 'var(--radius-sm)', marginBottom: '15px', fontSize: '0.8rem' }}>
+                Usuario: <strong>{credentialResult.username}</strong><br/>
+                Email: <span style={{ fontSize: '0.75rem' }}>{credentialResult.email || credentialResult.username + '@orcos.local'}</span>
+              </div>
+            )}
+            <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
+              <button onClick={() => { setShowCredentialForm(false); setCredentialPass(''); setCredentialResult(null); }} className="btn-outline">Cancelar</button>
+              <button onClick={handleGenerateCredentials} className="btn-neon">Forjar</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal: Restablecer Contraseña */}
+      {showResetForm && selectedPlayer && (
+        <div className="modal-overlay" onClick={() => { setShowResetForm(false); setResetPass(''); }}>
+          <div className="modal-content glass-panel animated-slide" style={{ maxWidth: '420px', textAlign: 'center' }} onClick={e => e.stopPropagation()}>
+            <div style={{ fontSize: '2rem', marginBottom: '10px' }}>🔑</div>
+            <h3 style={{ fontSize: '1.1rem', fontWeight: 800, fontFamily: 'Outfit', marginBottom: '8px', color: 'var(--color-gold)' }}>
+              Restablecer Contrasena
+            </h3>
+            <p style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', marginBottom: '15px' }}>
+              {selectedPlayer.name}<br/>
+              Usuario: <strong style={{ color: 'var(--color-primary)' }}>{selectedPlayer.username}</strong>
+            </p>
+            <input type="password" value={resetPass} onChange={e => setResetPass(e.target.value)}
+              placeholder="Nueva contrasena (min. 6)" className="form-input"
+              style={{ textAlign: 'center', padding: '12px', marginBottom: '15px', width: '100%', boxSizing: 'border-box' }} />
+            <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
+              <button onClick={() => { setShowResetForm(false); setResetPass(''); }} className="btn-outline">Cancelar</button>
+              <button onClick={handleResetPassword} className="btn-neon" style={{ background: 'linear-gradient(135deg, var(--color-gold), #ff8f00)', color: '#000' }}>Restablecer</button>
             </div>
           </div>
         </div>
