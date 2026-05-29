@@ -195,13 +195,13 @@ Resultado:
 | Fase | Progreso |
 |------|----------|
 | Fase 0 | ✅ 100% |
-| Fase 1 | ⬜ 0% |
-| Fase 2 | ⬜ 0% |
-| Fase 3 | ⬜ 0% |
-| Fase 4 | ⬜ 0% |
-| Fase 5 | ⬜ 0% |
-| Fase 6 | 🟡 50% (PWA listo, APK pendiente) |
-| Fase 7 | ⬜ 0% |
+| Fase 1 | ✅ 100% |
+| Fase 2 | ✅ 100% |
+| Fase 3 | ✅ 100% |
+| Fase 4 | ✅ 100% |
+| Fase 5 | ✅ 100% |
+| Fase 6 | 🟡 80% (APK pendiente) |
+| Fase 7 | 🟡 50% (Vercel env vars pendiente) |
 
 ---
 
