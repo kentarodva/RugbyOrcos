@@ -19,6 +19,7 @@ Aplicacion Web Progresiva (PWA) para la gestion integral del club de rugby **Orc
 | IA | Gemini / Groq / DeepSeek (multi-provider) |
 | Estilos | CSS puro con Custom Properties (glassmorphism + neon) |
 | Deploy | Vercel (frontend) + Supabase Cloud (backend) |
+| Code Analysis | **CodeGraph** (tree-sitter knowledge graph) |
 
 ---
 
@@ -147,6 +148,25 @@ Chat multi-proveedor (Gemini/Groq/DeepSeek) con failover. 3 modos. Rate limit y 
 | Rol | Usuario | Contrasena |
 |-----|---------|-----------|
 | Arquitecto del Reino | admin@orcosnegros.com | OrcosAdmin2026! |
+
+---
+
+## CodeGraph
+
+El proyecto incluye **CodeGraph**, un knowledge graph basado en tree-sitter que indexa todos los simbolos, referencias y flujos del codigo. Util para analisis estructural en lugar de grep.
+
+| Consulta | Herramienta |
+|----------|------------|
+| "Donde se define X?" | `codegraph_search` |
+| "Que llama a la funcion Y?" | `codegraph_callers` |
+| "Que llama Y?" | `codegraph_callees` |
+| "Como llega X a Y?" | `codegraph_trace` |
+| "Que romperia si cambio Z?" | `codegraph_impact` |
+| "Dame el source de Y" | `codegraph_node` |
+
+```bash
+codegraph init -i
+```
 
 ---
 
