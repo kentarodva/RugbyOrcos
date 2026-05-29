@@ -3,6 +3,8 @@
 -- Ejecutar en Supabase SQL Editor
 -- ============================================================
 
+DROP FUNCTION IF EXISTS admin_create_user;
+
 CREATE OR REPLACE FUNCTION admin_create_user(
   p_email TEXT,
   p_password TEXT,
@@ -12,17 +14,17 @@ CREATE OR REPLACE FUNCTION admin_create_user(
 ) RETURNS JSONB
 LANGUAGE plpgsql
 SECURITY DEFINER
-SET search_path = ''
+SET search_path = 'pg_catalog, public'
 AS $$
 DECLARE
   v_user_id UUID;
 BEGIN
   IF NOT EXISTS (
-    SELECT 1 FROM public.user_profiles
+    SELECT 1 FROM user_profiles
     WHERE user_id = auth.uid() AND is_active = true
     AND system_role IN ('desarrollador','presidente','promotor')
   ) THEN
-    RETURN jsonb_build_object('error', 'Permiso denegado: solo rangos superiores pueden crear usuarios');
+    RETURN jsonb_build_object('error', 'Permiso denegado');
   END IF;
 
   INSERT INTO auth.users (
@@ -35,7 +37,7 @@ BEGIN
     'authenticated',
     'authenticated',
     p_email,
-    extensions.crypt(p_password, extensions.gen_salt('bf')),
+    crypt(p_password, gen_salt('bf')),
     now(),
     '{"provider":"email","providers":["email"]}'::jsonb,
     '{}'::jsonb,
@@ -43,7 +45,7 @@ BEGIN
     now()
   ) RETURNING id INTO v_user_id;
 
-  INSERT INTO public.user_profiles (user_id, display_name, system_role, club_scope)
+  INSERT INTO user_profiles (user_id, display_name, system_role, club_scope)
   VALUES (v_user_id, p_display_name, p_system_role, p_club_scope);
 
   RETURN jsonb_build_object('success', true, 'user_id', v_user_id);
