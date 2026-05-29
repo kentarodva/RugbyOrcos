@@ -433,7 +433,7 @@ RETURNS VOID LANGUAGE plpgsql AS $$
 BEGIN
   EXECUTE format('ALTER TABLE %I ENABLE ROW LEVEL SECURITY', tbl);
   EXECUTE format('CREATE POLICY "%I_select" ON %I FOR SELECT USING (true)', tbl, tbl);
-  EXECUTE format('CREATE POLICY "%I_write" ON %I FOR ALL USING (EXISTS (SELECT 1 FROM players WHERE players.id = %I.player_id AND (players.user_id = auth.uid() OR is_admin())))', tbl, tbl);
+  EXECUTE format('CREATE POLICY "%I_write" ON %I FOR ALL USING (EXISTS (SELECT 1 FROM players WHERE players.id = %I.player_id AND (players.user_id = auth.uid() OR is_admin())))', tbl, tbl, tbl);
 END;
 $$;
 
