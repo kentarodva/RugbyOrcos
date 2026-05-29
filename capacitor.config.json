@@ -1,0 +1,6 @@
+{
+  "appId": "com.rugbyorcos.app",
+  "appName": "Rugby Orcos",
+  "webDir": "dist",
+  "bundledWebRuntime": false
+}

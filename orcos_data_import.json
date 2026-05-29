@@ -1,0 +1,3307 @@
+{
+  "version": "3.0",
+  "exportDate": "2026-05-27T05:51:52.431Z",
+  "orcos_active_team": "orcos_masculina_mayor",
+  "players": [
+    {
+      "id": "tr001",
+      "name": "Freyder Andrés Pérez Salcedo",
+      "apodo": "Negro",
+      "camiseta": 1,
+      "contacto": {
+        "phone": "+573147169860",
+        "email": ""
+      },
+      "rol": "Titular",
+      "posicion": "Pilar",
+      "estado": "activo",
+      "attributes": {
+        "force": 41,
+        "speed": 84,
+        "stamina": 75,
+        "technique": 70
+      },
+      "history": [],
+      "injuryLog": [],
+      "attendance": {
+        "total": 0,
+        "present": 0,
+        "late": 0,
+        "absentUnjustified": 0,
+        "absentJustified": 0
+      },
+      "penalties": {
+        "burpees": 0,
+        "cones": false
+      },
+      "infractionLog": [],
+      "clothingSizes": {
+        "jersey": "M",
+        "shorts": "M",
+        "socks": "40-42"
+      },
+      "matchStats": [],
+      "wellnessLogs": [],
+      "hiaAssessments": [],
+      "gymStats": {
+        "squat": 0,
+        "bench": 0,
+        "deadlift": 0
+      },
+      "weight": 75,
+      "height": 1.75,
+      "workoutLog": [],
+      "teamCategory": "trolls_masculina_mayor",
+      "systemRole": "jugador",
+      "memberships": {
+        "paid": 0,
+        "due": 10000
+      }
+    },
+    {
+      "id": "tr002",
+      "name": "Diego Andres Oviedo Pérez",
+      "apodo": "Corioto",
+      "camiseta": 1,
+      "contacto": {
+        "phone": "+573216392959",
+        "email": ""
+      },
+      "rol": "Titular",
+      "posicion": "Talonador",
+      "estado": "activo",
+      "attributes": {
+        "force": 42,
+        "speed": 84,
+        "stamina": 75,
+        "technique": 70
+      },
+      "history": [],
+      "injuryLog": [
+        {
+          "diagnosis": "Luxación hombro derecho",
+          "date": "",
+          "weeks": 0,
+          "phase": 1
+        }
+      ],
+      "attendance": {
+        "total": 0,
+        "present": 0,
+        "late": 0,
+        "absentUnjustified": 0,
+        "absentJustified": 0
+      },
+      "penalties": {
+        "burpees": 0,
+        "cones": false
+      },
+      "infractionLog": [],
+      "clothingSizes": {
+        "jersey": "M",
+        "shorts": "M",
+        "socks": "40-42"
+      },
+      "matchStats": [],
+      "wellnessLogs": [],
+      "hiaAssessments": [],
+      "gymStats": {
+        "squat": 0,
+        "bench": 0,
+        "deadlift": 0
+      },
+      "weight": 76,
+      "height": 1.72,
+      "workoutLog": [],
+      "teamCategory": "trolls_juveniles_masculina",
+      "systemRole": "jugador",
+      "memberships": {
+        "paid": 0,
+        "due": 10000
+      }
+    },
+    {
+      "id": "or003",
+      "name": "Marco Antonio Perez Pedroza",
+      "apodo": "Señor",
+      "camiseta": 1,
+      "contacto": {
+        "phone": "+573012821067",
+        "email": ""
+      },
+      "rol": "Titular",
+      "posicion": "Segunda Línea",
+      "estado": "activo",
+      "attributes": {
+        "force": 58,
+        "speed": 78,
+        "stamina": 75,
+        "technique": 70
+      },
+      "history": [],
+      "injuryLog": [],
+      "attendance": {
+        "total": 0,
+        "present": 0,
+        "late": 0,
+        "absentUnjustified": 0,
+        "absentJustified": 0
+      },
+      "penalties": {
+        "burpees": 0,
+        "cones": false
+      },
+      "infractionLog": [],
+      "clothingSizes": {
+        "jersey": "M",
+        "shorts": "M",
+        "socks": "40-42"
+      },
+      "matchStats": [],
+      "wellnessLogs": [],
+      "hiaAssessments": [],
+      "gymStats": {
+        "squat": 0,
+        "bench": 0,
+        "deadlift": 0
+      },
+      "weight": 105,
+      "height": 1.8,
+      "workoutLog": [],
+      "teamCategory": "orcos_masculina_mayor",
+      "systemRole": "jugador",
+      "memberships": {
+        "paid": 0,
+        "due": 10000
+      }
+    },
+    {
+      "id": "or004",
+      "name": "Adrian Jesus Tovar Gamarra",
+      "apodo": "",
+      "camiseta": 2,
+      "contacto": {
+        "phone": "+573012096662",
+        "email": ""
+      },
+      "rol": "Titular",
+      "posicion": "Ala",
+      "estado": "activo",
+      "attributes": {
+        "force": 45,
+        "speed": 83,
+        "stamina": 75,
+        "technique": 70
+      },
+      "history": [],
+      "injuryLog": [],
+      "attendance": {
+        "total": 0,
+        "present": 0,
+        "late": 0,
+        "absentUnjustified": 0,
+        "absentJustified": 0
+      },
+      "penalties": {
+        "burpees": 0,
+        "cones": false
+      },
+      "infractionLog": [],
+      "clothingSizes": {
+        "jersey": "M",
+        "shorts": "M",
+        "socks": "40-42"
+      },
+      "matchStats": [],
+      "wellnessLogs": [],
+      "hiaAssessments": [],
+      "gymStats": {
+        "squat": 0,
+        "bench": 0,
+        "deadlift": 0
+      },
+      "weight": 82,
+      "height": 1.7,
+      "workoutLog": [],
+      "teamCategory": "orcos_masculina_mayor",
+      "systemRole": "jugador",
+      "memberships": {
+        "paid": 0,
+        "due": 10000
+      }
+    },
+    {
+      "id": "or005",
+      "name": "Cristian Andrés Flores Navarro",
+      "apodo": "Loco/Viejito",
+      "camiseta": 3,
+      "contacto": {
+        "phone": "+573137691852",
+        "email": ""
+      },
+      "rol": "Titular",
+      "posicion": "Octavo",
+      "estado": "activo",
+      "attributes": {
+        "force": 50,
+        "speed": 81,
+        "stamina": 75,
+        "technique": 70
+      },
+      "history": [],
+      "injuryLog": [
+        {
+          "diagnosis": "Tobillo izquierdo \r\nRodilla derecha \r\nDedos en manos",
+          "date": "",
+          "weeks": 0,
+          "phase": 1
+        }
+      ],
+      "attendance": {
+        "total": 0,
+        "present": 0,
+        "late": 0,
+        "absentUnjustified": 0,
+        "absentJustified": 0
+      },
+      "penalties": {
+        "burpees": 0,
+        "cones": false
+      },
+      "infractionLog": [],
+      "clothingSizes": {
+        "jersey": "M",
+        "shorts": "M",
+        "socks": "40-42"
+      },
+      "matchStats": [],
+      "wellnessLogs": [],
+      "hiaAssessments": [],
+      "gymStats": {
+        "squat": 0,
+        "bench": 0,
+        "deadlift": 0
+      },
+      "weight": 90,
+      "height": 1.7,
+      "workoutLog": [],
+      "teamCategory": "orcos_masculina_mayor",
+      "systemRole": "jugador",
+      "memberships": {
+        "paid": 0,
+        "due": 10000
+      }
+    },
+    {
+      "id": "or006",
+      "name": "Victor José Sanabria Benítez",
+      "apodo": "",
+      "camiseta": 4,
+      "contacto": {
+        "phone": "+573128051373",
+        "email": ""
+      },
+      "rol": "Titular",
+      "posicion": "Medio Melé",
+      "estado": "activo",
+      "attributes": {
+        "force": 47,
+        "speed": 82,
+        "stamina": 75,
+        "technique": 70
+      },
+      "history": [],
+      "injuryLog": [
+        {
+          "diagnosis": "En el hombro izquierdo",
+          "date": "",
+          "weeks": 0,
+          "phase": 1
+        }
+      ],
+      "attendance": {
+        "total": 0,
+        "present": 0,
+        "late": 0,
+        "absentUnjustified": 0,
+        "absentJustified": 0
+      },
+      "penalties": {
+        "burpees": 0,
+        "cones": false
+      },
+      "infractionLog": [],
+      "clothingSizes": {
+        "jersey": "M",
+        "shorts": "M",
+        "socks": "40-42"
+      },
+      "matchStats": [],
+      "wellnessLogs": [],
+      "hiaAssessments": [],
+      "gymStats": {
+        "squat": 0,
+        "bench": 0,
+        "deadlift": 0
+      },
+      "weight": 85,
+      "height": 1.7,
+      "workoutLog": [],
+      "teamCategory": "orcos_masculina_mayor",
+      "systemRole": "jugador",
+      "memberships": {
+        "paid": 0,
+        "due": 10000
+      }
+    },
+    {
+      "id": "or007",
+      "name": "Ramiro José Pérez Pedroza",
+      "apodo": "",
+      "camiseta": 5,
+      "contacto": {
+        "phone": "+573114552472",
+        "email": ""
+      },
+      "rol": "Titular",
+      "posicion": "Apertura",
+      "estado": "activo",
+      "attributes": {
+        "force": 56,
+        "speed": 79,
+        "stamina": 75,
+        "technique": 70
+      },
+      "history": [],
+      "injuryLog": [],
+      "attendance": {
+        "total": 0,
+        "present": 0,
+        "late": 0,
+        "absentUnjustified": 0,
+        "absentJustified": 0
+      },
+      "penalties": {
+        "burpees": 0,
+        "cones": false
+      },
+      "infractionLog": [],
+      "clothingSizes": {
+        "jersey": "M",
+        "shorts": "M",
+        "socks": "40-42"
+      },
+      "matchStats": [],
+      "wellnessLogs": [],
+      "hiaAssessments": [],
+      "gymStats": {
+        "squat": 0,
+        "bench": 0,
+        "deadlift": 0
+      },
+      "weight": 102,
+      "height": 1.73,
+      "workoutLog": [],
+      "teamCategory": "orcos_masculina_mayor",
+      "systemRole": "jugador",
+      "memberships": {
+        "paid": 0,
+        "due": 10000
+      }
+    },
+    {
+      "id": "cu008",
+      "name": "Juan David Macott Jaraba",
+      "apodo": "Sulfa",
+      "camiseta": 1,
+      "contacto": {
+        "phone": "+573233962610",
+        "email": ""
+      },
+      "rol": "Titular",
+      "posicion": "Centro",
+      "estado": "activo",
+      "attributes": {
+        "force": 40,
+        "speed": 89,
+        "stamina": 75,
+        "technique": 70
+      },
+      "history": [],
+      "injuryLog": [],
+      "attendance": {
+        "total": 0,
+        "present": 0,
+        "late": 0,
+        "absentUnjustified": 0,
+        "absentJustified": 0
+      },
+      "penalties": {
+        "burpees": 0,
+        "cones": false
+      },
+      "infractionLog": [],
+      "clothingSizes": {
+        "jersey": "M",
+        "shorts": "M",
+        "socks": "40-42"
+      },
+      "matchStats": [],
+      "wellnessLogs": [],
+      "hiaAssessments": [],
+      "gymStats": {
+        "squat": 0,
+        "bench": 0,
+        "deadlift": 0
+      },
+      "weight": 50,
+      "height": 1.65,
+      "workoutLog": [],
+      "teamCategory": "cuervos_juveniles_masculina",
+      "systemRole": "jugador",
+      "memberships": {
+        "paid": 0,
+        "due": 10000
+      }
+    },
+    {
+      "id": "or009",
+      "name": "Juan david Sanchez Tarriva",
+      "apodo": "",
+      "camiseta": 1,
+      "contacto": {
+        "phone": "+573218858864",
+        "email": ""
+      },
+      "rol": "Titular",
+      "posicion": "Wing",
+      "estado": "activo",
+      "attributes": {
+        "force": 40,
+        "speed": 87,
+        "stamina": 75,
+        "technique": 70
+      },
+      "history": [],
+      "injuryLog": [],
+      "attendance": {
+        "total": 0,
+        "present": 0,
+        "late": 0,
+        "absentUnjustified": 0,
+        "absentJustified": 0
+      },
+      "penalties": {
+        "burpees": 0,
+        "cones": false
+      },
+      "infractionLog": [],
+      "clothingSizes": {
+        "jersey": "M",
+        "shorts": "M",
+        "socks": "40-42"
+      },
+      "matchStats": [],
+      "wellnessLogs": [],
+      "hiaAssessments": [],
+      "gymStats": {
+        "squat": 0,
+        "bench": 0,
+        "deadlift": 0
+      },
+      "weight": 60,
+      "height": 1.75,
+      "workoutLog": [],
+      "teamCategory": "orcos_juveniles_masculina",
+      "systemRole": "jugador",
+      "memberships": {
+        "paid": 0,
+        "due": 10000
+      }
+    },
+    {
+      "id": "or010",
+      "name": "Dawin Sebastian Peñata Navarro",
+      "apodo": "Sebas",
+      "camiseta": 6,
+      "contacto": {
+        "phone": "+573217848437",
+        "email": ""
+      },
+      "rol": "Titular",
+      "posicion": "Zaguero",
+      "estado": "activo",
+      "attributes": {
+        "force": 61,
+        "speed": 77,
+        "stamina": 75,
+        "technique": 70
+      },
+      "history": [],
+      "injuryLog": [],
+      "attendance": {
+        "total": 0,
+        "present": 0,
+        "late": 0,
+        "absentUnjustified": 0,
+        "absentJustified": 0
+      },
+      "penalties": {
+        "burpees": 0,
+        "cones": false
+      },
+      "infractionLog": [],
+      "clothingSizes": {
+        "jersey": "M",
+        "shorts": "M",
+        "socks": "40-42"
+      },
+      "matchStats": [],
+      "wellnessLogs": [],
+      "hiaAssessments": [],
+      "gymStats": {
+        "squat": 0,
+        "bench": 0,
+        "deadlift": 0
+      },
+      "weight": 110,
+      "height": 1.85,
+      "workoutLog": [],
+      "teamCategory": "orcos_masculina_mayor",
+      "systemRole": "jugador",
+      "memberships": {
+        "paid": 0,
+        "due": 10000
+      }
+    },
+    {
+      "id": "pi011",
+      "name": "Luis Gabriel Salgado Pérez",
+      "apodo": "Miyagi",
+      "camiseta": 1,
+      "contacto": {
+        "phone": "+573023750206",
+        "email": ""
+      },
+      "rol": "Titular",
+      "posicion": "Pilar",
+      "estado": "activo",
+      "attributes": {
+        "force": 40,
+        "speed": 89,
+        "stamina": 75,
+        "technique": 70
+      },
+      "history": [],
+      "injuryLog": [
+        {
+          "diagnosis": "En la rodilla",
+          "date": "",
+          "weeks": 0,
+          "phase": 1
+        }
+      ],
+      "attendance": {
+        "total": 0,
+        "present": 0,
+        "late": 0,
+        "absentUnjustified": 0,
+        "absentJustified": 0
+      },
+      "penalties": {
+        "burpees": 0,
+        "cones": false
+      },
+      "infractionLog": [],
+      "clothingSizes": {
+        "jersey": "M",
+        "shorts": "M",
+        "socks": "40-42"
+      },
+      "matchStats": [],
+      "wellnessLogs": [],
+      "hiaAssessments": [],
+      "gymStats": {
+        "squat": 0,
+        "bench": 0,
+        "deadlift": 0
+      },
+      "weight": 50,
+      "height": 1.63,
+      "workoutLog": [],
+      "teamCategory": "pitbull_juveniles_masculina",
+      "systemRole": "jugador",
+      "memberships": {
+        "paid": 0,
+        "due": 10000
+      }
+    },
+    {
+      "id": "pi012",
+      "name": "Isaac David Julio Contreras",
+      "apodo": "",
+      "camiseta": 2,
+      "contacto": {
+        "phone": "+573229654899",
+        "email": ""
+      },
+      "rol": "Titular",
+      "posicion": "Talonador",
+      "estado": "activo",
+      "attributes": {
+        "force": 41,
+        "speed": 84,
+        "stamina": 75,
+        "technique": 70
+      },
+      "history": [],
+      "injuryLog": [],
+      "attendance": {
+        "total": 0,
+        "present": 0,
+        "late": 0,
+        "absentUnjustified": 0,
+        "absentJustified": 0
+      },
+      "penalties": {
+        "burpees": 0,
+        "cones": false
+      },
+      "infractionLog": [],
+      "clothingSizes": {
+        "jersey": "M",
+        "shorts": "M",
+        "socks": "40-42"
+      },
+      "matchStats": [],
+      "wellnessLogs": [],
+      "hiaAssessments": [],
+      "gymStats": {
+        "squat": 0,
+        "bench": 0,
+        "deadlift": 0
+      },
+      "weight": 75,
+      "height": 1.79,
+      "workoutLog": [],
+      "teamCategory": "pitbull_juveniles_masculina",
+      "systemRole": "jugador",
+      "memberships": {
+        "paid": 0,
+        "due": 10000
+      }
+    },
+    {
+      "id": "tr013",
+      "name": "Samuel David Cardenas Rodríguez",
+      "apodo": "",
+      "camiseta": 2,
+      "contacto": {
+        "phone": "+573024327726",
+        "email": ""
+      },
+      "rol": "Titular",
+      "posicion": "Segunda Línea",
+      "estado": "activo",
+      "attributes": {
+        "force": 40,
+        "speed": 85,
+        "stamina": 75,
+        "technique": 70
+      },
+      "history": [],
+      "injuryLog": [],
+      "attendance": {
+        "total": 0,
+        "present": 0,
+        "late": 0,
+        "absentUnjustified": 0,
+        "absentJustified": 0
+      },
+      "penalties": {
+        "burpees": 0,
+        "cones": false
+      },
+      "infractionLog": [],
+      "clothingSizes": {
+        "jersey": "M",
+        "shorts": "M",
+        "socks": "40-42"
+      },
+      "matchStats": [],
+      "wellnessLogs": [],
+      "hiaAssessments": [],
+      "gymStats": {
+        "squat": 0,
+        "bench": 0,
+        "deadlift": 0
+      },
+      "weight": 68,
+      "height": 1.67,
+      "workoutLog": [],
+      "teamCategory": "trolls_masculina_mayor",
+      "systemRole": "jugador",
+      "memberships": {
+        "paid": 0,
+        "due": 10000
+      }
+    },
+    {
+      "id": "tr014",
+      "name": "Jesus David Oviedo Pérez",
+      "apodo": "Korioto 2",
+      "camiseta": 2,
+      "contacto": {
+        "phone": "+573206246058",
+        "email": ""
+      },
+      "rol": "Titular",
+      "posicion": "Ala",
+      "estado": "activo",
+      "attributes": {
+        "force": 41,
+        "speed": 84,
+        "stamina": 75,
+        "technique": 70
+      },
+      "history": [],
+      "injuryLog": [],
+      "attendance": {
+        "total": 0,
+        "present": 0,
+        "late": 0,
+        "absentUnjustified": 0,
+        "absentJustified": 0
+      },
+      "penalties": {
+        "burpees": 0,
+        "cones": false
+      },
+      "infractionLog": [],
+      "clothingSizes": {
+        "jersey": "M",
+        "shorts": "M",
+        "socks": "40-42"
+      },
+      "matchStats": [],
+      "wellnessLogs": [],
+      "hiaAssessments": [],
+      "gymStats": {
+        "squat": 0,
+        "bench": 0,
+        "deadlift": 0
+      },
+      "weight": 75,
+      "height": 1.74,
+      "workoutLog": [],
+      "teamCategory": "trolls_juveniles_masculina",
+      "systemRole": "jugador",
+      "memberships": {
+        "paid": 0,
+        "due": 10000
+      }
+    },
+    {
+      "id": "or015",
+      "name": "Hanner Jared Wheeler Osorio",
+      "apodo": "Wheeler",
+      "camiseta": 7,
+      "contacto": {
+        "phone": "+573003135558",
+        "email": ""
+      },
+      "rol": "Titular",
+      "posicion": "Octavo",
+      "estado": "activo",
+      "attributes": {
+        "force": 45,
+        "speed": 83,
+        "stamina": 75,
+        "technique": 70
+      },
+      "history": [],
+      "injuryLog": [],
+      "attendance": {
+        "total": 0,
+        "present": 0,
+        "late": 0,
+        "absentUnjustified": 0,
+        "absentJustified": 0
+      },
+      "penalties": {
+        "burpees": 0,
+        "cones": false
+      },
+      "infractionLog": [],
+      "clothingSizes": {
+        "jersey": "M",
+        "shorts": "M",
+        "socks": "40-42"
+      },
+      "matchStats": [],
+      "wellnessLogs": [],
+      "hiaAssessments": [],
+      "gymStats": {
+        "squat": 0,
+        "bench": 0,
+        "deadlift": 0
+      },
+      "weight": 82,
+      "height": 1.7,
+      "workoutLog": [],
+      "teamCategory": "orcos_masculina_mayor",
+      "systemRole": "jugador",
+      "memberships": {
+        "paid": 0,
+        "due": 10000
+      }
+    },
+    {
+      "id": "or016",
+      "name": "Luna Arrieta Domínguez",
+      "apodo": "",
+      "camiseta": 1,
+      "contacto": {
+        "phone": "+573207402681",
+        "email": ""
+      },
+      "rol": "Titular",
+      "posicion": "Medio Melé",
+      "estado": "activo",
+      "attributes": {
+        "force": 40,
+        "speed": 88,
+        "stamina": 75,
+        "technique": 70
+      },
+      "history": [],
+      "injuryLog": [
+        {
+          "diagnosis": "No fue una fractura como tal, sino una lesión ligamental en la rodilla derecha",
+          "date": "",
+          "weeks": 0,
+          "phase": 1
+        }
+      ],
+      "attendance": {
+        "total": 0,
+        "present": 0,
+        "late": 0,
+        "absentUnjustified": 0,
+        "absentJustified": 0
+      },
+      "penalties": {
+        "burpees": 0,
+        "cones": false
+      },
+      "infractionLog": [],
+      "clothingSizes": {
+        "jersey": "M",
+        "shorts": "M",
+        "socks": "40-42"
+      },
+      "matchStats": [],
+      "wellnessLogs": [],
+      "hiaAssessments": [],
+      "gymStats": {
+        "squat": 0,
+        "bench": 0,
+        "deadlift": 0
+      },
+      "weight": 54,
+      "height": 1.55,
+      "workoutLog": [],
+      "teamCategory": "orcos_femenina_mayor",
+      "systemRole": "jugador",
+      "memberships": {
+        "paid": 0,
+        "due": 10000
+      }
+    },
+    {
+      "id": "cu017",
+      "name": "Fanuel Santiago Medina Julio",
+      "apodo": "",
+      "camiseta": 2,
+      "contacto": {
+        "phone": "+573001083693",
+        "email": ""
+      },
+      "rol": "Titular",
+      "posicion": "Apertura",
+      "estado": "activo",
+      "attributes": {
+        "force": 40,
+        "speed": 88,
+        "stamina": 75,
+        "technique": 70
+      },
+      "history": [],
+      "injuryLog": [
+        {
+          "diagnosis": "Hombro",
+          "date": "",
+          "weeks": 0,
+          "phase": 1
+        }
+      ],
+      "attendance": {
+        "total": 0,
+        "present": 0,
+        "late": 0,
+        "absentUnjustified": 0,
+        "absentJustified": 0
+      },
+      "penalties": {
+        "burpees": 0,
+        "cones": false
+      },
+      "infractionLog": [],
+      "clothingSizes": {
+        "jersey": "M",
+        "shorts": "M",
+        "socks": "40-42"
+      },
+      "matchStats": [],
+      "wellnessLogs": [],
+      "hiaAssessments": [],
+      "gymStats": {
+        "squat": 0,
+        "bench": 0,
+        "deadlift": 0
+      },
+      "weight": 53,
+      "height": 1.78,
+      "workoutLog": [],
+      "teamCategory": "cuervos_juveniles_masculina",
+      "systemRole": "jugador",
+      "memberships": {
+        "paid": 0,
+        "due": 10000
+      }
+    },
+    {
+      "id": "ga018",
+      "name": "Julian Andrés Dizzett Jaraba",
+      "apodo": "",
+      "camiseta": 1,
+      "contacto": {
+        "phone": "+573011279109",
+        "email": ""
+      },
+      "rol": "Titular",
+      "posicion": "Centro",
+      "estado": "activo",
+      "attributes": {
+        "force": 40,
+        "speed": 85,
+        "stamina": 75,
+        "technique": 70
+      },
+      "history": [],
+      "injuryLog": [],
+      "attendance": {
+        "total": 0,
+        "present": 0,
+        "late": 0,
+        "absentUnjustified": 0,
+        "absentJustified": 0
+      },
+      "penalties": {
+        "burpees": 0,
+        "cones": false
+      },
+      "infractionLog": [],
+      "clothingSizes": {
+        "jersey": "M",
+        "shorts": "M",
+        "socks": "40-42"
+      },
+      "matchStats": [],
+      "wellnessLogs": [],
+      "hiaAssessments": [],
+      "gymStats": {
+        "squat": 0,
+        "bench": 0,
+        "deadlift": 0
+      },
+      "weight": 70,
+      "height": 1.7,
+      "workoutLog": [],
+      "teamCategory": "gargolas_masculina_mayor",
+      "systemRole": "jugador",
+      "memberships": {
+        "paid": 0,
+        "due": 10000
+      }
+    },
+    {
+      "id": "or019",
+      "name": "Andrés Alfonso Torres Hernández",
+      "apodo": "Andrés moster",
+      "camiseta": 8,
+      "contacto": {
+        "phone": "+573206275831",
+        "email": ""
+      },
+      "rol": "Titular",
+      "posicion": "Wing",
+      "estado": "activo",
+      "attributes": {
+        "force": 40,
+        "speed": 86,
+        "stamina": 75,
+        "technique": 70
+      },
+      "history": [],
+      "injuryLog": [],
+      "attendance": {
+        "total": 0,
+        "present": 0,
+        "late": 0,
+        "absentUnjustified": 0,
+        "absentJustified": 0
+      },
+      "penalties": {
+        "burpees": 0,
+        "cones": false
+      },
+      "infractionLog": [],
+      "clothingSizes": {
+        "jersey": "M",
+        "shorts": "M",
+        "socks": "40-42"
+      },
+      "matchStats": [],
+      "wellnessLogs": [],
+      "hiaAssessments": [],
+      "gymStats": {
+        "squat": 0,
+        "bench": 0,
+        "deadlift": 0
+      },
+      "weight": 66,
+      "height": 1.67,
+      "workoutLog": [],
+      "teamCategory": "orcos_masculina_mayor",
+      "systemRole": "jugador",
+      "memberships": {
+        "paid": 0,
+        "due": 10000
+      }
+    },
+    {
+      "id": "or020",
+      "name": "Manuela Merlano Solorzano",
+      "apodo": "Manu",
+      "camiseta": 1,
+      "contacto": {
+        "phone": "+573042293397",
+        "email": ""
+      },
+      "rol": "Titular",
+      "posicion": "Zaguero",
+      "estado": "activo",
+      "attributes": {
+        "force": 40,
+        "speed": 89,
+        "stamina": 75,
+        "technique": 70
+      },
+      "history": [],
+      "injuryLog": [],
+      "attendance": {
+        "total": 0,
+        "present": 0,
+        "late": 0,
+        "absentUnjustified": 0,
+        "absentJustified": 0
+      },
+      "penalties": {
+        "burpees": 0,
+        "cones": false
+      },
+      "infractionLog": [],
+      "clothingSizes": {
+        "jersey": "M",
+        "shorts": "M",
+        "socks": "40-42"
+      },
+      "matchStats": [],
+      "wellnessLogs": [],
+      "hiaAssessments": [],
+      "gymStats": {
+        "squat": 0,
+        "bench": 0,
+        "deadlift": 0
+      },
+      "weight": 52,
+      "height": 1.54,
+      "workoutLog": [],
+      "teamCategory": "orcos_juveniles_femenina",
+      "systemRole": "jugador",
+      "memberships": {
+        "paid": 0,
+        "due": 10000
+      }
+    },
+    {
+      "id": "or021",
+      "name": "Wilson Alfonso Contreras muñoz",
+      "apodo": "",
+      "camiseta": 9,
+      "contacto": {
+        "phone": "+573205521900",
+        "email": ""
+      },
+      "rol": "Titular",
+      "posicion": "Pilar",
+      "estado": "activo",
+      "attributes": {
+        "force": 66,
+        "speed": 75,
+        "stamina": 75,
+        "technique": 70
+      },
+      "history": [],
+      "injuryLog": [
+        {
+          "diagnosis": "Falange dedo medio mano izquierda",
+          "date": "",
+          "weeks": 0,
+          "phase": 1
+        }
+      ],
+      "attendance": {
+        "total": 0,
+        "present": 0,
+        "late": 0,
+        "absentUnjustified": 0,
+        "absentJustified": 0
+      },
+      "penalties": {
+        "burpees": 0,
+        "cones": false
+      },
+      "infractionLog": [],
+      "clothingSizes": {
+        "jersey": "M",
+        "shorts": "M",
+        "socks": "40-42"
+      },
+      "matchStats": [],
+      "wellnessLogs": [],
+      "hiaAssessments": [],
+      "gymStats": {
+        "squat": 0,
+        "bench": 0,
+        "deadlift": 0
+      },
+      "weight": 120,
+      "height": 1.73,
+      "workoutLog": [],
+      "teamCategory": "orcos_masculina_mayor",
+      "systemRole": "jugador",
+      "memberships": {
+        "paid": 0,
+        "due": 10000
+      }
+    },
+    {
+      "id": "cu022",
+      "name": "Geofry Giovanni Martinez tres palacio",
+      "apodo": "",
+      "camiseta": 1,
+      "contacto": {
+        "phone": "+573003667785",
+        "email": ""
+      },
+      "rol": "Titular",
+      "posicion": "Talonador",
+      "estado": "activo",
+      "attributes": {
+        "force": 48,
+        "speed": 81,
+        "stamina": 75,
+        "technique": 70
+      },
+      "history": [],
+      "injuryLog": [],
+      "attendance": {
+        "total": 0,
+        "present": 0,
+        "late": 0,
+        "absentUnjustified": 0,
+        "absentJustified": 0
+      },
+      "penalties": {
+        "burpees": 0,
+        "cones": false
+      },
+      "infractionLog": [],
+      "clothingSizes": {
+        "jersey": "M",
+        "shorts": "M",
+        "socks": "40-42"
+      },
+      "matchStats": [],
+      "wellnessLogs": [],
+      "hiaAssessments": [],
+      "gymStats": {
+        "squat": 0,
+        "bench": 0,
+        "deadlift": 0
+      },
+      "weight": 88,
+      "height": 1.75,
+      "workoutLog": [],
+      "teamCategory": "cuervos_masculina_mayor",
+      "systemRole": "jugador",
+      "memberships": {
+        "paid": 0,
+        "due": 10000
+      }
+    },
+    {
+      "id": "pi023",
+      "name": "Maicol Stiven Piña Perea",
+      "apodo": "Makel",
+      "camiseta": 1,
+      "contacto": {
+        "phone": "+573243769622",
+        "email": ""
+      },
+      "rol": "Titular",
+      "posicion": "Segunda Línea",
+      "estado": "activo",
+      "attributes": {
+        "force": 40,
+        "speed": 87,
+        "stamina": 75,
+        "technique": 70
+      },
+      "history": [],
+      "injuryLog": [],
+      "attendance": {
+        "total": 0,
+        "present": 0,
+        "late": 0,
+        "absentUnjustified": 0,
+        "absentJustified": 0
+      },
+      "penalties": {
+        "burpees": 0,
+        "cones": false
+      },
+      "infractionLog": [],
+      "clothingSizes": {
+        "jersey": "M",
+        "shorts": "M",
+        "socks": "40-42"
+      },
+      "matchStats": [],
+      "wellnessLogs": [],
+      "hiaAssessments": [],
+      "gymStats": {
+        "squat": 0,
+        "bench": 0,
+        "deadlift": 0
+      },
+      "weight": 59,
+      "height": 1.82,
+      "workoutLog": [],
+      "teamCategory": "pitbull_masculina_mayor",
+      "systemRole": "jugador",
+      "memberships": {
+        "paid": 0,
+        "due": 10000
+      }
+    },
+    {
+      "id": "or024",
+      "name": "Kevin Rainer Diaz Pascuas",
+      "apodo": "",
+      "camiseta": 10,
+      "contacto": {
+        "phone": "+573107155419",
+        "email": ""
+      },
+      "rol": "Titular",
+      "posicion": "Ala",
+      "estado": "activo",
+      "attributes": {
+        "force": 53,
+        "speed": 80,
+        "stamina": 75,
+        "technique": 70
+      },
+      "history": [],
+      "injuryLog": [],
+      "attendance": {
+        "total": 0,
+        "present": 0,
+        "late": 0,
+        "absentUnjustified": 0,
+        "absentJustified": 0
+      },
+      "penalties": {
+        "burpees": 0,
+        "cones": false
+      },
+      "infractionLog": [],
+      "clothingSizes": {
+        "jersey": "M",
+        "shorts": "M",
+        "socks": "40-42"
+      },
+      "matchStats": [],
+      "wellnessLogs": [],
+      "hiaAssessments": [],
+      "gymStats": {
+        "squat": 0,
+        "bench": 0,
+        "deadlift": 0
+      },
+      "weight": 96,
+      "height": 1.86,
+      "workoutLog": [],
+      "teamCategory": "orcos_masculina_mayor",
+      "systemRole": "jugador",
+      "memberships": {
+        "paid": 0,
+        "due": 10000
+      }
+    },
+    {
+      "id": "cu025",
+      "name": "Jair Sebastian Fernández Feria",
+      "apodo": "",
+      "camiseta": 3,
+      "contacto": {
+        "phone": "+573159205628",
+        "email": ""
+      },
+      "rol": "Titular",
+      "posicion": "Octavo",
+      "estado": "activo",
+      "attributes": {
+        "force": 40,
+        "speed": 85,
+        "stamina": 75,
+        "technique": 70
+      },
+      "history": [],
+      "injuryLog": [],
+      "attendance": {
+        "total": 0,
+        "present": 0,
+        "late": 0,
+        "absentUnjustified": 0,
+        "absentJustified": 0
+      },
+      "penalties": {
+        "burpees": 0,
+        "cones": false
+      },
+      "infractionLog": [],
+      "clothingSizes": {
+        "jersey": "M",
+        "shorts": "M",
+        "socks": "40-42"
+      },
+      "matchStats": [],
+      "wellnessLogs": [],
+      "hiaAssessments": [],
+      "gymStats": {
+        "squat": 0,
+        "bench": 0,
+        "deadlift": 0
+      },
+      "weight": 70,
+      "height": 1.76,
+      "workoutLog": [],
+      "teamCategory": "cuervos_juveniles_masculina",
+      "systemRole": "jugador",
+      "memberships": {
+        "paid": 0,
+        "due": 10000
+      }
+    },
+    {
+      "id": "pi026",
+      "name": "Didier Luis Bello Martínez",
+      "apodo": "El Bello",
+      "camiseta": 3,
+      "contacto": {
+        "phone": "+573023866766",
+        "email": ""
+      },
+      "rol": "Titular",
+      "posicion": "Medio Melé",
+      "estado": "activo",
+      "attributes": {
+        "force": 48,
+        "speed": 82,
+        "stamina": 75,
+        "technique": 70
+      },
+      "history": [],
+      "injuryLog": [],
+      "attendance": {
+        "total": 0,
+        "present": 0,
+        "late": 0,
+        "absentUnjustified": 0,
+        "absentJustified": 0
+      },
+      "penalties": {
+        "burpees": 0,
+        "cones": false
+      },
+      "infractionLog": [],
+      "clothingSizes": {
+        "jersey": "M",
+        "shorts": "M",
+        "socks": "40-42"
+      },
+      "matchStats": [],
+      "wellnessLogs": [],
+      "hiaAssessments": [],
+      "gymStats": {
+        "squat": 0,
+        "bench": 0,
+        "deadlift": 0
+      },
+      "weight": 87,
+      "height": 1.74,
+      "workoutLog": [],
+      "teamCategory": "pitbull_juveniles_masculina",
+      "systemRole": "jugador",
+      "memberships": {
+        "paid": 0,
+        "due": 10000
+      }
+    },
+    {
+      "id": "or027",
+      "name": "Taliana Rosa Acosta Meza",
+      "apodo": "",
+      "camiseta": 2,
+      "contacto": {
+        "phone": "+573004678976",
+        "email": ""
+      },
+      "rol": "Titular",
+      "posicion": "Apertura",
+      "estado": "activo",
+      "attributes": {
+        "force": 40,
+        "speed": 87,
+        "stamina": 75,
+        "technique": 70
+      },
+      "history": [],
+      "injuryLog": [],
+      "attendance": {
+        "total": 0,
+        "present": 0,
+        "late": 0,
+        "absentUnjustified": 0,
+        "absentJustified": 0
+      },
+      "penalties": {
+        "burpees": 0,
+        "cones": false
+      },
+      "infractionLog": [],
+      "clothingSizes": {
+        "jersey": "M",
+        "shorts": "M",
+        "socks": "40-42"
+      },
+      "matchStats": [],
+      "wellnessLogs": [],
+      "hiaAssessments": [],
+      "gymStats": {
+        "squat": 0,
+        "bench": 0,
+        "deadlift": 0
+      },
+      "weight": 60,
+      "height": 1.54,
+      "workoutLog": [],
+      "teamCategory": "orcos_femenina_mayor",
+      "systemRole": "jugador",
+      "memberships": {
+        "paid": 0,
+        "due": 10000
+      }
+    },
+    {
+      "id": "or028",
+      "name": "Esteban Alejandro Salgado Pérez",
+      "apodo": "",
+      "camiseta": 2,
+      "contacto": {
+        "phone": "+573127094992",
+        "email": ""
+      },
+      "rol": "Titular",
+      "posicion": "Centro",
+      "estado": "activo",
+      "attributes": {
+        "force": 40,
+        "speed": 87,
+        "stamina": 75,
+        "technique": 70
+      },
+      "history": [],
+      "injuryLog": [],
+      "attendance": {
+        "total": 0,
+        "present": 0,
+        "late": 0,
+        "absentUnjustified": 0,
+        "absentJustified": 0
+      },
+      "penalties": {
+        "burpees": 0,
+        "cones": false
+      },
+      "infractionLog": [],
+      "clothingSizes": {
+        "jersey": "M",
+        "shorts": "M",
+        "socks": "40-42"
+      },
+      "matchStats": [],
+      "wellnessLogs": [],
+      "hiaAssessments": [],
+      "gymStats": {
+        "squat": 0,
+        "bench": 0,
+        "deadlift": 0
+      },
+      "weight": 60,
+      "height": 1.64,
+      "workoutLog": [],
+      "teamCategory": "orcos_juveniles_masculina",
+      "systemRole": "jugador",
+      "memberships": {
+        "paid": 0,
+        "due": 10000
+      }
+    },
+    {
+      "id": "or029",
+      "name": "Danna Marcela Salcedo Pérez",
+      "apodo": "",
+      "camiseta": 3,
+      "contacto": {
+        "phone": "+573018077343",
+        "email": ""
+      },
+      "rol": "Titular",
+      "posicion": "Wing",
+      "estado": "activo",
+      "attributes": {
+        "force": 44,
+        "speed": 83,
+        "stamina": 75,
+        "technique": 70
+      },
+      "history": [],
+      "injuryLog": [],
+      "attendance": {
+        "total": 0,
+        "present": 0,
+        "late": 0,
+        "absentUnjustified": 0,
+        "absentJustified": 0
+      },
+      "penalties": {
+        "burpees": 0,
+        "cones": false
+      },
+      "infractionLog": [],
+      "clothingSizes": {
+        "jersey": "M",
+        "shorts": "M",
+        "socks": "40-42"
+      },
+      "matchStats": [],
+      "wellnessLogs": [],
+      "hiaAssessments": [],
+      "gymStats": {
+        "squat": 0,
+        "bench": 0,
+        "deadlift": 0
+      },
+      "weight": 80,
+      "height": 1.6,
+      "workoutLog": [],
+      "teamCategory": "orcos_femenina_mayor",
+      "systemRole": "jugador",
+      "memberships": {
+        "paid": 0,
+        "due": 10000
+      }
+    },
+    {
+      "id": "or030",
+      "name": "Noris Andrea Benavides Vellojin",
+      "apodo": "Noris",
+      "camiseta": 4,
+      "contacto": {
+        "phone": "+573125073003",
+        "email": ""
+      },
+      "rol": "Titular",
+      "posicion": "Zaguero",
+      "estado": "activo",
+      "attributes": {
+        "force": 55,
+        "speed": 79,
+        "stamina": 75,
+        "technique": 70
+      },
+      "history": [],
+      "injuryLog": [],
+      "attendance": {
+        "total": 0,
+        "present": 0,
+        "late": 0,
+        "absentUnjustified": 0,
+        "absentJustified": 0
+      },
+      "penalties": {
+        "burpees": 0,
+        "cones": false
+      },
+      "infractionLog": [],
+      "clothingSizes": {
+        "jersey": "M",
+        "shorts": "M",
+        "socks": "40-42"
+      },
+      "matchStats": [],
+      "wellnessLogs": [],
+      "hiaAssessments": [],
+      "gymStats": {
+        "squat": 0,
+        "bench": 0,
+        "deadlift": 0
+      },
+      "weight": 100,
+      "height": 1.68,
+      "workoutLog": [],
+      "teamCategory": "orcos_femenina_mayor",
+      "systemRole": "jugador",
+      "memberships": {
+        "paid": 0,
+        "due": 10000
+      }
+    },
+    {
+      "id": "or031",
+      "name": "Karol Juliana Salgado Rangel",
+      "apodo": "",
+      "camiseta": 2,
+      "contacto": {
+        "phone": "+573042341973",
+        "email": ""
+      },
+      "rol": "Titular",
+      "posicion": "Pilar",
+      "estado": "activo",
+      "attributes": {
+        "force": 40,
+        "speed": 87,
+        "stamina": 75,
+        "technique": 70
+      },
+      "history": [],
+      "injuryLog": [],
+      "attendance": {
+        "total": 0,
+        "present": 0,
+        "late": 0,
+        "absentUnjustified": 0,
+        "absentJustified": 0
+      },
+      "penalties": {
+        "burpees": 0,
+        "cones": false
+      },
+      "infractionLog": [],
+      "clothingSizes": {
+        "jersey": "M",
+        "shorts": "M",
+        "socks": "40-42"
+      },
+      "matchStats": [],
+      "wellnessLogs": [],
+      "hiaAssessments": [],
+      "gymStats": {
+        "squat": 0,
+        "bench": 0,
+        "deadlift": 0
+      },
+      "weight": 59,
+      "height": 1.6,
+      "workoutLog": [],
+      "teamCategory": "orcos_juveniles_femenina",
+      "systemRole": "jugador",
+      "memberships": {
+        "paid": 0,
+        "due": 10000
+      }
+    },
+    {
+      "id": "cu032",
+      "name": "Luis Carlos Silva aguas",
+      "apodo": "Krusty",
+      "camiseta": 2,
+      "contacto": {
+        "phone": "+573045274412",
+        "email": ""
+      },
+      "rol": "Titular",
+      "posicion": "Talonador",
+      "estado": "activo",
+      "attributes": {
+        "force": 42,
+        "speed": 84,
+        "stamina": 75,
+        "technique": 70
+      },
+      "history": [],
+      "injuryLog": [],
+      "attendance": {
+        "total": 0,
+        "present": 0,
+        "late": 0,
+        "absentUnjustified": 0,
+        "absentJustified": 0
+      },
+      "penalties": {
+        "burpees": 0,
+        "cones": false
+      },
+      "infractionLog": [],
+      "clothingSizes": {
+        "jersey": "M",
+        "shorts": "M",
+        "socks": "40-42"
+      },
+      "matchStats": [],
+      "wellnessLogs": [],
+      "hiaAssessments": [],
+      "gymStats": {
+        "squat": 0,
+        "bench": 0,
+        "deadlift": 0
+      },
+      "weight": 76,
+      "height": 1.82,
+      "workoutLog": [],
+      "teamCategory": "cuervos_masculina_mayor",
+      "systemRole": "jugador",
+      "memberships": {
+        "paid": 0,
+        "due": 10000
+      }
+    },
+    {
+      "id": "or033",
+      "name": "Laura Vanessa Ojeda canchila",
+      "apodo": "La negra",
+      "camiseta": 5,
+      "contacto": {
+        "phone": "+571005567193",
+        "email": ""
+      },
+      "rol": "Titular",
+      "posicion": "Segunda Línea",
+      "estado": "activo",
+      "attributes": {
+        "force": 40,
+        "speed": 86,
+        "stamina": 75,
+        "technique": 70
+      },
+      "history": [],
+      "injuryLog": [],
+      "attendance": {
+        "total": 0,
+        "present": 0,
+        "late": 0,
+        "absentUnjustified": 0,
+        "absentJustified": 0
+      },
+      "penalties": {
+        "burpees": 0,
+        "cones": false
+      },
+      "infractionLog": [],
+      "clothingSizes": {
+        "jersey": "M",
+        "shorts": "M",
+        "socks": "40-42"
+      },
+      "matchStats": [],
+      "wellnessLogs": [],
+      "hiaAssessments": [],
+      "gymStats": {
+        "squat": 0,
+        "bench": 0,
+        "deadlift": 0
+      },
+      "weight": 65,
+      "height": 1.65,
+      "workoutLog": [],
+      "teamCategory": "orcos_femenina_mayor",
+      "systemRole": "jugador",
+      "memberships": {
+        "paid": 0,
+        "due": 10000
+      }
+    },
+    {
+      "id": "or034",
+      "name": "Katherin Paola Cuello mercado",
+      "apodo": "JORDAN",
+      "camiseta": 6,
+      "contacto": {
+        "phone": "+573226513331",
+        "email": ""
+      },
+      "rol": "Titular",
+      "posicion": "Ala",
+      "estado": "activo",
+      "attributes": {
+        "force": 40,
+        "speed": 85,
+        "stamina": 75,
+        "technique": 70
+      },
+      "history": [],
+      "injuryLog": [],
+      "attendance": {
+        "total": 0,
+        "present": 0,
+        "late": 0,
+        "absentUnjustified": 0,
+        "absentJustified": 0
+      },
+      "penalties": {
+        "burpees": 0,
+        "cones": false
+      },
+      "infractionLog": [],
+      "clothingSizes": {
+        "jersey": "M",
+        "shorts": "M",
+        "socks": "40-42"
+      },
+      "matchStats": [],
+      "wellnessLogs": [],
+      "hiaAssessments": [],
+      "gymStats": {
+        "squat": 0,
+        "bench": 0,
+        "deadlift": 0
+      },
+      "weight": 70,
+      "height": 1.59,
+      "workoutLog": [],
+      "teamCategory": "orcos_femenina_mayor",
+      "systemRole": "jugador",
+      "memberships": {
+        "paid": 0,
+        "due": 10000
+      }
+    },
+    {
+      "id": "or035",
+      "name": "Cristian José Pérez Martínez",
+      "apodo": "Mini mini",
+      "camiseta": 3,
+      "contacto": {
+        "phone": "+573002809108",
+        "email": ""
+      },
+      "rol": "Titular",
+      "posicion": "Octavo",
+      "estado": "activo",
+      "attributes": {
+        "force": 46,
+        "speed": 82,
+        "stamina": 75,
+        "technique": 70
+      },
+      "history": [],
+      "injuryLog": [
+        {
+          "diagnosis": "En el campo",
+          "date": "",
+          "weeks": 0,
+          "phase": 1
+        }
+      ],
+      "attendance": {
+        "total": 0,
+        "present": 0,
+        "late": 0,
+        "absentUnjustified": 0,
+        "absentJustified": 0
+      },
+      "penalties": {
+        "burpees": 0,
+        "cones": false
+      },
+      "infractionLog": [],
+      "clothingSizes": {
+        "jersey": "M",
+        "shorts": "M",
+        "socks": "40-42"
+      },
+      "matchStats": [],
+      "wellnessLogs": [],
+      "hiaAssessments": [],
+      "gymStats": {
+        "squat": 0,
+        "bench": 0,
+        "deadlift": 0
+      },
+      "weight": 84,
+      "height": 1.8,
+      "workoutLog": [],
+      "teamCategory": "orcos_juveniles_masculina",
+      "systemRole": "jugador",
+      "memberships": {
+        "paid": 0,
+        "due": 10000
+      }
+    },
+    {
+      "id": "or036",
+      "name": "Jhoan andres Peralta Villamizar",
+      "apodo": "Jhoan",
+      "camiseta": 11,
+      "contacto": {
+        "phone": "+573006445182",
+        "email": ""
+      },
+      "rol": "Titular",
+      "posicion": "Medio Melé",
+      "estado": "activo",
+      "attributes": {
+        "force": 63,
+        "speed": 76,
+        "stamina": 75,
+        "technique": 70
+      },
+      "history": [],
+      "injuryLog": [],
+      "attendance": {
+        "total": 0,
+        "present": 0,
+        "late": 0,
+        "absentUnjustified": 0,
+        "absentJustified": 0
+      },
+      "penalties": {
+        "burpees": 0,
+        "cones": false
+      },
+      "infractionLog": [],
+      "clothingSizes": {
+        "jersey": "M",
+        "shorts": "M",
+        "socks": "40-42"
+      },
+      "matchStats": [],
+      "wellnessLogs": [],
+      "hiaAssessments": [],
+      "gymStats": {
+        "squat": 0,
+        "bench": 0,
+        "deadlift": 0
+      },
+      "weight": 114,
+      "height": 1.82,
+      "workoutLog": [],
+      "teamCategory": "orcos_masculina_mayor",
+      "systemRole": "jugador",
+      "memberships": {
+        "paid": 0,
+        "due": 10000
+      }
+    },
+    {
+      "id": "tr037",
+      "name": "José Ángel Lambraño rambaut",
+      "apodo": "Lambraño",
+      "camiseta": 3,
+      "contacto": {
+        "phone": "+573001697350",
+        "email": ""
+      },
+      "rol": "Titular",
+      "posicion": "Apertura",
+      "estado": "activo",
+      "attributes": {
+        "force": 40,
+        "speed": 87,
+        "stamina": 75,
+        "technique": 70
+      },
+      "history": [],
+      "injuryLog": [],
+      "attendance": {
+        "total": 0,
+        "present": 0,
+        "late": 0,
+        "absentUnjustified": 0,
+        "absentJustified": 0
+      },
+      "penalties": {
+        "burpees": 0,
+        "cones": false
+      },
+      "infractionLog": [],
+      "clothingSizes": {
+        "jersey": "M",
+        "shorts": "M",
+        "socks": "40-42"
+      },
+      "matchStats": [],
+      "wellnessLogs": [],
+      "hiaAssessments": [],
+      "gymStats": {
+        "squat": 0,
+        "bench": 0,
+        "deadlift": 0
+      },
+      "weight": 61,
+      "height": 1.78,
+      "workoutLog": [],
+      "teamCategory": "trolls_juveniles_masculina",
+      "systemRole": "jugador",
+      "memberships": {
+        "paid": 0,
+        "due": 10000
+      }
+    },
+    {
+      "id": "tr038",
+      "name": "Roger Jose Beltrán Lozano",
+      "apodo": "",
+      "camiseta": 3,
+      "contacto": {
+        "phone": "+573008348648",
+        "email": ""
+      },
+      "rol": "Titular",
+      "posicion": "Centro",
+      "estado": "activo",
+      "attributes": {
+        "force": 40,
+        "speed": 85,
+        "stamina": 75,
+        "technique": 70
+      },
+      "history": [],
+      "injuryLog": [],
+      "attendance": {
+        "total": 0,
+        "present": 0,
+        "late": 0,
+        "absentUnjustified": 0,
+        "absentJustified": 0
+      },
+      "penalties": {
+        "burpees": 0,
+        "cones": false
+      },
+      "infractionLog": [],
+      "clothingSizes": {
+        "jersey": "M",
+        "shorts": "M",
+        "socks": "40-42"
+      },
+      "matchStats": [],
+      "wellnessLogs": [],
+      "hiaAssessments": [],
+      "gymStats": {
+        "squat": 0,
+        "bench": 0,
+        "deadlift": 0
+      },
+      "weight": 69,
+      "height": 1.81,
+      "workoutLog": [],
+      "teamCategory": "trolls_masculina_mayor",
+      "systemRole": "jugador",
+      "memberships": {
+        "paid": 0,
+        "due": 10000
+      }
+    },
+    {
+      "id": "or039",
+      "name": "Kendra Sierra Colon",
+      "apodo": "",
+      "camiseta": 7,
+      "contacto": {
+        "phone": "+573003610210",
+        "email": ""
+      },
+      "rol": "Titular",
+      "posicion": "Wing",
+      "estado": "activo",
+      "attributes": {
+        "force": 40,
+        "speed": 88,
+        "stamina": 75,
+        "technique": 70
+      },
+      "history": [],
+      "injuryLog": [],
+      "attendance": {
+        "total": 0,
+        "present": 0,
+        "late": 0,
+        "absentUnjustified": 0,
+        "absentJustified": 0
+      },
+      "penalties": {
+        "burpees": 0,
+        "cones": false
+      },
+      "infractionLog": [],
+      "clothingSizes": {
+        "jersey": "M",
+        "shorts": "M",
+        "socks": "40-42"
+      },
+      "matchStats": [],
+      "wellnessLogs": [],
+      "hiaAssessments": [],
+      "gymStats": {
+        "squat": 0,
+        "bench": 0,
+        "deadlift": 0
+      },
+      "weight": 57,
+      "height": 1.61,
+      "workoutLog": [],
+      "teamCategory": "orcos_femenina_mayor",
+      "systemRole": "jugador",
+      "memberships": {
+        "paid": 0,
+        "due": 10000
+      }
+    },
+    {
+      "id": "or040",
+      "name": "María Jose Palacio Narvaez",
+      "apodo": "",
+      "camiseta": 3,
+      "contacto": {
+        "phone": "+573023866741",
+        "email": ""
+      },
+      "rol": "Titular",
+      "posicion": "Zaguero",
+      "estado": "activo",
+      "attributes": {
+        "force": 40,
+        "speed": 88,
+        "stamina": 75,
+        "technique": 70
+      },
+      "history": [],
+      "injuryLog": [],
+      "attendance": {
+        "total": 0,
+        "present": 0,
+        "late": 0,
+        "absentUnjustified": 0,
+        "absentJustified": 0
+      },
+      "penalties": {
+        "burpees": 0,
+        "cones": false
+      },
+      "infractionLog": [],
+      "clothingSizes": {
+        "jersey": "M",
+        "shorts": "M",
+        "socks": "40-42"
+      },
+      "matchStats": [],
+      "wellnessLogs": [],
+      "hiaAssessments": [],
+      "gymStats": {
+        "squat": 0,
+        "bench": 0,
+        "deadlift": 0
+      },
+      "weight": 57,
+      "height": 1.5,
+      "workoutLog": [],
+      "teamCategory": "orcos_juveniles_femenina",
+      "systemRole": "jugador",
+      "memberships": {
+        "paid": 0,
+        "due": 10000
+      }
+    },
+    {
+      "id": "cu041",
+      "name": "Frank David Salgado Cardenas",
+      "apodo": "",
+      "camiseta": 3,
+      "contacto": {
+        "phone": "+573045585430",
+        "email": ""
+      },
+      "rol": "Titular",
+      "posicion": "Pilar",
+      "estado": "activo",
+      "attributes": {
+        "force": 44,
+        "speed": 83,
+        "stamina": 75,
+        "technique": 70
+      },
+      "history": [],
+      "injuryLog": [
+        {
+          "diagnosis": "Anular y medio mano izquierda",
+          "date": "",
+          "weeks": 0,
+          "phase": 1
+        }
+      ],
+      "attendance": {
+        "total": 0,
+        "present": 0,
+        "late": 0,
+        "absentUnjustified": 0,
+        "absentJustified": 0
+      },
+      "penalties": {
+        "burpees": 0,
+        "cones": false
+      },
+      "infractionLog": [],
+      "clothingSizes": {
+        "jersey": "M",
+        "shorts": "M",
+        "socks": "40-42"
+      },
+      "matchStats": [],
+      "wellnessLogs": [],
+      "hiaAssessments": [],
+      "gymStats": {
+        "squat": 0,
+        "bench": 0,
+        "deadlift": 0
+      },
+      "weight": 80,
+      "height": 1.7,
+      "workoutLog": [],
+      "teamCategory": "cuervos_masculina_mayor",
+      "systemRole": "jugador",
+      "memberships": {
+        "paid": 0,
+        "due": 10000
+      }
+    },
+    {
+      "id": "or042",
+      "name": "Yeniffer Mendez Ortega",
+      "apodo": "Presi, Yeni",
+      "camiseta": 8,
+      "contacto": {
+        "phone": "+573117362774",
+        "email": ""
+      },
+      "rol": "Titular",
+      "posicion": "Talonador",
+      "estado": "activo",
+      "attributes": {
+        "force": 42,
+        "speed": 84,
+        "stamina": 75,
+        "technique": 70
+      },
+      "history": [],
+      "injuryLog": [
+        {
+          "diagnosis": "Pie",
+          "date": "",
+          "weeks": 0,
+          "phase": 1
+        }
+      ],
+      "attendance": {
+        "total": 0,
+        "present": 0,
+        "late": 0,
+        "absentUnjustified": 0,
+        "absentJustified": 0
+      },
+      "penalties": {
+        "burpees": 0,
+        "cones": false
+      },
+      "infractionLog": [],
+      "clothingSizes": {
+        "jersey": "M",
+        "shorts": "M",
+        "socks": "40-42"
+      },
+      "matchStats": [],
+      "wellnessLogs": [],
+      "hiaAssessments": [],
+      "gymStats": {
+        "squat": 0,
+        "bench": 0,
+        "deadlift": 0
+      },
+      "weight": 77,
+      "height": 1.52,
+      "workoutLog": [],
+      "teamCategory": "orcos_femenina_mayor",
+      "systemRole": "jugador",
+      "memberships": {
+        "paid": 0,
+        "due": 10000
+      }
+    },
+    {
+      "id": "or043",
+      "name": "Luna maria Sanchez mendoza",
+      "apodo": "Luu",
+      "camiseta": 4,
+      "contacto": {
+        "phone": "+573242670745",
+        "email": ""
+      },
+      "rol": "Titular",
+      "posicion": "Segunda Línea",
+      "estado": "activo",
+      "attributes": {
+        "force": 40,
+        "speed": 87,
+        "stamina": 75,
+        "technique": 70
+      },
+      "history": [],
+      "injuryLog": [],
+      "attendance": {
+        "total": 0,
+        "present": 0,
+        "late": 0,
+        "absentUnjustified": 0,
+        "absentJustified": 0
+      },
+      "penalties": {
+        "burpees": 0,
+        "cones": false
+      },
+      "infractionLog": [],
+      "clothingSizes": {
+        "jersey": "M",
+        "shorts": "M",
+        "socks": "40-42"
+      },
+      "matchStats": [],
+      "wellnessLogs": [],
+      "hiaAssessments": [],
+      "gymStats": {
+        "squat": 0,
+        "bench": 0,
+        "deadlift": 0
+      },
+      "weight": 62,
+      "height": 1.64,
+      "workoutLog": [],
+      "teamCategory": "orcos_juveniles_femenina",
+      "systemRole": "jugador",
+      "memberships": {
+        "paid": 0,
+        "due": 10000
+      }
+    },
+    {
+      "id": "or044",
+      "name": "Sara Valentina Perales Herazo",
+      "apodo": "",
+      "camiseta": 5,
+      "contacto": {
+        "phone": "+573018085845",
+        "email": ""
+      },
+      "rol": "Titular",
+      "posicion": "Ala",
+      "estado": "activo",
+      "attributes": {
+        "force": 40,
+        "speed": 90,
+        "stamina": 75,
+        "technique": 70
+      },
+      "history": [],
+      "injuryLog": [],
+      "attendance": {
+        "total": 0,
+        "present": 0,
+        "late": 0,
+        "absentUnjustified": 0,
+        "absentJustified": 0
+      },
+      "penalties": {
+        "burpees": 0,
+        "cones": false
+      },
+      "infractionLog": [],
+      "clothingSizes": {
+        "jersey": "M",
+        "shorts": "M",
+        "socks": "40-42"
+      },
+      "matchStats": [],
+      "wellnessLogs": [],
+      "hiaAssessments": [],
+      "gymStats": {
+        "squat": 0,
+        "bench": 0,
+        "deadlift": 0
+      },
+      "weight": 46,
+      "height": 1.631,
+      "workoutLog": [],
+      "teamCategory": "orcos_juveniles_femenina",
+      "systemRole": "jugador",
+      "memberships": {
+        "paid": 0,
+        "due": 10000
+      }
+    },
+    {
+      "id": "or045",
+      "name": "José José Ortega patrón",
+      "apodo": "",
+      "camiseta": 4,
+      "contacto": {
+        "phone": "+573206408397",
+        "email": ""
+      },
+      "rol": "Titular",
+      "posicion": "Octavo",
+      "estado": "activo",
+      "attributes": {
+        "force": 40,
+        "speed": 89,
+        "stamina": 75,
+        "technique": 70
+      },
+      "history": [],
+      "injuryLog": [],
+      "attendance": {
+        "total": 0,
+        "present": 0,
+        "late": 0,
+        "absentUnjustified": 0,
+        "absentJustified": 0
+      },
+      "penalties": {
+        "burpees": 0,
+        "cones": false
+      },
+      "infractionLog": [],
+      "clothingSizes": {
+        "jersey": "M",
+        "shorts": "M",
+        "socks": "40-42"
+      },
+      "matchStats": [],
+      "wellnessLogs": [],
+      "hiaAssessments": [],
+      "gymStats": {
+        "squat": 0,
+        "bench": 0,
+        "deadlift": 0
+      },
+      "weight": 50,
+      "height": 1.65,
+      "workoutLog": [],
+      "teamCategory": "orcos_juveniles_masculina",
+      "systemRole": "jugador",
+      "memberships": {
+        "paid": 0,
+        "due": 10000
+      }
+    },
+    {
+      "id": "or046",
+      "name": "Beatriz Elena Núñez Tovar",
+      "apodo": "",
+      "camiseta": 6,
+      "contacto": {
+        "phone": "+573002029659",
+        "email": ""
+      },
+      "rol": "Titular",
+      "posicion": "Medio Melé",
+      "estado": "activo",
+      "attributes": {
+        "force": 40,
+        "speed": 89,
+        "stamina": 75,
+        "technique": 70
+      },
+      "history": [],
+      "injuryLog": [],
+      "attendance": {
+        "total": 0,
+        "present": 0,
+        "late": 0,
+        "absentUnjustified": 0,
+        "absentJustified": 0
+      },
+      "penalties": {
+        "burpees": 0,
+        "cones": false
+      },
+      "infractionLog": [],
+      "clothingSizes": {
+        "jersey": "M",
+        "shorts": "M",
+        "socks": "40-42"
+      },
+      "matchStats": [],
+      "wellnessLogs": [],
+      "hiaAssessments": [],
+      "gymStats": {
+        "squat": 0,
+        "bench": 0,
+        "deadlift": 0
+      },
+      "weight": 50,
+      "height": 1.65,
+      "workoutLog": [],
+      "teamCategory": "orcos_juveniles_femenina",
+      "systemRole": "jugador",
+      "memberships": {
+        "paid": 0,
+        "due": 10000
+      }
+    },
+    {
+      "id": "or047",
+      "name": "Carlos David Rivera miranda",
+      "apodo": "El cachaco",
+      "camiseta": 5,
+      "contacto": {
+        "phone": "+573102725592",
+        "email": ""
+      },
+      "rol": "Titular",
+      "posicion": "Apertura",
+      "estado": "activo",
+      "attributes": {
+        "force": 40,
+        "speed": 88,
+        "stamina": 75,
+        "technique": 70
+      },
+      "history": [],
+      "injuryLog": [],
+      "attendance": {
+        "total": 0,
+        "present": 0,
+        "late": 0,
+        "absentUnjustified": 0,
+        "absentJustified": 0
+      },
+      "penalties": {
+        "burpees": 0,
+        "cones": false
+      },
+      "infractionLog": [],
+      "clothingSizes": {
+        "jersey": "M",
+        "shorts": "M",
+        "socks": "40-42"
+      },
+      "matchStats": [],
+      "wellnessLogs": [],
+      "hiaAssessments": [],
+      "gymStats": {
+        "squat": 0,
+        "bench": 0,
+        "deadlift": 0
+      },
+      "weight": 55,
+      "height": 1.68,
+      "workoutLog": [],
+      "teamCategory": "orcos_juveniles_masculina",
+      "systemRole": "jugador",
+      "memberships": {
+        "paid": 0,
+        "due": 10000
+      }
+    },
+    {
+      "id": "or048",
+      "name": "Aura Cristina Lastre Benitez",
+      "apodo": "La Flaca",
+      "camiseta": 9,
+      "contacto": {
+        "phone": "+573006339657",
+        "email": ""
+      },
+      "rol": "Titular",
+      "posicion": "Centro",
+      "estado": "activo",
+      "attributes": {
+        "force": 40,
+        "speed": 89,
+        "stamina": 75,
+        "technique": 70
+      },
+      "history": [],
+      "injuryLog": [
+        {
+          "diagnosis": "Clavícula",
+          "date": "",
+          "weeks": 0,
+          "phase": 1
+        }
+      ],
+      "attendance": {
+        "total": 0,
+        "present": 0,
+        "late": 0,
+        "absentUnjustified": 0,
+        "absentJustified": 0
+      },
+      "penalties": {
+        "burpees": 0,
+        "cones": false
+      },
+      "infractionLog": [],
+      "clothingSizes": {
+        "jersey": "M",
+        "shorts": "M",
+        "socks": "40-42"
+      },
+      "matchStats": [],
+      "wellnessLogs": [],
+      "hiaAssessments": [],
+      "gymStats": {
+        "squat": 0,
+        "bench": 0,
+        "deadlift": 0
+      },
+      "weight": 52,
+      "height": 1.66,
+      "workoutLog": [],
+      "teamCategory": "orcos_femenina_mayor",
+      "systemRole": "jugador",
+      "memberships": {
+        "paid": 0,
+        "due": 10000
+      }
+    },
+    {
+      "id": "or049",
+      "name": "Dulce María Herazo Acosta",
+      "apodo": "",
+      "camiseta": 7,
+      "contacto": {
+        "phone": "+573206276263",
+        "email": ""
+      },
+      "rol": "Titular",
+      "posicion": "Wing",
+      "estado": "activo",
+      "attributes": {
+        "force": 40,
+        "speed": 89,
+        "stamina": 75,
+        "technique": 70
+      },
+      "history": [],
+      "injuryLog": [
+        {
+          "diagnosis": "En el brazo izquierdo",
+          "date": "",
+          "weeks": 0,
+          "phase": 1
+        }
+      ],
+      "attendance": {
+        "total": 0,
+        "present": 0,
+        "late": 0,
+        "absentUnjustified": 0,
+        "absentJustified": 0
+      },
+      "penalties": {
+        "burpees": 0,
+        "cones": false
+      },
+      "infractionLog": [],
+      "clothingSizes": {
+        "jersey": "M",
+        "shorts": "M",
+        "socks": "40-42"
+      },
+      "matchStats": [],
+      "wellnessLogs": [],
+      "hiaAssessments": [],
+      "gymStats": {
+        "squat": 0,
+        "bench": 0,
+        "deadlift": 0
+      },
+      "weight": 50,
+      "height": 1.59,
+      "workoutLog": [],
+      "teamCategory": "orcos_juveniles_femenina",
+      "systemRole": "jugador",
+      "memberships": {
+        "paid": 0,
+        "due": 10000
+      }
+    },
+    {
+      "id": "cu050",
+      "name": "Kennent David Vergara Arroyo",
+      "apodo": "",
+      "camiseta": 4,
+      "contacto": {
+        "phone": "+573044118649",
+        "email": ""
+      },
+      "rol": "Titular",
+      "posicion": "Zaguero",
+      "estado": "activo",
+      "attributes": {
+        "force": 74,
+        "speed": 72,
+        "stamina": 75,
+        "technique": 70
+      },
+      "history": [],
+      "injuryLog": [],
+      "attendance": {
+        "total": 0,
+        "present": 0,
+        "late": 0,
+        "absentUnjustified": 0,
+        "absentJustified": 0
+      },
+      "penalties": {
+        "burpees": 0,
+        "cones": false
+      },
+      "infractionLog": [],
+      "clothingSizes": {
+        "jersey": "M",
+        "shorts": "M",
+        "socks": "40-42"
+      },
+      "matchStats": [],
+      "wellnessLogs": [],
+      "hiaAssessments": [],
+      "gymStats": {
+        "squat": 0,
+        "bench": 0,
+        "deadlift": 0
+      },
+      "weight": 134,
+      "height": 1.83,
+      "workoutLog": [],
+      "teamCategory": "cuervos_masculina_mayor",
+      "systemRole": "jugador",
+      "memberships": {
+        "paid": 0,
+        "due": 10000
+      }
+    },
+    {
+      "id": "or051",
+      "name": "Mishell Sofia Garay ortega",
+      "apodo": "",
+      "camiseta": 8,
+      "contacto": {
+        "phone": "+573021035339",
+        "email": ""
+      },
+      "rol": "Titular",
+      "posicion": "Pilar",
+      "estado": "activo",
+      "attributes": {
+        "force": 40,
+        "speed": 86,
+        "stamina": 75,
+        "technique": 70
+      },
+      "history": [],
+      "injuryLog": [
+        {
+          "diagnosis": "En el brazo",
+          "date": "",
+          "weeks": 0,
+          "phase": 1
+        }
+      ],
+      "attendance": {
+        "total": 0,
+        "present": 0,
+        "late": 0,
+        "absentUnjustified": 0,
+        "absentJustified": 0
+      },
+      "penalties": {
+        "burpees": 0,
+        "cones": false
+      },
+      "infractionLog": [],
+      "clothingSizes": {
+        "jersey": "M",
+        "shorts": "M",
+        "socks": "40-42"
+      },
+      "matchStats": [],
+      "wellnessLogs": [],
+      "hiaAssessments": [],
+      "gymStats": {
+        "squat": 0,
+        "bench": 0,
+        "deadlift": 0
+      },
+      "weight": 65,
+      "height": 1.6,
+      "workoutLog": [],
+      "teamCategory": "orcos_juveniles_femenina",
+      "systemRole": "jugador",
+      "memberships": {
+        "paid": 0,
+        "due": 10000
+      }
+    },
+    {
+      "id": "ga052",
+      "name": "Luis Miguel Contreras castro",
+      "apodo": "",
+      "camiseta": 1,
+      "contacto": {
+        "phone": "+573042358000",
+        "email": ""
+      },
+      "rol": "Titular",
+      "posicion": "Talonador",
+      "estado": "activo",
+      "attributes": {
+        "force": 51,
+        "speed": 81,
+        "stamina": 75,
+        "technique": 70
+      },
+      "history": [],
+      "injuryLog": [
+        {
+          "diagnosis": "5to metatarciano",
+          "date": "",
+          "weeks": 0,
+          "phase": 1
+        }
+      ],
+      "attendance": {
+        "total": 0,
+        "present": 0,
+        "late": 0,
+        "absentUnjustified": 0,
+        "absentJustified": 0
+      },
+      "penalties": {
+        "burpees": 0,
+        "cones": false
+      },
+      "infractionLog": [],
+      "clothingSizes": {
+        "jersey": "M",
+        "shorts": "M",
+        "socks": "40-42"
+      },
+      "matchStats": [],
+      "wellnessLogs": [],
+      "hiaAssessments": [],
+      "gymStats": {
+        "squat": 0,
+        "bench": 0,
+        "deadlift": 0
+      },
+      "weight": 92,
+      "height": 1.77,
+      "workoutLog": [],
+      "teamCategory": "gargolas_juveniles_masculina",
+      "systemRole": "jugador",
+      "memberships": {
+        "paid": 0,
+        "due": 10000
+      }
+    },
+    {
+      "id": "or053",
+      "name": "Joyce tatiana Alvarez Tuiran",
+      "apodo": "Joys",
+      "camiseta": 10,
+      "contacto": {
+        "phone": "+573024310909",
+        "email": ""
+      },
+      "rol": "Titular",
+      "posicion": "Segunda Línea",
+      "estado": "activo",
+      "attributes": {
+        "force": 40,
+        "speed": 84,
+        "stamina": 75,
+        "technique": 70
+      },
+      "history": [],
+      "injuryLog": [],
+      "attendance": {
+        "total": 0,
+        "present": 0,
+        "late": 0,
+        "absentUnjustified": 0,
+        "absentJustified": 0
+      },
+      "penalties": {
+        "burpees": 0,
+        "cones": false
+      },
+      "infractionLog": [],
+      "clothingSizes": {
+        "jersey": "M",
+        "shorts": "M",
+        "socks": "40-42"
+      },
+      "matchStats": [],
+      "wellnessLogs": [],
+      "hiaAssessments": [],
+      "gymStats": {
+        "squat": 0,
+        "bench": 0,
+        "deadlift": 0
+      },
+      "weight": 73,
+      "height": 1.63,
+      "workoutLog": [],
+      "teamCategory": "orcos_femenina_mayor",
+      "systemRole": "jugador",
+      "memberships": {
+        "paid": 0,
+        "due": 10000
+      }
+    },
+    {
+      "id": "or054",
+      "name": "Jesus Alfonso Peralta Barboza",
+      "apodo": "Chu",
+      "camiseta": 12,
+      "contacto": {
+        "phone": "+573017580094",
+        "email": ""
+      },
+      "rol": "Titular",
+      "posicion": "Ala",
+      "estado": "activo",
+      "attributes": {
+        "force": 40,
+        "speed": 86,
+        "stamina": 75,
+        "technique": 70
+      },
+      "history": [],
+      "injuryLog": [],
+      "attendance": {
+        "total": 0,
+        "present": 0,
+        "late": 0,
+        "absentUnjustified": 0,
+        "absentJustified": 0
+      },
+      "penalties": {
+        "burpees": 0,
+        "cones": false
+      },
+      "infractionLog": [],
+      "clothingSizes": {
+        "jersey": "M",
+        "shorts": "M",
+        "socks": "40-42"
+      },
+      "matchStats": [],
+      "wellnessLogs": [],
+      "hiaAssessments": [],
+      "gymStats": {
+        "squat": 0,
+        "bench": 0,
+        "deadlift": 0
+      },
+      "weight": 67,
+      "height": 1.66,
+      "workoutLog": [],
+      "teamCategory": "orcos_masculina_mayor",
+      "systemRole": "jugador",
+      "memberships": {
+        "paid": 0,
+        "due": 10000
+      }
+    },
+    {
+      "id": "or055",
+      "name": "Linda Johana García Madera",
+      "apodo": "",
+      "camiseta": 9,
+      "contacto": {
+        "phone": "+573022355956",
+        "email": ""
+      },
+      "rol": "Titular",
+      "posicion": "Octavo",
+      "estado": "activo",
+      "attributes": {
+        "force": 40,
+        "speed": 86,
+        "stamina": 75,
+        "technique": 70
+      },
+      "history": [],
+      "injuryLog": [],
+      "attendance": {
+        "total": 0,
+        "present": 0,
+        "late": 0,
+        "absentUnjustified": 0,
+        "absentJustified": 0
+      },
+      "penalties": {
+        "burpees": 0,
+        "cones": false
+      },
+      "infractionLog": [],
+      "clothingSizes": {
+        "jersey": "M",
+        "shorts": "M",
+        "socks": "40-42"
+      },
+      "matchStats": [],
+      "wellnessLogs": [],
+      "hiaAssessments": [],
+      "gymStats": {
+        "squat": 0,
+        "bench": 0,
+        "deadlift": 0
+      },
+      "weight": 65,
+      "height": 1.73,
+      "workoutLog": [],
+      "teamCategory": "orcos_juveniles_femenina",
+      "systemRole": "jugador",
+      "memberships": {
+        "paid": 0,
+        "due": 10000
+      }
+    },
+    {
+      "id": "or056",
+      "name": "Mishell Garay ortega",
+      "apodo": "",
+      "camiseta": 10,
+      "contacto": {
+        "phone": "+573021035339",
+        "email": ""
+      },
+      "rol": "Titular",
+      "posicion": "Medio Melé",
+      "estado": "activo",
+      "attributes": {
+        "force": 40,
+        "speed": 86,
+        "stamina": 75,
+        "technique": 70
+      },
+      "history": [],
+      "injuryLog": [
+        {
+          "diagnosis": "En el hombro",
+          "date": "",
+          "weeks": 0,
+          "phase": 1
+        }
+      ],
+      "attendance": {
+        "total": 0,
+        "present": 0,
+        "late": 0,
+        "absentUnjustified": 0,
+        "absentJustified": 0
+      },
+      "penalties": {
+        "burpees": 0,
+        "cones": false
+      },
+      "infractionLog": [],
+      "clothingSizes": {
+        "jersey": "M",
+        "shorts": "M",
+        "socks": "40-42"
+      },
+      "matchStats": [],
+      "wellnessLogs": [],
+      "hiaAssessments": [],
+      "gymStats": {
+        "squat": 0,
+        "bench": 0,
+        "deadlift": 0
+      },
+      "weight": 65,
+      "height": 1.6,
+      "workoutLog": [],
+      "teamCategory": "orcos_juveniles_femenina",
+      "systemRole": "jugador",
+      "memberships": {
+        "paid": 0,
+        "due": 10000
+      }
+    },
+    {
+      "id": "cu057",
+      "name": "Nasser Marrugo peralta",
+      "apodo": "Nacho",
+      "camiseta": 4,
+      "contacto": {
+        "phone": "+573208014537",
+        "email": ""
+      },
+      "rol": "Titular",
+      "posicion": "Apertura",
+      "estado": "activo",
+      "attributes": {
+        "force": 40,
+        "speed": 89,
+        "stamina": 75,
+        "technique": 70
+      },
+      "history": [],
+      "injuryLog": [],
+      "attendance": {
+        "total": 0,
+        "present": 0,
+        "late": 0,
+        "absentUnjustified": 0,
+        "absentJustified": 0
+      },
+      "penalties": {
+        "burpees": 0,
+        "cones": false
+      },
+      "infractionLog": [],
+      "clothingSizes": {
+        "jersey": "M",
+        "shorts": "M",
+        "socks": "40-42"
+      },
+      "matchStats": [],
+      "wellnessLogs": [],
+      "hiaAssessments": [],
+      "gymStats": {
+        "squat": 0,
+        "bench": 0,
+        "deadlift": 0
+      },
+      "weight": 50,
+      "height": 1.63,
+      "workoutLog": [],
+      "teamCategory": "cuervos_juveniles_masculina",
+      "systemRole": "jugador",
+      "memberships": {
+        "paid": 0,
+        "due": 10000
+      }
+    },
+    {
+      "id": "or058",
+      "name": "Tivisay Olmos muñoz",
+      "apodo": "Mona",
+      "camiseta": 11,
+      "contacto": {
+        "phone": "+573013812672",
+        "email": ""
+      },
+      "rol": "Titular",
+      "posicion": "Centro",
+      "estado": "activo",
+      "attributes": {
+        "force": 40,
+        "speed": 86,
+        "stamina": 75,
+        "technique": 70
+      },
+      "history": [],
+      "injuryLog": [],
+      "attendance": {
+        "total": 0,
+        "present": 0,
+        "late": 0,
+        "absentUnjustified": 0,
+        "absentJustified": 0
+      },
+      "penalties": {
+        "burpees": 0,
+        "cones": false
+      },
+      "infractionLog": [],
+      "clothingSizes": {
+        "jersey": "M",
+        "shorts": "M",
+        "socks": "40-42"
+      },
+      "matchStats": [],
+      "wellnessLogs": [],
+      "hiaAssessments": [],
+      "gymStats": {
+        "squat": 0,
+        "bench": 0,
+        "deadlift": 0
+      },
+      "weight": 63,
+      "height": 1.57,
+      "workoutLog": [],
+      "teamCategory": "orcos_juveniles_femenina",
+      "systemRole": "jugador",
+      "memberships": {
+        "paid": 0,
+        "due": 10000
+      }
+    }
+  ],
+  "schedule": [],
+  "championships": [],
+  "finances": [],
+  "inventory": [],
+  "fixtures": []
+}

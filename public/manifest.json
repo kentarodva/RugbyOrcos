@@ -1,0 +1,21 @@
+{
+  "short_name": "Rugby Orcos",
+  "name": "Rugby Orcos Club Manager",
+  "icons": [
+    {
+      "src": "/assets/orcos_logo.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "/assets/orcos_logo.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "/index.html",
+  "background_color": "#0a0c10",
+  "theme_color": "#00e676",
+  "display": "standalone",
+  "orientation": "portrait"
+}
