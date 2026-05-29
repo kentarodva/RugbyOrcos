@@ -878,6 +878,17 @@ export const ClubProvider = ({ children }) => {
     return { data };
   };
 
+  const resetStaffPassword = async (userId, newPassword) => {
+    const { data, error } = await supabase.rpc('admin_reset_staff_password', {
+      p_user_id: userId,
+      p_new_password: newPassword,
+    });
+
+    if (error) return { error: error.message };
+    if (data?.error) return { error: data.error };
+    return { data };
+  };
+
   return (
     <ClubContext.Provider value={{
       activeTeam, setActiveTeam,
@@ -897,7 +908,7 @@ export const ClubProvider = ({ children }) => {
       recordMembershipPayment,
       rivals, addRival, updateRival, deleteRival,
       futureFixtures, addFutureFixture, deleteFutureFixture,
-      createPlayerCredentials, resetPlayerPassword
+      createPlayerCredentials, resetPlayerPassword, resetStaffPassword
     }}>
       {children}
     </ClubContext.Provider>

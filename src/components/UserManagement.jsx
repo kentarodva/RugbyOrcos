@@ -1,14 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { supabase } from '../supabaseClient.js';
-import { getRpgRole, CLUBS_LABELS } from '../context/ClubContext.jsx';
+import { getRpgRole, CLUBS_LABELS, ClubContext } from '../context/ClubContext.jsx';
 
 function UserManagement() {
+  const { resetStaffPassword } = useContext(ClubContext);
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showCreate, setShowCreate] = useState(false);
   const [form, setForm] = useState({ email: '', password: '', displayName: '', systemRole: 'jugador', clubScope: '' });
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
+  const [resetModal, setResetModal] = useState({ open: false, userId: null, userName: '', newPass: '' });
 
   useEffect(() => { loadUsers(); }, []);
 
@@ -76,6 +78,14 @@ function UserManagement() {
   const handleRoleChange = async (userId, newRole) => {
     const { error } = await supabase.from('user_profiles').update({ system_role: newRole }).eq('user_id', userId);
     if (!error) loadUsers();
+  };
+
+  const handleResetPassword = async () => {
+    if (resetModal.newPass.length < 6) return;
+    const result = await resetStaffPassword(resetModal.userId, resetModal.newPass);
+    if (result.error) { setError(result.error); return; }
+    setResetModal({ open: false, userId: null, userName: '', newPass: '' });
+    setError('');
   };
 
   return (
@@ -184,6 +194,8 @@ function UserManagement() {
                             <option key={r} value={r}>{getRpgRole(r).rpg}</option>
                           ))}
                         </select>
+                        <button onClick={() => setResetModal({ open: true, userId: u.user_id, userName: u.display_name, newPass: '' })}
+                          style={{ background: 'rgba(255,179,0,0.1)', border: '1px solid rgba(255,179,0,0.3)', color: '#ffb300', padding: '4px 10px', borderRadius: 'var(--radius-sm)', cursor: 'pointer', fontSize: '0.7rem', fontWeight: 700 }}>🔑</button>
                       </div>
                     )}
                   </td>
@@ -191,6 +203,24 @@ function UserManagement() {
               ))}
             </tbody>
           </table>
+        </div>
+      )}
+
+      {resetModal.open && (
+        <div className="modal-overlay" onClick={() => setResetModal({ ...resetModal, open: false })}>
+          <div className="modal-content glass-panel animated-slide" style={{ maxWidth: '400px', textAlign: 'center', padding: '25px' }} onClick={e => e.stopPropagation()}>
+            <div style={{ fontSize: '2rem', marginBottom: '10px' }}>🔑</div>
+            <h3 style={{ color: 'var(--color-gold)', fontFamily: 'Outfit', marginBottom: '8px' }}>Restablecer Contrasena</h3>
+            <p style={{ color: 'var(--color-text-muted)', fontSize: '0.85rem', marginBottom: '15px' }}>{resetModal.userName}</p>
+            <input type="password" value={resetModal.newPass} onChange={e => setResetModal({ ...resetModal, newPass: e.target.value })}
+              placeholder="Nueva contrasena (min. 6)" className="form-input"
+              style={{ textAlign: 'center', padding: '12px', marginBottom: '15px', width: '100%', boxSizing: 'border-box' }} />
+            {error && <p style={{ color: 'var(--color-red)', fontSize: '0.8rem', marginBottom: '10px' }}>{error}</p>}
+            <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
+              <button onClick={() => { setResetModal({ ...resetModal, open: false }); setError(''); }} className="btn-outline">Cancelar</button>
+              <button onClick={handleResetPassword} className="btn-neon" style={{ background: 'linear-gradient(135deg, var(--color-gold), #ff8f00)', color: '#000' }}>Restablecer</button>
+            </div>
+          </div>
         </div>
       )}
     </div>
