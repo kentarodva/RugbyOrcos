@@ -81,72 +81,244 @@ CREATE POLICY "players_update" ON players FOR UPDATE USING (user_id = auth.uid()
 CREATE POLICY "players_delete" ON players FOR DELETE USING (user_id = auth.uid() OR is_admin());
 
 -- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
--- FASE 5: RLS resto de tablas (schedule, champs, finances, etc.)
+-- FASE 5: RLS schedule_events
 -- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-DO $$
-DECLARE
-  tbl TEXT;
-  tables TEXT[] := ARRAY['schedule_events','championships','finances','inventory','fixtures','rivals','future_fixtures','lineups'];
-BEGIN
-  FOREACH tbl IN ARRAY tables LOOP
-    EXECUTE format('ALTER TABLE %I DISABLE ROW LEVEL SECURITY', tbl);
-    EXECUTE format('DROP POLICY IF EXISTS "Users can manage own %I" ON %I', tbl, tbl);
-    EXECUTE format('DROP POLICY IF EXISTS "Admins full access %I" ON %I', replace(tbl,'_',' '), tbl);
-    EXECUTE format('DROP POLICY IF EXISTS "Promoter sees club %I" ON %I', tbl, tbl);
-    EXECUTE format('DROP POLICY IF EXISTS "Staff sees division %I" ON %I', tbl, tbl);
-    EXECUTE format('DROP POLICY IF EXISTS "Auth read %I" ON %I', tbl, tbl);
-    EXECUTE format('DROP POLICY IF EXISTS "Owner manage %I" ON %I', tbl, tbl);
-    EXECUTE format('DROP POLICY IF EXISTS "%I_select" ON %I', tbl, tbl);
-    EXECUTE format('DROP POLICY IF EXISTS "%I_write" ON %I', tbl, tbl);
-    EXECUTE format('ALTER TABLE %I ENABLE ROW LEVEL SECURITY', tbl);
-    EXECUTE format('CREATE POLICY "%I_select" ON %I FOR SELECT USING (true)', tbl, tbl);
-    EXECUTE format('CREATE POLICY "%I_write" ON %I FOR ALL USING (user_id = auth.uid() OR is_admin())', tbl, tbl);
-  END LOOP;
-END;
-$$;
+ALTER TABLE schedule_events DISABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Users can manage own schedule_events" ON schedule_events;
+DROP POLICY IF EXISTS "Admins full access schedule" ON schedule_events;
+DROP POLICY IF EXISTS "Auth read schedule" ON schedule_events;
+DROP POLICY IF EXISTS "Owner manage schedule" ON schedule_events;
+DROP POLICY IF EXISTS "schedule_select" ON schedule_events;
+DROP POLICY IF EXISTS "schedule_write" ON schedule_events;
+ALTER TABLE schedule_events ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "schedule_select" ON schedule_events FOR SELECT USING (true);
+CREATE POLICY "schedule_write" ON schedule_events FOR ALL USING (user_id = auth.uid() OR is_admin());
+
+-- championships
+ALTER TABLE championships DISABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Users can manage own championships" ON championships;
+DROP POLICY IF EXISTS "Auth read champs" ON championships;
+DROP POLICY IF EXISTS "Owner manage champs" ON championships;
+DROP POLICY IF EXISTS "champs_select" ON championships;
+DROP POLICY IF EXISTS "champs_write" ON championships;
+ALTER TABLE championships ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "champs_select" ON championships FOR SELECT USING (true);
+CREATE POLICY "champs_write" ON championships FOR ALL USING (user_id = auth.uid() OR is_admin());
+
+-- finances
+ALTER TABLE finances DISABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Users can manage own finances" ON finances;
+DROP POLICY IF EXISTS "Auth read finances" ON finances;
+DROP POLICY IF EXISTS "Owner manage finances" ON finances;
+DROP POLICY IF EXISTS "finances_select" ON finances;
+DROP POLICY IF EXISTS "finances_write" ON finances;
+ALTER TABLE finances ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "finances_select" ON finances FOR SELECT USING (true);
+CREATE POLICY "finances_write" ON finances FOR ALL USING (user_id = auth.uid() OR is_admin());
+
+-- inventory
+ALTER TABLE inventory DISABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Users can manage own inventory" ON inventory;
+DROP POLICY IF EXISTS "Auth read inv" ON inventory;
+DROP POLICY IF EXISTS "Owner manage inv" ON inventory;
+DROP POLICY IF EXISTS "inv_select" ON inventory;
+DROP POLICY IF EXISTS "inv_write" ON inventory;
+ALTER TABLE inventory ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "inv_select" ON inventory FOR SELECT USING (true);
+CREATE POLICY "inv_write" ON inventory FOR ALL USING (user_id = auth.uid() OR is_admin());
+
+-- fixtures
+ALTER TABLE fixtures DISABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Users can manage own fixtures" ON fixtures;
+DROP POLICY IF EXISTS "Auth read fixtures" ON fixtures;
+DROP POLICY IF EXISTS "Owner manage fixtures" ON fixtures;
+DROP POLICY IF EXISTS "fixtures_select" ON fixtures;
+DROP POLICY IF EXISTS "fixtures_write" ON fixtures;
+ALTER TABLE fixtures ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "fixtures_select" ON fixtures FOR SELECT USING (true);
+CREATE POLICY "fixtures_write" ON fixtures FOR ALL USING (user_id = auth.uid() OR is_admin());
+
+-- rivals
+ALTER TABLE rivals DISABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Users can manage own rivals" ON rivals;
+DROP POLICY IF EXISTS "Auth read rivals" ON rivals;
+DROP POLICY IF EXISTS "Owner manage rivals" ON rivals;
+DROP POLICY IF EXISTS "rivals_select" ON rivals;
+DROP POLICY IF EXISTS "rivals_write" ON rivals;
+ALTER TABLE rivals ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "rivals_select" ON rivals FOR SELECT USING (true);
+CREATE POLICY "rivals_write" ON rivals FOR ALL USING (user_id = auth.uid() OR is_admin());
+
+-- future_fixtures
+ALTER TABLE future_fixtures DISABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Users can manage own future_fixtures" ON future_fixtures;
+DROP POLICY IF EXISTS "Auth read future" ON future_fixtures;
+DROP POLICY IF EXISTS "Owner manage future" ON future_fixtures;
+DROP POLICY IF EXISTS "future_select" ON future_fixtures;
+DROP POLICY IF EXISTS "future_write" ON future_fixtures;
+ALTER TABLE future_fixtures ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "future_select" ON future_fixtures FOR SELECT USING (true);
+CREATE POLICY "future_write" ON future_fixtures FOR ALL USING (user_id = auth.uid() OR is_admin());
+
+-- lineups
+ALTER TABLE lineups DISABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Users can manage own lineups" ON lineups;
+DROP POLICY IF EXISTS "Auth read lineups" ON lineups;
+DROP POLICY IF EXISTS "Owner manage lineups" ON lineups;
+DROP POLICY IF EXISTS "lineups_select" ON lineups;
+DROP POLICY IF EXISTS "lineups_write" ON lineups;
+ALTER TABLE lineups ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "lineups_select" ON lineups FOR SELECT USING (true);
+CREATE POLICY "lineups_write" ON lineups FOR ALL USING (user_id = auth.uid() OR is_admin());
 
 -- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
--- FASE 6: RLS tablas Mak'Gora (sin user_id)
+-- FASE 6: RLS tablas Mak'Gora
 -- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-DO $$
-DECLARE
-  tbl TEXT;
-  tables TEXT[] := ARRAY['makgora_teams','tournaments','tournament_teams','tournament_matches','tournament_standings','tournament_player_stats','player_loans'];
-BEGIN
-  FOREACH tbl IN ARRAY tables LOOP
-    EXECUTE format('ALTER TABLE %I DISABLE ROW LEVEL SECURITY', tbl);
-    EXECUTE format('DROP POLICY IF EXISTS "Authenticated users can view %I" ON %I', tbl, tbl);
-    EXECUTE format('DROP POLICY IF EXISTS "Admins can manage %I" ON %I', tbl, tbl);
-    EXECUTE format('DROP POLICY IF EXISTS "Authenticated can view %I" ON %I', tbl, tbl);
-    EXECUTE format('DROP POLICY IF EXISTS "Admins and promoters can manage %I" ON %I', tbl, tbl);
-    EXECUTE format('DROP POLICY IF EXISTS "%I_select" ON %I', tbl, tbl);
-    EXECUTE format('DROP POLICY IF EXISTS "%I_write" ON %I', tbl, tbl);
-    EXECUTE format('ALTER TABLE %I ENABLE ROW LEVEL SECURITY', tbl);
-    EXECUTE format('CREATE POLICY "%I_select" ON %I FOR SELECT USING (auth.role() = ''authenticated'')', tbl, tbl);
-    EXECUTE format('CREATE POLICY "%I_write" ON %I FOR ALL USING (is_admin())', tbl, tbl);
-  END LOOP;
-END;
-$$;
+ALTER TABLE makgora_teams DISABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Authenticated users can view makgora_teams" ON makgora_teams;
+DROP POLICY IF EXISTS "Admins can manage makgora_teams" ON makgora_teams;
+DROP POLICY IF EXISTS "makgora_teams_select" ON makgora_teams;
+DROP POLICY IF EXISTS "makgora_teams_write" ON makgora_teams;
+ALTER TABLE makgora_teams ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "makgora_teams_select" ON makgora_teams FOR SELECT USING (auth.role() = 'authenticated');
+CREATE POLICY "makgora_teams_write" ON makgora_teams FOR ALL USING (is_admin());
+
+ALTER TABLE tournaments DISABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Authenticated can view tournaments" ON tournaments;
+DROP POLICY IF EXISTS "Admins and promoters can manage tournaments" ON tournaments;
+DROP POLICY IF EXISTS "tourn_select" ON tournaments;
+DROP POLICY IF EXISTS "tourn_write" ON tournaments;
+ALTER TABLE tournaments ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "tourn_select" ON tournaments FOR SELECT USING (auth.role() = 'authenticated');
+CREATE POLICY "tourn_write" ON tournaments FOR ALL USING (is_admin());
+
+ALTER TABLE tournament_teams DISABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Authenticated can view tournament_teams" ON tournament_teams;
+DROP POLICY IF EXISTS "Admins and promoters can manage tournament_teams" ON tournament_teams;
+DROP POLICY IF EXISTS "tourn_teams_select" ON tournament_teams;
+DROP POLICY IF EXISTS "tourn_teams_write" ON tournament_teams;
+ALTER TABLE tournament_teams ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "tourn_teams_select" ON tournament_teams FOR SELECT USING (auth.role() = 'authenticated');
+CREATE POLICY "tourn_teams_write" ON tournament_teams FOR ALL USING (is_admin());
+
+ALTER TABLE tournament_matches DISABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Authenticated can view tournament_matches" ON tournament_matches;
+DROP POLICY IF EXISTS "Admins and promoters can manage tournament_matches" ON tournament_matches;
+DROP POLICY IF EXISTS "tourn_matches_select" ON tournament_matches;
+DROP POLICY IF EXISTS "tourn_matches_write" ON tournament_matches;
+ALTER TABLE tournament_matches ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "tourn_matches_select" ON tournament_matches FOR SELECT USING (auth.role() = 'authenticated');
+CREATE POLICY "tourn_matches_write" ON tournament_matches FOR ALL USING (is_admin());
+
+ALTER TABLE tournament_standings DISABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Authenticated can view tournament_standings" ON tournament_standings;
+DROP POLICY IF EXISTS "Admins and promoters can manage tournament_standings" ON tournament_standings;
+DROP POLICY IF EXISTS "standings_select" ON tournament_standings;
+DROP POLICY IF EXISTS "standings_write" ON tournament_standings;
+ALTER TABLE tournament_standings ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "standings_select" ON tournament_standings FOR SELECT USING (auth.role() = 'authenticated');
+CREATE POLICY "standings_write" ON tournament_standings FOR ALL USING (is_admin());
+
+ALTER TABLE tournament_player_stats DISABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Authenticated can view tournament_player_stats" ON tournament_player_stats;
+DROP POLICY IF EXISTS "Admins and promoters can manage tournament_player_stats" ON tournament_player_stats;
+DROP POLICY IF EXISTS "tourn_stats_select" ON tournament_player_stats;
+DROP POLICY IF EXISTS "tourn_stats_write" ON tournament_player_stats;
+ALTER TABLE tournament_player_stats ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "tourn_stats_select" ON tournament_player_stats FOR SELECT USING (auth.role() = 'authenticated');
+CREATE POLICY "tourn_stats_write" ON tournament_player_stats FOR ALL USING (is_admin());
+
+ALTER TABLE player_loans DISABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Authenticated can view player_loans" ON player_loans;
+DROP POLICY IF EXISTS "Admins and promoters can manage player_loans" ON player_loans;
+DROP POLICY IF EXISTS "loans_select" ON player_loans;
+DROP POLICY IF EXISTS "loans_write" ON player_loans;
+ALTER TABLE player_loans ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "loans_select" ON player_loans FOR SELECT USING (auth.role() = 'authenticated');
+CREATE POLICY "loans_write" ON player_loans FOR ALL USING (is_admin());
 
 -- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
--- FASE 7: Tablas hijas de players (RLS via EXISTS)
+-- FASE 7: Tablas hijas de players
 -- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-DO $$
-DECLARE
-  tbl TEXT;
-  tables TEXT[] := ARRAY['attribute_history','injury_log','attendance','player_attendance_summary','penalties','infractions','match_stats','wellness_logs','hia_assessments','workout_logs'];
-BEGIN
-  FOREACH tbl IN ARRAY tables LOOP
-    EXECUTE format('ALTER TABLE %I DISABLE ROW LEVEL SECURITY', tbl);
-    EXECUTE format('DROP POLICY IF EXISTS "Users can manage %I for own players" ON %I', tbl, tbl);
-    EXECUTE format('DROP POLICY IF EXISTS "%I_select" ON %I', tbl, tbl);
-    EXECUTE format('DROP POLICY IF EXISTS "%I_write" ON %I', tbl, tbl);
-    EXECUTE format('ALTER TABLE %I ENABLE ROW LEVEL SECURITY', tbl);
-    EXECUTE format('CREATE POLICY "%I_select" ON %I FOR SELECT USING (true)', tbl, tbl);
-    EXECUTE format('CREATE POLICY "%I_write" ON %I FOR ALL USING (EXISTS (SELECT 1 FROM players WHERE players.id = %I.player_id AND (players.user_id = auth.uid() OR is_admin())))', tbl, tbl);
-  END LOOP;
-END;
-$$;
+ALTER TABLE attribute_history DISABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Users can manage attribute_history for own players" ON attribute_history;
+DROP POLICY IF EXISTS "attribute_history_select" ON attribute_history;
+DROP POLICY IF EXISTS "attribute_history_write" ON attribute_history;
+ALTER TABLE attribute_history ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "attribute_history_select" ON attribute_history FOR SELECT USING (true);
+CREATE POLICY "attribute_history_write" ON attribute_history FOR ALL USING (EXISTS (SELECT 1 FROM players WHERE players.id = attribute_history.player_id AND (players.user_id = auth.uid() OR is_admin())));
+
+ALTER TABLE injury_log DISABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Users can manage injury_log for own players" ON injury_log;
+DROP POLICY IF EXISTS "injury_log_select" ON injury_log;
+DROP POLICY IF EXISTS "injury_log_write" ON injury_log;
+ALTER TABLE injury_log ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "injury_log_select" ON injury_log FOR SELECT USING (true);
+CREATE POLICY "injury_log_write" ON injury_log FOR ALL USING (EXISTS (SELECT 1 FROM players WHERE players.id = injury_log.player_id AND (players.user_id = auth.uid() OR is_admin())));
+
+ALTER TABLE attendance DISABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Users can manage attendance for own players" ON attendance;
+DROP POLICY IF EXISTS "attendance_select" ON attendance;
+DROP POLICY IF EXISTS "attendance_write" ON attendance;
+ALTER TABLE attendance ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "attendance_select" ON attendance FOR SELECT USING (true);
+CREATE POLICY "attendance_write" ON attendance FOR ALL USING (EXISTS (SELECT 1 FROM players WHERE players.id = attendance.player_id AND (players.user_id = auth.uid() OR is_admin())));
+
+ALTER TABLE player_attendance_summary DISABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Users can manage player_attendance_summary for own players" ON player_attendance_summary;
+DROP POLICY IF EXISTS "player_attendance_summary_select" ON player_attendance_summary;
+DROP POLICY IF EXISTS "player_attendance_summary_write" ON player_attendance_summary;
+ALTER TABLE player_attendance_summary ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "player_attendance_summary_select" ON player_attendance_summary FOR SELECT USING (true);
+CREATE POLICY "player_attendance_summary_write" ON player_attendance_summary FOR ALL USING (EXISTS (SELECT 1 FROM players WHERE players.id = player_attendance_summary.player_id AND (players.user_id = auth.uid() OR is_admin())));
+
+ALTER TABLE penalties DISABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Users can manage penalties for own players" ON penalties;
+DROP POLICY IF EXISTS "penalties_select" ON penalties;
+DROP POLICY IF EXISTS "penalties_write" ON penalties;
+ALTER TABLE penalties ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "penalties_select" ON penalties FOR SELECT USING (true);
+CREATE POLICY "penalties_write" ON penalties FOR ALL USING (EXISTS (SELECT 1 FROM players WHERE players.id = penalties.player_id AND (players.user_id = auth.uid() OR is_admin())));
+
+ALTER TABLE infractions DISABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Users can manage infractions for own players" ON infractions;
+DROP POLICY IF EXISTS "infractions_select" ON infractions;
+DROP POLICY IF EXISTS "infractions_write" ON infractions;
+ALTER TABLE infractions ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "infractions_select" ON infractions FOR SELECT USING (true);
+CREATE POLICY "infractions_write" ON infractions FOR ALL USING (EXISTS (SELECT 1 FROM players WHERE players.id = infractions.player_id AND (players.user_id = auth.uid() OR is_admin())));
+
+ALTER TABLE match_stats DISABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Users can manage match_stats for own players" ON match_stats;
+DROP POLICY IF EXISTS "match_stats_select" ON match_stats;
+DROP POLICY IF EXISTS "match_stats_write" ON match_stats;
+ALTER TABLE match_stats ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "match_stats_select" ON match_stats FOR SELECT USING (true);
+CREATE POLICY "match_stats_write" ON match_stats FOR ALL USING (EXISTS (SELECT 1 FROM players WHERE players.id = match_stats.player_id AND (players.user_id = auth.uid() OR is_admin())));
+
+ALTER TABLE wellness_logs DISABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Users can manage wellness_logs for own players" ON wellness_logs;
+DROP POLICY IF EXISTS "wellness_logs_select" ON wellness_logs;
+DROP POLICY IF EXISTS "wellness_logs_write" ON wellness_logs;
+ALTER TABLE wellness_logs ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "wellness_logs_select" ON wellness_logs FOR SELECT USING (true);
+CREATE POLICY "wellness_logs_write" ON wellness_logs FOR ALL USING (EXISTS (SELECT 1 FROM players WHERE players.id = wellness_logs.player_id AND (players.user_id = auth.uid() OR is_admin())));
+
+ALTER TABLE hia_assessments DISABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Users can manage hia_assessments for own players" ON hia_assessments;
+DROP POLICY IF EXISTS "hia_assessments_select" ON hia_assessments;
+DROP POLICY IF EXISTS "hia_assessments_write" ON hia_assessments;
+ALTER TABLE hia_assessments ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "hia_assessments_select" ON hia_assessments FOR SELECT USING (true);
+CREATE POLICY "hia_assessments_write" ON hia_assessments FOR ALL USING (EXISTS (SELECT 1 FROM players WHERE players.id = hia_assessments.player_id AND (players.user_id = auth.uid() OR is_admin())));
+
+ALTER TABLE workout_logs DISABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Users can manage workout_logs for own players" ON workout_logs;
+DROP POLICY IF EXISTS "workout_logs_select" ON workout_logs;
+DROP POLICY IF EXISTS "workout_logs_write" ON workout_logs;
+ALTER TABLE workout_logs ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "workout_logs_select" ON workout_logs FOR SELECT USING (true);
+CREATE POLICY "workout_logs_write" ON workout_logs FOR ALL USING (EXISTS (SELECT 1 FROM players WHERE players.id = workout_logs.player_id AND (players.user_id = auth.uid() OR is_admin())));
 
 -- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 -- FASE 8: Recrear funciones RPC
