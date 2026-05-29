@@ -14,9 +14,23 @@ import AIChat from './components/AIChat';
 import Settings from './components/Settings';
 import { isGeminiConfigured } from './engine/geminiCoach';
 
+const RPG_TITLES = {
+  desarrollador: 'Arquitecto del Reino',
+  presidente: 'Señor de la Guerra',
+  promotor: 'Comandante de Horda',
+  entrenador: 'Maestro de Armas',
+  tesorero: 'Guardian del Botin',
+  arbitro: 'Juez del Coliseo',
+  jugador: 'Guerrero',
+};
+
+function getRpgTitle(role) {
+  return RPG_TITLES[role] || role;
+}
+
 function App() {
   const { activeTeam, setActiveTeam, exportData, importData, isSuperRole, currentUser, getAllClubs, getAllClubsLabels, addClub, deleteClub, dynamicClubs, syncStatus } = useContext(ClubContext);
-  const { isAuthenticated, signOut } = useAuth();
+  const { isAuthenticated, signOut, profile } = useAuth();
   const { showToast } = useToast();
   const [activeTab, setActiveTab] = useState('dashboard');
   const [showSettings, setShowSettings] = useState(false);
@@ -108,7 +122,12 @@ function App() {
               RUGBY ORCOS NEGROS
             </h1>
             <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '2px' }}>
-              Club Manager v3.0 {syncStatus === 'syncing' && '· Sincronizando...'} {syncStatus === 'online' && '· ☁️'} {syncStatus === 'offline' && '· 📱'}
+              Reino Manager v4.0
+              {profile && (
+                <span style={{ color: 'var(--color-gold)', marginLeft: '6px' }}>
+                  · {getRpgTitle(profile.system_role)} {syncStatus === 'syncing' && '· Sincronizando...'} {syncStatus === 'online' && '· ☁️'} {syncStatus === 'offline' && '· 📱'}
+                </span>
+              )}
             </p>
           </div>
         </div>

@@ -208,10 +208,39 @@ for (const r of records) {
   });
 }
 
+// ── CREAR O RECUPERAR USUARIO SEED ──
+const SEED_EMAIL = 'admin@orcosnegros.com';
+const SEED_PASSWORD = 'OrcosAdmin2026!';
+
+let seedUserId = null;
+
+console.log('Buscando usuario seed...');
+const { data: existingUsers } = await supabase.auth.admin.listUsers();
+
+const existingSeed = (existingUsers?.users || []).find(u => u.email === SEED_EMAIL);
+
+if (existingSeed) {
+  seedUserId = existingSeed.id;
+  console.log(`Usuario seed encontrado: ${SEED_EMAIL} (${seedUserId})`);
+} else {
+  console.log('Creando usuario seed...');
+  const { data: newUser, error: createErr } = await supabase.auth.admin.createUser({
+    email: SEED_EMAIL,
+    password: SEED_PASSWORD,
+    email_confirm: true,
+  });
+
+  if (createErr || !newUser?.user) {
+    console.error('Error al crear usuario seed:', createErr?.message);
+    process.exit(1);
+  }
+
+  seedUserId = newUser.user.id;
+  console.log(`Usuario seed creado: ${SEED_EMAIL} (${seedUserId})`);
+  console.log(`  Contraseña: ${SEED_PASSWORD}`);
+}
+
 // ── INSERTAR EN SUPABASE ──
-// Para el seed, usamos un user_id dummy "00000000-0000-0000-0000-000000000000"
-// que luego se reasigna al admin real en la app
-const SEED_USER_ID = '00000000-0000-0000-0000-000000000000';
 
 console.log(`\nInsertando ${players.length} jugadores en Supabase...`);
 let inserted = 0;
@@ -220,7 +249,7 @@ let errors = 0;
 for (const p of players) {
   try {
     const { error } = await supabase.from('players').insert({
-      user_id: SEED_USER_ID,
+      user_id: seedUserId,
       first_name: p.first_name,
       last_name: p.last_name,
       nickname: p.nickname,
@@ -297,3 +326,28 @@ console.log('\n  Por categoria:');
 Object.entries(byCat).sort().forEach(([c,n]) => console.log(`    ${c}: ${n}`));
 
 console.log('═══════════════════════════════════════');
+
+// ── Crear perfil del admin seed si no existe ──
+if (seedUserId) {
+  const { data: profile } = await supabase
+    .from('user_profiles')
+    .select('id')
+    .eq('user_id', seedUserId)
+    .maybeSingle();
+
+  if (!profile) {
+    await supabase.from('user_profiles').insert({
+      user_id: seedUserId,
+      display_name: 'Arquitecto del Reino',
+      system_role: 'desarrollador',
+      club_scope: null,
+      division_scope: null,
+    });
+    console.log('\nPerfil de admin creado: Arquitecto del Reino');
+  }
+}
+
+console.log(`\nCredenciales de acceso:`);
+console.log(`  Email: ${SEED_EMAIL}`);
+console.log(`  Password: ${SEED_PASSWORD}`);
+console.log(`  Rol: Arquitecto del Reino (desarrollador)`);
