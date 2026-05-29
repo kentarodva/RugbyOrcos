@@ -1,5 +1,6 @@
 import React, { createContext, useState, useEffect } from 'react';
 import { useAuth } from './AuthContext.jsx';
+import { supabase } from '../supabaseClient.js';
 import apisupabase, { supabasePlayerToReact } from '../data/supabaseApi.js';
 
 let LocalNotifications = null;
@@ -920,6 +921,37 @@ export const ClubProvider = ({ children }) => {
     }
   };
 
+  const createPlayerCredentials = async (playerId, password) => {
+    const player = players.find(p => p.id === playerId);
+    if (!player) return { error: 'Jugador no encontrado' };
+
+    const { data, error } = await supabase.rpc('admin_create_player_credentials', {
+      p_player_id: playerId,
+      p_password: password || null,
+    });
+
+    if (error) return { error: error.message };
+    if (data?.error) return { error: data.error };
+
+    setPlayers(prev => prev.map(p => {
+      if (p.id !== playerId) return p;
+      return { ...p, username: data.username, contacto: { ...p.contacto, email: data.email } };
+    }));
+
+    return { data, username: data.username, password: data.password };
+  };
+
+  const resetPlayerPassword = async (playerId, newPassword) => {
+    const { data, error } = await supabase.rpc('admin_reset_player_password', {
+      p_player_id: playerId,
+      p_new_password: newPassword,
+    });
+
+    if (error) return { error: error.message };
+    if (data?.error) return { error: data.error };
+    return { data };
+  };
+
   return (
     <ClubContext.Provider value={{
       activeTeam, setActiveTeam,
@@ -938,7 +970,8 @@ export const ClubProvider = ({ children }) => {
       dynamicClubs, getAllClubs, getAllClubsLabels, addClub, deleteClub,
       recordMembershipPayment,
       rivals, addRival, updateRival, deleteRival,
-      futureFixtures, addFutureFixture, deleteFutureFixture
+      futureFixtures, addFutureFixture, deleteFutureFixture,
+      createPlayerCredentials, resetPlayerPassword
     }}>
       {children}
     </ClubContext.Provider>

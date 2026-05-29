@@ -13,6 +13,7 @@ import TrainingHub from './components/TrainingHub';
 import AIChat from './components/AIChat';
 import Settings from './components/Settings';
 import UserManagement from './components/UserManagement';
+import PlayerDashboard from './components/PlayerDashboard';
 import { isGeminiConfigured } from './engine/geminiCoach';
 
 const RPG_TITLES = {
@@ -42,6 +43,17 @@ function App() {
 
   if (!isAuthenticated) {
     return <Login />;
+  }
+
+  if (profile?.system_role === 'jugador') {
+    return (
+      <div className="app-container" style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+        <PlayerDashboard />
+        <footer style={{ textAlign: 'center', padding: '15px', fontSize: '0.75rem', color: 'var(--color-text-muted)', borderTop: '1px solid var(--border-glass)' }}>
+          Rugby Orcos Negros 2026. Fuerza, Honor y Tercer Tiempo.
+        </footer>
+      </div>
+    );
   }
 
   const parts = activeTeam ? activeTeam.split('_') : ['orcos', 'masculina', 'mayor'];
