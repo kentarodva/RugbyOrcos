@@ -66,16 +66,18 @@ export function AuthProvider({ children }) {
 
     const { error: profileError } = await supabase
       .from('user_profiles')
-      .insert({
+      .upsert({
         user_id: authData.user.id,
         display_name: displayName,
         system_role: systemRole,
         club_scope: null,
         division_scope: null,
-      });
+        is_active: true,
+      }, { onConflict: 'user_id' });
 
     if (profileError) {
       console.warn('Error creando perfil:', profileError.message);
+      return { error: profileError };
     }
 
     return { data: authData, error: null };

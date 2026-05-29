@@ -8,10 +8,12 @@ function UserManagement() {
   const [showCreate, setShowCreate] = useState(false);
   const [form, setForm] = useState({ email: '', password: '', displayName: '', systemRole: 'jugador', clubScope: '' });
   const [error, setError] = useState('');
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => { loadUsers(); }, []);
 
   const loadUsers = async () => {
+    setLoading(true);
     const { data, error } = await supabase.from('user_profiles').select('*');
     if (!error && data) {
       setUsers(data.map(u => ({ ...u, rpg: getRpgRole(u.system_role) })));
@@ -25,6 +27,7 @@ function UserManagement() {
     if (!form.email || !form.password || !form.displayName) { setError('Llena todos los campos.'); return; }
     if (form.password.length < 6) { setError('Contrasena: minimo 6 caracteres.'); return; }
 
+    setSaving(true);
     const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
       email: form.email,
       password: form.password,
@@ -34,6 +37,7 @@ function UserManagement() {
     });
 
     if (signUpError) {
+      setSaving(false);
       if (signUpError.message.includes('already registered') || signUpError.message.includes('already exists')) {
         setError('Este email ya esta registrado.');
       } else {
@@ -43,25 +47,35 @@ function UserManagement() {
     }
 
     if (signUpData?.user) {
-      await supabase.from('user_profiles').update({
+      const { error: updateError } = await supabase.from('user_profiles').upsert({
+        user_id: signUpData.user.id,
+        display_name: form.displayName,
         system_role: form.systemRole,
         club_scope: form.clubScope || null,
-      }).eq('user_id', signUpData.user.id);
+        is_active: true,
+      }, { onConflict: 'user_id' });
+
+      if (updateError) {
+        setError('Usuario creado pero fallo la asignacion de rol: ' + updateError.message);
+        setSaving(false);
+        return;
+      }
     }
 
+    setSaving(false);
     setShowCreate(false);
     setForm({ email: '', password: '', displayName: '', systemRole: 'jugador', clubScope: '' });
     loadUsers();
   };
 
   const handleToggleActive = async (userId, currentActive) => {
-    await supabase.from('user_profiles').update({ is_active: !currentActive }).eq('user_id', userId);
-    loadUsers();
+    const { error } = await supabase.from('user_profiles').update({ is_active: !currentActive }).eq('user_id', userId);
+    if (!error) loadUsers();
   };
 
   const handleRoleChange = async (userId, newRole) => {
-    await supabase.from('user_profiles').update({ system_role: newRole }).eq('user_id', userId);
-    loadUsers();
+    const { error } = await supabase.from('user_profiles').update({ system_role: newRole }).eq('user_id', userId);
+    if (!error) loadUsers();
   };
 
   return (
@@ -117,8 +131,9 @@ function UserManagement() {
             </select>
           </div>
           {error && <p style={{ gridColumn: 'span 2', color: 'var(--color-red)', fontSize: '0.8rem', fontWeight: 600 }}>{error}</p>}
-          <button type="submit" className="btn-neon" style={{ gridColumn: 'span 2', padding: '12px', fontSize: '0.9rem' }}>
-            Reclutar
+          <button type="submit" className="btn-neon" disabled={saving}
+            style={{ gridColumn: 'span 2', padding: '12px', fontSize: '0.9rem', opacity: saving ? 0.7 : 1 }}>
+            {saving ? 'Reclutando...' : 'Reclutar'}
           </button>
         </form>
       )}

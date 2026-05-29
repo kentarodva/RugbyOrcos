@@ -10,10 +10,11 @@ function PlayerDashboard() {
 
   const [wellness, setWellness] = useState({ sleep: 3, soreness: 3, stress: 3 });
 
-  const player = players.find(p =>
-    p.name.toLowerCase() === profile?.display_name?.toLowerCase() ||
-    (user?.email && p.contacto?.email === user.email)
-  );
+  const player = players.find(p => {
+    if (profile?.display_name && p.name.toLowerCase() === profile.display_name.toLowerCase()) return true;
+    if (user?.email && p.contacto?.email === user.email) return true;
+    return false;
+  });
 
   if (!player) {
     return (
@@ -129,11 +130,11 @@ function PlayerDashboard() {
           </h3>
           <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
             <div style={{ flex: 1, height: '10px', background: 'rgba(255,255,255,0.05)', borderRadius: '5px', overflow: 'hidden' }}>
-              <div style={{ height: '100%', width: `${Math.min(100, (player.memberships.paid / (player.memberships.due || 10000)) * 100)}%`,
+              <div style={{ height: '100%', width: `${player.memberships.due > 0 ? Math.min(100, (player.memberships.paid / player.memberships.due) * 100) : 100}%`,
                 background: '#00e676', borderRadius: '5px', boxShadow: '0 0 8px rgba(0,230,118,0.4)' }} />
             </div>
             <span style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', whiteSpace: 'nowrap' }}>
-              ${(player.memberships.paid || 0).toLocaleString()} / ${(player.memberships.due || 10000).toLocaleString()} COP
+              ${(player.memberships.paid || 0).toLocaleString()} / ${player.memberships.due > 0 ? (player.memberships.due || 10000).toLocaleString() : 'Completo'} COP
             </span>
           </div>
         </div>
