@@ -354,22 +354,21 @@ export const ClubProvider = ({ children }) => {
     const syncFromSupabase = async () => {
       setSyncStatus('syncing');
       try {
-        const { data: dbPlayers, error } = await apisupabase.fetchPlayers(user.id);
+        console.log('[Sync] Iniciando sync para user:', user.id);
+        const result = await supabase.from('players').select('*').eq('user_id', user.id);
+        console.log('[Sync] Resultado players:', { count: result.data?.length, error: result.error?.message });
 
-        if (error) throw error;
+        if (result.error) throw result.error;
 
+        const dbPlayers = result.data;
         if (dbPlayers && dbPlayers.length > 0) {
           const normalized = dbPlayers.map(supabasePlayerToReact);
+          console.log('[Sync] Normalizados', normalized.length, 'jugadores. Ejemplo:', normalized[0]?.name);
           setPlayers(normalized);
           localStorage.setItem('orcos_players', JSON.stringify(normalized));
           console.log('[Supabase] Sincronizados', normalized.length, 'jugadores');
         } else {
-          const localPlayers = JSON.parse(localStorage.getItem('orcos_players') || '[]');
-          if (localPlayers.length > 0) {
-            for (const p of localPlayers) {
-              await pushPlayerToSupabase(p);
-            }
-          }
+          console.log('[Sync] No se encontraron jugadores en Supabase. user_id:', user.id);
         }
 
         const appData = await apisupabase.fetchAll(user.id);
