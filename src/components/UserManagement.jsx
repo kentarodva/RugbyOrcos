@@ -179,8 +179,9 @@ function UserManagement() {
                     }}>{u.is_active ? 'Activo' : 'Inactivo'}</span>
                   </td>
                   <td style={tdS}>
+                    <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
                     {u.system_role !== 'desarrollador' && (
-                      <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+                      <>
                         <button onClick={() => handleToggleActive(u.user_id, u.is_active)}
                           style={{
                             background: u.is_active ? 'rgba(255,61,0,0.1)' : 'rgba(0,230,118,0.1)',
@@ -194,10 +195,11 @@ function UserManagement() {
                             <option key={r} value={r}>{getRpgRole(r).rpg}</option>
                           ))}
                         </select>
-                        <button onClick={() => setResetModal({ open: true, userId: u.user_id, userName: u.display_name, newPass: '' })}
-                          style={{ background: 'rgba(255,179,0,0.1)', border: '1px solid rgba(255,179,0,0.3)', color: '#ffb300', padding: '4px 10px', borderRadius: 'var(--radius-sm)', cursor: 'pointer', fontSize: '0.7rem', fontWeight: 700 }}>🔑</button>
-                      </div>
+                      </>
                     )}
+                      <button onClick={() => setResetModal({ open: true, userId: u.user_id, userName: u.display_name, newPass: '' })}
+                        style={{ background: 'rgba(255,179,0,0.1)', border: '1px solid rgba(255,179,0,0.3)', color: '#ffb300', padding: '4px 10px', borderRadius: 'var(--radius-sm)', cursor: 'pointer', fontSize: '0.7rem', fontWeight: 700 }}>🔑</button>
+                    </div>
                   </td>
                 </tr>
               ))}
