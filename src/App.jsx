@@ -1,22 +1,26 @@
-import React, { useState, useContext, useRef } from 'react';
+import React, { useState, useContext, useRef, lazy, Suspense } from 'react';
 import { ClubContext, DIVISIONES, DIVISIONES_LABELS } from './context/ClubContext';
 import { useAuth } from './context/AuthContext';
 import { useToast } from './context/ToastContext';
 import Login from './components/Login';
 import Dashboard from './components/Dashboard';
 import Roster from './components/Roster';
-import CanchaTactica from './components/CanchaTactica';
 import Tribunal from './components/Tribunal';
 import Calendario from './components/Calendario';
 import Finanzas from './components/Finanzas';
-import TrainingHub from './components/TrainingHub';
-import AIChat from './components/AIChat';
 import Settings from './components/Settings';
 import UserManagement from './components/UserManagement';
 import PlayerDashboard from './components/PlayerDashboard';
 import AwardsHall from './components/AwardsHall';
 import MakgoraHub from './components/MakgoraHub';
-import { isGeminiConfigured } from './engine/geminiCoach';
+import MatchInvitation from './components/MatchInvitation';
+import Messages from './components/Messages';
+import AnnouncementModal from './components/AnnouncementModal';
+import { isGeminiConfigured } from './engine/multiProviderCoach';
+
+const CanchaTactica = lazy(() => import('./components/CanchaTactica'));
+const TrainingHub = lazy(() => import('./components/TrainingHub'));
+const AIChat = lazy(() => import('./components/AIChat'));
 
 const RPG_TITLES = {
   desarrollador: 'Arquitecto del Reino',
@@ -38,10 +42,15 @@ function App() {
   const { showToast } = useToast();
   const [activeTab, setActiveTab] = useState('dashboard');
   const [showSettings, setShowSettings] = useState(false);
+  const [showAnnouncements, setShowAnnouncements] = useState(true);
   const [showAdminPanel, setShowAdminPanel] = useState(false);
   const [adminSubTab, setAdminSubTab] = useState('users');
   const [newClubName, setNewClubName] = useState('');
   const fileInputRef = useRef(null);
+
+  if (window.location.pathname.startsWith('/invitacion/') || window.location.pathname.startsWith('/invitation/')) {
+    return <MatchInvitation />;
+  }
 
   if (!isAuthenticated) {
     return <Login />;
@@ -141,7 +150,19 @@ function App() {
               Reino Manager v4.0
               {profile && (
                 <span style={{ color: 'var(--color-gold)', marginLeft: '6px' }}>
-                  · {getRpgTitle(profile.system_role)} {syncStatus === 'syncing' && '· Sincronizando...'} {syncStatus === 'online' && '· ☁️'} {syncStatus === 'offline' && '· 📱'}
+                  · {getRpgTitle(profile.system_role)}
+                  {syncStatus === 'idle' && (
+                    <span style={{ color: 'var(--color-text-muted)', marginLeft: '6px' }} title="Conectando al Reino...">· ⏳ Conectando...</span>
+                  )}
+                  {syncStatus === 'syncing' && (
+                    <span style={{ color: 'var(--color-blue)', marginLeft: '6px' }} title="Sincronizando con Supabase...">· 🔄 Sincronizando...</span>
+                  )}
+                  {syncStatus === 'online' && (
+                    <span style={{ color: 'var(--color-primary)', marginLeft: '6px' }} title="Conectado a Supabase">· ☁️ Online</span>
+                  )}
+                  {syncStatus === 'offline' && (
+                    <span style={{ color: 'var(--color-gold)', marginLeft: '6px' }} title="Trabajando sin conexión. Los cambios se guardan localmente.">· 📱 Offline</span>
+                  )}
                 </span>
               )}
             </p>
@@ -359,12 +380,16 @@ function App() {
         <button onClick={() => setActiveTab('entrenamientos')} className={`tab-btn ${activeTab === 'entrenamientos' ? 'active' : ''}`}>
           Entrenamientos
         </button>
+        <button onClick={() => setActiveTab('messages')} className={`tab-btn ${activeTab === 'messages' ? 'active' : ''}`}>
+          💬 Mensajes
+        </button>
         <button onClick={() => setActiveTab('ia')} className={`tab-btn ${activeTab === 'ia' ? 'active' : ''}`}>
           IA
         </button>
       </nav>
 
       <main style={{ flex: 1, padding: '15px 15px 40px 15px' }}>
+        <Suspense fallback={<div className="glass-panel" style={{ padding: '40px', textAlign: 'center', color: 'var(--color-text-muted)' }}>Cargando modulo...</div>}>
         {activeTab === 'dashboard' && <Dashboard />}
         {activeTab === 'roster' && <Roster />}
         {activeTab === 'cancha' && <CanchaTactica />}
@@ -374,10 +399,15 @@ function App() {
         {activeTab === 'calendario' && <Calendario />}
         {activeTab === 'finanzas' && <Finanzas />}
         {activeTab === 'entrenamientos' && <TrainingHub />}
+        {activeTab === 'messages' && <Messages />}
         {activeTab === 'ia' && <AIChat />}
+        </Suspense>
       </main>
 
       {showSettings && <Settings onClose={() => setShowSettings(false)} />}
+      {showAnnouncements && isAuthenticated && (
+        <AnnouncementModal onClose={() => setShowAnnouncements(false)} />
+      )}
 
       <footer style={{
         textAlign: 'center',

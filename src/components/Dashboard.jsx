@@ -2,6 +2,121 @@ import React, { useContext, useState, useEffect, useRef, useCallback } from 'rea
 import { ClubContext, EQUIPOS_LABELS } from '../context/ClubContext';
 import { useToast } from '../context/ToastContext';
 
+function RadarChart({ teamPlayers }) {
+  if (teamPlayers.length === 0) return null;
+  const avg = (attr) => Math.round(teamPlayers.reduce((s, p) => s + (p.attributes?.[attr] || 50), 0) / teamPlayers.length);
+  const vals = { force: avg('force'), speed: avg('speed'), stamina: avg('stamina'), technique: avg('technique') };
+  const cx = 140, cy = 140, r = 110;
+  const axes = [
+    { id: 'force', label: 'Fuerza', angle: -Math.PI / 2, color: '#ff3d00' },
+    { id: 'speed', label: 'Velocidad', angle: 0, color: '#00b0ff' },
+    { id: 'stamina', label: 'Resistencia', angle: Math.PI / 2, color: '#00e676' },
+    { id: 'technique', label: 'Técnica', angle: Math.PI, color: '#9c27b0' },
+  ];
+  const getPoint = (id) => {
+    const ax = axes.find(a => a.id === id);
+    const dist = (vals[id] / 100) * r;
+    return [cx + Math.cos(ax.angle) * dist, cy + Math.sin(ax.angle) * dist];
+  };
+  const pointsStr = axes.map(a => getPoint(a.id).join(',')).join(' ');
+  return (
+    <div className="glass-panel" style={{ padding: '20px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px' }}>
+      <h3 style={{ fontSize: '0.95rem', fontWeight: 700, fontFamily: 'Outfit', color: 'var(--color-primary)' }}>
+        📊 Atributos Promedio del Clan ({teamPlayers.length} guerreros)
+      </h3>
+      <svg viewBox="0 0 280 280" style={{ width: '100%', maxWidth: '300px' }}>
+        {/* Grid circles */}
+        {[0.25, 0.5, 0.75, 1].map(s => (
+          <circle key={s} cx={cx} cy={cy} r={r * s} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="1" />
+        ))}
+        {/* Axis lines */}
+        {axes.map(a => (
+          <line key={a.id} x1={cx} y1={cy} x2={cx + Math.cos(a.angle) * r} y2={cy + Math.sin(a.angle) * r}
+            stroke="rgba(255,255,255,0.1)" strokeWidth="1" />
+        ))}
+        {/* Data polygon */}
+        <polygon points={pointsStr} fill="rgba(0,230,118,0.15)" stroke="var(--color-primary)" strokeWidth="2" />
+        {/* Data points */}
+        {axes.map(a => {
+          const [x, y] = getPoint(a.id);
+          return <circle key={a.id} cx={x} cy={y} r="4" fill={a.color} stroke="#fff" strokeWidth="1" />;
+        })}
+        {/* Labels */}
+        {axes.map(a => (
+          <text key={a.id + '_lbl'} x={cx + Math.cos(a.angle) * (r + 22)} y={cy + Math.sin(a.angle) * (r + 22)}
+            textAnchor="middle" dominantBaseline="middle" fill={a.color} fontSize="11" fontWeight="700" fontFamily="Outfit">
+            {a.label} {vals[a.id]}
+          </text>
+        ))}
+      </svg>
+    </div>
+  );
+}
+
+function AttendanceTimeline({ teamPlayers }) {
+  if (teamPlayers.length === 0) return null;
+  const last4 = [];
+  for (let i = 3; i >= 0; i--) {
+    const d = new Date();
+    d.setDate(d.getDate() - i * 7);
+    last4.push(d.toLocaleDateString('es-ES', { month: 'short', day: 'numeric' }));
+  }
+  const avgAtt = teamPlayers.reduce((s, p) => {
+    const a = p.attendance || {};
+    return s + (a.total > 0 ? a.present / a.total : 0);
+  }, 0) / teamPlayers.length;
+  const pct = Math.round(avgAtt * 100);
+  return (
+    <div className="glass-panel" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+      <h3 style={{ fontSize: '0.9rem', fontWeight: 700, fontFamily: 'Outfit', color: 'var(--color-gold)' }}>
+        📅 Asistencia del Clan
+      </h3>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        <div style={{ flex: 1, height: '12px', background: 'var(--bg-dark)', borderRadius: '6px', overflow: 'hidden' }}>
+          <div style={{ width: `${pct}%`, height: '100%', background: `var(--color-${pct >= 90 ? 'primary' : pct >= 70 ? 'gold' : 'red'})`, borderRadius: '6px', transition: 'width 0.8s' }} />
+        </div>
+        <span style={{ fontWeight: 800, fontSize: '1.1rem', color: `var(--color-${pct >= 90 ? 'primary' : pct >= 70 ? 'gold' : 'red'})`, fontFamily: 'Outfit', minWidth: '45px', textAlign: 'right' }}>{pct}%</span>
+      </div>
+      <p style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)', textAlign: 'right' }}>
+        Promedio histórico del equipo activo
+      </p>
+    </div>
+  );
+}
+
+function DivisionComparison({ allPlayers }) {
+  const [expanded, setExpanded] = useState(false);
+  const divisions = ['masculina_mayor', 'femenina_mayor', 'juveniles_masculina', 'juveniles_femenina'];
+  const labels = { masculina_mayor: 'Masculina Mayor', femenina_mayor: 'Femenina Mayor', juveniles_masculina: 'Juveniles M', juveniles_femenina: 'Juveniles F' };
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+      <button onClick={() => setExpanded(!expanded)} className="btn-outline" style={{ padding: '8px 16px', fontSize: '0.8rem', alignSelf: 'flex-start' }}>
+        {expanded ? '▲ Ocultar' : '▼ Comparar Divisiones'}
+      </button>
+      {expanded && (
+        <div className="animated-slide" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '10px' }}>
+          {divisions.map(div => {
+            const p = allPlayers.filter(pl => pl.teamCategory?.includes(div));
+            const activos = p.filter(pl => pl.estado === 'activo').length;
+            const tries = p.reduce((s, pl) => s + (pl.matchStats || []).reduce((a, b) => a + (b.tries || 0), 0), 0);
+            return (
+              <div key={div} className="glass-panel" style={{ padding: '12px', textAlign: 'center', borderTop: '2px solid var(--color-primary)' }}>
+                <p style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)', fontWeight: 700, textTransform: 'uppercase', marginBottom: '6px' }}>{labels[div]}</p>
+                <p style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--color-primary)', fontFamily: 'Outfit' }}>{p.length}</p>
+                <p style={{ fontSize: '0.65rem', color: 'var(--color-text-muted)' }}>guerreros</p>
+                <div style={{ display: 'flex', justifyContent: 'space-around', marginTop: '8px', fontSize: '0.68rem', color: 'var(--color-text-muted)' }}>
+                  <span>🟢 {activos}</span>
+                  <span>🏉 {tries}</span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function Dashboard() {
   const { players, schedule, championships, fixtures, addChampionship, activeTeam, recordWellness } = useContext(ClubContext);
   const { showToast } = useToast();
@@ -31,10 +146,13 @@ function Dashboard() {
 
   const audioCtxRef = useRef(null);
 
-  const playBeep = useCallback(() => {
+  const playBeep = useCallback(async () => {
     try {
       if (!audioCtxRef.current) {
         audioCtxRef.current = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioCtxRef.current.state === 'suspended') {
+        await audioCtxRef.current.resume();
       }
       const osc = audioCtxRef.current.createOscillator();
       const gain = audioCtxRef.current.createGain();
@@ -86,8 +204,8 @@ function Dashboard() {
   // Filtrar jugadores con protocolo HIA activo en el equipo
   const hiaSuspendedPlayers = teamPlayers.filter(p => 
     p.estado === 'lesionado' && 
-    p.injuryLog.length > 0 && 
-    p.injuryLog[0].diagnosis.toLowerCase().includes('hia')
+    Array.isArray(p.injuryLog) && p.injuryLog.length > 0 && 
+    p.injuryLog[0]?.diagnosis?.toLowerCase().includes('hia')
   );
 
   // Estadísticas del Equipo
@@ -104,8 +222,8 @@ function Dashboard() {
   const forwardsCount = teamPlayers.filter(p => forwardsPositions.includes(p.posicion)).length;
   const backsCount = teamPlayers.filter(p => backsPositions.includes(p.posicion)).length;
   const totalPositioned = forwardsCount + backsCount || 1;
-  const forwardsPct = Math.round((forwardsCount / totalPositioned) * 100);
-  const backsPct = 100 - forwardsPct;
+  const forwardsPct = totalPositioned > 0 ? Math.round((forwardsCount / totalPositioned) * 100) : 0;
+  const backsPct = totalPositioned > 0 ? 100 - forwardsPct : 0;
 
   // Manejar envío de Campeonato
   const handleAddChampSubmit = (e) => {
@@ -116,6 +234,7 @@ function Dashboard() {
       deadlineDate: champDate,
       description: champDesc
     });
+    showToast('Campeonato agendado correctamente.', 'success');
     setChampName('');
     setChampDate('');
     setChampDesc('');
@@ -181,6 +300,7 @@ function Dashboard() {
 
   // Renderizador de Cuenta Regresiva
   const renderCountdown = (deadlineStr) => {
+    if (!deadlineStr) return <span style={{ color: 'var(--color-text-muted)' }}>—</span>;
     const deadline = new Date(deadlineStr + 'T00:00:00');
     const diff = deadline - time;
 
@@ -293,6 +413,12 @@ function Dashboard() {
           </div>
         </div>
       </div>
+
+      {/* --- Radar de Atributos del Clan --- */}
+      <RadarChart teamPlayers={teamPlayers.filter(p => p.rol !== 'Entrenador')} />
+
+      {/* --- Comparativa entre Divisiones --- */}
+      <DivisionComparison allPlayers={players.filter(p => p.rol !== 'Entrenador')} />
 
       {/* --- BLOQUE 2: BALANCE & HITOS --- */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '20px' }}>
@@ -628,7 +754,7 @@ function Dashboard() {
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
               {teamPlayers.filter(p => p.estado === 'lesionado').map(p => {
-                const injury = p.injuryLog[0] || { diagnosis: 'Lesión sin especificar', weeks: 1, phase: 1 };
+                const injury = (Array.isArray(p.injuryLog) && p.injuryLog[0]) || { diagnosis: 'Lesión sin especificar', weeks: 1, phase: 1 };
                 const phases = ['Reposo Absoluto 🛑', 'Fortalecimiento 🏋️‍♂️', 'Reacondicionamiento 🏃‍♂️', 'Alta para Contacto 🟢'];
                 return (
                   <div key={p.id} style={{ padding: '12px', background: 'rgba(255, 61, 0, 0.03)', border: '1px solid rgba(255, 61, 0, 0.1)', borderRadius: 'var(--radius-sm)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -649,6 +775,9 @@ function Dashboard() {
           )}
         </div>
 
+        {/* Timeline de asistencia */}
+        <AttendanceTimeline teamPlayers={teamPlayers.filter(p => p.rol !== 'Entrenador')} />
+
         {/* Próximos Entrenamientos / Partidos */}
         <div className="glass-panel" style={{ padding: '25px', display: 'flex', flexDirection: 'column', gap: '15px' }}>
           <h3 style={{ fontSize: '1.1rem', fontWeight: 700, fontFamily: 'Outfit' }}>📅 Próximas Citas (Agenda)</h3>
@@ -659,7 +788,7 @@ function Dashboard() {
             </p>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              {teamSchedule.slice(0, 3).map(e => (
+              {teamSchedule.filter(s => new Date(s.date + 'T23:59:59') >= new Date()).slice(0, 3).map(e => (
                 <div key={e.id} style={{ padding: '12px', background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border-glass)', borderRadius: 'var(--radius-sm)', display: 'flex', gap: '12px', alignItems: 'center' }}>
                   <div style={{ background: e.title.includes('PARTIDO') ? 'rgba(255,179,0,0.1)' : 'rgba(0,230,118,0.1)', border: '1px solid rgba(255,255,255,0.05)', width: '45px', height: '45px', borderRadius: 'var(--radius-sm)', display: 'flex', justifyContent: 'center', alignItems: 'center', fontSize: '1.25rem' }}>
                     {e.title.includes('PARTIDO') ? '🏉' : '🏃‍♂️'}
@@ -685,7 +814,7 @@ function Dashboard() {
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               {fixtures
-                .filter(f => f.teamCategory === activeTeam)
+                .filter(f => f.teamCategory === activeTeam && new Date(f.date + 'T00:00:00') <= new Date())
                 .sort((a, b) => new Date(b.date) - new Date(a.date))
                 .slice(0, 4)
                 .map(f => {

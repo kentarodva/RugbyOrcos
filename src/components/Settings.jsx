@@ -1,14 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   getRateLimitInfoAll,
   debugProviderConnection, getActiveProvider,
-  PROVIDERS, DEFAULT_PROVIDER_ORDER
-} from '../engine/geminiCoach';
+  PROVIDERS, DEFAULT_PROVIDER_ORDER, setProviderKey
+} from '../engine/multiProviderCoach';
 import { clearCache, getCacheStats } from '../engine/aiCache';
 import { useToast } from '../context/ToastContext';
-import * as groqProvider from '../engine/providers/groqProvider';
-import * as deepseekProvider from '../engine/providers/deepseekProvider';
-import * as geminiProvider from '../engine/providers/geminiProvider';
 
 const KEY_INPUTS_KEY = 'orcos_settings_keys';
 
@@ -27,13 +24,8 @@ function Settings({ onClose }) {
   const [streamingEnabled, setStreamingEnabled] = useState(() => {
     return localStorage.getItem('orcos_ai_streaming') !== 'false';
   });
-
   const rateInfo = getRateLimitInfoAll();
   const cacheStats = getCacheStats();
-
-  useEffect(() => {
-    setStreamingEnabled(localStorage.getItem('orcos_ai_streaming') !== 'false');
-  }, []);
 
   const saveKeyInputs = (newKeys) => {
     setKeyInputs(newKeys);
@@ -43,13 +35,7 @@ function Settings({ onClose }) {
   const handleSaveKey = (providerId) => {
     const key = keyInputs[providerId]?.trim();
     if (!key) return;
-
-    switch (providerId) {
-      case 'groq': groqProvider.setApiKey(key); break;
-      case 'deepseek': deepseekProvider.setApiKey(key); break;
-      case 'gemini': geminiProvider.setApiKey(key); break;
-    }
-
+    setProviderKey(providerId, key);
     setSaved(true);
     setTimeout(() => setSaved(false), 3000);
     saveKeyInputs({ ...keyInputs, [providerId]: '' });
@@ -57,11 +43,7 @@ function Settings({ onClose }) {
   };
 
   const handleDeleteKey = (providerId) => {
-    switch (providerId) {
-      case 'groq': groqProvider.setApiKey(null); break;
-      case 'deepseek': deepseekProvider.setApiKey(null); break;
-      case 'gemini': geminiProvider.setApiKey(null); break;
-    }
+    setProviderKey(providerId, null);
     showToast(`API key de ${PROVIDERS[providerId]?.name} eliminada.`, 'info');
   };
 

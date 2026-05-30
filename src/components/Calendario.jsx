@@ -1,7 +1,53 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { ClubContext } from '../context/ClubContext';
 import { useToast } from '../context/ToastContext';
+import { supabase } from '../supabaseClient.js';
 import Rivales from './Rivales';
+
+function GuestRoster({ fixture }) {
+  const [guests, setGuests] = useState([]);
+  const [loaded, setLoaded] = useState(false);
+
+  useEffect(() => {
+    if (!fixture || !fixture.id) return;
+    let cancelled = false;
+    (async () => {
+      const { data: inv } = await supabase.from('match_invitations')
+        .select('id').eq('future_fixture_id', fixture.id).maybeSingle();
+      if (!inv || cancelled) return;
+      const { data: g } = await supabase.from('guest_players')
+        .select('*').eq('invitation_id', inv.id).order('created_at');
+      if (!cancelled) { setGuests(g || []); setLoaded(true); }
+    })();
+    return () => { cancelled = true; };
+  }, [fixture]);
+
+  if (!loaded) return null;
+  if (guests.length === 0) return null;
+
+  return (
+    <div style={{ marginBottom: '20px', paddingTop: '15px', borderTop: '1px solid var(--border-glass)' }}>
+      <h4 style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--color-gold)', marginBottom: '10px' }}>
+        ⚔️ Jugadores de {fixture?.opponent || 'Rival'}
+      </h4>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+        {guests.map(g => (
+          <div key={g.id} style={{ display: 'flex', gap: '10px', alignItems: 'center', padding: '6px 10px', background: 'rgba(255,179,0,0.03)', border: '1px solid var(--border-glass)', borderRadius: 'var(--radius-sm)', fontSize: '0.78rem' }}>
+            <span style={{ color: 'var(--color-gold)', fontWeight: 700, minWidth: '30px' }}>
+              {g.number ? `#${g.number}` : '—'}
+            </span>
+            <span style={{ color: 'var(--color-text)' }}>{g.name}</span>
+            {g.position && (
+              <span style={{ fontSize: '0.68rem', color: 'var(--color-text-muted)', background: 'rgba(255,255,255,0.04)', padding: '1px 7px', borderRadius: '8px' }}>
+                {g.position}
+              </span>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 function Calendario() {
   const { 
@@ -53,6 +99,7 @@ function Calendario() {
   const [futureDate, setFutureDate] = useState('');
   const [futureTime, setFutureTime] = useState('');
   const [futureLocation, setFutureLocation] = useState('');
+  const [generatingInvite, setGeneratingInvite] = useState('');
 
   const handleSaveFutureFixture = (e) => {
     e.preventDefault();
@@ -76,7 +123,63 @@ function Calendario() {
     setShowFutureForm(false);
   };
 
-  // Filtrar jugadores elegibles para estadísticas
+  const randomToken = () => {
+    if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+      return crypto.randomUUID().replace(/-/g, '').slice(0, 20);
+    }
+    return Array.from({ length: 20 }, () => Math.floor(Math.random() * 16).toString(16)).join('');
+  };
+
+  const generarInvitacion = async (fixture) => {
+    setGeneratingInvite(fixture.id);
+    try {
+      const user = (await supabase.auth.getUser()).data.user;
+      if (!user) { showToast('Debes iniciar sesión.', 'error'); setGeneratingInvite(''); return; }
+
+      const { data: realFixture } = await supabase
+        .from('future_fixtures')
+        .select('id')
+        .eq('opponent', fixture.opponent)
+        .eq('date', fixture.date)
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      const futureFixtureId = realFixture?.id || fixture.id;
+      const token = randomToken();
+
+      const { data: existing } = await supabase
+        .from('match_invitations')
+        .select('id')
+        .eq('future_fixture_id', futureFixtureId)
+        .eq('status', 'active')
+        .maybeSingle();
+
+      if (existing) { showToast('Ya existe una invitación activa para este partido.', 'warning'); setGeneratingInvite(''); return; }
+
+      const { error } = await supabase.from('match_invitations').insert({
+        user_id: user.id,
+        future_fixture_id: futureFixtureId,
+        token,
+        rival_name: fixture.opponent,
+        status: 'active',
+        expires_at: fixture.date,
+      });
+
+      if (error) { showToast('Error al crear invitacion: ' + error.message, 'error'); setGeneratingInvite(''); return; }
+
+      const link = `${window.location.origin}/invitacion/${token}`;
+      navigator.clipboard.writeText(link);
+      showToast('Link de invitacion copiado. Compartelo con el rival por WhatsApp.', 'success');
+      window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(`Invitacion de Rugby Orcos Negros vs ${fixture.opponent} - ${fixture.date}\n\nRegistra tus jugadores aqui:\n${link}`)}`, '_blank');
+    } catch (err) {
+      showToast('Error al generar invitacion.', 'error');
+    }
+    setGeneratingInvite('');
+  };
+
+  // Filtrar jugadores elegibles para estadisticas
   const activeTeamPlayers = players.filter(p => p.teamCategory === activeTeam && p.rol !== 'Entrenador');
 
   // Buscar estadísticas cargadas en este partido específico
@@ -1028,6 +1131,9 @@ function Calendario() {
               })()}
             </div>
 
+            {/* ── Jugadores Rivales (invitados via link) ── */}
+            <GuestRoster fixture={selectedFixtureForDetail} />
+
             {/* Botón Cerrar Modal */}
             <div style={{ display: 'flex', justifyContent: 'flex-end', borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '15px' }}>
               <button 
@@ -1113,12 +1219,6 @@ function Calendario() {
                   <div key={f.id} className="glass-panel" style={{ padding: '20px', borderLeft: '3px solid var(--color-blue)', display: 'flex', flexDirection: 'column', gap: '10px' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <h4 style={{ fontSize: '1rem', fontWeight: 800 }}>vs {f.opponent}</h4>
-                      <button
-                        onClick={() => { deleteFutureFixture(f.id); showToast('Partido eliminado.', 'info'); }}
-                        style={{ background: 'transparent', border: '1px solid var(--border-glass)', color: 'var(--color-red)', padding: '4px 8px', borderRadius: 'var(--radius-sm)', cursor: 'pointer', fontSize: '0.7rem' }}
-                      >
-                        🗑️
-                      </button>
                     </div>
                     <div style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>
                       📅 {dayName}, {formatted} {f.time && `| ⏰ ${f.time}`}
@@ -1128,6 +1228,22 @@ function Calendario() {
                         📍 {f.location}
                       </div>
                     )}
+                    <div style={{ display: 'flex', gap: '8px', marginTop: '6px' }}>
+                      <button
+                        onClick={() => generarInvitacion(f)}
+                        disabled={generatingInvite === f.id}
+                        className="btn-outline"
+                        style={{ flex: 1, padding: '8px 12px', fontSize: '0.75rem', borderColor: 'var(--color-gold)', color: 'var(--color-gold)' }}
+                      >
+                        {generatingInvite === f.id ? '⏳ Generando...' : '📨 Invitar Rival'}
+                      </button>
+                      <button
+                        onClick={() => { deleteFutureFixture(f.id); showToast('Partido eliminado.', 'info'); }}
+                        style={{ background: 'transparent', border: '1px solid var(--border-glass)', color: 'var(--color-red)', padding: '4px 8px', borderRadius: 'var(--radius-sm)', cursor: 'pointer', fontSize: '0.7rem' }}
+                      >
+                        🗑️
+                      </button>
+                    </div>
                   </div>
                 );
               })}

@@ -1,5 +1,7 @@
 import React, { useContext, useState, useEffect } from 'react';
-import { ClubContext, SYSTEM_ROLES, SYSTEM_ROLES_LABELS } from '../context/ClubContext';
+import { ClubContext, SYSTEM_ROLES, SYSTEM_ROLES_LABELS, EQUIPOS_LABELS } from '../context/ClubContext';
+import { supabase } from '../supabaseClient.js';
+import { printRoster } from '../utils/exportPdf.js';
 import { useToast } from '../context/ToastContext';
 
 // Helper de Gamificación: Calcular Medallas del Clan
@@ -46,6 +48,16 @@ function Roster() {
   const { showToast } = useToast();
 
   const [search, setSearch] = useState('');
+  const [activeLoans, setActiveLoans] = useState([]);
+
+  useEffect(() => {
+    supabase.from('player_loans')
+      .select('player_id, to_team_id, status')
+      .eq('status', 'approved')
+      .gte('end_date', new Date().toISOString().split('T')[0])
+      .then(({ data }) => { if (data) setActiveLoans(data); })
+      .catch(() => {});
+  }, []);
   
   // Modals States
   const [showAddModal, setShowAddModal] = useState(false);
@@ -462,9 +474,14 @@ function Roster() {
         </div>
 
         {/* Botón Añadir Jugador */}
-        <button onClick={openAddModal} className="btn-neon">
-          🏉 Reclutar Orco
-        </button>
+        <div style={{ display: 'flex', gap: '8px' }}>
+          <button onClick={() => printRoster(players, EQUIPOS_LABELS[activeTeam])} className="btn-outline" style={{ padding: '8px 14px', fontSize: '0.8rem' }}>
+            🖨️ Imprimir
+          </button>
+          <button onClick={openAddModal} className="btn-neon">
+            🏉 Reclutar Orco
+          </button>
+        </div>
       </div>
 
       {/* --- GRID DE TARJETAS DE JUGADORES --- */}
@@ -553,6 +570,11 @@ function Roster() {
                   {p.estado === 'activo' && <span className="badge badge-active">Activo 🟢</span>}
                   {p.estado === 'lesionado' && <span className="badge badge-injured">Lesionado 🔴</span>}
                   {p.estado === 'suspendido' && <span className="badge badge-suspended">🟥 Suspendido</span>}
+                  {activeLoans.some(l => l.player_id === p.id) && (
+                    <span className="badge" style={{ background: 'rgba(0,176,255,0.08)', border: '1px solid var(--color-blue)', color: 'var(--color-blue)', fontWeight: 700 }}>
+                      🔄 Préstamo
+                    </span>
+                  )}
                 </div>
 
                 {/* Atributos RPG Rápidos (Omitido para Entrenador) */}

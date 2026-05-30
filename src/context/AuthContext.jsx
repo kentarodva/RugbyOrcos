@@ -34,6 +34,9 @@ export function AuthProvider({ children }) {
   }, []);
 
   const fetchProfile = async (userId) => {
+    const userEmail = supabase.auth.getUser().then(r => r.data.user?.email).catch(() => null);
+    const email = await userEmail;
+
     const { data, error } = await supabase
       .from('user_profiles')
       .select('*')
@@ -42,8 +45,50 @@ export function AuthProvider({ children }) {
 
     if (!error && data) {
       setProfile(data);
+      setLoading(false);
+      return;
     }
+
+    if (email) {
+      const repaired = await repairProfile(email, userId);
+      if (repaired) {
+        setProfile(repaired);
+        setLoading(false);
+        return;
+      }
+    }
+
     setLoading(false);
+  };
+
+  const repairProfile = async (email, userId) => {
+    if (!email || !userId) return null;
+    try {
+      const { data } = await supabase
+        .from('user_profiles')
+        .select('*')
+        .or(`display_name.ilike.%${email.split('@')[0]}%`)
+        .neq('user_id', userId)
+        .limit(1)
+        .maybeSingle();
+
+      if (data) {
+        const { error: updateError } = await supabase
+          .from('user_profiles')
+          .update({ user_id: userId })
+          .eq('id', data.id);
+
+        if (!updateError) {
+          const { data: refreshed } = await supabase
+            .from('user_profiles')
+            .select('*')
+            .eq('user_id', userId)
+            .maybeSingle();
+          return refreshed || { ...data, user_id: userId };
+        }
+      }
+    } catch { /* multiple rows or network error */ }
+    return null;
   };
 
   const signIn = async (email, password) => {
@@ -76,7 +121,7 @@ export function AuthProvider({ children }) {
       }, { onConflict: 'user_id' });
 
     if (profileError) {
-      console.warn('Error creando perfil:', profileError.message);
+      if (import.meta.env.DEV) console.warn('Error creando perfil:', profileError.message);
       return { error: profileError };
     }
 

@@ -14,6 +14,8 @@ if ('serviceWorker' in navigator && import.meta.env.PROD) {
   });
 }
 
+localStorage.setItem('orcos_badge_count', '0');
+
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <ErrorBoundary>

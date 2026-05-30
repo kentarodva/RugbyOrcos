@@ -1,8 +1,9 @@
 import React, { useState, useRef, useEffect, useContext } from 'react';
 import { ClubContext, EQUIPOS_LABELS } from '../context/ClubContext';
-import { isGeminiConfigured, getModelConfig, streamChatWithGemini, chatWithGemini, PROVIDERS } from '../engine/geminiCoach';
+import { isGeminiConfigured, getModelConfig, streamChatWithGemini, chatWithGemini, PROVIDERS } from '../engine/multiProviderCoach';
 import { analyzeMatch } from '../engine/matchAnalyzer';
 import { CHAT_MODES } from '../engine/aiConfig';
+import { sanitizeAndFormatAI } from '../engine/contentFilter';
 import { useToast } from '../context/ToastContext';
 
 function AIChat() {
@@ -172,16 +173,6 @@ function AIChat() {
       '¿Cuándo se cobra un scrum en lugar de penal?',
       '¿Qué dice la regla sobre el tackle alto?'
     ]
-  };
-
-  const renderMarkdown = (text) => {
-    if (!text) return '';
-    return String(text)
-      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-      .replace(/\*(.+?)\*/g, '<em>$1</em>')
-      .replace(/^- (.+)$/gm, '• $1')
-      .replace(/^(\d+)\. (.+)$/gm, '$1. $2')
-      .replace(/\n/g, '<br/>');
   };
 
   const getProviderBadge = (providerId) => {
@@ -395,7 +386,7 @@ function AIChat() {
                     lineHeight: 1.6,
                     color: msg.isError ? 'var(--color-red)' : 'var(--color-text)'
                   }}>
-                    <span dangerouslySetInnerHTML={{ __html: renderMarkdown(msg.text) }} />
+                    <span dangerouslySetInnerHTML={{ __html: sanitizeAndFormatAI(msg.text) }} />
                     <div style={{ fontSize: '0.6rem', color: 'var(--color-text-muted)', marginTop: '6px', textAlign: 'right', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <span>{msg.mode ? CHAT_MODES[msg.mode]?.icon : ''} {pBadge ? `${pBadge.icon} ${pBadge.name}` : ''}</span>
                       <span>{new Date(msg.time).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}</span>
@@ -435,7 +426,7 @@ function AIChat() {
                   lineHeight: 1.6,
                   color: 'var(--color-text)'
                 }}>
-                  <span dangerouslySetInnerHTML={{ __html: renderMarkdown(streamingText) }} />
+                  <span dangerouslySetInnerHTML={{ __html: sanitizeAndFormatAI(streamingText) }} />
                   <span className="blink" style={{ color: 'var(--color-primary)' }}>▌</span>
                   {streamingProvider && (
                     <div style={{ fontSize: '0.6rem', color: 'var(--color-gold)', marginTop: '2px' }}>

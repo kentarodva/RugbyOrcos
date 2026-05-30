@@ -11,7 +11,6 @@ const NON_RUGBY_PHRASES = [
   'bitcoin',
   'criptomoneda',
   'elecciones',
-  'presidente',
   'película',
   'netflix',
   'canción',
@@ -19,9 +18,7 @@ const NON_RUGBY_PHRASES = [
   'videojuego',
   'playstation',
   'xbox',
-  'código',
-  'programar en',
-  'javascript',
+  'pedir una pizza',
   'python',
   'react',
   'node'
@@ -79,6 +76,21 @@ export function filterMessage(text) {
   }
 
   return { allowed: true, reason: '', score };
+}
+
+export function sanitizeAndFormatAI(text) {
+  if (!text) return '';
+  let safe = String(text)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+  return safe
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.+?)\*/g, '<em>$1</em>')
+    .replace(/^- (.+)$/gm, '• $1')
+    .replace(/\n/g, '<br/>');
 }
 
 export function isValidRugbyExercise(exercise) {

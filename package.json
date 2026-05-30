@@ -8,9 +8,22 @@
     "build": "vite build",
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "typecheck": "tsc --noEmit",
     "cap:sync": "npx cap sync",
     "cap:add-android": "npx cap add android",
-    "cap:open-android": "npx cap open android"
+    "cap:open-android": "npx cap open android",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "*.{js,jsx}": [
+      "eslint --max-warnings 0",
+      "vitest related --run"
+    ]
   },
   "dependencies": {
     "@capacitor/android": "^5.0.0",
@@ -22,14 +35,23 @@
   },
   "devDependencies": {
     "@capacitor/cli": "^5.0.0",
+    "@playwright/test": "^1.60.0",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
     "@types/react": "^18.2.15",
     "@types/react-dom": "^18.2.7",
     "@vitejs/plugin-react": "^4.0.3",
+    "@vitest/coverage-v8": "^4.1.7",
     "csv-parse": "^6.2.1",
     "dotenv": "^17.4.2",
     "eslint": "^8.57.0",
     "eslint-plugin-react": "^7.37.5",
+    "happy-dom": "^20.9.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.0.5",
+    "typescript": "^6.0.3",
     "vite": "^4.4.5",
+    "vitest": "^4.1.7",
     "xlsx": "^0.18.5"
   }
 }

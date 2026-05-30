@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { supabase } from '../supabaseClient.js';
+import { ClubContext } from '../context/ClubContext.jsx';
 import { useToast } from '../context/ToastContext.jsx';
 
 function MakgoraHub() {
   const { showToast } = useToast();
+  const { players } = useContext(ClubContext);
   const [tab, setTab] = useState('teams');
   const [teams, setTeams] = useState([]);
   const [tournaments, setTournaments] = useState([]);
@@ -13,10 +15,61 @@ function MakgoraHub() {
   const [standings, setStandings] = useState([]);
   const [matches, setMatches] = useState([]);
 
+  // ── Loans state ──
+  const [loans, setLoans] = useState([]);
+  const [showLoanForm, setShowLoanForm] = useState(false);
+  const [loanForm, setLoanForm] = useState({ playerId: '', toTeamId: '', reason: '', days: 7 });
+
   useEffect(() => {
     loadTeams();
     loadTournaments();
+    loadLoans();
   }, []);
+
+  const loadLoans = async () => {
+    const { data } = await supabase.from('player_loans')
+      .select('*, players!inner(first_name, last_name, nickname, makgora_team_id)')
+      .order('created_at', { ascending: false });
+    if (data) setLoans(data);
+  };
+
+  const handleCreateLoan = async (e) => {
+    e.preventDefault();
+    if (!loanForm.playerId || !loanForm.toTeamId) { showToast('Selecciona jugador y equipo destino.', 'warning'); return; }
+    const player = players.find(p => p.id === loanForm.playerId);
+    if (!player) { showToast('Jugador no encontrado.', 'error'); return; }
+
+    const fromTeamId = player.makgora_team_id;
+    if (!fromTeamId) { showToast('El jugador no pertenece a ningun equipo MakGora.', 'warning'); return; }
+    if (fromTeamId === loanForm.toTeamId) { showToast('No puedes prestar al mismo equipo.', 'warning'); return; }
+
+    const startDate = new Date().toISOString().split('T')[0];
+    const endDate = new Date(Date.now() + loanForm.days * 86400000).toISOString().split('T')[0];
+
+    const { error } = await supabase.from('player_loans').insert({
+      player_id: loanForm.playerId,
+      from_team_id: fromTeamId,
+      to_team_id: loanForm.toTeamId,
+      tournament_id: activeTournament?.id || null,
+      start_date: startDate,
+      end_date: endDate,
+      reason: loanForm.reason || null,
+      status: 'pending',
+    });
+
+    if (error) { showToast(error.message, 'error'); return; }
+    showToast('Prestamo solicitado.', 'success');
+    setShowLoanForm(false);
+    setLoanForm({ playerId: '', toTeamId: '', reason: '', days: 7 });
+    loadLoans();
+  };
+
+  const handleUpdateLoanStatus = async (loanId, status) => {
+    const { error } = await supabase.from('player_loans').update({ status }).eq('id', loanId);
+    if (error) { showToast(error.message, 'error'); return; }
+    showToast(`Prestamo ${status === 'approved' ? 'aprobado' : status === 'rejected' ? 'rechazado' : 'devuelto'}.`, 'success');
+    loadLoans();
+  };
 
   const loadTeams = async () => {
     const { data } = await supabase.from('makgora_teams').select('*').order('sort_order');
@@ -64,11 +117,13 @@ function MakgoraHub() {
     if (error) { showToast(error.message, 'error'); return; }
 
     const teamsToAdd = teams.filter(t => t.is_active);
-    const { data: tt } = await supabase.from('tournament_teams').insert(
+    const { data: tt, error: ttError } = await supabase.from('tournament_teams').insert(
       teamsToAdd.map(t => ({ tournament_id: data.id, team_id: t.id }))
     );
 
-    if (tt || !error) {
+    if (ttError) { showToast(ttError.message, 'error'); return; }
+
+    if (tt) {
       for (const t of teamsToAdd) {
         await supabase.from('tournament_standings').insert({
           tournament_id: data.id, team_id: t.id,
@@ -122,7 +177,6 @@ function MakgoraHub() {
     if (error) { showToast(error.message, 'error'); return; }
 
     loadMatches(activeTournament.id);
-    loadStandings(activeTournament.id);
 
     // Update standings manually
     const m = matches.find(x => x.id === matchId);
@@ -150,8 +204,9 @@ function MakgoraHub() {
       }
 
       // Mark tournament as finished if all matches played
-      const freshMatches = await supabase.from('tournament_matches').select('status').eq('tournament_id', activeTournament.id);
-      if (freshMatches.data && freshMatches.data.every(m => m.status === 'jugado')) {
+      const { data: freshData, error: freshError } = await supabase.from('tournament_matches').select('status').eq('tournament_id', activeTournament.id);
+      if (freshError) { showToast(freshError.message, 'error'); return; }
+      if (freshData && freshData.every(m => m.status === 'jugado')) {
         const topTeam = await supabase.from('tournament_standings')
           .select('team_id, makgora_teams!inner(name)')
           .eq('tournament_id', activeTournament.id)
@@ -164,7 +219,14 @@ function MakgoraHub() {
             .eq('id', activeTournament.id);
         }
 
+        // Auto-return active loans for this tournament
+        await supabase.from('player_loans')
+          .update({ status: 'returned', notes: 'Devuelto automaticamente al finalizar el torneo' })
+          .eq('tournament_id', activeTournament.id)
+          .eq('status', 'approved');
+
         loadTournaments();
+        loadLoans();
       }
 
       loadStandings(activeTournament.id);
@@ -187,6 +249,7 @@ function MakgoraHub() {
       <div style={{ display: 'flex', gap: '10px', marginBottom: '20px', flexWrap: 'wrap' }}>
         <button onClick={() => { setTab('teams'); setActiveTournament(null); }} className={tab === 'teams' ? 'btn-neon' : 'btn-outline'} style={{ padding: '8px 16px', fontSize: '0.85rem' }}>Equipos</button>
         <button onClick={() => { setTab('tournaments'); setActiveTournament(null); }} className={tab === 'tournaments' ? 'btn-neon' : 'btn-outline'} style={{ padding: '8px 16px', fontSize: '0.85rem' }}>Torneos</button>
+        <button onClick={() => { setTab('loans'); setActiveTournament(null); }} className={tab === 'loans' ? 'btn-neon' : 'btn-outline'} style={{ padding: '8px 16px', fontSize: '0.85rem' }}>Préstamos</button>
         {activeTournament && (
           <>
             <button onClick={() => setTab('fixture')} className={tab === 'fixture' ? 'btn-neon' : 'btn-outline'} style={{ padding: '8px 16px', fontSize: '0.85rem' }}>Fixture</button>
@@ -291,6 +354,112 @@ function MakgoraHub() {
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* ── PRÉSTAMOS ── */}
+      {tab === 'loans' && (
+        <div className="animated-fade" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <h3 style={{ color: 'var(--color-gold)', fontSize: '1rem', fontWeight: 700, fontFamily: 'Outfit' }}>
+              🔄 Préstamos de Guerreros
+            </h3>
+            <button onClick={() => setShowLoanForm(!showLoanForm)} className="btn-neon" style={{ padding: '8px 14px', fontSize: '0.8rem' }}>
+              {showLoanForm ? 'Cancelar' : '+ Solicitar Préstamo'}
+            </button>
+          </div>
+
+          {showLoanForm && (
+            <form onSubmit={handleCreateLoan} className="glass-panel animated-slide" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '12px', borderRadius: 'var(--radius-md)' }}>
+              <div className="form-group">
+                <label style={lbl}>Jugador</label>
+                <select value={loanForm.playerId} onChange={e => setLoanForm({ ...loanForm, playerId: e.target.value })} style={inp}>
+                  <option value="">-- Seleccionar Guerrero --</option>
+                  {players.filter(p => p.makgora_team_id).map(p => (
+                    <option key={p.id} value={p.id}>{p.name} ({p.posicion}) — {teams.find(t => t.id === p.makgora_team_id)?.rpg_name || 'Sin equipo'}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="form-group">
+                <label style={lbl}>Equipo Destino</label>
+                <select value={loanForm.toTeamId} onChange={e => setLoanForm({ ...loanForm, toTeamId: e.target.value })} style={inp}>
+                  <option value="">-- Seleccionar Equipo --</option>
+                  {teams.filter(t => t.is_active).map(t => (
+                    <option key={t.id} value={t.id}>{t.rpg_name || t.name}</option>
+                  ))}
+                </select>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                <div className="form-group">
+                  <label style={lbl}>Días de préstamo</label>
+                  <input type="number" min="1" max="90" value={loanForm.days} onChange={e => setLoanForm({ ...loanForm, days: Number(e.target.value) })} style={inp} />
+                </div>
+                <div className="form-group">
+                  <label style={lbl}>Motivo (opcional)</label>
+                  <input type="text" value={loanForm.reason} onChange={e => setLoanForm({ ...loanForm, reason: e.target.value })} placeholder="Ej. Suplente por lesion" style={inp} />
+                </div>
+              </div>
+              <button type="submit" className="btn-neon" style={{ padding: '10px', justifyContent: 'center' }}>Solicitar Préstamo</button>
+            </form>
+          )}
+
+          {loans.length === 0 ? (
+            <div className="glass-panel" style={{ padding: '40px', textAlign: 'center' }}>
+              <p style={{ color: 'var(--color-text-muted)', fontSize: '0.8rem' }}>No hay préstamos registrados.</p>
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              {loans.map(loan => {
+                const p = loan.players;
+                const statusColors = { pending: '#ffb300', approved: '#00e676', rejected: '#ff3d00', returned: '#9e9e9e', cancelled: '#9e9e9e' };
+                const statusLabels = { pending: 'Pendiente', approved: 'Aprobado', rejected: 'Rechazado', returned: 'Devuelto', cancelled: 'Cancelado' };
+                return (
+                  <div key={loan.id} className="glass-panel" style={{
+                    padding: '14px 18px', borderRadius: 'var(--radius-md)',
+                    borderLeft: `3px solid ${statusColors[loan.status] || '#9e9e9e'}`,
+                    display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px'
+                  }}>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+                        <span style={{ fontWeight: 700, fontSize: '0.85rem', color: 'var(--color-text)' }}>
+                          {p?.first_name} {p?.last_name}
+                        </span>
+                        <span style={{
+                          padding: '2px 8px', borderRadius: '8px', fontSize: '0.65rem', fontWeight: 700,
+                          background: `${statusColors[loan.status]}22`, color: statusColors[loan.status]
+                        }}>
+                          {statusLabels[loan.status]}
+                        </span>
+                      </div>
+                      <div style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)' }}>
+                        {teams.find(t => t.id === loan.from_team_id)?.rpg_name || '—'} ➔ {teams.find(t => t.id === loan.to_team_id)?.rpg_name || '—'}
+                        {' · '}{loan.start_date} → {loan.end_date}
+                        {loan.reason && <span> · {loan.reason}</span>}
+                      </div>
+                    </div>
+                    {loan.status === 'pending' && (
+                      <div style={{ display: 'flex', gap: '6px' }}>
+                        <button onClick={() => handleUpdateLoanStatus(loan.id, 'approved')}
+                          className="btn-outline" style={{ padding: '4px 10px', fontSize: '0.7rem', borderColor: 'var(--color-primary)', color: 'var(--color-primary)' }}>
+                          ✅ Aprobar
+                        </button>
+                        <button onClick={() => handleUpdateLoanStatus(loan.id, 'rejected')}
+                          className="btn-outline" style={{ padding: '4px 10px', fontSize: '0.7rem', borderColor: 'var(--color-red)', color: 'var(--color-red)' }}>
+                          ❌ Rechazar
+                        </button>
+                      </div>
+                    )}
+                    {loan.status === 'approved' && (
+                      <button onClick={() => handleUpdateLoanStatus(loan.id, 'returned')}
+                        className="btn-outline" style={{ padding: '4px 10px', fontSize: '0.7rem' }}>
+                        ↩️ Devolver
+                      </button>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       )}
 

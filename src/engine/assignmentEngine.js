@@ -134,7 +134,7 @@ function analyzeMatchFaults(matchStats, player) {
     const pa = FAULT_EXERCISE_MAP[a]?.priority || 'low';
     const pb = FAULT_EXERCISE_MAP[b]?.priority || 'low';
     const order = { critical: 0, high: 1, medium: 2, low: 3 };
-    return (order[pa] || 3) - (order[pb] || 3);
+    return (order[pa] ?? 3) - (order[pb] ?? 3);
   });
 }
 

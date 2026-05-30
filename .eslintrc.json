@@ -1,7 +1,8 @@
 {
   "env": {
     "browser": true,
-    "es2021": true
+    "es2021": true,
+    "node": true
   },
   "extends": [
     "eslint:recommended",
@@ -20,6 +21,17 @@
       "version": "detect"
     }
   },
+  "globals": {
+    "describe": "readonly",
+    "it": "readonly",
+    "expect": "readonly",
+    "vi": "readonly",
+    "beforeAll": "readonly",
+    "beforeEach": "readonly",
+    "afterEach": "readonly",
+    "afterAll": "readonly",
+    "__dirname": "readonly"
+  },
   "rules": {
     "no-unused-vars": "warn",
     "no-console": "off",
@@ -27,5 +39,5 @@
     "react/no-unknown-property": "warn",
     "react/no-unescaped-entities": "off"
   },
-  "ignorePatterns": ["dist", "node_modules", "android", "seed", "supabase"]
+  "ignorePatterns": ["dist", "node_modules", "android", "seed", "supabase", "coverage"]
 }

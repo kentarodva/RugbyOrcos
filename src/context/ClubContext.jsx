@@ -236,7 +236,7 @@ export const ClubProvider = ({ children }) => {
         LocalNotifications = mod.LocalNotifications;
         await LocalNotifications.requestPermissions();
       } catch (err) {
-        // Notificaciones nativas no soportadas en este navegador
+        if (import.meta.env.DEV) console.warn('[Notif] Capacitor LocalNotifications no soportado:', err.message);
       }
     };
     initNotifications();
@@ -244,6 +244,9 @@ export const ClubProvider = ({ children }) => {
 
   const sendLocalNotification = async (title, body) => {
     try {
+      let badgeCount = parseInt(localStorage.getItem('orcos_badge_count') || '0');
+      badgeCount++;
+      localStorage.setItem('orcos_badge_count', String(badgeCount));
       if (LocalNotifications) {
         await LocalNotifications.schedule({
           notifications: [
@@ -252,7 +255,7 @@ export const ClubProvider = ({ children }) => {
               body,
               id: Date.now() + Math.floor(Math.random() * 1000),
               schedule: { at: new Date(Date.now() + 1000) },
-              sound: null,
+              sound: 'default',
               attachments: null,
               actionTypeId: '',
               extra: null
@@ -275,30 +278,38 @@ export const ClubProvider = ({ children }) => {
 
     const syncFromSupabase = async () => {
       setSyncStatus('syncing');
-      console.log('[Sync] Iniciando sync para user:', user.id);
+      if (import.meta.env.DEV) console.log('[Sync] Iniciando sync para user:', user.id);
 
-      localStorage.clear();
-      console.log('[Sync] localStorage limpiado, cargando desde Supabase...');
+      const syncKeys = ['orcos_players', 'orcos_schedule', 'orcos_championships', 'orcos_finances', 'orcos_inventory', 'orcos_fixtures', 'orcos_rivals', 'orcos_future_fixtures'];
+      const backup = {};
+      syncKeys.forEach(k => { backup[k] = localStorage.getItem(k); });
+      syncKeys.forEach(k => localStorage.removeItem(k));
 
       try {
-        console.log('[Sync] Iniciando sync para user:', user.id);
-        const result = await supabase.from('players').select('*').eq('user_id', user.id);
-        console.log('[Sync] Resultado players:', { count: result.data?.length, error: result.error?.message });
+        let playerQuery = supabase.from('players').select('*');
+        if (userTier >= 4) {
+          playerQuery = playerQuery.eq('user_id', user.id);
+        } else if (userTier >= 2 && profile?.club_scope) {
+          playerQuery = playerQuery.ilike('team_category', profile.club_scope + '%');
+        }
+        const result = await playerQuery;
+        if (import.meta.env.DEV) console.log('[Sync] Resultado players:', { count: result.data?.length, error: result.error?.message });
 
         if (result.error) throw result.error;
 
         const dbPlayers = result.data;
         if (dbPlayers && dbPlayers.length > 0) {
           const normalized = dbPlayers.map(supabasePlayerToReact);
-          console.log('[Sync] Normalizados', normalized.length, 'jugadores. Ejemplo:', normalized[0]?.name);
           setPlayers(normalized);
           localStorage.setItem('orcos_players', JSON.stringify(normalized));
-          console.log('[Supabase] Sincronizados', normalized.length, 'jugadores');
+          if (import.meta.env.DEV) console.log('[Supabase] Sincronizados', normalized.length, 'jugadores');
         } else {
-          console.log('[Sync] No se encontraron jugadores en Supabase. user_id:', user.id);
+          if (import.meta.env.DEV) console.log('[Sync] No se encontraron jugadores en Supabase. user_id:', user.id);
+          setPlayers([]);
+          localStorage.setItem('orcos_players', JSON.stringify([]));
         }
 
-        const appData = await apisupabase.fetchAll(user.id);
+        const appData = await apisupabase.fetchAll(user.id, userTier, profile?.club_scope);
         if (appData) {
           if (appData.schedule?.length > 0) {
             const schedMapped = appData.schedule.map(e => ({
@@ -309,6 +320,9 @@ export const ClubProvider = ({ children }) => {
             }));
             setSchedule(schedMapped);
             localStorage.setItem('orcos_schedule', JSON.stringify(schedMapped));
+          } else {
+            setSchedule([]);
+            localStorage.setItem('orcos_schedule', JSON.stringify([]));
           }
           if (appData.championships?.length > 0) {
             const chMapped = appData.championships.map(c => ({
@@ -317,6 +331,9 @@ export const ClubProvider = ({ children }) => {
             }));
             setChampionships(chMapped);
             localStorage.setItem('orcos_championships', JSON.stringify(chMapped));
+          } else {
+            setChampionships([]);
+            localStorage.setItem('orcos_championships', JSON.stringify([]));
           }
           if (appData.finances?.length > 0) {
             const finMapped = appData.finances.map(f => ({
@@ -325,6 +342,9 @@ export const ClubProvider = ({ children }) => {
             }));
             setFinances(finMapped);
             localStorage.setItem('orcos_finances', JSON.stringify(finMapped));
+          } else {
+            setFinances([]);
+            localStorage.setItem('orcos_finances', JSON.stringify([]));
           }
           if (appData.inventory?.length > 0) {
             const invMapped = appData.inventory.map(i => ({
@@ -333,6 +353,9 @@ export const ClubProvider = ({ children }) => {
             }));
             setInventory(invMapped);
             localStorage.setItem('orcos_inventory', JSON.stringify(invMapped));
+          } else {
+            setInventory([]);
+            localStorage.setItem('orcos_inventory', JSON.stringify([]));
           }
           if (appData.fixtures?.length > 0) {
             const fixMapped = appData.fixtures.map(f => ({
@@ -342,6 +365,9 @@ export const ClubProvider = ({ children }) => {
             }));
             setFixtures(fixMapped);
             localStorage.setItem('orcos_fixtures', JSON.stringify(fixMapped));
+          } else {
+            setFixtures([]);
+            localStorage.setItem('orcos_fixtures', JSON.stringify([]));
           }
           if (appData.rivals?.length > 0) {
             const rivMapped = appData.rivals.map(r => ({
@@ -350,6 +376,9 @@ export const ClubProvider = ({ children }) => {
             }));
             setRivals(rivMapped);
             localStorage.setItem('orcos_rivals', JSON.stringify(rivMapped));
+          } else {
+            setRivals([]);
+            localStorage.setItem('orcos_rivals', JSON.stringify([]));
           }
           if (appData.futureFixtures?.length > 0) {
             const ffMapped = appData.futureFixtures.map(f => ({
@@ -358,11 +387,15 @@ export const ClubProvider = ({ children }) => {
             }));
             setFutureFixtures(ffMapped);
             localStorage.setItem('orcos_future_fixtures', JSON.stringify(ffMapped));
+          } else {
+            setFutureFixtures([]);
+            localStorage.setItem('orcos_future_fixtures', JSON.stringify([]));
           }
         }
         setSyncStatus('online');
       } catch (err) {
-        console.warn('[Supabase] Error de sincronizacion:', err.message);
+        if (import.meta.env.DEV) console.warn('[Supabase] Error de sincronizacion:', err.message);
+        syncKeys.forEach(k => { if (backup[k]) localStorage.setItem(k, backup[k]); });
         setSyncStatus('offline');
       }
     };
@@ -411,7 +444,7 @@ export const ClubProvider = ({ children }) => {
       const supabasePlayer = convertPlayerToSupabase(player);
       await apisupabase.upsertPlayer(supabasePlayer, user.id);
     } catch (err) {
-      console.warn('[Supabase] Error al sincronizar jugador:', err.message);
+      if (import.meta.env.DEV) console.warn('[Supabase] Error al sincronizar jugador:', err.message);
     }
   };
 
@@ -453,7 +486,7 @@ export const ClubProvider = ({ children }) => {
       if (!mapper) return;
       await apisupabase.upsertEntity(entityType, mapper(record), user.id);
     } catch (err) {
-      console.warn(`[Supabase] Error al sincronizar ${entityType}:`, err.message);
+      if (import.meta.env.DEV) console.warn(`[Supabase] Error al sincronizar ${entityType}:`, err.message);
     }
   };
 
@@ -506,7 +539,7 @@ export const ClubProvider = ({ children }) => {
     }
     if (user?.id) {
       try { await apisupabase.deletePlayer(id); } catch (err) {
-        console.warn('[Supabase] Error al eliminar jugador:', err.message);
+        if (import.meta.env.DEV) console.warn('[Supabase] Error al eliminar jugador:', err.message);
       }
     }
   };
@@ -650,7 +683,7 @@ export const ClubProvider = ({ children }) => {
     setPlayers(prev => prev.map(p => p.id !== playerId ? p : { ...p, clothingSizes: safe }));
   };
 
-  const addScheduleEvent = (event) => {
+  const addScheduleEvent = async (event) => {
     const events = [];
     const baseEvent = {
       title: sanitize(event.title), location: sanitize(event.location),
@@ -673,6 +706,26 @@ export const ClubProvider = ({ children }) => {
     setSchedule(prev => [...prev, ...events]);
     events.forEach(e => pushEntityToSupabase('schedule', e));
     sendLocalNotification('Evento Programado', `${events.length} evento(s): ${baseEvent.title} desde ${events[0].date}.`);
+
+    const eventTime = event.time || '09:00';
+    const [h, m] = eventTime.split(':').map(Number);
+    const remindDate = new Date(event.date + `T${String(h).padStart(2, '0')}:${String(m||0).padStart(2, '0')}:00`);
+    remindDate.setHours(remindDate.getHours() - 1);
+    if (remindDate > new Date() && LocalNotifications) {
+      try {
+        const notifId = Date.now() + Math.floor(Math.random() * 1000);
+        await LocalNotifications.schedule({
+          notifications: [{
+            title: `⚡ ${baseEvent.title}`,
+            body: `Empieza en 1 hora a las ${eventTime} en ${event.location || ''}`,
+            id: notifId,
+            schedule: { at: remindDate },
+            sound: 'default',
+            extra: { type: 'reminder', eventId: events[0].id }
+          }]
+        });
+      } catch { /* notificaciones no soportadas */ }
+    }
   };
 
   const deleteScheduleEvent = (id) => {
@@ -764,7 +817,7 @@ export const ClubProvider = ({ children }) => {
       sendLocalNotification('Base de Datos Restaurada', 'Los datos del club han sido importados con exito.');
       return true;
     } catch (err) {
-      console.error('[IMPORT] ERROR:', err.message);
+      if (import.meta.env.DEV) console.error('[IMPORT] ERROR:', err.message);
       return false;
     }
   };

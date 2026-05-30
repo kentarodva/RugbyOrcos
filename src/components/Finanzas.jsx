@@ -1,5 +1,6 @@
 import React, { useContext, useState } from 'react';
-import { ClubContext } from '../context/ClubContext';
+import { ClubContext, EQUIPOS_LABELS } from '../context/ClubContext';
+import { printFinances } from '../utils/exportPdf.js';
 import { useToast } from '../context/ToastContext';
 
 const MENSUALIDAD_BASE = 10000;
@@ -222,9 +223,14 @@ function Finanzas() {
                     </form>
                   </div>
                 ) : (
-                  <button onClick={() => setShowAddForm(true)} className="btn-neon" style={{ justifyContent: 'center' }}>
-                    💸 Registrar Gasto o Ingreso
-                  </button>
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <button onClick={() => setShowAddForm(true)} className="btn-neon" style={{ justifyContent: 'center', flex: 1 }}>
+                      💸 Registrar Gasto o Ingreso
+                    </button>
+                    <button onClick={() => printFinances(finances, EQUIPOS_LABELS[activeTeam])} className="btn-outline" style={{ padding: '8px 14px', fontSize: '0.8rem' }}>
+                      🖨️ Imprimir
+                    </button>
+                  </div>
                 )}
 
                 <div className="glass-panel" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '15px' }}>

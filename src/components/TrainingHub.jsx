@@ -1,7 +1,7 @@
 import React, { useState, useContext } from 'react';
 import { ClubContext } from '../context/ClubContext';
 import { generatePlan } from '../engine/assignmentEngine';
-import { enrichWithGemini, isGeminiConfigured } from '../engine/geminiCoach';
+import { enrichWithGemini, isGeminiConfigured } from '../engine/multiProviderCoach';
 import { useToast } from '../context/ToastContext';
 
 function TrainingHub() {

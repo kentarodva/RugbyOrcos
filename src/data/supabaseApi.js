@@ -12,17 +12,25 @@ const apisupabase = {
     futureFixtures: 'future_fixtures',
   },
 
-  async fetchAll(userId) {
+  async fetchAll(userId, tier = 4, clubScope = null) {
     if (!userId) return null;
 
     const tables = ['schedule_events', 'championships', 'finances', 'inventory', 'fixtures', 'rivals', 'future_fixtures'];
     const results = {};
 
+    const buildFilter = (query, table) => {
+      if (tier >= 4) return query.eq('user_id', userId);
+      if (tier >= 2 && clubScope) {
+        if (table === 'rivals') return query; // rivals: global, sin filtro
+        return query.ilike('team_category', clubScope + '%');
+      }
+      return query; // tier 0-1: sin filtro
+    };
+
     await Promise.all(tables.map(async (table) => {
-      const { data, error } = await supabase
-        .from(table)
-        .select('*')
-        .eq('user_id', userId);
+      const query = supabase.from(table).select('*');
+      const filtered = buildFilter(query, table);
+      const { data, error } = await filtered;
 
       if (!error && data) {
         const key = table === 'schedule_events' ? 'schedule' :
@@ -42,7 +50,7 @@ const apisupabase = {
       .eq('user_id', userId);
 
     if (error) {
-      console.warn('[Supabase] Error fetching players:', error.message);
+      if (import.meta?.env?.DEV) console.warn('[Supabase] Error fetching players:', error.message);
       return [];
     }
     return data || [];
@@ -91,12 +99,12 @@ const apisupabase = {
         birth_date: player.birth_date,
         age: player.age,
         phone: player.phone,
-        email: player.email,
-        initial_category: player.initial_category,
-        start_year: player.start_year,
-        current_category: player.current_category,
-        internal_team: player.internal_team,
-        team_category: player.team_category || player.teamCategory,
+      email: player.email,
+      initial_category: player.initial_category,
+      start_year: player.start_year,
+      current_category: player.current_category,
+      internal_team: player.internal_team,
+      team_category: player.team_category,
         weight_kg: player.weight_kg || player.weight,
         height_m: player.height_m || player.height,
         had_fractures: player.had_fractures,
@@ -121,7 +129,7 @@ const apisupabase = {
         gym_squat: player.gym_squat || player.gymStats?.squat,
         gym_bench: player.gym_bench || player.gymStats?.bench,
         gym_deadlift: player.gym_deadlift || player.gymStats?.deadlift,
-        system_role: player.system_role || player.systemRole,
+        system_role: player.system_role,
         source: player.source || 'manual',
         form_submitted_at: player.form_submitted_at,
         updated_at: new Date().toISOString(),
@@ -269,6 +277,7 @@ export function supabasePlayerToReact(p) {
       completed: w.completed || false,
     })),
     teamCategory: p.team_category || '',
+    makgora_team_id: p.makgora_team_id,
     systemRole: p.system_role || 'jugador',
     memberships: { paid: 0, due: 10000 },
     _meta: {
