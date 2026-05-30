@@ -401,7 +401,7 @@ export const ClubProvider = ({ children }) => {
     };
 
     syncFromSupabase();
-  }, [user?.id]);
+  }, [user?.id, profile?.system_role]);
 
   const convertPlayerToSupabase = (player) => {
     const nameParts = (player.name || '').split(' ');
