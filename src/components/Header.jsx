@@ -64,10 +64,16 @@ export default function Header({
           </h1>
           <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '2px' }}>
             Reino Manager v4.0
-            {profile && (
               <span style={{ color: 'var(--color-gold)', marginLeft: '6px' }}>
-                · {getRpgTitle(profile.system_role)}
-                {profile.system_role !== 'desarrollador' && profile.system_role !== 'presidente' && (
+                {profile?.display_name ? (
+                  <> · <span style={{ fontWeight: 700 }}>{profile.display_name}</span> ({getRpgTitle(profile.system_role)})</>
+                ) : profile?.system_role ? (
+                  <> · {getRpgTitle(profile.system_role)}</>
+                ) : (
+                  <> · (Sin rango)</>
+                )}
+                {/* ⚠️ RESPALDO: cambiar false por (!profile || (profile.system_role !== 'desarrollador' && profile.system_role !== 'presidente')) para reactivar */}
+                {false && (
                   <button
                     onClick={async () => {
                       const ok = await forceAdmin();
@@ -100,7 +106,6 @@ export default function Header({
                   <span style={{ color: 'var(--color-gold)', marginLeft: '6px' }} title="Trabajando sin conexión. Los cambios se guardan localmente.">· 📱 Offline</span>
                 )}
               </span>
-            )}
           </p>
         </div>
       </div>
