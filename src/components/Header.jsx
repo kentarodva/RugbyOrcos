@@ -1,6 +1,7 @@
 import React from 'react';
 import { DIVISIONES, DIVISIONES_LABELS } from '../context/ClubContext';
 import { isGeminiConfigured } from '../engine/multiProviderCoach';
+import { useAuth } from '../context/AuthContext';
 import NavBar from './NavBar';
 import NotificationsButton from './Notifications/NotificationsButton';
 
@@ -32,6 +33,7 @@ export default function Header({
   handleImportFileChange, triggerImportClick, handleLogout,
   exportData,
 }) {
+  const { forceAdmin } = useAuth();
   return (
     <header className="glass-panel" style={{
       margin: '15px',
@@ -65,6 +67,26 @@ export default function Header({
             {profile && (
               <span style={{ color: 'var(--color-gold)', marginLeft: '6px' }}>
                 · {getRpgTitle(profile.system_role)}
+                {profile.system_role !== 'desarrollador' && profile.system_role !== 'presidente' && (
+                  <button
+                    onClick={async () => {
+                      const ok = await forceAdmin();
+                      if (ok) window.location.reload();
+                    }}
+                    title="Reparar permisos de administrador"
+                    style={{
+                      marginLeft: '6px',
+                      background: 'rgba(255,179,0,0.12)',
+                      border: '1px solid rgba(255,179,0,0.4)',
+                      color: '#ffb300',
+                      borderRadius: '4px',
+                      cursor: 'pointer',
+                      fontSize: '0.65rem',
+                      fontWeight: 700,
+                      padding: '2px 6px',
+                    }}
+                  >⚠️ Reparar Admin</button>
+                )}
                 {syncStatus === 'idle' && (
                   <span style={{ color: 'var(--color-text-muted)', marginLeft: '6px' }} title="Conectando al Reino...">· ⏳ Conectando...</span>
                 )}

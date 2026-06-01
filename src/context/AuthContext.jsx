@@ -142,6 +142,22 @@ export function AuthProvider({ children }) {
     return count === 0;
   };
 
+  const forceAdmin = async () => {
+    if (!user) return false;
+    const { error } = await supabase
+      .from('user_profiles')
+      .upsert({
+        user_id: user.id,
+        display_name: profile?.display_name || user.email?.split('@')[0] || 'Admin',
+        system_role: 'desarrollador',
+        is_active: true,
+      }, { onConflict: 'user_id' });
+
+    if (error) return false;
+    await fetchProfile(user.id);
+    return true;
+  };
+
   const value = {
     session,
     user,
@@ -151,6 +167,7 @@ export function AuthProvider({ children }) {
     signUp,
     signOut,
     checkFirstRun,
+    forceAdmin,
     isAuthenticated: !!user,
   };
 
