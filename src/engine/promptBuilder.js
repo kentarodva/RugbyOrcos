@@ -25,7 +25,7 @@ function buildChatContext(contextData = {}) {
   if (teamPlayers.length > 0) {
     const rosterSummary = teamPlayers
       .filter(p => p.estado === 'activo')
-      .map(p => `#${p.camiseta} ${p.name} (${p.posicion})`)
+      .map(p => `#${p.camiseta ?? '—'} ${p.name} (${p.posicion || '—'})`)
       .join(', ');
     if (rosterSummary) {
       parts.push(`Roster activo: ${rosterSummary}`);
@@ -174,7 +174,7 @@ function buildMatchAnalysisPrompt(fixture, players, teamLabel) {
     .map(p => {
       const stats = (p.matchStats || []).find(s => s.date === fixture.date);
       if (!stats) return null;
-      return `- #${p.camiseta} ${p.name} (${p.posicion}): ${stats.tries || 0} tries, ${stats.conversions || 0} conv, ${stats.tackles || 0} tackles, ${stats.turnovers || 0} turnovers, ${stats.yellowCards ? '1 Amarilla' : ''}${stats.redCards ? '1 Roja' : ''}${stats.mvp ? ' [MVP]' : ''}`;
+      return `- #${p.camiseta ?? '—'} ${p.name} (${p.posicion || '—'}): ${stats.tries || 0} tries, ${stats.conversions || 0} conv, ${stats.tackles || 0} tackles, ${stats.turnovers || 0} turnovers, ${stats.yellowCards ? '1 Amarilla' : ''}${stats.redCards ? '1 Roja' : ''}${stats.mvp ? ' [MVP]' : ''}`;
     })
     .filter(Boolean)
     .join('\n');

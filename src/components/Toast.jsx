@@ -1,4 +1,5 @@
 import React from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const ICONS = {
   success: '✅',
@@ -15,10 +16,8 @@ const COLORS = {
 };
 
 function Toast({ toasts, removeToast }) {
-  if (toasts.length === 0) return null;
-
   return (
-    <div style={{
+    <div className="toast-container" style={{
       position: 'fixed',
       bottom: '20px',
       right: '20px',
@@ -29,11 +28,15 @@ function Toast({ toasts, removeToast }) {
       maxWidth: '380px',
       pointerEvents: 'none'
     }}>
+      <AnimatePresence>
       {toasts.map(t => (
-        <div
+        <motion.div
           key={t.id}
-          className="animated-slide"
           onClick={() => removeToast(t.id)}
+          initial={{ opacity: 0, x: 60, scale: 0.95 }}
+          animate={{ opacity: 1, x: 0, scale: 1 }}
+          exit={{ opacity: 0, x: 60, scale: 0.95 }}
+          transition={{ type: 'spring', stiffness: 350, damping: 25 }}
           style={{
             display: 'flex',
             alignItems: 'center',
@@ -49,13 +52,13 @@ function Toast({ toasts, removeToast }) {
             fontSize: '0.82rem',
             fontWeight: 600,
             color: 'var(--color-text)',
-            animation: 'slideUp 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) forwards'
           }}
         >
           <span style={{ fontSize: '1.1rem', flexShrink: 0 }}>{ICONS[t.type] || ICONS.info}</span>
           <span style={{ flex: 1, lineHeight: 1.4 }}>{t.message}</span>
-        </div>
+        </motion.div>
       ))}
+      </AnimatePresence>
     </div>
   );
 }

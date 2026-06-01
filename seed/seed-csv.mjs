@@ -40,6 +40,26 @@ const CATEGORY_MAP = {
   'juveniles femenino': 'juveniles_femenina',
 };
 
+const EPS_MAP = {
+  'mutual ser': 'Mutual Ser',
+  'mutualser': 'Mutual Ser',
+  'mutual': 'Mutual Ser',
+  'salud total': 'Salud Total',
+  'nueva eps': 'Nueva EPS',
+  'familiar de colombia': 'Familiar de Colombia',
+  'familiar colombia': 'Familiar de Colombia',
+  'familiar': 'Familiar de Colombia',
+  'co familiar de colombia': 'Familiar de Colombia',
+  'eps familiar colombia': 'Familiar de Colombia',
+  'coosalud': 'Coosalud',
+  'cosalud': 'Coosalud',
+  'caja copi': 'Cajacopi',
+  'caja copis': 'Cajacopi',
+  'cajacopi': 'Cajacopi',
+  'sanitas': 'Sanitas',
+  'fomag': 'FOMAG',
+};
+
 const POSITIONS = [
   'Pilar','Talonador','Segunda Linea','Ala','Octavo',
   'Medio Mele','Apertura','Centro','Wing','Zaguero'
@@ -64,6 +84,12 @@ function normalizeCategory(raw) {
     if (s === k) return v;
   }
   return 'masculina_mayor';
+}
+
+function normalizeEPS(raw) {
+  if (!raw) return null;
+  const key = raw.trim().toLowerCase().replace(/\s+/g, ' ');
+  return EPS_MAP[key] || raw.trim();
 }
 
 function parseWeight(raw) {
@@ -192,7 +218,7 @@ for (const r of records) {
     fracture_details: hadFractures ? clean(r['Si respuesta enterior fue "Sí". Detalla dondé fué']) : null,
     allergies: hasAllergy && hasAllergy.toLowerCase() !== 'no' ? hasAllergy : null,
     medical_conditions: hasIllness && hasIllness.toLowerCase() !== 'no' ? hasIllness : null,
-    health_insurance: clean(r['18. A qué EPS estas afiliado?']) || null,
+    health_insurance: normalizeEPS(clean(r['18. A qué EPS estas afiliado?'])),
     emergency_contact_name: clean(r['  19. Nombre y Apellidos del Contacto  ']) || null,
     emergency_contact_phone: parsePhone(r['20. Número de Celular del Contacto  ']),
     commitment_accepted: clean(r['1. Compromiso con el Club (Obligatorio)\n  ¿Aceptas el siguiente compromiso como integrante del Club de Rugby Orcos?\n\n""Me comprometo a cumplir con los principios de calidad, a respetar y promover las normas, principios éticos y morales establecidos por el club; a participar activamente en las actividades, entrenamientos, eventos deportivos, pedagógicos y culturales programados por el club; a cumplir con las cuotas ordinarias y extraordinarias definidas por la organización; y a respetar y acatar las decisiones tomadas por el club.""   ']).toLowerCase().includes('sí'),

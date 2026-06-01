@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient.js';
+import { formatLocalDate } from '../utils/dates.js';
 
 function MatchInvitation() {
   const [invitation, setInvitation] = useState(null);
@@ -8,6 +9,7 @@ function MatchInvitation() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
+  const [responding, setResponding] = useState(false);
 
   const [form, setForm] = useState({ name: '', number: '', position: '', notes: '' });
 
@@ -78,6 +80,25 @@ function MatchInvitation() {
     setGuests(prev => prev.filter(g => g.id !== id));
   };
 
+  const handleResponder = async (response) => {
+    setResponding(true);
+    const payload = {
+      response,
+      response_notes: null,
+      responded_at: new Date().toISOString(),
+    };
+    if (response === 'accepted' || response === 'declined') {
+      payload.status = response === 'accepted' ? 'active' : 'expired';
+    }
+    const { error: err } = await supabase.from('match_invitations').update(payload).eq('id', invitation.id);
+    setResponding(false);
+    if (err) {
+      setError('Error al enviar respuesta: ' + err.message);
+      return;
+    }
+    setInvitation(prev => ({ ...prev, response, responded_at: new Date().toISOString() }));
+  };
+
   if (loading) {
     return (
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', background: 'var(--bg-root)', padding: '20px' }}>
@@ -105,7 +126,7 @@ function MatchInvitation() {
     );
   }
 
-  const fixtureDate = fixture ? new Date(fixture.date + 'T00:00:00').toLocaleDateString('es-ES', {
+  const fixtureDate = fixture ? formatLocalDate(new Date(fixture.date + 'T00:00:00'), {
     weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
   }) : '';
 
@@ -137,6 +158,48 @@ function MatchInvitation() {
               {fixture.time && <p><strong>Hora:</strong> {fixture.time}</p>}
               {fixture.location && <p><strong>Lugar:</strong> {fixture.location}</p>}
             </div>
+          </div>
+        )}
+
+        {invitation && invitation.response === 'pending' && (
+          <div className="glass-panel" style={{ padding: '20px', borderRadius: 'var(--radius-md)', textAlign: 'center' }}>
+            <p style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)', marginBottom: '12px' }}>
+              Confirmas la participacion de tu equipo?
+            </p>
+            <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
+              <button
+                onClick={() => handleResponder('accepted')}
+                disabled={responding}
+                className="btn-neon"
+                style={{ padding: '10px 24px', fontSize: '0.85rem' }}
+              >
+                {responding ? '...' : 'Aceptar Invitacion'}
+              </button>
+              <button
+                onClick={() => handleResponder('declined')}
+                disabled={responding}
+                className="btn-outline"
+                style={{ padding: '10px 24px', fontSize: '0.85rem', borderColor: 'var(--color-red)', color: 'var(--color-red)' }}
+              >
+                {responding ? '...' : 'Rechazar'}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {invitation && invitation.response === 'accepted' && (
+          <div style={{ textAlign: 'center', padding: '10px' }}>
+            <span style={{ fontSize: '0.85rem', color: 'var(--color-primary)', fontWeight: 700 }}>
+              Participacion confirmada. Registra tus jugadores abajo.
+            </span>
+          </div>
+        )}
+
+        {invitation && invitation.response === 'declined' && (
+          <div style={{ textAlign: 'center', padding: '10px' }}>
+            <span style={{ fontSize: '0.85rem', color: 'var(--color-red)', fontWeight: 700 }}>
+              Has rechazado la invitacion.
+            </span>
           </div>
         )}
 

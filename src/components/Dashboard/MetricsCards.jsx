@@ -1,0 +1,41 @@
+import React from 'react';
+
+function MetricsCards({ totalOrcos, activos, lesionados, suspendidos, inactivos }) {
+  return (
+    <div className="grid-cards" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))' }}>
+      <div className="glass-panel" style={{ padding: '20px', display: 'flex', alignItems: 'center', gap: '15px' }}>
+        <div style={{ fontSize: '2.5rem' }}>🛡️</div>
+        <div>
+          <h3 style={{ fontSize: '2rem', fontWeight: 800, fontFamily: 'Outfit' }}>{totalOrcos}</h3>
+          <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', fontWeight: 600, textTransform: 'uppercase' }}>Guerreros Totales</p>
+        </div>
+      </div>
+
+      <div className="glass-panel" style={{ padding: '20px', display: 'flex', alignItems: 'center', gap: '15px', borderLeft: '3px solid var(--color-primary)' }}>
+        <div style={{ fontSize: '2.5rem' }}>🟢</div>
+        <div>
+          <h3 style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--color-primary)', fontFamily: 'Outfit' }}>{activos}</h3>
+          <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', fontWeight: 600, textTransform: 'uppercase' }}>Listos para Combate</p>
+        </div>
+      </div>
+
+      <div className="glass-panel" style={{ padding: '20px', display: 'flex', alignItems: 'center', gap: '15px', borderLeft: '3px solid var(--color-red)' }}>
+        <div style={{ fontSize: '2.5rem' }}>🚑</div>
+        <div>
+          <h3 style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--color-red)', fontFamily: 'Outfit' }}>{lesionados}</h3>
+          <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', fontWeight: 600, textTransform: 'uppercase' }}>Bajas por Lesion</p>
+        </div>
+      </div>
+
+      <div className="glass-panel" style={{ padding: '20px', display: 'flex', alignItems: 'center', gap: '15px', borderLeft: '3px solid var(--color-yellow)' }}>
+        <div style={{ fontSize: '2.5rem' }}>⚖️</div>
+        <div>
+          <h3 style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--color-yellow)', fontFamily: 'Outfit' }}>{suspendidos + inactivos}</h3>
+          <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', fontWeight: 600, textTransform: 'uppercase' }}>Sanciones / Bajas</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default MetricsCards;

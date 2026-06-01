@@ -1,5 +1,7 @@
 // ── Utilidades de Export / Impresión ──
 
+import { formatLocalDate } from './dates.js';
+
 const esc = (str) => String(str ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 
 export function printRoster(players, teamLabel) {
@@ -25,7 +27,7 @@ export function printRoster(players, teamLabel) {
     .footer{text-align:center;margin-top:30px;font-size:11px;color:#999}
     @media print{body{padding:10px}}</style></head><body>
     <h1>Rugby Orcos Negros — ${teamLabel}</h1>
-    <p style="text-align:center;color:#666">Fecha: ${new Date().toLocaleDateString('es-ES')} · ${players.length} guerreros</p>
+    <p style="text-align:center;color:#666">Fecha: ${formatLocalDate(new Date())} · ${players.length} guerreros</p>
     <table><thead><tr><th>#</th><th>Nombre</th><th>Posición</th><th>Estado</th><th>Contacto</th></tr></thead><tbody>${rows}</tbody></table>
     <div class="footer">Rugby Orcos Negros 2026 — Fuerza, Honor y Tercer Tiempo.</div>
     </body></html>`);
@@ -57,7 +59,7 @@ export function printFinances(finances, teamLabel) {
     .footer{text-align:center;margin-top:30px;font-size:11px;color:#999}
     @media print{body{padding:10px}}</style></head><body>
     <h1>Rugby Orcos Negros — ${teamLabel}</h1>
-    <p style="text-align:center;color:#666">Resumen Financiero · ${new Date().toLocaleDateString('es-ES')}</p>
+    <p style="text-align:center;color:#666">Resumen Financiero · ${formatLocalDate(new Date())}</p>
     <div class="summary"><div><strong>Ingresos</strong><br><span style="color:#0a6e2e;font-size:18px">$${totalIn.toLocaleString('es-CO')}</span></div><div><strong>Egresos</strong><br><span style="color:#c62828;font-size:18px">$${totalOut.toLocaleString('es-CO')}</span></div><div><strong>Balance</strong><br><span style="font-size:18px">$${(totalIn - totalOut).toLocaleString('es-CO')}</span></div></div>
     <table><thead><tr><th>Fecha</th><th>Descripción</th><th>Monto</th><th>Categoría</th></tr></thead><tbody>${rows}</tbody></table>
     <div class="footer">Rugby Orcos Negros 2026 — Fuerza, Honor y Tercer Tiempo.</div>

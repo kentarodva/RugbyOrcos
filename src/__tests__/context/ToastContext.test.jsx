@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen, act, cleanup } from '@testing-library/react';
+import { describe, it, expect, vi } from 'vitest';
+import { render, screen, act, waitFor } from '@testing-library/react';
 import React from 'react';
 import { ToastProvider, useToast } from '../../context/ToastContext';
 
@@ -9,16 +9,7 @@ function ToastTrigger({ message, type }) {
 }
 
 describe('ToastContext — Fix #9: limpieza de timeouts', () => {
-  beforeEach(() => {
-    vi.useFakeTimers();
-  });
-
-  afterEach(() => {
-    vi.useRealTimers();
-    cleanup();
-  });
-
-  it('muestra un toast y lo remueve tras 4 segundos', () => {
+  it('muestra un toast y lo remueve tras 4 segundos', async () => {
     render(
       <ToastProvider>
         <ToastTrigger message="Test toast" type="success" />
@@ -31,14 +22,13 @@ describe('ToastContext — Fix #9: limpieza de timeouts', () => {
 
     expect(screen.getByText('Test toast')).toBeInTheDocument();
 
-    act(() => {
-      vi.advanceTimersByTime(4000);
-    });
-
-    expect(screen.queryByText('Test toast')).not.toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.queryByText('Test toast')).not.toBeInTheDocument();
+    }, { timeout: 5000 });
   });
 
   it('limpia los timeouts cuando el provider se desmonta', () => {
+    vi.useFakeTimers();
     const clearTimeoutSpy = vi.spyOn(global, 'clearTimeout');
 
     const { unmount } = render(
@@ -59,9 +49,10 @@ describe('ToastContext — Fix #9: limpieza de timeouts', () => {
 
     expect(clearTimeoutSpy).toHaveBeenCalled();
     clearTimeoutSpy.mockRestore();
+    vi.useRealTimers();
   });
 
-  it('elimina toast inmediatamente al llamar removeToast clickeando', () => {
+  it('elimina toast inmediatamente al llamar removeToast clickeando', async () => {
     render(
       <ToastProvider>
         <ToastTrigger message="Clickeable" type="error" />
@@ -79,6 +70,8 @@ describe('ToastContext — Fix #9: limpieza de timeouts', () => {
       toast.click();
     });
 
-    expect(screen.queryByText('Clickeable')).not.toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.queryByText('Clickeable')).not.toBeInTheDocument();
+    }, { timeout: 1000 });
   });
 });

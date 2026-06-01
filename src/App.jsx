@@ -1,5 +1,6 @@
-import React, { useState, useContext, useRef, lazy, Suspense } from 'react';
-import { ClubContext, DIVISIONES, DIVISIONES_LABELS } from './context/ClubContext';
+import React, { useState, useContext, useRef, useEffect, lazy, Suspense } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ClubContext } from './context/ClubContext';
 import { useAuth } from './context/AuthContext';
 import { useToast } from './context/ToastContext';
 import Login from './components/Login';
@@ -9,44 +10,57 @@ import Tribunal from './components/Tribunal';
 import Calendario from './components/Calendario';
 import Finanzas from './components/Finanzas';
 import Settings from './components/Settings';
-import UserManagement from './components/UserManagement';
 import PlayerDashboard from './components/PlayerDashboard';
+import Header from './components/Header';
+import AdminPanel from './components/Admin/AdminPanel';
+import Footer from './components/Footer';
 import AwardsHall from './components/AwardsHall';
 import MakgoraHub from './components/MakgoraHub';
 import MatchInvitation from './components/MatchInvitation';
+import Invitaciones from './components/Invitaciones';
 import Messages from './components/Messages';
 import AnnouncementModal from './components/AnnouncementModal';
-import { isGeminiConfigured } from './engine/multiProviderCoach';
+import BirthdayCelebration from './components/BirthdayCelebration';
+import ImportCSVModal from './components/Admin/ImportCSVModal';
+import Sidebar from './components/Sidebar';
+import apisupabase from './data/supabaseApi';
+
+import { useGlobalShortcuts } from './utils/keyboardShortcuts';
+import { addPushNavigateListener } from './utils/pushNotifications';
 
 const CanchaTactica = lazy(() => import('./components/CanchaTactica'));
 const TrainingHub = lazy(() => import('./components/TrainingHub'));
 const AIChat = lazy(() => import('./components/AIChat'));
-
-const RPG_TITLES = {
-  desarrollador: 'Arquitecto del Reino',
-  presidente: 'Señor de la Guerra',
-  promotor: 'Comandante de Horda',
-  entrenador: 'Maestro de Armas',
-  tesorero: 'Guardian del Botin',
-  arbitro: 'Juez del Coliseo',
-  jugador: 'Guerrero',
-};
-
-function getRpgTitle(role) {
-  return RPG_TITLES[role] || role;
-}
+const Estadisticas = lazy(() => import('./components/Estadisticas'));
 
 function App() {
-  const { activeTeam, setActiveTeam, exportData, importData, hasPermission, getAllClubs, getAllClubsLabels, addClub, deleteClub, dynamicClubs, syncStatus } = useContext(ClubContext);
-  const { isAuthenticated, signOut, profile } = useAuth();
+  const {
+    exportData, importData, hasPermission,
+    getAllClubsLabels, addClub, deleteClub, dynamicClubs, syncStatus,
+    viewMode, setViewMode, divisionView, setDivisionView,
+    makgoraTeamId, setMakgoraTeamId, makgoraTeams,
+  } = useContext(ClubContext);
+  const { isAuthenticated, signOut, profile, user } = useAuth();
   const { showToast } = useToast();
   const [activeTab, setActiveTab] = useState('dashboard');
   const [showSettings, setShowSettings] = useState(false);
   const [showAnnouncements, setShowAnnouncements] = useState(true);
   const [showAdminPanel, setShowAdminPanel] = useState(false);
   const [adminSubTab, setAdminSubTab] = useState('users');
+  const [showImportCSV, setShowImportCSV] = useState(false);
   const [newClubName, setNewClubName] = useState('');
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const fileInputRef = useRef(null);
+
+  useGlobalShortcuts(activeTab, setActiveTab);
+
+  useEffect(() => {
+    return addPushNavigateListener(({ tab }) => {
+      if (tab && typeof tab === 'string') {
+        setActiveTab(tab);
+      }
+    });
+  }, []);
 
   if (window.location.pathname.startsWith('/invitacion/') || window.location.pathname.startsWith('/invitation/')) {
     return <MatchInvitation />;
@@ -60,16 +74,10 @@ function App() {
     return (
       <div className="app-container" style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
         <PlayerDashboard />
-        <footer style={{ textAlign: 'center', padding: '15px', fontSize: '0.75rem', color: 'var(--color-text-muted)', borderTop: '1px solid var(--border-glass)' }}>
-          Rugby Orcos Negros 2026. Fuerza, Honor y Tercer Tiempo.
-        </footer>
+        <Footer />
       </div>
     );
   }
-
-  const parts = activeTeam ? activeTeam.split('_') : ['orcos', 'masculina', 'mayor'];
-  const currentClub = parts[0] || 'orcos';
-  const currentDivision = parts.slice(1).join('_') || 'masculina_mayor';
 
   const handleImportFileChange = (e) => {
     const fileReader = new FileReader();
@@ -97,6 +105,16 @@ function App() {
     fileInputRef.current.click();
   };
 
+  const handleImportCSV = async (players) => {
+    if (!user) {
+      showToast('Debes iniciar sesion para importar.', 'error');
+      return;
+    }
+    const { data, error } = await apisupabase.batchUpsertPlayers(players, user.id);
+    if (error) throw error;
+    showToast(`${data?.length || players.length} jugadores importados correctamente.`, 'success');
+  };
+
   const handleAddClub = (e) => {
     e.preventDefault();
     if (!newClubName.trim()) return;
@@ -114,310 +132,116 @@ function App() {
     await signOut();
   };
 
-  const allClubs = getAllClubs();
   const allLabels = getAllClubsLabels();
+
+  const tabVariants = {
+    initial: { opacity: 0, y: 16 },
+    animate: { opacity: 1, y: 0 },
+    exit: { opacity: 0, y: -12 },
+  };
 
   return (
     <div className="app-container" style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
 
-      <header className="glass-panel" style={{
-        margin: '15px',
-        padding: '15px 25px',
-        display: 'flex',
-        flexWrap: 'wrap',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        gap: '15px',
-        borderRadius: 'var(--radius-lg)'
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-          <img
-            src="/assets/orcos_logo.png"
-            alt="Rugby Orcos Negros Shield"
-            style={{
-              width: '55px',
-              height: '55px',
-              objectFit: 'contain',
-              filter: 'drop-shadow(0 0 10px var(--color-primary-glow))',
-              animation: 'pulseGlow 3s infinite ease-in-out'
-            }}
-          />
-          <div>
-            <h1 className="neon-text-primary" style={{ fontSize: '1.75rem', fontWeight: 800, letterSpacing: '1px' }}>
-              RUGBY ORCOS NEGROS
-            </h1>
-            <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '2px' }}>
-              Reino Manager v4.0
-              {profile && (
-                <span style={{ color: 'var(--color-gold)', marginLeft: '6px' }}>
-                  · {getRpgTitle(profile.system_role)}
-                  {syncStatus === 'idle' && (
-                    <span style={{ color: 'var(--color-text-muted)', marginLeft: '6px' }} title="Conectando al Reino...">· ⏳ Conectando...</span>
-                  )}
-                  {syncStatus === 'syncing' && (
-                    <span style={{ color: 'var(--color-blue)', marginLeft: '6px' }} title="Sincronizando con Supabase...">· 🔄 Sincronizando...</span>
-                  )}
-                  {syncStatus === 'online' && (
-                    <span style={{ color: 'var(--color-primary)', marginLeft: '6px' }} title="Conectado a Supabase">· ☁️ Online</span>
-                  )}
-                  {syncStatus === 'offline' && (
-                    <span style={{ color: 'var(--color-gold)', marginLeft: '6px' }} title="Trabajando sin conexión. Los cambios se guardan localmente.">· 📱 Offline</span>
-                  )}
-                </span>
-              )}
-            </p>
-          </div>
-        </div>
-
-        <div style={{ display: 'flex', alignItems: 'center', gap: '15px', flexWrap: 'wrap' }}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-            <label style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', fontWeight: 700, textTransform: 'uppercase' }}>
-              Club / Equipo
-            </label>
-            <select
-              value={currentClub}
-              onChange={(e) => {
-                const newClub = e.target.value;
-                setActiveTeam(`${newClub}_${currentDivision}`);
-              }}
-              className="form-select"
-              style={{
-                background: 'var(--bg-input)',
-                border: '1px solid var(--color-gold)',
-                color: 'var(--color-gold)',
-                fontWeight: '700',
-                padding: '8px 16px',
-                borderRadius: 'var(--radius-sm)',
-                cursor: 'pointer',
-                boxShadow: '0 0 10px rgba(212, 175, 55, 0.15)'
-              }}
-            >
-              {Object.values(allClubs).map((code) => (
-                <option key={code} value={code}>
-                  {allLabels[code] || code}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-            <label style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', fontWeight: 700, textTransform: 'uppercase' }}>
-              Division / Categoria
-            </label>
-            <select
-              value={currentDivision}
-              onChange={(e) => {
-                const newDiv = e.target.value;
-                setActiveTeam(`${currentClub}_${newDiv}`);
-              }}
-              className="form-select"
-              style={{
-                background: 'var(--bg-input)',
-                border: '1px solid var(--color-primary)',
-                color: 'var(--color-primary)',
-                fontWeight: '700',
-                padding: '8px 16px',
-                borderRadius: 'var(--radius-sm)',
-                cursor: 'pointer',
-                boxShadow: '0 0 10px var(--color-primary-glow)'
-              }}
-            >
-              {Object.keys(DIVISIONES).map((key) => (
-                <option key={key} value={DIVISIONES[key]}>
-                  {DIVISIONES_LABELS[DIVISIONES[key]]}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div style={{ display: 'flex', gap: '8px', alignSelf: 'flex-end', height: '38px' }}>
-            {hasPermission('admin_panel') && (
-              <button
-                onClick={() => setShowAdminPanel(!showAdminPanel)}
-                className="btn-outline"
-                title="Panel de Administracion (Super Rol)"
-                style={{
-                  padding: '8px 12px',
-                  fontSize: '0.8rem',
-                  borderColor: showAdminPanel ? 'var(--color-red)' : 'var(--color-gold)',
-                  background: showAdminPanel ? 'rgba(255, 61, 0, 0.08)' : 'transparent'
-                }}
-              >
-                Admin
-              </button>
-            )}
-            <button
-              onClick={() => setShowSettings(true)}
-              className="btn-outline"
-              title="Configuracion de Inteligencia Artificial"
-              style={{
-                padding: '8px 12px',
-                fontSize: '0.8rem',
-                borderColor: isGeminiConfigured() ? 'var(--color-primary)' : 'var(--border-glass)',
-                background: isGeminiConfigured() ? 'rgba(0, 230, 118, 0.05)' : 'transparent'
-              }}
-            >
-              {isGeminiConfigured() ? 'IA Activa' : 'IA'}
-            </button>
-            <button
-              onClick={exportData}
-              className="btn-outline"
-              title="Exportar Base de Datos"
-              style={{ padding: '8px 12px', fontSize: '0.8rem' }}
-            >
-              Respaldar
-            </button>
-            <button
-              onClick={triggerImportClick}
-              className="btn-outline"
-              title="Importar Base de Datos"
-              style={{ padding: '8px 12px', fontSize: '0.8rem' }}
-            >
-              Cargar
-            </button>
-            <input
-              type="file"
-              ref={fileInputRef}
-              onChange={handleImportFileChange}
-              accept=".json"
-              style={{ display: 'none' }}
-            />
-            <button
-              onClick={handleLogout}
-              className="btn-outline"
-              title="Cerrar sesion"
-              style={{ padding: '8px 12px', fontSize: '0.8rem', borderColor: 'var(--color-red)', color: 'var(--color-red)' }}
-            >
-              Salir
-            </button>
-          </div>
-        </div>
-      </header>
+      <Header
+        sidebarOpen={sidebarOpen}
+        setSidebarOpen={setSidebarOpen}
+        profile={profile}
+        syncStatus={syncStatus}
+        viewMode={viewMode}
+        setViewMode={setViewMode}
+        divisionView={divisionView}
+        setDivisionView={setDivisionView}
+        makgoraTeamId={makgoraTeamId}
+        setMakgoraTeamId={setMakgoraTeamId}
+        makgoraTeams={makgoraTeams}
+        hasPermission={hasPermission}
+        showAdminPanel={showAdminPanel}
+        setShowAdminPanel={setShowAdminPanel}
+        showSettings={showSettings}
+        setShowSettings={setShowSettings}
+        showImportCSV={showImportCSV}
+        setShowImportCSV={setShowImportCSV}
+        fileInputRef={fileInputRef}
+        handleImportFileChange={handleImportFileChange}
+        triggerImportClick={triggerImportClick}
+        handleLogout={handleLogout}
+        exportData={exportData}
+      />
 
       {showAdminPanel && hasPermission('admin_panel') && (
-        <div className="glass-panel animated-slide" style={{
-          margin: '0 15px 10px 15px',
-          padding: '20px 25px',
-          borderRadius: 'var(--radius-md)',
-          borderLeft: '3px solid var(--color-gold)'
-        }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
-            <h3 style={{ fontSize: '1.1rem', fontWeight: 800, fontFamily: 'Outfit', color: 'var(--color-gold)' }}>
-              Administracion del Reino
-            </h3>
-          </div>
-
-          <div style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
-            <button onClick={() => setAdminSubTab('users')} className={adminSubTab === 'users' ? 'btn-neon' : 'btn-outline'}
-              style={{ padding: '8px 20px', fontSize: '0.85rem', fontWeight: 700 }}>
-              Miembros
-            </button>
-            <button onClick={() => setAdminSubTab('clubs')} className={adminSubTab === 'clubs' ? 'btn-neon' : 'btn-outline'}
-              style={{ padding: '8px 20px', fontSize: '0.85rem', fontWeight: 700 }}>
-              Equipos
-            </button>
-          </div>
-
-          {adminSubTab === 'users' && <UserManagement />}
-          {adminSubTab === 'clubs' && (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px' }}>
-              <div>
-                <h4 style={{ fontSize: '0.9rem', fontWeight: 700, marginBottom: '10px' }}>Crear Nuevo Equipo</h4>
-                <form onSubmit={handleAddClub} style={{ display: 'flex', gap: '8px' }}>
-                  <input type="text" value={newClubName} onChange={(e) => setNewClubName(e.target.value)}
-                    placeholder="Nombre del equipo" className="form-input" style={{ flex: 1 }} />
-                  <button type="submit" className="btn-neon" style={{ padding: '8px 16px' }}>Crear</button>
-                </form>
-              </div>
-              <div>
-                <h4 style={{ fontSize: '0.9rem', fontWeight: 700, marginBottom: '10px' }}>Equipos Actuales</h4>
-                {Object.keys(dynamicClubs).length === 0 ? (
-                  <p style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>No hay equipos dinamicos.</p>
-                ) : (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                    {Object.entries(dynamicClubs).map(([key, code]) => (
-                      <div key={key} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px', background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border-glass)', borderRadius: 'var(--radius-sm)' }}>
-                        <span style={{ fontSize: '0.85rem' }}>{allLabels[code] || code}</span>
-                        <button onClick={() => { if (window.confirm(`Eliminar "${allLabels[code]}"?`)) { deleteClub(code); showToast(`"${allLabels[code]}" eliminado.`, 'info'); } }}
-                          style={{ background: 'rgba(255, 61, 0, 0.1)', border: '1px solid var(--color-red)', color: 'var(--color-red)', padding: '4px 10px', borderRadius: 'var(--radius-sm)', cursor: 'pointer', fontSize: '0.75rem', fontWeight: 700 }}>
-                          Eliminar
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-        </div>
+        <motion.div key="admin" initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.2 }}>
+        <AdminPanel
+          hasPermission={hasPermission}
+          adminSubTab={adminSubTab}
+          setAdminSubTab={setAdminSubTab}
+          handleAddClub={handleAddClub}
+          newClubName={newClubName}
+          setNewClubName={setNewClubName}
+          dynamicClubs={dynamicClubs}
+          allLabels={allLabels}
+          deleteClub={deleteClub}
+          showToast={showToast}
+        />
+        </motion.div>
       )}
-
-      <nav className="tabs-navigation">
-        <button onClick={() => setActiveTab('dashboard')} className={`tab-btn ${activeTab === 'dashboard' ? 'active' : ''}`}>
-          Dashboard
-        </button>
-        <button onClick={() => setActiveTab('roster')} className={`tab-btn ${activeTab === 'roster' ? 'active' : ''}`}>
-          Roster
-        </button>
-        <button onClick={() => setActiveTab('cancha')} className={`tab-btn ${activeTab === 'cancha' ? 'active' : ''}`}>
-          Pizarra Tactica
-        </button>
-        <button onClick={() => setActiveTab('tribunal')} className={`tab-btn ${activeTab === 'tribunal' ? 'active' : ''}`}>
-          Tribunal
-        </button>
-        <button onClick={() => setActiveTab('awards')} className={`tab-btn ${activeTab === 'awards' ? 'active' : ''}`}>
-          Salon de la Fama
-        </button>
-        <button onClick={() => setActiveTab('makgora')} className={`tab-btn ${activeTab === 'makgora' ? 'active' : ''}`}>
-          Mak'Gora
-        </button>
-        <button onClick={() => setActiveTab('calendario')} className={`tab-btn ${activeTab === 'calendario' ? 'active' : ''}`}>
-          Agenda
-        </button>
-        <button onClick={() => setActiveTab('finanzas')} className={`tab-btn ${activeTab === 'finanzas' ? 'active' : ''}`}>
-          Finanzas
-        </button>
-        <button onClick={() => setActiveTab('entrenamientos')} className={`tab-btn ${activeTab === 'entrenamientos' ? 'active' : ''}`}>
-          Entrenamientos
-        </button>
-        <button onClick={() => setActiveTab('messages')} className={`tab-btn ${activeTab === 'messages' ? 'active' : ''}`}>
-          💬 Mensajes
-        </button>
-        <button onClick={() => setActiveTab('ia')} className={`tab-btn ${activeTab === 'ia' ? 'active' : ''}`}>
-          IA
-        </button>
-      </nav>
 
       <main style={{ flex: 1, padding: '15px 15px 40px 15px' }}>
-        <Suspense fallback={<div className="glass-panel" style={{ padding: '40px', textAlign: 'center', color: 'var(--color-text-muted)' }}>Cargando modulo...</div>}>
-        {activeTab === 'dashboard' && <Dashboard />}
-        {activeTab === 'roster' && <Roster />}
-        {activeTab === 'cancha' && <CanchaTactica />}
-        {activeTab === 'tribunal' && <Tribunal />}
-        {activeTab === 'awards' && <AwardsHall />}
-        {activeTab === 'makgora' && <MakgoraHub />}
-        {activeTab === 'calendario' && <Calendario />}
-        {activeTab === 'finanzas' && <Finanzas />}
-        {activeTab === 'entrenamientos' && <TrainingHub />}
-        {activeTab === 'messages' && <Messages />}
-        {activeTab === 'ia' && <AIChat />}
+        <AnimatePresence mode="wait">
+        <Suspense fallback={<motion.div key="suspense" className="glass-panel" style={{ padding: '40px', textAlign: 'center', color: 'var(--color-text-muted)' }}
+          initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+        >Cargando modulo...</motion.div>}>
+        {activeTab === 'dashboard' && <motion.div key="dashboard" variants={tabVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.25, ease: 'easeOut' }}><Dashboard /></motion.div>}
+        {activeTab === 'roster' && <motion.div key="roster" variants={tabVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.25, ease: 'easeOut' }}><Roster /></motion.div>}
+        {activeTab === 'estadisticas' && <motion.div key="estadisticas" variants={tabVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.25, ease: 'easeOut' }}><Estadisticas /></motion.div>}
+        {activeTab === 'cancha' && <motion.div key="cancha" variants={tabVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.25, ease: 'easeOut' }}><CanchaTactica /></motion.div>}
+        {activeTab === 'tribunal' && <motion.div key="tribunal" variants={tabVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.25, ease: 'easeOut' }}><Tribunal /></motion.div>}
+        {activeTab === 'awards' && <motion.div key="awards" variants={tabVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.25, ease: 'easeOut' }}><AwardsHall /></motion.div>}
+        {activeTab === 'makgora' && <motion.div key="makgora" variants={tabVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.25, ease: 'easeOut' }}><MakgoraHub /></motion.div>}
+        {activeTab === 'calendario' && <motion.div key="calendario" variants={tabVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.25, ease: 'easeOut' }}><Calendario /></motion.div>}
+        {activeTab === 'invitaciones' && <motion.div key="invitaciones" variants={tabVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.25, ease: 'easeOut' }}><Invitaciones /></motion.div>}
+        {activeTab === 'finanzas' && <motion.div key="finanzas" variants={tabVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.25, ease: 'easeOut' }}><Finanzas /></motion.div>}
+        {activeTab === 'entrenamientos' && <motion.div key="entrenamientos" variants={tabVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.25, ease: 'easeOut' }}><TrainingHub /></motion.div>}
+        {activeTab === 'messages' && <motion.div key="messages" variants={tabVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.25, ease: 'easeOut' }}><Messages /></motion.div>}
+        {activeTab === 'ia' && <motion.div key="ia" variants={tabVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.25, ease: 'easeOut' }}><AIChat /></motion.div>}
         </Suspense>
+        </AnimatePresence>
       </main>
 
-      {showSettings && <Settings onClose={() => setShowSettings(false)} />}
-      {showAnnouncements && isAuthenticated && (
-        <AnnouncementModal onClose={() => setShowAnnouncements(false)} />
+      <AnimatePresence>
+      {showImportCSV && (
+        <motion.div key="importcsv"
+          initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
+          <ImportCSVModal
+            onClose={() => setShowImportCSV(false)}
+            onImport={handleImportCSV}
+            makgoraTeams={makgoraTeams || []}
+          />
+        </motion.div>
       )}
+      {showSettings && (
+        <motion.div key="settings"
+          initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
+          <Settings onClose={() => setShowSettings(false)} />
+        </motion.div>
+      )}
+      {showAnnouncements && isAuthenticated && (
+        <motion.div key="announcements"
+          initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
+          <AnnouncementModal onClose={() => setShowAnnouncements(false)} />
+        </motion.div>
+      )}
+      </AnimatePresence>
+      {isAuthenticated && <BirthdayCelebration />}
 
-      <footer style={{
-        textAlign: 'center',
-        padding: '15px',
-        fontSize: '0.75rem',
-        color: 'var(--color-text-muted)',
-        borderTop: '1px solid var(--border-glass)'
-      }}>
-        Rugby Orcos Negros 2026. Fuerza, Honor y Tercer Tiempo.
-      </footer>
+      <Sidebar
+        open={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+      />
+
+      <Footer />
 
     </div>
   );

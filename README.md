@@ -47,13 +47,17 @@ Rugby Orcos/
 │   │   ├── TrainingHub.jsx      # Plan inteligente, rutinas, catalogo
 │   │   ├── AIChat.jsx           # Chat tactico multi-proveedor IA
 │   │   ├── AwardsHall.jsx       # Salon de la Fama (43 premios + certificados)
-│   │   ├── MakgoraHub.jsx       # Torneo Mak'Gora (equipos, fixture, standings)
+│   │   ├── MakgoraHub.jsx       # Torneo Mak'Gora (equipos, fixture, standings, prestamos)
+│   │   ├── Invitaciones.jsx     # Dashboard de invitaciones a rivales
+│   │   ├── MatchInvitation.jsx  # Pagina publica de invitacion (sin login)
 │   │   ├── PlayerDashboard.jsx  # Vista personal del Guerrero
 │   │   ├── UserManagement.jsx   # Admin de usuarios, roles y reset password
 │   │   ├── Settings.jsx         # Configuracion IA
 │   │   ├── Rivales.jsx          # Gestion de equipos rivales
 │   │   ├── AuthCallback.jsx     # Callback de autenticacion
 │   │   ├── ErrorBoundary.jsx    # Captura de errores React
+│   │   ├── Messages.jsx          # Mensajeria interna con attachments
+│   │   ├── AnnouncementModal.jsx # Anuncios tipo popup
 │   │   └── Toast.jsx            # Componente toast
 │   ├── data/
 │   │   ├── supabaseApi.js       # Capa API Supabase + conversor de datos
@@ -67,7 +71,10 @@ Rugby Orcos/
 │   ├── 00_reset_db.sql          # Destruye todo
 │   ├── 01_schema_v4.sql         # Schema limpio (27 tablas + RLS + funciones)
 │   ├── 02_fix_user_profiles_rls.sql  # Deshabilita RLS en user_profiles
-│   └── 03_admin_reset_staff_password.sql  # RPC para resetear password staff
+│   ├── 03_admin_reset_staff_password.sql  # RPC para resetear password staff
+│   ├── 04_match_invitations.sql # Tablas match_invitations + guest_players
+│   ├── 05_messages.sql          # Mensajeria interna y anuncios
+│   └── 06_enhance_invitations.sql # Mejoras: FKs, respuesta, triggers
 ├── seed/seed-csv.mjs            # Importador CSV → Supabase
 ├── public/
 │   ├── manifest.json            # PWA manifest
@@ -115,7 +122,7 @@ Rugby Orcos/
 Metricas del squad, protocolo HIA (conmociones), temporizador Sin-Bin, wellness check-in, eventos, partidos recientes.
 
 ### Roster
-CRUD de jugadores con atributos RPG (Fuerza, Velocidad, Resistencia, Tecnica). Historial fisico SVG. Lesiones 4 fases. Gimnasio 1RM. Insignias automaticas. **Forjar Credenciales** (genera username + password). **Restablecer Contrasena** de jugador.
+CRUD de jugadores con atributos RPG (Fuerza, Velocidad, Resistencia, Tecnica). Historial fisico SVG. Lesiones 4 fases. Gimnasio 1RM. Insignias automaticas. **Forjar Credenciales** (genera username + password). **Restablecer Contrasena** de jugador. **Asignacion a equipo Mak'Gora** desde ficha de edicion.
 
 ### Pizarra Tactica
 11 formaciones, drag-and-drop, asignacion de jugadores, banco de suplentes, orientacion H/V, 3 tamanos.
@@ -127,7 +134,10 @@ Asistencia con penitencias (burpees, conos). Infracciones. Rankings: Honor, MVPs
 **43 premios automaticos** basados en estadisticas (15 de Honor + 28 de la Taberna). Certificados HTML imprimibles.
 
 ### Mak'Gora
-Torneo interno con 6 equipos. Crear torneos, fixture round-robin, registrar resultados, tabla de posiciones (puntos bonus). Historial de campeones.
+Torneo interno con 6 equipos. Crear torneos, fixture round-robin, registrar resultados, tabla de posiciones (puntos bonus). Historial de campeones. **Prestamos de jugadores** entre equipos (solicitar, aprobar, devolver). Badge en Roster.
+
+### Invitaciones
+Dashboard centralizado de invitaciones a equipos rivales. Genera links unicos por partido, los rivales registran sus jugadores sin login. Contador en vivo, respuesta aceptar/rechazar, GuestRoster visible en proximos partidos y Match Center. Badge de invitaciones activas en gestion de rivales.
 
 ### Agenda
 Eventos con recurrencia. WhatsApp formatter. Fixture y resultados. Match Center. Equipos rivales.
@@ -191,6 +201,9 @@ npm run dev   # http://localhost:3000
    - `supabase/migrations/01_schema_v4.sql`
    - `supabase/migrations/02_fix_user_profiles_rls.sql`
    - `supabase/migrations/03_admin_reset_staff_password.sql`
+   - `supabase/migrations/04_match_invitations.sql`
+   - `supabase/migrations/05_messages.sql`
+   - `supabase/migrations/06_enhance_invitations.sql`
 3. `node seed/seed-csv.mjs "ruta/al/archivo.csv"`
 4. Authentication > Providers > Email: habilitado
 
@@ -226,9 +239,11 @@ npm run dev   # http://localhost:3000
 | 5 | Salon de la Fama (43 premios + certificados) | ✅ |
 | 6 | Modo Mak'Gora (torneos, fixture, standings) | ✅ |
 | 7 | Restablecer contrasena staff (🔑) | ✅ |
-| 8 | Build APK Android | ⬜ |
-| 9 | Invitacion a equipos rivales (links publicos) | ⬜ |
-| 10 | Prestamos de jugadores entre equipos Mak'Gora | ⬜ |
+| 8 | Invitacion a equipos rivales (dashboard, real-time) | ✅ |
+| 9 | Prestamos de jugadores entre equipos Mak'Gora | ✅ |
+| 10 | Mensajeria interna + Anuncios | ✅ |
+| 11 | Build APK Android | ⬜ |
+| 12 | Deploy final (Vercel env vars, pruebas) | ⬜ |
 
 ---
 

@@ -1,5 +1,6 @@
 import React, { useContext, useState } from 'react';
 import { ClubContext } from '../context/ClubContext.jsx';
+import { formatLocalDate } from '../utils/dates.js';
 
 const HONOR_AWARDS = [
   { id: 'mvp', name: 'MVP Legendario', icon: '🏆', desc: 'Mas MVPs', calc: p => (p.matchStats || []).filter(m => m.mvp).length, higher: true },
@@ -153,7 +154,7 @@ function AwardsHall() {
 
 function renderPrintCert(player, award) {
   const w = window.open('', '_blank', 'width=800,height=600');
-  const date = new Date().toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' });
+  const date = formatLocalDate(new Date(), { year: 'numeric', month: 'long', day: 'numeric' });
   w.document.write(`
     <html><head><title>Certificado - ${award.name}</title>
     <style>

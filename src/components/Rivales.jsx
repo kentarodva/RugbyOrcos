@@ -1,6 +1,7 @@
 import React, { useContext, useState } from 'react';
 import { ClubContext } from '../context/ClubContext';
 import { useToast } from '../context/ToastContext';
+import { formatLocalDate } from '../utils/dates.js';
 
 function Rivales() {
   const { rivals, addRival, updateRival, deleteRival, activeTeam, players } = useContext(ClubContext);
@@ -65,7 +66,7 @@ function Rivales() {
   };
 
   const generateArbitroSheet = () => {
-    const today = new Date().toLocaleDateString('es-ES');
+    const today = formatLocalDate(new Date());
     const teamLabel = activeTeam.replace(/_/g, ' ').toUpperCase();
     const jueces = players.filter(p => p.systemRole === 'arbitro' && p.teamCategory === activeTeam);
 
@@ -77,7 +78,7 @@ function Rivales() {
     text += `\n📋 *ROSTER DE JUGADORES:*\n`;
     
     teamPlayers.slice(0, 23).forEach((p, i) => {
-      text += `${i + 1}. #${p.camiseta} ${p.name} "${p.apodo}" - ${p.posicion}\n`;
+      text += `${i + 1}. #${p.camiseta ?? '—'} ${p.name} "${p.apodo || ''}" - ${p.posicion || '—'}\n`;
     });
 
     text += `\n━━━━━━━━━━━━━━━━━━━━━━━━\n`;
@@ -95,7 +96,7 @@ function Rivales() {
 
   const printArbitroSheet = () => {
     const teamLabel = activeTeam.replace(/_/g, ' ').toUpperCase();
-    const today = new Date().toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+    const today = formatLocalDate(new Date(), { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
     const printWindow = window.open('', '_blank', 'width=800,height=900');
     printWindow.document.write(`
@@ -133,7 +134,7 @@ function Rivales() {
             <tbody>
               ${teamPlayers.slice(0, 23).map(p => `
                 <tr>
-                  <td>${p.camiseta}</td>
+                  <td>${p.camiseta ?? '—'}</td>
                   <td>${p.name}</td>
                   <td>${p.apodo || '-'}</td>
                   <td>${p.posicion || '-'}</td>

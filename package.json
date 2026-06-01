@@ -29,9 +29,14 @@
     "@capacitor/android": "^5.0.0",
     "@capacitor/core": "^5.0.0",
     "@capacitor/local-notifications": "^5.0.0",
+    "@capacitor/push-notifications": "^5.1.2",
     "@supabase/supabase-js": "^2.106.2",
+    "canvas-confetti": "^1.9.4",
+    "framer-motion": "^12.40.0",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "recharts": "^3.8.1",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@capacitor/cli": "^5.0.0",

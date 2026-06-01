@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { supabase } from '../supabaseClient.js';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useToast } from '../context/ToastContext.jsx';
+import { formatLocalDate } from '../utils/dates.js';
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB máximo
 const MAX_IMAGE_WIDTH = 1024;
@@ -228,7 +229,7 @@ function Messages() {
     const now = new Date();
     const isToday = d.toDateString() === now.toDateString();
     if (isToday) return d.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
-    return d.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' });
+    return formatLocalDate(d, { day: 'numeric', month: 'short' });
   };
 
   return (

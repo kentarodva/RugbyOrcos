@@ -109,11 +109,16 @@
 |     | ├─ Lista de torneos pasados               |                                |        |
 |     | ├─ Campeon de cada edicion                |                                |        |
 |     | └─ Estadisticas historicas                |                                |        |
-| 4.10| Prestamos de jugadores entre equipos      | `src/components/PlayerLoans.jsx` |      |
-|      | ├─ Solicitar prestamo                      |                                |        |
-|      | ├─ Aprobar / rechazar                      |                                |        |
-|      | ├─ Badge "Prestamo" en jugador             |                                |        |
-|      | └─ Devolucion automatica al terminar       |                                |        |
+| 4.10| Prestamos de jugadores entre equipos      | `src/components/MakgoraHub.jsx` | Hecho  |
+|     | ├─ Solicitar prestamo                      |                                |        |
+|     | ├─ Aprobar / rechazar                      |                                |        |
+|     | ├─ Badge "Prestamo" en jugador (Roster)    |                                |        |
+|     | ├─ Devolucion automatica al terminar       |                                |        |
+|     | └─ Asignacion Mak'Gora en ficha jugador    | `src/components/Roster.jsx`    |        |
+| 4.11| Integracion prestamos con ClubContext      | `src/context/ClubContext.jsx`  | Hecho  |
+|     | ├─ Estado loans[] + sync Supabase          |                                |        |
+|     | ├─ Suscripcion real-time player_loans      |                                |        |
+|     | └─ Metodos requestLoan, updateLoanStatus   |                                |        |
 
 ---
 
@@ -121,11 +126,27 @@
 
 | #  | Tarea                                     | Archivo                        | Estado |
 |----|-------------------------------------------|--------------------------------|--------|
-| 5.1 | Tablas `match_invitations` + `guest_players` | `supabase/migrations/003_invitations.sql` | |
-| 5.2 | Generar link unico de invitacion          | `src/components/Calendario.jsx` |        |
-| 5.3 | Pagina publica registro rival             | `src/components/MatchInvitation.jsx` |     |
-| 5.4 | Mostrar jugadores rivales en Match Center | `src/components/MatchCenter.jsx` |       |
-| 5.5 | Expirar link al terminar partido          |                                |        |
+| 5.1 | Tablas `match_invitations` + `guest_players` | `supabase/migrations/04_match_invitations.sql` | Hecho |
+| 5.2 | Generar link unico de invitacion          | `src/components/Calendario.jsx` | Hecho  |
+| 5.3 | Pagina publica registro rival             | `src/components/MatchInvitation.jsx` | Hecho |
+| 5.4 | Mostrar jugadores rivales en Match Center | `src/components/Calendario.jsx` | Hecho  |
+| 5.5 | Expirar link al terminar partido          |                                | Hecho  |
+| 5.6 | Dashboard centralizado de invitaciones    | `src/components/Invitaciones.jsx` | Hecho |
+|     | ├─ Tab "📨 Invitaciones" en navegacion     | `src/App.jsx`                  |        |
+|     | ├─ Filtros activas/historial/todas         |                                |        |
+|     | ├─ Contador de guerreros registrados       |                                |        |
+|     | ├─ Badge de respuesta (pendiente/aceptada) |                                |        |
+|     | ├─ Lista expandible de jugadores rivales   |                                |        |
+|     | └─ Acciones: copiar link, WhatsApp, cancelar |                              |        |
+| 5.7 | Mejora schema: rival_id FKs + guest_count  | `supabase/migrations/06_enhance_invitations.sql` | Hecho |
+|     | ├─ FK rival_id en future_fixtures, fixtures |                               |        |
+|     | ├─ FK rival_id en match_invitations        |                                |        |
+|     | ├─ Columnas response, guest_count, trigger |                                |        |
+|     | └─ Trigger auto-contador guest_players     |                                |        |
+| 5.8 | Botones Aceptar/Rechazar en pagina publica | `src/components/MatchInvitation.jsx` | Hecho |
+| 5.9 | GuestRoster visible en proximos partidos   | `src/components/Calendario.jsx` | Hecho  |
+| 5.10| Badge de invitaciones activas en Rivales   | `src/components/Rivales.jsx`   | Hecho  |
+| 5.11| Suscripcion real-time guest_players        | `src/context/ClubContext.jsx`  | Hecho  |
 
 ---
 
@@ -198,8 +219,8 @@ Resultado:
 | Fase 1 | ✅ 100% |
 | Fase 2 | ✅ 100% |
 | Fase 3 | ✅ 100% |
-| Fase 4 | ✅ 100% |
-| Fase 5 | ✅ 100% |
+| Fase 4 | ✅ 100% (incluye prestamos + asignacion equipos) |
+| Fase 5 | ✅ 100% (dashboard, real-time, aceptar/rechazar) |
 | Fase 6 | 🟡 80% (APK pendiente) |
 | Fase 7 | 🟡 50% (Vercel env vars pendiente) |
 

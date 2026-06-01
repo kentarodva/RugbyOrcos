@@ -1,4 +1,6 @@
 import { supabase } from '../supabaseClient.js';
+import { handleError } from '../utils/errorHandler';
+import { playerSchema } from '../schemas/player.js';
 
 const apisupabase = {
   tableMap: {
@@ -10,6 +12,8 @@ const apisupabase = {
     fixtures: 'fixtures',
     rivals: 'rivals',
     futureFixtures: 'future_fixtures',
+    matchInvitations: 'match_invitations',
+    guestPlayers: 'guest_players',
   },
 
   async fetchAll(userId, tier = 4, clubScope = null) {
@@ -50,7 +54,7 @@ const apisupabase = {
       .eq('user_id', userId);
 
     if (error) {
-      if (import.meta?.env?.DEV) console.warn('[Supabase] Error fetching players:', error.message);
+      handleError(error, 'supabaseApi.fetchPlayers', { silent: true });
       return [];
     }
     return data || [];
@@ -85,6 +89,14 @@ const apisupabase = {
   },
 
   async upsertPlayer(player, userId) {
+    if (!player?.id) {
+      handleError(new Error('upsertPlayer: missing player.id'), 'supabaseApi.upsertPlayer', { silent: true });
+      return { data: null, error: { message: 'Invalid player data: missing id' } };
+    }
+    if (!userId) {
+      handleError(new Error('upsertPlayer: missing userId'), 'supabaseApi.upsertPlayer', { silent: true });
+      return { data: null, error: { message: 'Invalid player data: missing userId' } };
+    }
     const { data, error } = await supabase
       .from('players')
       .upsert({
@@ -115,9 +127,10 @@ const apisupabase = {
         emergency_contact_name: player.emergency_contact_name,
         emergency_contact_phone: player.emergency_contact_phone,
         commitment_accepted: player.commitment_accepted ?? true,
-        jersey_number: player.jersey_number || player.camiseta,
+        jersey_number: player.jersey_number ?? player.camiseta ?? null,
         role: player.role || player.rol,
         position: player.position || player.posicion,
+        position_id: player.position_id || null,
         status: player.status || player.estado,
         attr_force: player.attr_force || (player.attributes?.force ?? 50),
         attr_speed: player.attr_speed || (player.attributes?.speed ?? 50),
@@ -130,6 +143,7 @@ const apisupabase = {
         gym_bench: player.gym_bench || player.gymStats?.bench,
         gym_deadlift: player.gym_deadlift || player.gymStats?.deadlift,
         system_role: player.system_role,
+        makgora_team_id: player.makgora_team_id || null,
         source: player.source || 'manual',
         form_submitted_at: player.form_submitted_at,
         updated_at: new Date().toISOString(),
@@ -138,6 +152,75 @@ const apisupabase = {
       .single();
 
     return { data, error };
+  },
+
+  async batchUpsertPlayers(players, userId) {
+    const records = players.map(p => ({
+      id: p.id,
+      user_id: userId,
+      first_name: p.first_name,
+      last_name: p.last_name,
+      nickname: p.nickname || null,
+      document_type: p.document_type,
+      document_number: p.document_number,
+      birth_date: p.birth_date,
+      age: p.age,
+      phone: p.phone,
+      team_category: p.team_category,
+      initial_category: p.initial_category,
+      start_year: p.start_year,
+      internal_team: p.internal_team,
+      makgora_team_id: p.makgora_team_id || null,
+      weight_kg: p.weight_kg || p.weight,
+      height_m: p.height_m || p.height,
+      had_fractures: p.had_fractures || false,
+      fracture_details: p.fracture_details,
+      allergies: p.allergies,
+      medical_conditions: p.medical_conditions,
+      health_insurance: p.health_insurance,
+      emergency_contact_name: p.emergency_contact_name,
+      emergency_contact_phone: p.emergency_contact_phone,
+      commitment_accepted: p.commitment_accepted ?? true,
+      role: p.role || 'Titular',
+      status: p.status || 'activo',
+      attr_force: p.attr_force ?? 50,
+      attr_speed: p.attr_speed ?? 50,
+      attr_stamina: p.attr_stamina ?? 50,
+      attr_technique: p.attr_technique ?? 70,
+      source: p.source || 'csv_import',
+      updated_at: new Date().toISOString(),
+    }));
+
+    const { data, error } = await supabase
+      .from('players')
+      .upsert(records, { onConflict: 'first_name, last_name, birth_date' })
+      .select();
+
+    return { data, error };
+  },
+
+  async batchUpdatePositions(updates, userId) {
+    const records = updates.map(({ id, position_id }) => ({
+      id,
+      user_id: userId,
+      position_id,
+      updated_at: new Date().toISOString(),
+    }));
+
+    const { data, error } = await supabase
+      .from('players')
+      .upsert(records, { onConflict: 'id' })
+      .select();
+
+    return { data, error };
+  },
+
+  async deleteAllPlayers(userId) {
+    const { error } = await supabase
+      .from('players')
+      .delete()
+      .eq('user_id', userId);
+    if (error) throw error;
   },
 
   async deletePlayer(playerId) {
@@ -179,22 +262,242 @@ const apisupabase = {
     if (!table) return { error: { message: `Unknown entity: ${entityType}` } };
     return this.deleteRecord(table, id);
   },
+
+  async fetchInvitations(userId, tier = 4, clubScope = null) {
+    const { data, error } = await supabase
+      .from('match_invitations')
+      .select('*, future_fixtures(*), guest_players(*)')
+      .order('created_at', { ascending: false });
+
+    if (error) return [];
+    if (tier >= 4) return (data || []).filter(inv => inv.user_id === userId);
+    if (tier >= 2 && clubScope) {
+      return (data || []).filter(inv => {
+        if (inv.user_id === userId) return true;
+        return true;
+      });
+    }
+    return data || [];
+  },
+
+  async createInvitation(record) {
+    const { data, error } = await supabase
+      .from('match_invitations')
+      .insert(record)
+      .select()
+      .single();
+    return { data, error };
+  },
+
+  async deleteInvitation(id) {
+    const { error } = await supabase
+      .from('match_invitations')
+      .delete()
+      .eq('id', id);
+    return { error };
+  },
+
+  async updateInvitation(id, updates) {
+    const { data, error } = await supabase
+      .from('match_invitations')
+      .update(updates)
+      .eq('id', id)
+      .select()
+      .single();
+    return { data, error };
+  },
+
+  async fetchLoans() {
+    const { data, error } = await supabase
+      .from('player_loans')
+      .select('*, players(first_name, last_name, nickname, makgora_team_id)')
+      .order('created_at', { ascending: false });
+    return { data, error };
+  },
+
+  async createLoan(record) {
+    const { data, error } = await supabase
+      .from('player_loans')
+      .insert(record)
+      .select()
+      .single();
+    return { data, error };
+  },
+
+  async updateLoanStatus(id, status) {
+    const { data, error } = await supabase
+      .from('player_loans')
+      .update({ status, updated_at: new Date().toISOString() })
+      .eq('id', id)
+      .select()
+      .single();
+    return { data, error };
+  },
+
+  async fetchInvitationGuests(invitationId) {
+    const { data, error } = await supabase
+      .from('guest_players')
+      .select('*')
+      .eq('invitation_id', invitationId)
+      .order('created_at');
+    return { data, error };
+  },
 };
 
 export default apisupabase;
+
+// ─── Custom Tactics CRUD ─────────────────────────────────────────
+
+export async function fetchCustomTactics(teamCategory) {
+  const { data, error } = await supabase
+    .from('custom_tactics')
+    .select('*')
+    .or(`scope.eq.all,scope.eq.${teamCategory}`)
+    .order('sort_order', { ascending: true })
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    handleError(error, 'supabaseApi.fetchCustomTactics', { silent: true });
+    return [];
+  }
+  return data || [];
+}
+
+export async function createCustomTactic(data) {
+  const { data: { user }, error: userError } = await supabase.auth.getUser();
+  if (userError || !user) {
+    console.warn('[Supabase] No authenticated user:', userError?.message);
+    return null;
+  }
+
+  const { data: result, error } = await supabase
+    .from('custom_tactics')
+    .insert({ ...data, user_id: user.id })
+    .select()
+    .single();
+
+  if (error) {
+    handleError(error, 'supabaseApi.createTactic', { silent: true });
+    return null;
+  }
+  return result;
+}
+
+export async function updateCustomTactic(id, updates) {
+  const { data, error } = await supabase
+    .from('custom_tactics')
+    .update({ ...updates, updated_at: new Date().toISOString() })
+    .eq('id', id)
+    .select()
+    .single();
+
+  if (error) {
+    handleError(error, 'supabaseApi.updateTactic', { silent: true });
+    return null;
+  }
+  return data;
+}
+
+export async function deleteCustomTactic(id) {
+  const { error } = await supabase
+    .from('custom_tactics')
+    .delete()
+    .eq('id', id);
+
+  if (error) {
+    handleError(error, 'supabaseApi.deleteTactic', { silent: true });
+    return false;
+  }
+  return true;
+}
+
+// ─── Rugby Positions ─────────────────────────────────────────────
+
+export async function fetchRugbyPositions() {
+  const { data, error } = await supabase
+    .from('rugby_positions')
+    .select('*')
+    .order('id');
+
+  if (error) {
+    handleError(error, 'supabaseApi.fetchPositions', { silent: true });
+    return [];
+  }
+  return data || [];
+}
+
+// ─── Match Stats with Filters ────────────────────────────────────
+
+export async function fetchMatchStatsByPlayer(playerIds, filters = {}, signal) {
+  if (!playerIds || playerIds.length === 0) return {};
+
+  let query = supabase
+    .from('match_stats')
+    .select('*')
+    .in('player_id', playerIds)
+    .abortSignal(signal || new AbortController().signal);
+
+  if (filters.dateFrom) {
+    query = query.gte('match_date', filters.dateFrom);
+  }
+  if (filters.dateTo) {
+    query = query.lte('match_date', filters.dateTo);
+  }
+
+  const { data, error } = await query.order('match_date', { ascending: false });
+
+  if (error) {
+    handleError(error, 'supabaseApi.fetchMatchStats', { silent: true });
+    return {};
+  }
+
+  // Agrupar por player_id
+  const grouped = {};
+  (data || []).forEach(stat => {
+    if (!grouped[stat.player_id]) grouped[stat.player_id] = [];
+    grouped[stat.player_id].push(stat);
+  });
+
+  // Aplicar limit si existe
+  if (filters.limit && filters.limit > 0) {
+    for (const pid of Object.keys(grouped)) {
+      grouped[pid] = grouped[pid].slice(0, filters.limit);
+    }
+  }
+
+  return grouped;
+}
+
+// ─── Realtime Channel ────────────────────────────────────────────
+
+export function createCustomTacticsChannel(teamCategory, callback) {
+  const channel = supabase
+    .channel('custom_tactics_realtime')
+    .on('postgres_changes',
+      { event: '*', schema: 'public', table: 'custom_tactics' },
+      () => { callback(); }
+    )
+    .subscribe();
+
+  return channel;
+}
+
+// ─── Transforms ──────────────────────────────────────────────────
 
 export function supabasePlayerToReact(p) {
   const att = p.player_attendance_summary?.[0] || p.attendance_summary || {};
   const pen = p.penalties?.[0] || p.penalties || {};
 
-  return {
+  const player = {
     id: p.id,
+    userId: p.user_id,
     name: `${p.first_name || ''} ${p.last_name || ''}`.trim(),
     apodo: p.nickname || '',
     camiseta: p.jersey_number,
     contacto: { phone: p.phone || '', email: p.email || '' },
     rol: p.role || 'Titular',
     posicion: p.position || '',
+    position_id: p.position_id || null,
     estado: p.status || 'activo',
     attributes: {
       force: p.attr_force || 50,
@@ -268,6 +571,14 @@ export function supabasePlayerToReact(p) {
     },
     weight: parseFloat(p.weight_kg) || null,
     height: parseFloat(p.height_m) || null,
+    health_insurance: p.health_insurance || null,
+    allergies: p.allergies || null,
+    medical_conditions: p.medical_conditions || null,
+    had_fractures: p.had_fractures || false,
+    fracture_details: p.fracture_details || null,
+    emergency_contact_name: p.emergency_contact_name || null,
+    emergency_contact_phone: p.emergency_contact_phone || null,
+    birth_date: p.birth_date || null,
     workoutLog: (p.workout_logs || []).map((w) => ({
       id: w.id,
       date: w.workout_date,
@@ -287,4 +598,14 @@ export function supabasePlayerToReact(p) {
       startYear: p.start_year,
     },
   };
+
+  const result = playerSchema.safeParse(player);
+  if (!result.success) {
+    handleError(
+      new Error('Player schema validation failed: ' + result.error.issues.map(i => i.path.join('.') + ': ' + i.message).join('; ')),
+      'supabaseApi.supabasePlayerToReact',
+      { silent: true }
+    );
+  }
+  return result.success ? result.data : player;
 }

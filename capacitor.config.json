@@ -2,5 +2,10 @@
   "appId": "com.rugbyorcos.app",
   "appName": "Rugby Orcos",
   "webDir": "dist",
-  "bundledWebRuntime": false
+  "bundledWebRuntime": false,
+  "plugins": {
+    "PushNotifications": {
+      "presentationOptions": ["badge", "sound", "alert"]
+    }
+  }
 }

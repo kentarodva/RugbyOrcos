@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient.js';
 import { useAuth } from '../context/AuthContext.jsx';
+import { formatLocalDate } from '../utils/dates.js';
 
 function AnnouncementModal({ onClose }) {
   const { user } = useAuth();
@@ -102,7 +103,7 @@ function AnnouncementModal({ onClose }) {
         </div>
 
         <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', fontStyle: 'italic', marginBottom: '20px' }}>
-          — {sender.display_name || 'Staff'} · {new Date(ann.created_at).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' })}
+          — {sender.display_name || 'Staff'} · {formatLocalDate(new Date(ann.created_at), { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' })}
         </p>
 
         <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
