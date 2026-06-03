@@ -9,11 +9,12 @@ import { InventoryTab } from './InventoryTab';
 import FinanzasSkeleton from '../Skeletons/FinanzasSkeleton';
 
 function Finanzas() {
-  const { finances, addFinanceRecord, players, activeTeam, inventory, updateInventoryItem, recordMembershipPayment, syncStatus } = useContext(ClubContext);
+  const { finances, addFinanceRecord, players, activeTeam, inventory, addInventoryItem, updateInventoryItem, recordMembershipPayment, viewMode, divisionView, makgoraTeamId, syncStatus } = useContext(ClubContext);
   const { showToast } = useToast();
 
   const state = useFinanzasState({
     finances, addFinanceRecord, players, activeTeam,
+    viewMode, divisionView, makgoraTeamId,
     recordMembershipPayment, updateInventoryItem, showToast
   });
 
@@ -80,6 +81,7 @@ function Finanzas() {
           onStockChange={state.handleStockChange}
           onCustodianChange={state.handleCustodianChange}
           onStatusChange={state.handleStatusChange}
+          onAddItem={addInventoryItem}
         />
       )}
     </div>

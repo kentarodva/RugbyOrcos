@@ -1,10 +1,10 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useMemo } from 'react';
 import { ClubContext } from '../context/ClubContext';
 import { useToast } from '../context/ToastContext';
 import { formatLocalDate } from '../utils/dates.js';
 
 function Rivales() {
-  const { rivals, addRival, updateRival, deleteRival, activeTeam, players } = useContext(ClubContext);
+  const { rivals, addRival, updateRival, deleteRival, activeTeam, players, viewMode, divisionView, makgoraTeamId } = useContext(ClubContext);
   const { showToast } = useToast();
 
   const [showForm, setShowForm] = useState(false);
@@ -14,7 +14,22 @@ function Rivales() {
   const [contact, setContact] = useState('');
   const [notes, setNotes] = useState('');
 
-  const teamPlayers = players.filter(p => p.teamCategory === activeTeam);
+  const teamPlayers = useMemo(() => {
+    if (viewMode === 'general' && divisionView === 'all') {
+      return players.filter(p => p.teamCategory?.startsWith('orcos'));
+    }
+    if (viewMode === 'general') {
+      return players.filter(p => p.teamCategory === `orcos_${divisionView}`);
+    }
+    if (viewMode === 'makgora' && makgoraTeamId) {
+      let filtered = players.filter(p => p.makgora_team_id === makgoraTeamId);
+      if (divisionView !== 'all') {
+        filtered = filtered.filter(p => p.teamCategory === `orcos_${divisionView}`);
+      }
+      return filtered;
+    }
+    return players.filter(p => p.teamCategory === activeTeam);
+  }, [players, viewMode, divisionView, makgoraTeamId, activeTeam]);
 
   const resetForm = () => {
     setName('');
@@ -152,7 +167,7 @@ function Rivales() {
             <div class="signature">Capitán Orcos Negros</div>
             <div class="signature">Árbitro del Partido</div>
           </div>
-          <p style="text-align: center; margin-top: 20px; font-size: 10px; color: #999;">Rugby Orcos Negros - Club Manager v3.0</p>
+          <p style="text-align: center; margin-top: 20px; font-size: 10px; color: #999;">Rugby Orcos Negros - Club Manager v4.0</p>
           <script>window.onload = function() { window.print(); }</script>
         </body>
       </html>

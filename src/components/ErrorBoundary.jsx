@@ -10,8 +10,9 @@ class ErrorBoundary extends React.Component {
     return { hasError: true, error };
   }
 
-  componentDidCatch() {
-    // Error registrado silenciosamente
+  componentDidCatch(error, errorInfo) {
+    console.error('[ErrorBoundary] App crash:', error);
+    console.error('[ErrorBoundary] Component stack:', errorInfo?.componentStack);
   }
 
   handleReload = () => {

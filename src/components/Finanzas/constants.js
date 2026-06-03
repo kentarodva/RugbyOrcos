@@ -26,7 +26,22 @@ export const MEMBERSHIP_STATUS = {
   moroso: { label: 'MOROSO', color: 'var(--color-red)', bg: 'rgba(255, 61, 0, 0.06)' }
 };
 
-export const INVENTORY_STATUSES = ['Excelente', 'Bueno', 'Completo', 'Requiere Reposición'];
+export const INVENTORY_STATUSES = ['Excelente', 'Bueno', 'Completo', 'Requiere Reposicion'];
+
+export const INVENTORY_STATUS_OPTIONS = [
+  { value: 'Excelente', label: 'Excelente' },
+  { value: 'Bueno', label: 'Bueno' },
+  { value: 'Completo', label: 'Completo' },
+  { value: 'Requiere Reposicion', label: 'Requiere Reposicion' },
+];
+
+export const INVENTORY_CATEGORIES = [
+  { value: 'equipamiento', label: 'Equipamiento' },
+  { value: 'indumentaria', label: 'Indumentaria' },
+  { value: 'medico', label: 'Medico' },
+  { value: 'entrenamiento', label: 'Entrenamiento' },
+  { value: 'otro', label: 'Otro' },
+];
 
 export const FINANCE_SUB_TABS = [
   { id: 'caja', label: '💰 Caja Chica' },

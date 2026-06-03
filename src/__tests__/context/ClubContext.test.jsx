@@ -133,8 +133,8 @@ describe('ClubContext — generateId con y sin crypto', () => {
         return v.toString(16);
       });
     };
-    const id = generateId('p_');
-    expect(id).toMatch(/^p_[a-f0-9-]{36}$/);
+    const id = generateId();
+    expect(id).toMatch(/^[a-f0-9-]{36}$/);
   });
 });
 

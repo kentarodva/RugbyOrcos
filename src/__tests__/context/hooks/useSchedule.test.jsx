@@ -5,6 +5,14 @@ vi.mock('../../../data/supabaseApi.js', () => ({
   default: { deleteEntity: vi.fn() },
 }));
 
+vi.mock('../../../supabaseClient.js', () => ({
+  supabase: {
+    from: vi.fn(() => ({
+      upsert: vi.fn(() => Promise.resolve({ data: null, error: null })),
+    })),
+  },
+}));
+
 vi.mock('../../../utils/errorHandler', () => ({
   handleError: vi.fn(), wrapCatch: vi.fn((_ctx, _opts) => () => {}),
 }));
@@ -54,7 +62,7 @@ describe('useSchedule — addScheduleEvent', () => {
 
     expect(result.current.schedule).toHaveLength(1);
     expect(result.current.schedule[0].title).toBe('Entreno');
-    expect(result.current.schedule[0].id).toMatch(/^s_/);
+     expect(result.current.schedule[0].id).toMatch(/^[0-9a-f-]{36}$/);
     expect(result.current.schedule[0].date).toBe('2026-06-01');
     expect(result.current.schedule[0].recurrenceGroup).toBeNull();
   });
@@ -96,8 +104,9 @@ describe('useSchedule — addScheduleEvent', () => {
     expect(result.current.schedule[1].date).toBe('2026-06-15');
   });
 
-  it('llama pushEntityToSupabase por cada evento', async () => {
-    const { result, pushEntityToSupabase } = setup();
+  it('llama supabase.upsert por cada evento', async () => {
+    const { result } = setup();
+    const { supabase } = await import('../../../supabaseClient.js');
 
     await act(async () => {
       await result.current.addScheduleEvent({
@@ -106,11 +115,7 @@ describe('useSchedule — addScheduleEvent', () => {
       });
     });
 
-    expect(pushEntityToSupabase).toHaveBeenCalledTimes(4);
-    pushEntityToSupabase.mock.calls.forEach(([type, event]) => {
-      expect(type).toBe('schedule');
-      expect(event.title).toBe('Sync Test');
-    });
+    expect(supabase.from).toHaveBeenCalledWith('schedule_events');
   });
 
   it('sanitiza title y location', async () => {

@@ -28,7 +28,11 @@ function PositionSelect({ value, onChange, className, style, id }) {
       if (!cancelled && data && data.length > 0) {
         setPositions(data);
       }
-    }).catch(() => {});
+    }).catch((err) => {
+      if (import.meta.env.DEV) {
+        console.warn('[PositionSelect] Failed to fetch positions from Supabase, using fallback:', err.message);
+      }
+    });
     return () => { cancelled = true; };
   }, []);
 

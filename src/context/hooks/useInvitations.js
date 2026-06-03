@@ -7,10 +7,6 @@ export function useInvitations(user, userTier, profile) {
   const [matchInvitations, setMatchInvitations] = useState(() => []);
 
   useEffect(() => {
-    localStorage.setItem('orcos_invitations', JSON.stringify(matchInvitations));
-  }, [matchInvitations]);
-
-  useEffect(() => {
     if (!user?.id) return;
 
     const channel = supabase
@@ -47,7 +43,6 @@ export function useInvitations(user, userTier, profile) {
               })),
             }));
             setMatchInvitations(invMapped);
-            localStorage.setItem('orcos_invitations', JSON.stringify(invMapped));
           });
         }
       )
@@ -100,5 +95,42 @@ export function useInvitations(user, userTier, profile) {
     }
   }, []);
 
-  return { matchInvitations, setMatchInvitations, cancelInvitation, deleteInvitation, updateInvitationResponse };
+  const createInvitation = useCallback(async ({ futureFixtureId, rivalName, rivalId }) => {
+    if (!user?.id) return { error: 'No autenticado' };
+    const token = crypto.randomUUID ? crypto.randomUUID().replace(/-/g, '').substring(0, 16)
+      : Math.random().toString(36).substring(2, 18);
+    const record = {
+      user_id: user.id,
+      future_fixture_id: futureFixtureId,
+      token,
+      rival_name: rivalName,
+      rival_id: rivalId || null,
+      status: 'active',
+      expires_at: null,
+    };
+    const { data, error } = await apisupabase.createInvitation(record);
+    if (error) return { error: error.message };
+    if (data) {
+      const invMapped = {
+        id: data.id,
+        futureFixtureId: data.future_fixture_id,
+        token: data.token,
+        rivalName: data.rival_name,
+        rivalId: data.rival_id,
+        status: data.status,
+        expiresAt: data.expires_at,
+        guestCount: data.guest_count || 0,
+        response: data.response || 'pending',
+        responseNotes: data.response_notes,
+        respondedAt: data.responded_at,
+        createdAt: data.created_at,
+        guests: [],
+      };
+      setMatchInvitations(prev => [invMapped, ...prev]);
+      return { success: true, token, data: invMapped };
+    }
+    return { error: 'No se pudo crear la invitación' };
+  }, [user?.id]);
+
+  return { matchInvitations, setMatchInvitations, cancelInvitation, deleteInvitation, updateInvitationResponse, createInvitation };
 }

@@ -1,11 +1,10 @@
 import React from 'react';
 
-function SeasonRecords({ fixtures, activeTeam }) {
-  const teamFixes = fixtures.filter(f => f.teamCategory === activeTeam);
-  const wins = teamFixes.filter(f => f.orcosScore > f.opponentScore).length;
-  const draws = teamFixes.filter(f => f.orcosScore === f.opponentScore).length;
-  const losses = teamFixes.filter(f => f.orcosScore < f.opponentScore).length;
-  const totalTries = teamFixes.reduce((sum, f) => sum + (f.tries || 0), 0);
+function SeasonRecords({ fixtures }) {
+  const wins = fixtures.filter(f => f.orcosScore > f.opponentScore).length;
+  const draws = fixtures.filter(f => f.orcosScore === f.opponentScore).length;
+  const losses = fixtures.filter(f => f.orcosScore < f.opponentScore).length;
+  const totalTries = fixtures.reduce((sum, f) => sum + (f.tries || 0), 0);
 
   return (
     <div className="glass-panel" style={{ padding: '20px' }}>

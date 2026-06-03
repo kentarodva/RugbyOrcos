@@ -22,8 +22,14 @@ const apisupabase = {
     const tables = ['schedule_events', 'championships', 'finances', 'inventory', 'fixtures', 'rivals', 'future_fixtures'];
     const results = {};
 
+    const SHARED_TABLES = ['schedule_events', 'championships', 'fixtures', 'future_fixtures'];
     const buildFilter = (query, table) => {
-      if (tier >= 4) return query.eq('user_id', userId);
+      if (tier >= 4) {
+        if (SHARED_TABLES.includes(table) && clubScope) {
+          return query.ilike('team_category', clubScope + '%');
+        }
+        return query.eq('user_id', userId);
+      }
       if (tier >= 2 && clubScope) {
         if (table === 'rivals') return query; // rivals: global, sin filtro
         return query.ilike('team_category', clubScope + '%');

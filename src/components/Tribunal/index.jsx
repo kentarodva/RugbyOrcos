@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useMemo } from 'react';
 import { ClubContext } from '../../context/ClubContext';
 import { useToast } from '../../context/ToastContext';
 import { useTribunalState } from './useTribunalState';
@@ -7,10 +7,25 @@ import FaultBookTab from './FaultBookTab';
 import RankingsTab from './RankingsTab';
 
 function Tribunal() {
-  const { players, recordAttendance, recordMatchInfractions, redeemPenalty, activeTeam } = useContext(ClubContext);
+  const { players, recordAttendance, recordMatchInfractions, redeemPenalty, activeTeam, viewMode, divisionView, makgoraTeamId } = useContext(ClubContext);
   const { showToast } = useToast();
 
-  const teamPlayers = players.filter(p => p.teamCategory === activeTeam && p.rol !== 'Entrenador');
+  const teamPlayers = useMemo(() => {
+    if (viewMode === 'general' && divisionView === 'all') {
+      return players.filter(p => p.teamCategory?.startsWith('orcos') && p.rol !== 'Entrenador');
+    }
+    if (viewMode === 'general') {
+      return players.filter(p => p.teamCategory === `orcos_${divisionView}` && p.rol !== 'Entrenador');
+    }
+    if (viewMode === 'makgora' && makgoraTeamId) {
+      let filtered = players.filter(p => p.makgora_team_id === makgoraTeamId && p.rol !== 'Entrenador');
+      if (divisionView !== 'all') {
+        filtered = filtered.filter(p => p.teamCategory === `orcos_${divisionView}`);
+      }
+      return filtered;
+    }
+    return players.filter(p => p.teamCategory === activeTeam && p.rol !== 'Entrenador');
+  }, [players, viewMode, divisionView, makgoraTeamId, activeTeam]);
 
   const {
     activeSubTab, setActiveSubTab,

@@ -1,7 +1,7 @@
 import { useState, useMemo, useCallback } from 'react';
 import { MENSUALIDAD_BASE, ABONOS_RAPIDOS } from './constants';
 
-export function useFinanzasState({ finances, players, activeTeam, addFinanceRecord, recordMembershipPayment, updateInventoryItem, showToast }) {
+export function useFinanzasState({ finances, players, activeTeam, viewMode, divisionView, makgoraTeamId, addFinanceRecord, recordMembershipPayment, updateInventoryItem, showToast }) {
   const [activeSubTab, setActiveSubTab] = useState('finances');
   const [financeSubTab, setFinanceSubTab] = useState('caja');
   const [showAddForm, setShowAddForm] = useState(false);
@@ -12,14 +12,31 @@ export function useFinanzasState({ finances, players, activeTeam, addFinanceReco
   const [finDate, setFinDate] = useState(new Date().toISOString().split('T')[0]);
   const [customAbono, setCustomAbono] = useState('');
 
+  const filterByView = useCallback((items) => {
+    if (viewMode === 'general' && divisionView === 'all') {
+      return items.filter(x => x.teamCategory?.startsWith('orcos'));
+    }
+    if (viewMode === 'general') {
+      return items.filter(x => x.teamCategory === `orcos_${divisionView}`);
+    }
+    if (viewMode === 'makgora' && makgoraTeamId) {
+      let filtered = items.filter(x => x.makgora_team_id === makgoraTeamId);
+      if (divisionView !== 'all') {
+        filtered = filtered.filter(x => x.teamCategory === `orcos_${divisionView}`);
+      }
+      return filtered;
+    }
+    return items.filter(x => x.teamCategory === activeTeam);
+  }, [viewMode, divisionView, makgoraTeamId, activeTeam]);
+
   const teamFinances = useMemo(
-    () => finances.filter(f => f.teamCategory === activeTeam),
-    [finances, activeTeam]
+    () => filterByView(finances),
+    [finances, filterByView]
   );
 
   const teamPlayers = useMemo(
-    () => players.filter(p => p.teamCategory === activeTeam),
-    [players, activeTeam]
+    () => filterByView(players),
+    [players, filterByView]
   );
 
   const totalIncomes = useMemo(

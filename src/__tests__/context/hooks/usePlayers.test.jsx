@@ -48,7 +48,7 @@ describe('usePlayers — CRUD', () => {
 
       expect(result.current.players).toHaveLength(1);
       expect(result.current.players[0].name).toBe('Juan Pérez');
-      expect(result.current.players[0].id).toMatch(/^p_/);
+      expect(result.current.players[0].id).toMatch(/^[0-9a-f-]{36}$/);
       expect(result.current.players[0].estado).toBe('activo');
       expect(result.current.players[0].attributes).toEqual({ force: 50, speed: 50, stamina: 50, technique: 50 });
       expect(result.current.players[0].teamCategory).toBe('masculina_mayor');

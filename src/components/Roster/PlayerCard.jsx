@@ -1,8 +1,9 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import getPlayerBadges from './PlayerBadges';
+import { DIVISIONES_LABELS } from '../../context/ClubContext';
 
-function PlayerCard({ player, onClick, activeLoans, makgoraTeams, bulkMode, isSelected, onSelect }) {
+function PlayerCard({ player, onClick, activeLoans, makgoraTeams, bulkMode, isSelected, onSelect, viewMode }) {
   const isCoach = player.rol === 'Entrenador';
   const badges = getPlayerBadges(player);
 
@@ -106,6 +107,11 @@ function PlayerCard({ player, onClick, activeLoans, makgoraTeams, bulkMode, isSe
         {!isCoach && !makgoraTeam && (
           <span className="badge" style={{ background: 'rgba(100,100,100,0.08)', border: '1px dashed var(--color-text-muted)', color: 'var(--color-text-muted)', fontWeight: 600 }}>
             Sin equipo Mak'Gora
+          </span>
+        )}
+        {viewMode === 'makgora' && player.teamCategory && (
+          <span className="badge" style={{ background: 'rgba(64,196,255,0.08)', border: '1px solid var(--color-blue)', color: 'var(--color-blue)', fontWeight: 600 }}>
+            {DIVISIONES_LABELS[player.teamCategory] || player.teamCategory.replace('orcos_', '')}
           </span>
         )}
       </div>

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-function FixtureForm({ players, activeTeam, onSave }) {
+function FixtureForm({ players, onSave }) {
   const [form, setForm] = useState({
     rivalName: '', scoreOrcos: 0, scoreRival: 0,
     matchDate: '', tries: 0, mvp: ''
@@ -24,7 +24,7 @@ function FixtureForm({ players, activeTeam, onSave }) {
     setForm({ rivalName: '', scoreOrcos: 0, scoreRival: 0, matchDate: '', tries: 0, mvp: '' });
   };
 
-  const eligiblePlayers = players.filter(p => p.teamCategory === activeTeam && p.rol !== 'Entrenador');
+  const playersForSelect = players.filter(p => p.rol !== 'Entrenador');
 
   return (
     <div className="glass-panel animated-slide" style={{ padding: '25px' }}>
@@ -99,7 +99,7 @@ function FixtureForm({ players, activeTeam, onSave }) {
             className="form-select"
           >
             <option value="">-- Selecciona el MVP --</option>
-            {eligiblePlayers.map(p => (
+            {playersForSelect.map(p => (
               <option key={p.id} value={p.name}>
                 #{p.camiseta ?? '—'} {p.name} "{p.apodo || ''}"
               </option>

@@ -170,7 +170,7 @@ export function usePitchState(activeTeam) {
   const handleSelectTactic = useCallback((tacticId) => {
     const tactic = customTactics.find(t => t.id === tacticId);
     if (!tactic) {
-      console.warn('[Tactic] Not found:', tacticId);
+      if (import.meta.env.DEV) console.warn('[Tactic] Not found:', tacticId);
       return;
     }
 
@@ -242,9 +242,9 @@ export function usePitchState(activeTeam) {
         setLineup(result);
       }
     } catch (err) {
-      console.warn('[AutoAssign] Error:', err?.message || err);
+      if (import.meta.env.DEV) console.warn('[AutoAssign] Error:', err?.message || err);
       if (err?.name === 'AbortError') {
-        console.warn('[AutoAssign] Timeout — consulta a Supabase cancelada');
+        if (import.meta.env.DEV) console.warn('[AutoAssign] Timeout — consulta a Supabase cancelada');
       }
     }
     clearTimeout(timeoutId);

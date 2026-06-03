@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { supabase } from '../../supabaseClient.js';
 import { handleError } from '../../utils/errorHandler';
 import apisupabase from '../../data/supabaseApi.js';
@@ -30,14 +30,10 @@ const normalizePlayer = (p) => ({
 export function usePlayers(activeTeam, sendLocalNotification, pushPlayerToSupabase, pushEntityToSupabase, user) {
   const [players, setPlayers] = useState(() => []);
 
-  useEffect(() => {
-    localStorage.setItem('orcos_players', JSON.stringify(players));
-  }, [players]);
-
   const addPlayer = useCallback(async (player) => {
     const newPlayer = {
       ...player,
-      id: generateId('p_'),
+      id: generateId(),
       name: sanitize(player.name),
       apodo: sanitize(player.apodo),
       estado: player.estado || 'activo',

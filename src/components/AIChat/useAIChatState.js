@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback, useContext } from 'react';
 import { ClubContext } from '../../context/ClubContext';
-import { isGeminiConfigured, getModelConfig, streamChatWithGemini, chatWithGemini } from '../../engine/multiProviderCoach';
+import { isAnyAIConfigured, getModelConfig, streamChatWithAI, chatWithAI } from '../../engine/multiProviderCoach';
 import { analyzeMatch } from '../../engine/matchAnalyzer';
 import { useToast } from '../../context/ToastContext';
 
@@ -22,10 +22,12 @@ export function useAIChatState() {
   const [analysisResult, setAnalysisResult] = useState(null);
   const [analyzingMatch, setAnalyzingMatch] = useState(false);
 
-  const configured = isGeminiConfigured();
+  const configured = isAnyAIConfigured();
   const modelConfig = getModelConfig();
   const activeProvId = modelConfig.activeProviderId;
-  const activeProvInfo = activeProvId !== 'auto' ? null : null;
+  const activeProvInfo = configured
+    ? (activeProvId !== 'auto' ? modelConfig.current : modelConfig.available[0])
+    : null;
 
   const teamFixtures = fixtures
     .filter(f => f.teamCategory === activeTeam)
@@ -67,7 +69,7 @@ export function useAIChatState() {
       let fullResponse = '';
       let usedProvider = null;
 
-      await streamChatWithGemini(
+      await streamChatWithAI(
         q,
         (chunk) => {
           if (chunk.error) {
@@ -108,7 +110,7 @@ export function useAIChatState() {
         setMessages(prev => [...prev, aiMsg]);
       }
     } else {
-      const result = await chatWithGemini(q, buildContext());
+      const result = await chatWithAI(q, buildContext());
       const aiMsg = {
         role: 'ai',
         text: result.error || result.text,

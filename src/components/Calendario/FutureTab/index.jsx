@@ -4,7 +4,6 @@ import GuestRoster from '../GuestRoster';
 
 function FutureTab({
   futureFixtures,
-  activeTeam,
   rivals,
   handleSaveFutureFixture,
   deleteFutureFixture,
@@ -95,14 +94,11 @@ function FutureTab({
 
       <FutureList
         fixtures={futureFixtures}
-        activeTeam={activeTeam}
         onDelete={(id) => { deleteFutureFixture(id); showToast('Partido eliminado.', 'info'); }}
       />
 
-      {futureFixtures.filter(f => f.teamCategory === activeTeam).sort((a, b) => new Date(a.date) - new Date(b.date)).map(f => (
-        <div key={`guest-${f.id}`} style={{ display: 'none' }}>
-          <GuestRoster fixture={f} />
-        </div>
+      {futureFixtures.sort((a, b) => new Date(a.date) - new Date(b.date)).map(f => (
+        <GuestRoster key={`guest-${f.id}`} fixture={f} />
       ))}
     </div>
   );

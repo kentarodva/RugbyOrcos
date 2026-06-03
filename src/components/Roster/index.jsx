@@ -86,7 +86,11 @@ function Roster() {
       return players.filter(p => p.teamCategory === `orcos_${divisionView}`);
     }
     if (viewMode === 'makgora' && makgoraTeamId) {
-      return players.filter(p => p.makgora_team_id === makgoraTeamId);
+      let filtered = players.filter(p => p.makgora_team_id === makgoraTeamId);
+      if (divisionView !== 'all') {
+        filtered = filtered.filter(p => p.teamCategory === `orcos_${divisionView}`);
+      }
+      return filtered;
     }
     return players.filter(p => p.teamCategory === activeTeam);
   }, [players, viewMode, divisionView, makgoraTeamId, activeTeam]);
@@ -95,7 +99,7 @@ function Roster() {
     const matchesSearch = (
       (p.name || '').toLowerCase().includes(query) ||
       (p.apodo || '').toLowerCase().includes(query) ||
-      (p.camiseta != null ? String(p.camiseta) : '').includes(search) ||
+      (p.camiseta != null ? String(p.camiseta) : '').includes(query) ||
       (p.posicion || '').toLowerCase().includes(query)
     );
 
@@ -279,6 +283,7 @@ function Roster() {
               <PlayerCard
                 key={p.id}
                 player={p}
+                viewMode={viewMode}
                 onClick={(player) => {
                   setSelectedPlayer(player);
                   setShowDetailModal(true);

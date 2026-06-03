@@ -6,8 +6,6 @@ import SeasonRecords from './SeasonRecords';
 
 function FixtureTab({
   fixtures,
-  activeTeam,
-  players,
   activeTeamPlayers,
   selectedFixtureForDetail,
   setSelectedFixtureForDetail,
@@ -26,7 +24,6 @@ function FixtureTab({
 
         <FixtureList
           fixtures={fixtures}
-          activeTeam={activeTeam}
           onDelete={deleteFixture}
           onDetail={setSelectedFixtureForDetail}
         />
@@ -34,14 +31,12 @@ function FixtureTab({
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
         <FixtureForm
-          players={players}
-          activeTeam={activeTeam}
+          players={activeTeamPlayers}
           onSave={handleSaveFixture}
         />
 
         <SeasonRecords
           fixtures={fixtures}
-          activeTeam={activeTeam}
         />
       </div>
 

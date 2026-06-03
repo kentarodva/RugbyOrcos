@@ -134,36 +134,34 @@ export default function Header({
           </div>
         </div>
 
-        {/* General mode: Division selector */}
-        {viewMode === 'general' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-            <label style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', fontWeight: 700, textTransform: 'uppercase' }}>
-              Division / Categoria
-            </label>
-            <select
-              value={divisionView}
-              onChange={(e) => setDivisionView(e.target.value)}
-              className="form-select"
-              style={{
-                background: 'var(--bg-input)',
-                border: '1px solid var(--color-primary)',
-                color: 'var(--color-primary)',
-                fontWeight: '700',
-                padding: '8px 16px',
-                borderRadius: 'var(--radius-sm)',
-                cursor: 'pointer',
-                boxShadow: '0 0 10px var(--color-primary-glow)'
-              }}
-            >
-              <option value="all">🌐 Todas las divisiones</option>
-              {Object.keys(DIVISIONES).map((key) => (
-                <option key={key} value={DIVISIONES[key]}>
-                  {DIVISIONES_LABELS[DIVISIONES[key]]}
-                </option>
-              ))}
-            </select>
-          </div>
-        )}
+        {/* Division selector (both modes) */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+          <label style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', fontWeight: 700, textTransform: 'uppercase' }}>
+            Division / Categoria
+          </label>
+          <select
+            value={divisionView}
+            onChange={(e) => setDivisionView(e.target.value)}
+            className="form-select"
+            style={{
+              background: 'var(--bg-input)',
+              border: `1px solid ${viewMode === 'makgora' ? 'var(--color-gold)' : 'var(--color-primary)'}`,
+              color: viewMode === 'makgora' ? 'var(--color-gold)' : 'var(--color-primary)',
+              fontWeight: '700',
+              padding: '8px 16px',
+              borderRadius: 'var(--radius-sm)',
+              cursor: 'pointer',
+              boxShadow: viewMode === 'makgora' ? '0 0 10px rgba(255,179,0,0.2)' : '0 0 10px var(--color-primary-glow)'
+            }}
+          >
+            <option value="all">🌐 Todas las divisiones</option>
+            {Object.keys(DIVISIONES).map((key) => (
+              <option key={key} value={DIVISIONES[key]}>
+                {DIVISIONES_LABELS[DIVISIONES[key]]}
+              </option>
+            ))}
+          </select>
+        </div>
 
         {/* Mak'Gora mode: Team selector */}
         {viewMode === 'makgora' && makgoraTeams.length > 0 && (

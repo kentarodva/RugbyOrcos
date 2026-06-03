@@ -51,7 +51,11 @@ function AnnouncementModal({ onClose }) {
   const markAsRead = async (msgId) => {
     await supabase.from('announcement_views').upsert({
       message_id: msgId, user_id: user.id, viewed_at: new Date().toISOString()
-    }, { onConflict: 'message_id,user_id' }).catch(() => {});
+    }, { onConflict: 'message_id,user_id' }).catch((err) => {
+      if (import.meta.env.DEV) {
+        console.warn('[AnnouncementModal] Failed to mark announcement as read:', err.message);
+      }
+    });
   };
 
   const handleNext = async () => {

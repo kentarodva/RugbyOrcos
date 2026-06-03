@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useMemo } from 'react';
 import { ClubContext } from '../context/ClubContext.jsx';
 import { formatLocalDate } from '../utils/dates.js';
 
@@ -56,13 +56,30 @@ function getTop3(players, award) {
 }
 
 function AwardsHall() {
-  const { players } = useContext(ClubContext);
+  const { players, viewMode, divisionView, makgoraTeamId, activeTeam } = useContext(ClubContext);
   const [tab, setTab] = useState('honor');
 
   const awards = tab === 'honor' ? HONOR_AWARDS : TAVERN_AWARDS;
 
+  const filteredPlayers = useMemo(() => {
+    if (viewMode === 'general' && divisionView === 'all') {
+      return players.filter(p => p.teamCategory?.startsWith('orcos'));
+    }
+    if (viewMode === 'general') {
+      return players.filter(p => p.teamCategory === `orcos_${divisionView}`);
+    }
+    if (viewMode === 'makgora' && makgoraTeamId) {
+      let filtered = players.filter(p => p.makgora_team_id === makgoraTeamId);
+      if (divisionView !== 'all') {
+        filtered = filtered.filter(p => p.teamCategory === `orcos_${divisionView}`);
+      }
+      return filtered;
+    }
+    return players.filter(p => p.teamCategory === activeTeam);
+  }, [players, viewMode, divisionView, makgoraTeamId, activeTeam]);
+
   const allAwards = awards.map(a => {
-    const top = getTop3(players, a);
+    const top = getTop3(filteredPlayers, a);
     return { ...a, top };
   }).filter(a => a.top.length > 0);
 

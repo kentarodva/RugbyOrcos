@@ -28,7 +28,11 @@ function Dashboard() {
       return items.filter(x => x.teamCategory === `orcos_${divisionView}`);
     }
     if (viewMode === 'makgora' && makgoraTeamId) {
-      return items.filter(x => x.makgora_team_id === makgoraTeamId);
+      let filtered = items.filter(x => x.makgora_team_id === makgoraTeamId);
+      if (divisionView !== 'all') {
+        filtered = filtered.filter(x => x.teamCategory === `orcos_${divisionView}`);
+      }
+      return filtered;
     }
     return items.filter(x => x.teamCategory === activeTeam);
   }, [viewMode, divisionView, makgoraTeamId, activeTeam]);

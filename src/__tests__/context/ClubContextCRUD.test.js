@@ -6,9 +6,9 @@ describe('ClubContext — addPlayer', () => {
     return value.replace(/[<>]/g, '');
   };
 
-  it('genera ID con prefijo p_', () => {
-    const id = 'p_' + crypto.randomUUID();
-    expect(id).toMatch(/^p_[a-f0-9-]{36}$/);
+  it('genera ID sin prefijo (UUID puro)', () => {
+    const id = crypto.randomUUID();
+    expect(id).toMatch(/^[a-f0-9-]{36}$/);
   });
 
   it('sanitiza nombre y apodo', () => {

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 
 const generateId = (prefix = '') => {
   if (typeof crypto !== 'undefined' && crypto.randomUUID) {
@@ -19,14 +19,10 @@ const sanitize = (value) => {
 export function useChampionships(activeTeam, pushEntityToSupabase) {
   const [championships, setChampionships] = useState(() => []);
 
-  useEffect(() => {
-    localStorage.setItem('orcos_championships', JSON.stringify(championships));
-  }, [championships]);
-
   const addChampionship = useCallback((champ) => {
     const newChamp = {
       ...champ, name: sanitize(champ.name), description: sanitize(champ.description || ''),
-      id: generateId('c_'), teamCategory: activeTeam
+      id: generateId(), teamCategory: activeTeam
     };
     setChampionships(prev => [...prev, newChamp]);
     pushEntityToSupabase('championships', newChamp);
@@ -38,13 +34,9 @@ export function useChampionships(activeTeam, pushEntityToSupabase) {
 export function useFinances(activeTeam, pushEntityToSupabase, sendLocalNotification) {
   const [finances, setFinances] = useState(() => []);
 
-  useEffect(() => {
-    localStorage.setItem('orcos_finances', JSON.stringify(finances));
-  }, [finances]);
-
   const addFinanceRecord = useCallback((record) => {
     const newRecord = {
-      ...record, desc: sanitize(record.desc), id: generateId('fin_'),
+      ...record, desc: sanitize(record.desc), id: generateId(),
       date: record.date || new Date().toISOString().split('T')[0], teamCategory: activeTeam
     };
     setFinances(prev => [...prev, newRecord]);
@@ -54,7 +46,7 @@ export function useFinances(activeTeam, pushEntityToSupabase, sendLocalNotificat
   const addMembershipPayment = useCallback((playerName, amount, date) => {
     const record = {
       desc: `Abono Membresia - ${playerName || 'Jugador'}`, amount, type: 'ingreso',
-      date, id: generateId('fin_'), category: 'mensualidad', teamCategory: activeTeam
+      date, id: generateId(), category: 'mensualidad', teamCategory: activeTeam
     };
     setFinances(prev => [...prev, record]);
     pushEntityToSupabase('finances', record);
@@ -67,9 +59,19 @@ export function useFinances(activeTeam, pushEntityToSupabase, sendLocalNotificat
 export function useInventory(pushEntityToSupabase) {
   const [inventory, setInventory] = useState(() => []);
 
-  useEffect(() => {
-    localStorage.setItem('orcos_inventory', JSON.stringify(inventory));
-  }, [inventory]);
+  const addInventoryItem = useCallback((item) => {
+    const newItem = {
+      ...item,
+      name: sanitize(item.name),
+      description: sanitize(item.description || ''),
+      id: generateId(),
+      quantity: item.quantity || 1,
+      status: item.status || 'disponible',
+      assignedTo: item.assignedTo || null,
+    };
+    setInventory(prev => [...prev, newItem]);
+    if (pushEntityToSupabase) pushEntityToSupabase('inventory', newItem);
+  }, [pushEntityToSupabase]);
 
   const updateInventoryItem = useCallback((itemId, updatedData) => {
     const safe = { ...updatedData };
@@ -78,10 +80,10 @@ export function useInventory(pushEntityToSupabase) {
     setInventory(prev => {
       const updated = prev.map(item => item.id === itemId ? { ...item, ...safe } : item);
       const changed = updated.find(item => item.id === itemId);
-      if (changed) pushEntityToSupabase('inventory', changed);
+      if (changed && pushEntityToSupabase) pushEntityToSupabase('inventory', changed);
       return updated;
     });
   }, [pushEntityToSupabase]);
 
-  return { inventory, setInventory, updateInventoryItem };
+  return { inventory, setInventory, addInventoryItem, updateInventoryItem };
 }

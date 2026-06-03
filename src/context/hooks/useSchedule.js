@@ -1,4 +1,5 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback } from 'react';
+import { supabase } from '../../supabaseClient.js';
 import apisupabase from '../../data/supabaseApi.js';
 import { wrapCatch } from '../../utils/errorHandler';
 import { formatLocalDate } from '../../utils/dates.js';
@@ -23,33 +24,79 @@ const sanitize = (value) => {
 export function useSchedule(activeTeam, sendLocalNotification, scheduleReminder, pushEntityToSupabase, user) {
   const [schedule, setSchedule] = useState(() => []);
 
-  useEffect(() => {
-    localStorage.setItem('orcos_schedule', JSON.stringify(schedule));
-  }, [schedule]);
-
   const addScheduleEvent = useCallback(async (event) => {
     const events = [];
     const baseEvent = {
       title: sanitize(event.title), location: sanitize(event.location),
       time: event.time, mapsLink: sanitize(event.mapsLink || ''),
-      type: event.type || 'entrenamiento', teamCategory: activeTeam
+      type: event.type || 'entrenamiento', teamCategory: event.teamCategory || activeTeam
     };
     const recurrence = event.recurrence || 'none';
-    const weeks = recurrence === 'semanal' ? 4 : recurrence === 'quincenal' ? 2 : 1;
-    for (let i = 0; i < weeks; i++) {
-      const eventDate = new Date(event.date + 'T00:00:00');
-      const daysToAdd = recurrence === 'quincenal' ? i * 14 : i * 7;
-      eventDate.setDate(eventDate.getDate() + daysToAdd);
-      const newEvent = {
-        ...baseEvent, id: generateId('s_'), date: eventDate.toISOString().split('T')[0],
-        linkedRoutine: event.linkedRoutine || null,
-        recurrenceGroup: recurrence !== 'none' ? event.recurrenceGroup || generateId('rg_') : null
-      };
-      events.push(newEvent);
+    const recurrenceGroup = recurrence !== 'none' ? (event.recurrenceGroup || generateId()) : null;
+
+    if (recurrence === 'custom' && event.recurrenceDays?.length > 0) {
+      const startDate = new Date(event.date + 'T00:00:00');
+      const weeks = event.recurrenceWeeks || 4;
+      const seen = new Set();
+      for (let w = 0; w < weeks; w++) {
+        for (const dayNum of event.recurrenceDays) {
+          const target = new Date(startDate);
+          target.setDate(startDate.getDate() + (w * 7));
+          const currentDay = target.getDay();
+          const targetDay = dayNum === 7 ? 0 : dayNum;
+          const diff = (targetDay - currentDay + 7) % 7;
+          target.setDate(target.getDate() + diff);
+          if (target >= startDate) {
+            const dateStr = target.toISOString().split('T')[0];
+            if (!seen.has(dateStr)) {
+              seen.add(dateStr);
+              events.push({
+                ...baseEvent, id: generateId(), date: dateStr,
+                linkedRoutine: event.linkedRoutine || null,
+                recurrence: 'custom',
+                recurrenceDays: event.recurrenceDays,
+                recurrenceWeeks: weeks,
+                recurrenceGroup
+              });
+            }
+          }
+        }
+      }
+    } else {
+      const weeks = recurrence === 'semanal' ? 4 : recurrence === 'quincenal' ? 2 : 1;
+      for (let i = 0; i < weeks; i++) {
+        const eventDate = new Date(event.date + 'T00:00:00');
+        const daysToAdd = recurrence === 'quincenal' ? i * 14 : i * 7;
+        eventDate.setDate(eventDate.getDate() + daysToAdd);
+        const newEvent = {
+          ...baseEvent, id: generateId(), date: eventDate.toISOString().split('T')[0],
+          linkedRoutine: event.linkedRoutine || null,
+          recurrenceGroup
+        };
+        events.push(newEvent);
+      }
     }
-    setSchedule(prev => [...prev, ...events]);
-    events.forEach(e => pushEntityToSupabase('schedule', e));
-    sendLocalNotification('Evento Programado', `${events.length} evento(s): ${baseEvent.title} desde ${events[0].date}.`);
+    const created = events.filter(e => !schedule.some(s => s.date === e.date && s.time === e.time && s.teamCategory === e.teamCategory));
+    setSchedule(prev => [...prev, ...created]);
+    created.forEach(e => {
+      supabase.from('schedule_events').upsert({
+        id: e.id, title: e.title, date: e.date, time: e.time, location: e.location,
+        maps_link: e.mapsLink, type: e.type, team_category: e.teamCategory,
+        linked_routine: e.linkedRoutine, recurrence_group: e.recurrenceGroup,
+        user_id: user?.id, context: 'general'
+      }).then(({ error }) => {
+        if (error && import.meta.env.DEV) {
+          console.warn('[Schedule] Supabase upsert error:', error.message);
+        }
+      }, (err) => {
+        if (import.meta.env.DEV) {
+          console.warn('[Schedule] Supabase upsert failed:', err?.message || err);
+        }
+      });
+    });
+    const skipped = events.length - created.length;
+    sendLocalNotification('Evento Programado',
+      `${created.length} evento(s): ${baseEvent.title} desde ${created[0]?.date || event.date}.${skipped > 0 ? ` (${skipped} ya existian)` : ''}`);
 
     const eventTime = event.time || '09:00';
     const [h, m] = eventTime.split(':').map(Number);
@@ -58,7 +105,7 @@ export function useSchedule(activeTeam, sendLocalNotification, scheduleReminder,
     if (remindDate > new Date()) {
       scheduleReminder(baseEvent.title, eventTime, event.location, remindDate, events[0].id);
     }
-  }, [activeTeam, sendLocalNotification, scheduleReminder, pushEntityToSupabase]);
+  }, [activeTeam, sendLocalNotification, scheduleReminder, user]);
 
   const deleteScheduleEvent = useCallback((id) => {
     setSchedule(prev => prev.filter(e => e.id !== id));

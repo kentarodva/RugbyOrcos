@@ -1,9 +1,29 @@
-import React from 'react';
+import React, { useContext } from 'react';
+import { ClubContext } from '../../../context/ClubContext';
 import { formatLocalDate } from '../../../utils/dates.js';
 
 function FutureCard({ future, onDelete }) {
+  const { createInvitation, matchInvitations } = useContext(ClubContext);
   const daysUntil = Math.ceil((new Date(future.date + 'T00:00:00') - new Date()) / (1000 * 60 * 60 * 24));
   const isSoon = daysUntil <= 7 && daysUntil >= 0;
+
+  const existingInv = matchInvitations.find(inv => inv.futureFixtureId === future.id && inv.status === 'active');
+
+  const handleInvite = async () => {
+    if (!window.confirm(`Crear invitacion para el partido vs ${future.opponent} (${future.date})?`)) return;
+    const result = await createInvitation({
+      futureFixtureId: future.id,
+      rivalName: future.opponent,
+      rivalId: future.rivalId || null,
+    });
+    if (result?.success) {
+      const link = `${window.location.origin}/invitacion/${result.token}`;
+      await navigator.clipboard.writeText(link);
+      alert(`Invitacion creada. Link copiado:\n${link}`);
+    } else {
+      alert('Error al crear invitacion: ' + (result?.error || 'desconocido'));
+    }
+  };
 
   return (
     <div
@@ -25,20 +45,35 @@ function FutureCard({ future, onDelete }) {
           {daysUntil <= 0 ? 'HOY' : daysUntil === 1 ? 'MANANA' : `EN ${daysUntil} DIAS`}
         </span>
 
-        <button
-          onClick={() => onDelete(future.id)}
-          style={{
-            background: 'transparent',
-            border: 'none',
-            color: 'var(--color-red)',
-            cursor: 'pointer',
-            fontSize: '0.8rem',
-            opacity: 0.6
-          }}
-          title="Eliminar fixture"
-        >
-          X
-        </button>
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+          {existingInv ? (
+            <span style={{ fontSize: '0.65rem', color: 'var(--color-gold)', fontWeight: 700, background: 'rgba(255,179,0,0.1)', padding: '2px 8px', borderRadius: '10px' }}>
+              Invitacion activa
+            </span>
+          ) : (
+            <button
+              onClick={handleInvite}
+              className="btn-outline"
+              style={{ padding: '4px 10px', fontSize: '0.7rem', borderColor: 'var(--color-gold)', color: 'var(--color-gold)' }}
+            >
+              Invitar
+            </button>
+          )}
+          <button
+            onClick={() => onDelete(future.id)}
+            style={{
+              background: 'transparent',
+              border: 'none',
+              color: 'var(--color-red)',
+              cursor: 'pointer',
+              fontSize: '0.8rem',
+              opacity: 0.6
+            }}
+            title="Eliminar fixture"
+          >
+            X
+          </button>
+        </div>
       </div>
 
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: '15px 0' }}>

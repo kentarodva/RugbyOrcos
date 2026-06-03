@@ -6,10 +6,6 @@ export function useLoans(user) {
   const [loans, setLoans] = useState(() => []);
 
   useEffect(() => {
-    localStorage.setItem('orcos_loans', JSON.stringify(loans));
-  }, [loans]);
-
-  useEffect(() => {
     if (!user?.id) return;
 
     const channel = supabase
@@ -20,7 +16,6 @@ export function useLoans(user) {
           apisupabase.fetchLoans().then(({ data }) => {
             if (data) {
               setLoans(data);
-              localStorage.setItem('orcos_loans', JSON.stringify(data));
             }
           });
         }
@@ -50,7 +45,7 @@ export function useLoans(user) {
       });
       if (error) return { error: error.message };
       const { data } = await apisupabase.fetchLoans();
-      if (data) { setLoans(data); localStorage.setItem('orcos_loans', JSON.stringify(data)); }
+      if (data) { setLoans(data); }
       return { success: true };
     } catch (err) {
       return { error: err.message };

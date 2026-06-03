@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useMemo } from 'react';
 import { ClubContext } from '../../context/ClubContext';
 import { useToast } from '../../context/ToastContext';
 import { useTrainingState } from './useTrainingState';
@@ -7,10 +7,25 @@ import PlayersTab from './PlayersTab';
 import CatalogTab from './CatalogTab';
 
 function TrainingHub() {
-  const { players, activeTeam, logWorkout, schedule } = useContext(ClubContext);
+  const { players, activeTeam, logWorkout, schedule, viewMode, divisionView, makgoraTeamId } = useContext(ClubContext);
   const { showToast } = useToast();
 
-  const teamPlayers = players.filter(p => p.teamCategory === activeTeam);
+  const teamPlayers = useMemo(() => {
+    if (viewMode === 'general' && divisionView === 'all') {
+      return players.filter(p => p.teamCategory?.startsWith('orcos'));
+    }
+    if (viewMode === 'general') {
+      return players.filter(p => p.teamCategory === `orcos_${divisionView}`);
+    }
+    if (viewMode === 'makgora' && makgoraTeamId) {
+      let filtered = players.filter(p => p.makgora_team_id === makgoraTeamId);
+      if (divisionView !== 'all') {
+        filtered = filtered.filter(p => p.teamCategory === `orcos_${divisionView}`);
+      }
+      return filtered;
+    }
+    return players.filter(p => p.teamCategory === activeTeam);
+  }, [players, viewMode, divisionView, makgoraTeamId, activeTeam]);
 
   const {
     activeTab, setActiveTab,

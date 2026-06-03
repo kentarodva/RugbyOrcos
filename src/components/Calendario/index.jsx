@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useMemo, useCallback } from 'react';
 import { ClubContext } from '../../context/ClubContext';
 import { useToast } from '../../context/ToastContext';
 import Rivales from '../Rivales';
@@ -10,33 +10,64 @@ import FutureTab from './FutureTab';
 import CalendarioSkeleton from '../Skeletons/CalendarioSkeleton';
 
 function Calendario() {
+  // ── Capa 1: Context ──
   const {
     schedule, addScheduleEvent, deleteScheduleEvent, generateWhatsAppMessage, activeTeam,
     fixtures, addFixture, deleteFixture, players, recordMatchStats,
     futureFixtures, addFutureFixture, deleteFutureFixture, rivals,
+    viewMode, divisionView, makgoraTeamId,
     syncStatus,
   } = useContext(ClubContext);
   const { showToast } = useToast();
 
+  // ── Capa 2: State ──
   const [activeTab, setActiveTab] = useState('agenda');
   const [showAddForm, setShowAddForm] = useState(false);
   const [showWeeklyView, setShowWeeklyView] = useState(false);
-  const [eventTitle, setEventTitle] = useState('');
-  const [eventDate, setEventDate] = useState('');
-  const [eventTime, setEventTime] = useState('');
-  const [eventLocation, setEventLocation] = useState('');
-  const [eventMaps, setEventMaps] = useState('');
-  const [eventType, setEventType] = useState('entrenamiento');
-  const [eventRecurrence, setEventRecurrence] = useState('none');
-  const [eventLinkedRoutine, setEventLinkedRoutine] = useState('');
+  const [editingEvent, setEditingEvent] = useState(null);
   const [selectedFixtureForDetail, setSelectedFixtureForDetail] = useState(null);
 
-  const activeTeamPlayers = players.filter(p => p.teamCategory === activeTeam && p.rol !== 'Entrenador');
+  // ── Capa 3: Derived data ──
+  const currentTeamCategory = useMemo(() => {
+    if (viewMode === 'general' && divisionView !== 'all') {
+      return `orcos_${divisionView}`;
+    }
+    return activeTeam;
+  }, [viewMode, divisionView, activeTeam]);
 
+  const filterByView = useCallback((items) => {
+    if (viewMode === 'general' && divisionView === 'all') {
+      return items.filter(x => x.teamCategory?.startsWith('orcos'));
+    }
+    if (viewMode === 'general') {
+      return items.filter(x => x.teamCategory === `orcos_${divisionView}`);
+    }
+    if (viewMode === 'makgora' && makgoraTeamId) {
+      if (divisionView !== 'all') {
+        return items.filter(x => x.teamCategory === `orcos_${divisionView}`);
+      }
+      return items.filter(x => x.teamCategory?.startsWith('orcos'));
+    }
+    return items.filter(x => x.teamCategory === activeTeam);
+  }, [viewMode, divisionView, makgoraTeamId, activeTeam]);
+
+  const activeTeamPlayers = useMemo(() => {
+    return filterByView(players).filter(p => p.rol !== 'Entrenador');
+  }, [players, filterByView]);
+
+  const teamEvents = useMemo(() => {
+    return filterByView(schedule)
+      .sort((a, b) => new Date(a.date + 'T' + a.time) - new Date(b.date + 'T' + b.time));
+  }, [schedule, filterByView]);
+
+  const filteredFixtures = useMemo(() => filterByView(fixtures), [fixtures, filterByView]);
+  const filteredFutureFixtures = useMemo(() => filterByView(futureFixtures), [futureFixtures, filterByView]);
+
+  // ── Capa 4: Handlers ──
   const getMatchStats = (fixture) => {
     if (!fixture) return [];
     const matchStatsList = [];
-    players.forEach(p => {
+    activeTeamPlayers.forEach(p => {
       if (p.matchStats) {
         p.matchStats.forEach(st => {
           const matchDateMatch = st.date === fixture.date;
@@ -65,43 +96,45 @@ function Calendario() {
     showToast('Estadisticas tecnicas registradas con exito.', 'success');
   };
 
-  const handleSaveEvent = (e) => {
-    e.preventDefault();
-    if (!eventTitle || !eventDate || !eventTime || !eventLocation) return;
-
-    const finalMapsLink = eventMaps || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(eventLocation)}`;
-
-    addScheduleEvent({
-      title: eventTitle,
-      date: eventDate,
-      time: eventTime,
-      location: eventLocation,
-      mapsLink: finalMapsLink,
-      type: eventType,
-      recurrence: eventRecurrence,
-      linkedRoutine: eventLinkedRoutine || null
-    });
-
-    setEventTitle('');
-    setEventDate('');
-    setEventTime('');
-    setEventLocation('');
-    setEventMaps('');
-    setEventType('entrenamiento');
-    setEventRecurrence('none');
-    setEventLinkedRoutine('');
+  const handleSaveEvent = useCallback((formData) => {
+    if (!formData.title || !formData.date || !formData.time || !formData.location) {
+      showToast('Completa todos los campos requeridos.', 'warning');
+      return;
+    }
+    addScheduleEvent({ ...formData, teamCategory: currentTeamCategory });
     setShowAddForm(false);
-  };
+    setEditingEvent(null);
+    showToast('Evento creado exitosamente.', 'success');
+  }, [addScheduleEvent, currentTeamCategory, showToast]);
 
-  const handleSaveFixture = (fixtureData) => {
-    addFixture(fixtureData);
+  const handleEditEvent = useCallback((formData) => {
+    if (!formData.title || !formData.date || !formData.time || !formData.location) {
+      showToast('Completa todos los campos requeridos.', 'warning');
+      return;
+    }
+    if (editingEvent?.id) {
+      deleteScheduleEvent(editingEvent.id);
+    }
+    addScheduleEvent({ ...formData, teamCategory: currentTeamCategory });
+    setShowAddForm(false);
+    setEditingEvent(null);
+    showToast('Evento actualizado.', 'success');
+  }, [editingEvent, deleteScheduleEvent, addScheduleEvent, currentTeamCategory, showToast]);
+
+  const handleQuickCreate = useCallback(async (formData) => {
+    addScheduleEvent({ ...formData, recurrence: 'custom', teamCategory: currentTeamCategory });
+    showToast(`${formData.recurrenceDays?.length || 0} dias x ${formData.recurrenceWeeks || 4} semanas creados.`, 'success');
+  }, [addScheduleEvent, currentTeamCategory, showToast]);
+
+  const handleSaveFixture = useCallback((fixtureData) => {
+    addFixture({ ...fixtureData, teamCategory: currentTeamCategory });
     showToast('Resultado registrado con exito.', 'success');
-  };
+  }, [addFixture, currentTeamCategory, showToast]);
 
-  const handleSaveFutureFixture = (futureData) => {
-    addFutureFixture(futureData);
+  const handleSaveFutureFixture = useCallback((futureData) => {
+    addFutureFixture({ ...futureData, teamCategory: currentTeamCategory });
     showToast(`Partido vs ${futureData.opponent} agendado para el ${futureData.date}.`, 'success');
-  };
+  }, [addFutureFixture, currentTeamCategory, showToast]);
 
   const handleWhatsAppShare = (event) => {
     const message = generateWhatsAppMessage(event);
@@ -116,17 +149,14 @@ function Calendario() {
       });
   };
 
-  const teamEvents = schedule
-    .filter(e => e.teamCategory === activeTeam)
-    .sort((a, b) => new Date(a.date + 'T' + a.time) - new Date(b.date + 'T' + b.time));
-
+  // ── Capa 5: Return ──
   if (syncStatus === 'idle' || syncStatus === 'syncing') {
     return <CalendarioSkeleton activeTab={activeTab} />;
   }
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-      <CalendarioTabs activeTab={activeTab} setActiveTab={setActiveTab} />
+      <CalendarioTabs activeTab={activeTab} onChange={setActiveTab} />
 
       {activeTab === 'agenda' && (
         <AgendaTab
@@ -135,17 +165,20 @@ function Calendario() {
           setShowAddForm={setShowAddForm}
           showWeeklyView={showWeeklyView}
           setShowWeeklyView={setShowWeeklyView}
+          editingEvent={editingEvent}
+          setEditingEvent={setEditingEvent}
           handleSaveEvent={handleSaveEvent}
+          handleEditEvent={handleEditEvent}
           handleWhatsAppShare={handleWhatsAppShare}
           deleteScheduleEvent={deleteScheduleEvent}
+          onQuickCreate={handleQuickCreate}
+          currentTeamCategory={currentTeamCategory}
         />
       )}
 
       {activeTab === 'fixture' && (
         <FixtureTab
-          fixtures={fixtures}
-          activeTeam={activeTeam}
-          players={players}
+          fixtures={filteredFixtures}
           activeTeamPlayers={activeTeamPlayers}
           selectedFixtureForDetail={selectedFixtureForDetail}
           setSelectedFixtureForDetail={setSelectedFixtureForDetail}
@@ -158,8 +191,7 @@ function Calendario() {
 
       {activeTab === 'proximos' && (
         <FutureTab
-          futureFixtures={futureFixtures}
-          activeTeam={activeTeam}
+          futureFixtures={filteredFutureFixtures}
           rivals={rivals}
           handleSaveFutureFixture={handleSaveFutureFixture}
           deleteFutureFixture={deleteFutureFixture}

@@ -4,10 +4,12 @@ import { useToast } from '../context/ToastContext';
 import { formatLocalDate } from '../utils/dates.js';
 
 function Invitaciones() {
-  const { matchInvitations, cancelInvitation, deleteInvitation } = useContext(ClubContext);
+  const { matchInvitations, createInvitation, cancelInvitation, deleteInvitation, futureFixtures } = useContext(ClubContext);
   const { showToast } = useToast();
   const [filter, setFilter] = useState('activas');
   const [expandedInvitation, setExpandedInvitation] = useState(null);
+  const [showCreateForm, setShowCreateForm] = useState(false);
+  const [selectedFixture, setSelectedFixture] = useState('');
 
   const copiarLink = (token) => {
     const link = `${window.location.origin}/invitacion/${token}`;
@@ -34,6 +36,40 @@ function Invitaciones() {
     deleteInvitation(inv.id);
     showToast('Invitacion eliminada.', 'info');
   };
+
+  const handleCreate = async (e) => {
+    e.preventDefault();
+    if (!selectedFixture) {
+      showToast('Selecciona un partido proximo.', 'warning');
+      return;
+    }
+    const fixture = futureFixtures.find(f => f.id === selectedFixture);
+    if (!fixture) return;
+
+    const existing = matchInvitations.find(inv => inv.futureFixtureId === fixture.id && inv.status === 'active');
+    if (existing) {
+      showToast('Ya existe una invitacion activa para este partido.', 'warning');
+      return;
+    }
+
+    const result = await createInvitation({
+      futureFixtureId: fixture.id,
+      rivalName: fixture.opponent,
+      rivalId: fixture.rivalId || null,
+    });
+    if (result?.success) {
+      showToast('Invitacion creada. Link copiado.', 'success');
+      navigator.clipboard.writeText(`${window.location.origin}/invitacion/${result.token}`);
+      setSelectedFixture('');
+      setShowCreateForm(false);
+    } else {
+      showToast('Error al crear: ' + (result?.error || 'desconocido'), 'error');
+    }
+  };
+
+  const upcomingFixtures = futureFixtures
+    .filter(f => new Date(f.date + 'T00:00:00') >= new Date(new Date().toDateString()))
+    .sort((a, b) => new Date(a.date) - new Date(b.date));
 
   const activas = matchInvitations.filter((inv) => inv.status === 'active');
   const expiradas = matchInvitations.filter((inv) => inv.status !== 'active');
@@ -95,14 +131,55 @@ function Invitaciones() {
           >
             Todas ({matchInvitations.length})
           </button>
+          <button
+            onClick={() => setShowCreateForm(!showCreateForm)}
+            className="btn-neon"
+            style={{ padding: '6px 14px', fontSize: '0.8rem', marginLeft: 'auto' }}
+          >
+            + Nueva Invitacion
+          </button>
         </div>
       </div>
+
+      {showCreateForm && (
+        <div className="glass-panel animated-slide" style={{ padding: '25px' }}>
+          <form onSubmit={handleCreate} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+            <div className="form-group">
+              <label>Seleccionar Partido Futuro</label>
+              {upcomingFixtures.length === 0 ? (
+                <p style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>
+                  No hay partidos futuros. Agenda uno desde Calendario → Proximos Partidos.
+                </p>
+              ) : (
+                <select
+                  value={selectedFixture}
+                  onChange={(e) => setSelectedFixture(e.target.value)}
+                  className="form-select"
+                  required
+                >
+                  <option value="">-- Seleccionar partido --</option>
+                  {upcomingFixtures.map(f => (
+                    <option key={f.id} value={f.id}>
+                      vs {f.opponent} — {formatLocalDate(new Date(f.date + 'T00:00:00'), { day: 'numeric', month: 'long', year: 'numeric' })}
+                      {f.time ? ` · ${f.time}` : ''}
+                    </option>
+                  ))}
+                </select>
+              )}
+            </div>
+            <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
+              <button type="button" onClick={() => setShowCreateForm(false)} className="btn-outline">Cancelar</button>
+              <button type="submit" className="btn-neon" disabled={upcomingFixtures.length === 0}>Crear Invitacion</button>
+            </div>
+          </form>
+        </div>
+      )}
 
       {displayList.length === 0 ? (
         <div className="glass-panel" style={{ padding: '40px', textAlign: 'center' }}>
           <p style={{ fontSize: '0.9rem', color: 'var(--color-text-muted)' }}>
             {filter === 'activas'
-              ? 'No hay invitaciones activas. Crea una desde Agenda → Próximos Partidos.'
+              ? 'No hay invitaciones activas. Crea una con el boton "+ Nueva Invitacion" o desde Calendario → Proximos Partidos.'
               : filter === 'expiradas'
                 ? 'No hay invitaciones en el historial.'
                 : 'No hay invitaciones todavia.'}

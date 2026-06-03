@@ -7,13 +7,6 @@ import { ClubProvider } from './context/ClubContext.jsx';
 import { ToastProvider } from './context/ToastContext.jsx';
 import ErrorBoundary from './components/ErrorBoundary.jsx';
 
-if ('serviceWorker' in navigator && import.meta.env.PROD) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js')
-      .catch(() => {});
-  });
-}
-
 localStorage.setItem('orcos_badge_count', '0');
 
 ReactDOM.createRoot(document.getElementById('root')).render(

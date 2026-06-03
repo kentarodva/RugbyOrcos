@@ -337,7 +337,7 @@ function Settings({ onClose }) {
             background: 'var(--bg-dark)', padding: '15px', borderRadius: 'var(--radius-md)',
             fontSize: '0.72rem', color: 'var(--color-text-muted)', lineHeight: 1.6
           }}>
-            <strong style={{ color: 'var(--color-text)' }}>Rugby Orcos Club Manager v2.0</strong><br />
+             <strong style={{ color: 'var(--color-text)' }}>Rugby Orcos Club Manager v4.0</strong><br />
             IA multi-proveedor con fallback automático. Si el primario falla o se agota, pasa al siguiente.<br />
             <span style={{ fontSize: '0.65rem' }}>
               Groq: 14,400/día | DeepSeek: 500/día | Gemini: 1,500/día (todos gratis)

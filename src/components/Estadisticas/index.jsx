@@ -36,7 +36,7 @@ function Estadisticas() {
     alturaMin: '', alturaMax: '',
     eps: '', sinEPS: false,
     fracturas: 'todos', alergias: 'todos', enfermedades: 'todos',
-    makgoraTeam: '', rol: '', tipoDoc: '',
+    rol: '', tipoDoc: '',
     busqueda: '',
   });
 
@@ -45,9 +45,13 @@ function Estadisticas() {
   [players]);
 
   const filteredPlayers = useMemo(() => {
-    let p = players;
+    let p;
     if (viewMode === 'general' && divisionView === 'all') p = players.filter(x => x.teamCategory?.startsWith('orcos'));
     else if (viewMode === 'general') p = players.filter(x => x.teamCategory === `orcos_${divisionView}`);
+    else if (viewMode === 'makgora' && makgoraTeamId) {
+      p = players.filter(x => x.makgora_team_id === makgoraTeamId);
+      if (divisionView !== 'all') p = p.filter(x => x.teamCategory === `orcos_${divisionView}`);
+    }
     else p = players.filter(x => x.teamCategory?.startsWith('orcos'));
     if (filters.estado !== 'todos') p = p.filter(x => x.estado === filters.estado);
     if (filters.edadMin) p = p.filter(x => (x._meta?.age ?? x.age) >= parseInt(filters.edadMin));
@@ -62,7 +66,6 @@ function Estadisticas() {
     if (filters.fracturas !== 'todos') p = p.filter(x => !!x.had_fractures === (filters.fracturas === 'si'));
     if (filters.alergias !== 'todos') p = p.filter(x => !!x.allergies === (filters.alergias === 'si'));
     if (filters.enfermedades !== 'todos') p = p.filter(x => !!x.medical_conditions === (filters.enfermedades === 'si'));
-    if (filters.makgoraTeam) p = p.filter(x => x.makgora_team_id === filters.makgoraTeam);
     if (filters.rol) p = p.filter(x => x.rol === filters.rol);
     if (filters.tipoDoc) p = p.filter(x => x.document_type === filters.tipoDoc);
     if (filters.busqueda) {
@@ -125,7 +128,7 @@ function Estadisticas() {
         </div>
       )}
       <div className="glass-panel" style={{ padding: '14px 18px' }}>
-        <FilterBar filters={filters} onChange={setFilters} makgoraTeams={makgoraTeams} uniqueEps={uniqueEps} searchInputRef={searchInputRef} />
+        <FilterBar filters={filters} onChange={setFilters} uniqueEps={uniqueEps} searchInputRef={searchInputRef} />
         <Tabs tabs={TABS} active={activeTab} onChange={setActiveTab} />
         {filteredPlayers.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '30px', color: 'var(--text-muted)', fontSize: '0.82rem' }}>No hay jugadores que coincidan con los filtros actuales.</div>

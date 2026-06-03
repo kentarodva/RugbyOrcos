@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import apisupabase from '../../data/supabaseApi.js';
 import { wrapCatch } from '../../utils/errorHandler';
 
@@ -21,14 +21,10 @@ const sanitize = (value) => {
 export function useFixtures(activeTeam, sendLocalNotification, pushEntityToSupabase, user) {
   const [fixtures, setFixtures] = useState(() => []);
 
-  useEffect(() => {
-    localStorage.setItem('orcos_fixtures', JSON.stringify(fixtures));
-  }, [fixtures]);
-
   const addFixture = useCallback((fixture) => {
     const newFix = {
       ...fixture, opponent: sanitize(fixture.opponent), mvp: sanitize(fixture.mvp || ''),
-      id: generateId('fix_'), teamCategory: activeTeam, rivalId: fixture.rivalId || null
+      id: generateId(), teamCategory: fixture.teamCategory || activeTeam, rivalId: fixture.rivalId || null
     };
     setFixtures(prev => [...prev, newFix]);
     pushEntityToSupabase('fixtures', newFix);
@@ -47,13 +43,9 @@ export function useFixtures(activeTeam, sendLocalNotification, pushEntityToSupab
 export function useRivals(pushEntityToSupabase, user) {
   const [rivals, setRivals] = useState(() => []);
 
-  useEffect(() => {
-    localStorage.setItem('orcos_rivals', JSON.stringify(rivals));
-  }, [rivals]);
-
   const addRival = useCallback((rival) => {
     const newRival = {
-      ...rival, id: generateId('riv_'), name: sanitize(rival.name),
+      ...rival, id: generateId(), name: sanitize(rival.name),
       colors: sanitize(rival.colors || ''), contact: sanitize(rival.contact || ''),
       notes: sanitize(rival.notes || '')
     };
@@ -84,13 +76,9 @@ export function useRivals(pushEntityToSupabase, user) {
 export function useFutureFixtures(activeTeam, sendLocalNotification, pushEntityToSupabase, user) {
   const [futureFixtures, setFutureFixtures] = useState(() => []);
 
-  useEffect(() => {
-    localStorage.setItem('orcos_future_fixtures', JSON.stringify(futureFixtures));
-  }, [futureFixtures]);
-
   const addFutureFixture = useCallback((fixture) => {
     const newFix = {
-      ...fixture, opponent: sanitize(fixture.opponent), id: generateId('ffix_'), teamCategory: activeTeam,
+      ...fixture, opponent: sanitize(fixture.opponent), id: generateId(), teamCategory: fixture.teamCategory || activeTeam,
       rivalId: fixture.rivalId || null
     };
     setFutureFixtures(prev => [...prev, newFix]);

@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default function FilterBar({ filters, onChange, makgoraTeams, uniqueEps, searchInputRef }) {
+export default function FilterBar({ filters, onChange, uniqueEps, searchInputRef }) {
   const set = (patch) => onChange({ ...filters, ...patch });
   const selStyle = { fontSize: '0.78rem', padding: '3px 8px', background: 'var(--bg-input)', border: '1px solid var(--border-color)', borderRadius: '6px', color: 'var(--text-primary)', minWidth: '100px' };
   const inpStyle = { ...selStyle, minWidth: '70px' };
@@ -87,16 +87,12 @@ export default function FilterBar({ filters, onChange, makgoraTeams, uniqueEps, 
           <option value="si">Sí</option>
           <option value="no">No</option>
         </select>
-        <select value={filters.makgoraTeam} onChange={e => set({ makgoraTeam: e.target.value })} className="form-select" style={{ ...selStyle, minWidth: '130px' }}>
-          <option value="">Eq. Mak'Gora</option>
-          {makgoraTeams?.map(t => <option key={t.id} value={t.id}>{t.rpg_name || t.name}</option>)}
-        </select>
         {anyActive && (
           <button onClick={() => onChange({
             estado: 'todos', edadMin: '', edadMax: '', categoria: '',
             pesoMin: '', pesoMax: '', alturaMin: '', alturaMax: '',
             eps: '', sinEPS: false, fracturas: 'todos', alergias: 'todos',
-            enfermedades: 'todos', makgoraTeam: '', rol: '', tipoDoc: '', busqueda: '',
+            enfermedades: 'todos', rol: '', tipoDoc: '', busqueda: '',
           })}
             style={{ background: 'none', border: '1px solid #ff5252', borderRadius: '6px', color: '#ff5252', cursor: 'pointer', fontSize: '0.78rem', padding: '3px 10px', fontWeight: 600, whiteSpace: 'nowrap' }}>
             Limpiar
