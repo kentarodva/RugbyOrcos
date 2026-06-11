@@ -34,13 +34,31 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    const vapidPublicKey = Deno.env.get("VITE_VAPID_PUBLIC_KEY");
-    const vapidPrivateKey = Deno.env.get("VAPID_PRIVATE_KEY");
-    const vapidEmail = Deno.env.get("VAPID_PUBLIC_KEY") || "admin@orcosnegros.com";
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const client = createClient(supabaseUrl, supabaseKey);
+
+    let vapidPublicKey = Deno.env.get("VITE_VAPID_PUBLIC_KEY");
+    let vapidPrivateKey = Deno.env.get("VAPID_PRIVATE_KEY");
+    const vapidEmail = "admin@orcosnegros.com";
+
+    if (!vapidPublicKey || !vapidPrivateKey) {
+      const { data: keys } = await client
+        .from("club_config")
+        .select("key, value")
+        .eq("team_category", "orcos")
+        .in("key", ["vapid_public_key", "vapid_private_key"]);
+      if (keys) {
+        for (const k of keys) {
+          if (k.key === "vapid_public_key" && !vapidPublicKey) vapidPublicKey = k.value;
+          if (k.key === "vapid_private_key" && !vapidPrivateKey) vapidPrivateKey = k.value;
+        }
+      }
+    }
 
     if (!vapidPublicKey || !vapidPrivateKey) {
       return new Response(
-        JSON.stringify({ error: "VAPID keys not configured" }),
+        JSON.stringify({ error: "VAPID keys not configured. Set VAPID_PRIVATE_KEY in Edge Function secrets or club_config." }),
         { status: 500, headers: { "Content-Type": "application/json" } },
       );
     }
@@ -50,10 +68,6 @@ Deno.serve(async (req: Request) => {
       vapidPublicKey,
       vapidPrivateKey,
     );
-
-    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const client = createClient(supabaseUrl, supabaseKey);
 
     let query = client.from("push_tokens").select("token, player_id");
     if (filters?.player_ids && filters.player_ids.length > 0) {
