@@ -4,7 +4,7 @@ import { getAvatarPath } from '../../data/mythicalAvatars';
 const TEAM_CRESTS = [
   { keys: ['orcos', 'horda'], avatar: 'dragon-head', gradient: 'linear-gradient(135deg, #0a3d1a, #00e676)' },
   { keys: ['cuervos', 'cuervo'], avatar: 'raven', gradient: 'linear-gradient(135deg, #1a1a1a, #616161)' },
-  { keys: ['trolls', 'troll'], avatar: 'troll', gradient: 'linear-gradient(135deg, #0a2a4a, #2196f3)' },
+  { keys: ['trolls', 'troll'], avatar: 'horned-helm', gradient: 'linear-gradient(135deg, #0a2a4a, #2196f3)' },
   { keys: ['gargolas', 'gargola'], avatar: 'gargoyle', gradient: 'linear-gradient(135deg, #2a0a3a, #9c27b0)' },
   { keys: ['pitbull'], avatar: 'wolf-head', gradient: 'linear-gradient(135deg, #3d1500, #ff6d00)' },
   { keys: ['buffalos', 'bufalos', 'buffalo'], avatar: 'boar-tusks', gradient: 'linear-gradient(135deg, #2a1a0a, #795548)' },
