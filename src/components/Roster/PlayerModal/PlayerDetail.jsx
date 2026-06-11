@@ -133,7 +133,7 @@ function PlayerDetail({
         </div>
 
         <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '25px', borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '15px' }}>
-          <button onClick={onClose} className="btn-neon" style={{ background: 'transparent', border: '1px solid var(--border-glass)', marginRight: '10px' }}>
+          <button onClick={onClose} className="btn-outline">
             Cerrar Ficha
           </button>
         </div>

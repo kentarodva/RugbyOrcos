@@ -1,4 +1,5 @@
 import React, { useContext, useState, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import { ClubContext } from '../../context/ClubContext';
 import { supabase } from '../../supabaseClient';
 import { useToast } from '../../context/ToastContext';
@@ -92,7 +93,7 @@ export default function SendPushModal({ onClose }) {
     }
   };
 
-  return (
+  return createPortal(
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content glass-panel" onClick={e => e.stopPropagation()} style={{ maxWidth: '600px' }}>
         <h2 style={{ fontSize: '1.2rem', fontWeight: 800, fontFamily: 'Outfit', color: 'var(--color-primary)', marginBottom: '20px' }}>
@@ -173,6 +174,7 @@ export default function SendPushModal({ onClose }) {
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
