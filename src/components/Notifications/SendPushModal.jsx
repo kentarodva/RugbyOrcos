@@ -74,20 +74,26 @@ export default function SendPushModal({ onClose }) {
     }
 
     setSending(true);
-    try {
-      const { error } = await supabase.functions.invoke('send-push', {
-        body: {
-          title: title.trim(),
-          body: body.trim(),
-          filters: { player_ids: [...selectedIds] },
-        },
-      });
+    const payload = {
+      title: title.trim(),
+      body: body.trim(),
+      filters: { player_ids: [...selectedIds] },
+    };
 
-      if (error) throw error;
+    try {
+      const { error: webError } = await supabase.functions.invoke('web-push', {
+        body: payload,
+      });
+      if (webError) throw webError;
       showToast(`Notificación enviada a ${selectedIds.size} jugadores.`, 'success');
       onClose();
     } catch (err) {
-      showToast('Error al enviar: ' + (err.message || 'desconocido'), 'error');
+      const msg = err.message || 'desconocido';
+      if (msg.includes('VAPID keys not configured')) {
+        showToast('Configura las llaves VAPID en Supabase → Edge Functions → Secrets.', 'error');
+      } else {
+        showToast('Error al enviar: ' + msg, 'error');
+      }
     } finally {
       setSending(false);
     }
