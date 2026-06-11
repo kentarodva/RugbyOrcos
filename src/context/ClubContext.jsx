@@ -3,6 +3,7 @@ import { useAuth } from './AuthContext.jsx';
 import { supabase } from '../supabaseClient.js';
 import { loadSettings } from '../data/clubSettings';
 import { wrapCatch } from '../utils/errorHandler';
+import { registerWebPush } from '../utils/pushNotifications';
 import { CLUBS, CLUBS_LABELS, SYSTEM_ROLES, SYSTEM_ROLES_LABELS, RPG_ROLES, SUPER_ROLES, DIVISIONES, DIVISIONES_LABELS, EQUIPOS, EQUIPOS_LABELS, MAKGORA_TEAMS, getRpgRole } from './constants';
 import {
   usePermissions,
@@ -38,6 +39,13 @@ export const ClubProvider = ({ children }) => {
   React.useEffect(() => {
     if (user?.id) loadSettings();
   }, [user?.id]);
+
+  React.useEffect(() => {
+    if (user?.id && profile?.system_role === 'jugador') {
+      const timer = setTimeout(() => registerWebPush(), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [user?.id, profile?.system_role]);
 
   const { currentUser, userRole, userTier, hasPermission, isSuperRole } = usePermissions(user, profile);
   const { dynamicClubs, getAllClubs, getAllClubsLabels, addClub, deleteClub } = useClubs(isSuperRole, user);

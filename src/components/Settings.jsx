@@ -1,9 +1,31 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { clearCache, getCacheStats } from '../engine/aiCache';
 import { useToast } from '../context/ToastContext';
 import { supabase } from '../supabaseClient';
+import { registerWebPush, unregisterWebPush, getWebPushStatus } from '../utils/pushNotifications';
 
 function Settings({ onClose, theme, setTheme }) {
+  const [pushStatus, setPushStatus] = useState({ supported: false, subscribed: false });
+
+  useEffect(() => {
+    getWebPushStatus().then(setPushStatus);
+  }, []);
+
+  const handleRegisterPush = async () => {
+    const result = await registerWebPush();
+    if (result.success) {
+      showToast('Dispositivo registrado para notificaciones.', 'success');
+      setPushStatus(prev => ({ ...prev, subscribed: true }));
+    } else {
+      showToast(result.error || 'Error al registrar.', 'error');
+    }
+  };
+
+  const handleUnregisterPush = async () => {
+    await unregisterWebPush();
+    showToast('Dispositivo desregistrado.', 'info');
+    setPushStatus(prev => ({ ...prev, subscribed: false }));
+  };
   const { showToast } = useToast();
   const cacheStats = getCacheStats();
 
@@ -73,17 +95,34 @@ function Settings({ onClose, theme, setTheme }) {
             </div>
           </div>
 
-          {/* Notificaciones */}
+          {/* Notificaciones push */}
           <div style={{
             background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border-glass)',
             padding: '15px', borderRadius: 'var(--radius-md)',
             display: 'flex', flexDirection: 'column', gap: '12px'
           }}>
-            <h4 style={{ fontSize: '0.9rem', fontWeight: 800 }}>🔔 Notificaciones</h4>
+            <h4 style={{ fontSize: '0.9rem', fontWeight: 800 }}>🔔 Notificaciones Push</h4>
             <div style={{ fontSize: '0.72rem', color: 'var(--color-text-muted)', lineHeight: 1.6 }}>
-              Las notificaciones se gestionan desde los botones de notificación en el header.
-              <br />Próximamente: configuración granular de notificaciones por tipo de evento.
+              Recibí notificaciones en este dispositivo cuando el staff envíe anuncios o recordatorios.
             </div>
+            {pushStatus.supported ? (
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ fontSize: '0.78rem' }}>
+                  {pushStatus.subscribed ? '✅ Registrado' : '❌ No registrado'}
+                </span>
+                <button
+                  onClick={pushStatus.subscribed ? handleUnregisterPush : handleRegisterPush}
+                  className={pushStatus.subscribed ? 'btn-outline' : 'btn-neon'}
+                  style={{ padding: '6px 14px', fontSize: '0.75rem' }}
+                >
+                  {pushStatus.subscribed ? 'Desregistrar' : 'Registrar dispositivo'}
+                </button>
+              </div>
+            ) : (
+              <div style={{ fontSize: '0.72rem', color: 'var(--color-text-muted)' }}>
+                Push no soportado en este navegador. Usá la app nativa para recibir notificaciones.
+              </div>
+            )}
           </div>
 
           {/* Cuenta */}

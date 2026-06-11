@@ -4,6 +4,8 @@ import { supabase } from '../supabaseClient';
 let PushNotifications = null;
 let LocalNotifications = null;
 
+// ── Capacitor (native) push ──
+
 export async function initPushNotifications() {
   try {
     const pushMod = await import('@capacitor/push-notifications');
@@ -12,15 +14,15 @@ export async function initPushNotifications() {
     const localMod = await import('@capacitor/local-notifications');
     LocalNotifications = localMod.LocalNotifications;
 
-    await registerPush();
+    await registerCapacitorPush();
     return true;
   } catch (err) {
-    if (import.meta.env.DEV) console.warn('[Push] No soportado en este entorno:', err.message);
+    if (import.meta.env.DEV) console.warn('[Push] Capacitor no disponible, usando web push:', err.message);
     return false;
   }
 }
 
-async function registerPush() {
+async function registerCapacitorPush() {
   try {
     let permStatus = await PushNotifications.checkPermissions();
     if (permStatus.receive === 'prompt') {
@@ -32,7 +34,7 @@ async function registerPush() {
 
     PushNotifications.addListener('registration', async (token) => {
       if (import.meta.env.DEV) console.log('[Push] Token registrado:', token.value);
-      await saveTokenToSupabase(token.value);
+      await saveTokenToSupabase(token.value, 'capacitor');
     });
 
     PushNotifications.addListener('registrationError', (err) => {
@@ -51,7 +53,85 @@ async function registerPush() {
   }
 }
 
-async function saveTokenToSupabase(token) {
+// ── Web Push (browser) ──
+
+function urlBase64ToUint8Array(base64String) {
+  const padding = '='.repeat((4 - base64String.length % 4) % 4);
+  const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+  const rawData = window.atob(base64);
+  return Uint8Array.from([...rawData].map(char => char.charCodeAt(0)));
+}
+
+export async function registerWebPush() {
+  if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+    return { success: false, error: 'Push no soportado en este navegador' };
+  }
+
+  try {
+    let permission = await Notification.permission;
+    if (permission === 'denied') {
+      return { success: false, error: 'Permiso denegado. Habilítalo desde la configuración del navegador.' };
+    }
+    if (permission === 'default') {
+      permission = await Notification.requestPermission();
+      if (permission !== 'granted') {
+        return { success: false, error: 'Permiso no concedido' };
+      }
+    }
+
+    const registration = await navigator.serviceWorker.ready;
+    let subscription = await registration.pushManager.getSubscription();
+
+    if (!subscription) {
+      const vapidPublicKey = import.meta.env.VITE_VAPID_PUBLIC_KEY;
+      if (!vapidPublicKey) {
+        return { success: false, error: 'VAPID key no configurada' };
+      }
+
+      subscription = await registration.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array(vapidPublicKey),
+      });
+    }
+
+    const subscriptionJson = JSON.stringify(subscription);
+    await saveTokenToSupabase(subscriptionJson, 'web');
+    return { success: true };
+  } catch (err) {
+    handleError(err, 'pushNotifications.registerWeb', { notifyUser: true });
+    return { success: false, error: err.message };
+  }
+}
+
+export async function unregisterWebPush() {
+  try {
+    if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
+    const registration = await navigator.serviceWorker.ready;
+    const subscription = await registration.pushManager.getSubscription();
+    if (subscription) {
+      const json = JSON.stringify(subscription);
+      await supabase.from('push_tokens').delete().eq('token', json);
+      await subscription.unsubscribe();
+    }
+  } catch { /* noop */ }
+}
+
+export async function getWebPushStatus() {
+  try {
+    if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+      return { supported: false, subscribed: false };
+    }
+    const registration = await navigator.serviceWorker.ready;
+    const subscription = await registration.pushManager.getSubscription();
+    return { supported: true, subscribed: !!subscription };
+  } catch {
+    return { supported: false, subscribed: false };
+  }
+}
+
+// ── Token storage ──
+
+async function saveTokenToSupabase(token, source = 'capacitor') {
   try {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
@@ -76,6 +156,8 @@ async function saveTokenToSupabase(token) {
     handleError(err, 'pushNotifications.saveToken', { silent: true });
   }
 }
+
+// ── Foreground handling ──
 
 async function handleForegroundPush(notification) {
   const title = notification.title || 'Rugby Orcos';
@@ -102,10 +184,6 @@ function handleNotificationTap(data) {
     detail: { tab: data.action, extra: data },
   });
   window.dispatchEvent(event);
-}
-
-export function getPushToken() {
-  return null;
 }
 
 export function addPushNavigateListener(handler) {
