@@ -275,10 +275,17 @@ npm run dev   # http://localhost:3000
 3. `node seed/seed-csv.mjs "ruta/al/archivo.csv"`
 4. Authentication > Providers > Email: habilitado
 
-### Setup Vercel
+### Deploy (Vercel)
 
-1. Conectar repo `kentarodva/RugbyOrcos`
-2. Environment Variables: `VITE_SUPABASE_URL` + `VITE_SUPABASE_ANON_KEY`
+✅ **Ya conectado.** El repo `kentarodva/RugbyOrcos` está vinculado a Vercel.
+Cada push a `main` dispara auto-deploy.
+
+| Variable | Valor |
+|----------|-------|
+| `VITE_SUPABASE_URL` | `https://qtvmqlbjcotvbzuwanjs.supabase.co` |
+| `VITE_SUPABASE_ANON_KEY` | Configurada en Vercel |
+
+**URL de producción:** `https://rugby-orcos.vercel.app`
 
 ---
 
@@ -293,6 +300,7 @@ npm run dev   # http://localhost:3000
 | `npm run cap:sync` | Sincronizar Android |
 | `npm run cap:open-android` | Abrir Android Studio |
 | `node seed/seed-csv.mjs ruta.csv` | Importar CSV a Supabase |
+| `git push origin main` | Auto-deploy a Vercel |
 
 ---
 
