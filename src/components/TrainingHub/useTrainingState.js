@@ -1,6 +1,8 @@
 import { useState, useCallback } from 'react';
 import { generatePlan } from '../../engine/assignmentEngine';
-import { enrichWithGemini, isGeminiConfigured } from '../../engine/multiProviderCoach';
+import { generatePlanWithAI, isAnyAIConfigured } from '../../engine/multiProviderCoach';
+import { normalizeAIOutput } from '../../engine/planNormalizer';
+import { persistPlan } from '../../engine/trainingPlanService';
 
 export function useTrainingState(teamPlayers, logWorkout, schedule, activeTeam, showToast) {
   const [activeTab, setActiveTab] = useState('plan');
@@ -13,27 +15,49 @@ export function useTrainingState(teamPlayers, logWorkout, schedule, activeTeam, 
   const [completedExercises, setCompletedExercises] = useState({});
   const [linkToDate, setLinkToDate] = useState('');
 
-  const handleGeneratePlan = useCallback(async () => {
-    if (!planPlayerId) {
+  const handleGeneratePlan = useCallback(async (playerIdOverride) => {
+    const effectiveId = playerIdOverride || planPlayerId;
+    if (!effectiveId) {
       showToast('Selecciona un jugador para generar el plan.', 'warning');
-      return;
+      return null;
     }
-    const player = teamPlayers.find(p => p.id === planPlayerId);
-    if (!player) return;
+    const player = teamPlayers.find(p => p.id === effectiveId);
+    if (!player) return null;
 
     setGenerating(true);
     setGeneratedPlan(null);
     setCompletedExercises({});
+    if (!playerIdOverride) setPlanPlayerId(effectiveId);
 
     let plan = generatePlan(player);
 
-    if (isGeminiConfigured()) {
+    if (isAnyAIConfigured()) {
       try {
-        plan = await enrichWithGemini(plan, player);
+        const aiPlan = await generatePlanWithAI(player);
+        if (aiPlan?.plan) {
+          const merged = {
+            ...plan,
+            enrichedByAI: true,
+            aiAnalysis: aiPlan.analisis,
+            aiRisks: aiPlan.riesgos,
+            aiGoals: aiPlan.metas,
+            aiRecommendations: aiPlan.recomendaciones,
+          };
+          const normalized = normalizeAIOutput(aiPlan, player);
+          if (normalized) {
+            merged.plan = normalized.plan;
+          }
+          plan = merged;
+        }
       } catch (e) {
-        // fallback al plan base
+        if (import.meta.env.DEV) console.warn('[TrainingHub] AI plan generation failed, using base plan:', e.message);
       }
     }
+
+    // Persistir a BD para que el jugador lo vea en su dashboard
+    try {
+      await persistPlan(effectiveId, plan, plan.enrichedByAI ? 'ai' : 'engine');
+    } catch { /* fallback: el plan se muestra igual aunque no se persista */ }
 
     setGeneratedPlan(plan);
     setGenerating(false);
@@ -42,6 +66,7 @@ export function useTrainingState(teamPlayers, logWorkout, schedule, activeTeam, 
     } else {
       showToast('Plan generado con motor de reglas.', 'success');
     }
+    return plan;
   }, [planPlayerId, teamPlayers, showToast]);
 
   const handleToggleExercise = useCallback((exerciseId) => {

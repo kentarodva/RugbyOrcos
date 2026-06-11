@@ -11,7 +11,7 @@ export function InventoryCard({ item, players, onStockChange, onCustodianChange,
   return (
     <div className="glass-panel animated-slide" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '15px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h4 style={{ fontSize: '1.1rem', fontWeight: 800, fontFamily: 'Outfit' }}>?? {item.name}</h4>
+        <h4 style={{ fontSize: '1.1rem', fontWeight: 800, fontFamily: 'Outfit' }}>📦 {item.name}</h4>
         <span className="badge" style={{
           fontSize: '0.75rem',
           border: '1px solid ' + getStatusColor(item.status),

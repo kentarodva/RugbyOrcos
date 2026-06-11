@@ -22,7 +22,7 @@ export function useSyncPush(user) {
       attr_force: player.attributes?.force ?? 50,
       attr_speed: player.attributes?.speed ?? 50,
       attr_stamina: player.attributes?.stamina ?? 50,
-      attr_technique: player.attributes?.technique ?? 70,
+      attr_technique: player.attributes?.technique ?? 50,
       team_category: player.teamCategory,
       system_role: player.systemRole || 'jugador',
       makgora_team_id: player.makgora_team_id || null,
@@ -38,6 +38,16 @@ export function useSyncPush(user) {
       document_number: player._meta?.docNum || null,
       age: player._meta?.age || null,
       start_year: player._meta?.startYear || null,
+      birth_date: player.birth_date || null,
+      had_fractures: player.had_fractures || false,
+      fracture_details: player.fracture_details || null,
+      allergies: player.allergies || null,
+      medical_conditions: player.medical_conditions || null,
+      health_insurance: player.health_insurance || null,
+      emergency_contact_name: player.emergency_contact_name || null,
+      emergency_contact_phone: player.emergency_contact_phone || null,
+      avatar_id: player.avatar_id || null,
+      photo_url: player.photo_url || null,
       source: 'manual',
     };
   }, []);
@@ -56,7 +66,7 @@ export function useSyncPush(user) {
       const supabasePlayer = convertPlayerToSupabase(parsed.success ? parsed.data : player);
       await apisupabase.upsertPlayer(supabasePlayer, user.id);
     } catch (err) {
-      handleError(err, 'useSync.pushPlayer', { silent: true });
+      handleError(err, 'useSync.pushPlayer', { notifyUser: true });
     }
   }, [user?.id, convertPlayerToSupabase]);
 
@@ -67,7 +77,9 @@ export function useSyncPush(user) {
         schedule: (r) => ({
           id: r.id, title: r.title, date: r.date, time: r.time, location: r.location,
           maps_link: r.mapsLink, type: r.type || 'entrenamiento', team_category: r.teamCategory,
-          linked_routine: r.linkedRoutine, recurrence_group: r.recurrenceGroup
+          linked_routine: r.linkedRoutine, recurrence_group: r.recurrenceGroup,
+          notes: r.notes || null, end_date: r.endDate || null,
+          scope_type: r.scopeType || 'division', scope_value: r.scopeValue || {}
         }),
         championships: (r) => ({
           id: r.id, name: r.name, deadline_date: r.deadlineDate,
@@ -100,7 +112,7 @@ export function useSyncPush(user) {
       if (!mapper) return;
       await apisupabase.upsertEntity(entityType, mapper(record), user.id);
     } catch (err) {
-      handleError(err, 'useSync.pushEntity', { silent: true });
+      handleError(err, 'useSync.pushEntity', { notifyUser: true });
     }
   }, [user?.id]);
 
@@ -110,13 +122,15 @@ export function useSyncPush(user) {
 export function useSync(user, userTier, profile,
   setPlayers, setSchedule, setChampionships, setFinances,
   setInventory, setFixtures, setRivals, setFutureFixtures,
-  setMatchInvitations, setLoans
+  setMatchInvitations, setLoans,
+  mensualidadBase = 10000
 ) {
   const { pushPlayerToSupabase, pushEntityToSupabase } = useSyncPush(user);
   const { syncStatus } = useSyncPull(user, userTier, profile,
     setPlayers, setSchedule, setChampionships, setFinances,
     setInventory, setFixtures, setRivals, setFutureFixtures,
-    setMatchInvitations, setLoans
+    setMatchInvitations, setLoans,
+    mensualidadBase
   );
   return { syncStatus, pushPlayerToSupabase, pushEntityToSupabase };
 }
@@ -125,7 +139,8 @@ export function useSyncPull(
   user, userTier, profile,
   setPlayers, setSchedule, setChampionships, setFinances,
   setInventory, setFixtures, setRivals, setFutureFixtures,
-  setMatchInvitations, setLoans
+  setMatchInvitations, setLoans,
+  mensualidadBase = 10000
 ) {
   const [syncStatus, setSyncStatus] = useState('idle');
 
@@ -148,11 +163,29 @@ export function useSyncPull(
 
         if (!playerError && dbPlayers?.length > 0) {
           const normalized = dbPlayers.map(supabasePlayerToReact);
+
+          const { data: payments, error: paymentsError } = await supabase
+            .from('player_payments')
+            .select('player_id, amount')
+            .eq('source', 'membership');
+
+          if (paymentsError) {
+            console.error('[Sync] Error al cargar pagos:', paymentsError);
+          } else if (payments?.length > 0) {
+            if (import.meta.env.DEV) console.log('[Sync] Pagos de membresia cargados:', payments.length);
+            const paymentTotals = {};
+            payments.forEach(p => {
+              paymentTotals[p.player_id] = (paymentTotals[p.player_id] || 0) + Number(p.amount);
+            });
+            normalized.forEach(player => {
+              const paid = paymentTotals[player.id] || 0;
+              player.memberships = { paid, due: mensualidadBase };
+            });
+          }
+
           setPlayers(normalized);
-          localStorage.setItem('orcos_players', JSON.stringify(normalized));
         } else if (!playerError) {
           setPlayers([]);
-          localStorage.setItem('orcos_players', JSON.stringify([]));
         }
 
         const appData = await apisupabase.fetchAll(user.id, userTier, profile?.club_scope);
@@ -163,10 +196,11 @@ export function useSyncPull(
             id: e.id, title: e.title, date: e.date, time: e.time,
             location: e.location, mapsLink: e.maps_link, type: e.type,
             teamCategory: e.team_category, linkedRoutine: e.linked_routine,
-            recurrenceGroup: e.recurrence_group
+            recurrenceGroup: e.recurrence_group,
+            notes: e.notes || null, endDate: e.end_date || null,
+            scopeType: e.scope_type || 'division', scopeValue: e.scope_value || {},
           }));
           setSchedule(mapped);
-          localStorage.setItem('orcos_schedule', JSON.stringify(mapped));
         } else { setSchedule([]); }
 
         if (appData.championships) {
@@ -175,7 +209,6 @@ export function useSyncPull(
             description: c.description, teamCategory: c.team_category
           }));
           setChampionships(mapped);
-          localStorage.setItem('orcos_championships', JSON.stringify(mapped));
         } else { setChampionships([]); }
 
         if (appData.finances) {
@@ -184,7 +217,6 @@ export function useSyncPull(
             date: f.date, category: f.category, teamCategory: f.team_category
           }));
           setFinances(mapped);
-          localStorage.setItem('orcos_finances', JSON.stringify(mapped));
         } else { setFinances([]); }
 
         if (appData.inventory) {
@@ -193,7 +225,6 @@ export function useSyncPull(
             assignedTo: i.assigned_to, status: i.status, teamCategory: i.team_category
           }));
           setInventory(mapped);
-          localStorage.setItem('orcos_inventory', JSON.stringify(mapped));
         } else { setInventory([]); }
 
         if (appData.fixtures) {
@@ -204,7 +235,6 @@ export function useSyncPull(
             rivalId: f.rival_id
           }));
           setFixtures(mapped);
-          localStorage.setItem('orcos_fixtures', JSON.stringify(mapped));
         } else { setFixtures([]); }
 
         if (appData.rivals) {
@@ -213,7 +243,6 @@ export function useSyncPull(
             contact: r.contact, notes: r.notes
           }));
           setRivals(mapped);
-          localStorage.setItem('orcos_rivals', JSON.stringify(mapped));
         } else { setRivals([]); }
 
         if (appData.futureFixtures) {
@@ -223,7 +252,6 @@ export function useSyncPull(
             rivalId: f.rival_id
           }));
           setFutureFixtures(mapped);
-          localStorage.setItem('orcos_future_fixtures', JSON.stringify(mapped));
         } else { setFutureFixtures([]); }
 
         const invitationsData = await apisupabase.fetchInvitations(user.id, userTier, profile?.club_scope);
@@ -246,13 +274,11 @@ export function useSyncPull(
             })),
           }));
           setMatchInvitations(mapped);
-          localStorage.setItem('orcos_invitations', JSON.stringify(mapped));
         } else { setMatchInvitations([]); }
 
         const { data: loansData } = await apisupabase.fetchLoans();
         if (loansData?.length > 0) {
           setLoans(loansData);
-          localStorage.setItem('orcos_loans', JSON.stringify(loansData));
         } else { setLoans([]); }
 
         setSyncStatus('online');
@@ -264,7 +290,7 @@ export function useSyncPull(
     };
 
     syncFromSupabase();
-  }, [user?.id, profile?.system_role]);
+  }, [user?.id, profile?.system_role, mensualidadBase]);
 
   return { syncStatus };
 }

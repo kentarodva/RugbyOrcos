@@ -4,6 +4,7 @@ import { ChatHeader } from './ChatHeader';
 import { ConfigWarning } from './ConfigWarning';
 import { ModeTabs } from './ModeTabs';
 import { AnalysisPanel } from './AnalysisPanel';
+import ProactiveSuggestions from './ProactiveSuggestions';
 import { MessageList } from './MessageList';
 import { ChatInput } from './ChatInput';
 
@@ -33,6 +34,14 @@ function AIChat() {
         onClose={() => { state.setShowAnalysis(false); state.setAnalysisResult(null); }}
       />
 
+      {state.configured && state.messages.length === 0 && (
+        <ProactiveSuggestions
+          fixtures={state.teamFixtures}
+          schedule={state.teamSchedule}
+          futureFixtures={state.teamFutureFixtures}
+          onQuickQuestion={state.handleQuickQuestion}
+        />
+      )}
       <MessageList
         messages={state.messages}
         streamingText={state.streamingText}

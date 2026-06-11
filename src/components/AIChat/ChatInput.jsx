@@ -1,4 +1,5 @@
 import React from 'react';
+import { Icon } from './icons';
 import { CHAT_MODES } from '../../engine/aiConfig';
 
 export function ChatInput({ input, setInput, onSend, onKeyDown, configured, loading, chatMode }) {
@@ -31,7 +32,7 @@ export function ChatInput({ input, setInput, onSend, onKeyDown, configured, load
           opacity: input.trim() && configured && !loading ? 1 : 0.5
         }}
       >
-        {loading ? '? ...' : 'Enviar ?'}
+        {loading ? <><Icon name="loading" size={16} className="ai-icon-spin" /> Enviando...</> : <><Icon name="send" size={16} /> Enviar</>}
       </button>
     </div>
   );

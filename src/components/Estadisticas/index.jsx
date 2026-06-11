@@ -11,18 +11,20 @@ import Fisico from './Fisico';
 import Salud from './Salud';
 import Cobertura from './Cobertura';
 import EquiposTab from './EquiposTab';
+import Atributos from './Atributos';
 import EstadisticasSkeleton from '../Skeletons/EstadisticasSkeleton';
 
 const TABS = [
   { id: 'demografia', label: '📊 Demografía' },
   { id: 'fisico', label: '💪 Físico' },
+  { id: 'atributos', label: '⚔️ Atributos' },
   { id: 'salud', label: '🏥 Salud' },
   { id: 'cobertura', label: '📋 Cobertura' },
   { id: 'equipos', label: '🏟️ Equipos' },
 ];
 
 function Estadisticas() {
-  const { players, viewMode, divisionView, makgoraTeamId, makgoraTeams, activeTeam, syncStatus } = useContext(ClubContext);
+  const { players, viewMode, divisionView, makgoraTeamId, makgoraTeams, activeTeam, syncStatus, recordWellness } = useContext(ClubContext);
   const searchInputRef = useRef(null);
   const [activeTab, setActiveTab] = useState('demografia');
 
@@ -136,7 +138,8 @@ function Estadisticas() {
           <>
             {activeTab === 'demografia' && <Demografia players={filteredPlayers} />}
             {activeTab === 'fisico' && <Fisico players={filteredPlayers} />}
-            {activeTab === 'salud' && <Salud players={filteredPlayers} />}
+            {activeTab === 'atributos' && <Atributos players={filteredPlayers} allPlayers={players} />}
+            {activeTab === 'salud' && <Salud players={filteredPlayers} recordWellness={recordWellness} />}
             {activeTab === 'cobertura' && <Cobertura players={filteredPlayers} />}
             {activeTab === 'equipos' && <EquiposTab players={filteredPlayers} makgoraTeams={makgoraTeams} />}
           </>

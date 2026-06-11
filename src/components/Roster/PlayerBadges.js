@@ -16,7 +16,7 @@ const getPlayerBadges = (player) => {
 
   const totalTries = stats.reduce((sum, s) => sum + (s.tries || 0), 0);
   if (totalTries >= 3) {
-    list.push({ icon: '🏉', name: 'Demoledor', color: '#ff3d00', desc: 'Maximo anotador de tries (>=3)' });
+    list.push({ icon: '🏉', name: 'Demoledor', color: 'var(--color-red)', desc: 'Maximo anotador de tries (>=3)' });
   }
 
   const totalMvps = stats.filter(s => s.mvp).length;

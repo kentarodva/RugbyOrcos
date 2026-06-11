@@ -29,13 +29,13 @@ export const SYSTEM_ROLES_LABELS = {
 export const SUPER_ROLES = [SYSTEM_ROLES.DESARROLLADOR, SYSTEM_ROLES.PRESIDENTE];
 
 export const RPG_ROLES = {
-  [SYSTEM_ROLES.DESARROLLADOR]: { rpg: 'Arquitecto del Reino', icon: '🏰', color: '#e040fb', tier: 0 },
-  [SYSTEM_ROLES.PRESIDENTE]:    { rpg: 'Señor de la Guerra',  icon: '⚔️', color: '#ffb300', tier: 1 },
-  [SYSTEM_ROLES.PROMOTOR]:      { rpg: 'Comandante de Horda', icon: '🛡️', color: '#ff6d00', tier: 2 },
-  [SYSTEM_ROLES.ENTRENADOR]:   { rpg: 'Maestro de Armas',    icon: '🏋️', color: '#00e676', tier: 3 },
-  [SYSTEM_ROLES.TESORERO]:     { rpg: 'Guardian del Botin',  icon: '💰', color: '#00b0ff', tier: 3 },
-  [SYSTEM_ROLES.ARBITRO]:      { rpg: 'Juez del Coliseo',     icon: '⚖️', color: '#ffea00', tier: 3 },
-  [SYSTEM_ROLES.JUGADOR]:       { rpg: 'Guerrero',            icon: '👹', color: '#9e9e9e', tier: 4 },
+  [SYSTEM_ROLES.DESARROLLADOR]: { rpg: 'Arquitecto del Reino', original: 'Desarrollador', icon: '🏰', color: '#e040fb', tier: 0 },
+  [SYSTEM_ROLES.PRESIDENTE]:    { rpg: 'Señor de la Guerra',   original: 'Presidente',   icon: '⚔️', color: '#ffb300', tier: 1 },
+  [SYSTEM_ROLES.PROMOTOR]:      { rpg: 'Comandante de Horda',  original: 'Promotor',     icon: '🛡️', color: '#ff6d00', tier: 2 },
+  [SYSTEM_ROLES.ENTRENADOR]:   { rpg: 'Maestro de Armas',     original: 'Entrenador',   icon: '🏋️', color: '#00e676', tier: 3 },
+  [SYSTEM_ROLES.TESORERO]:     { rpg: 'Guardian del Botin',   original: 'Tesorero',     icon: '💰', color: '#00b0ff', tier: 3 },
+  [SYSTEM_ROLES.ARBITRO]:      { rpg: 'Juez del Coliseo',     original: 'Arbitro',      icon: '⚖️', color: '#ffea00', tier: 3 },
+  [SYSTEM_ROLES.JUGADOR]:       { rpg: 'Guerrero',            original: 'Jugador',       icon: '👹', color: '#9e9e9e', tier: 4 },
 };
 
 export function getRpgRole(role) {

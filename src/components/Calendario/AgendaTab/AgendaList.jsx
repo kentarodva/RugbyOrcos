@@ -1,7 +1,7 @@
 import React from 'react';
 import AgendaCard from './AgendaCard';
 
-function AgendaList({ events, onDelete, onEdit, onAdd, onWhatsApp, onToggleWeekly, showWeekly }) {
+function AgendaList({ events, onDelete, onEdit, onAdd, onWhatsApp, onToggleWeekly, showWeekly, onToggleMonthly, showMonthly, onDetail }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -14,7 +14,10 @@ function AgendaList({ events, onDelete, onEdit, onAdd, onWhatsApp, onToggleWeekl
             + Agregar Evento
           </button>
           <button onClick={onToggleWeekly} className="btn-outline" style={{ padding: '6px 12px', fontSize: '0.8rem', borderColor: 'var(--color-blue)', color: 'var(--color-blue)' }}>
-            {showWeekly ? 'Lista' : 'Cronograma Semanal'}
+            {showWeekly ? 'Lista' : '📅 Semanal'}
+          </button>
+          <button onClick={onToggleMonthly} className="btn-outline" style={{ padding: '6px 12px', fontSize: '0.8rem', borderColor: 'var(--color-gold)', color: 'var(--color-gold)' }}>
+            {showMonthly ? 'Lista' : '📆 Mensual'}
           </button>
         </div>
       </div>
@@ -34,6 +37,7 @@ function AgendaList({ events, onDelete, onEdit, onAdd, onWhatsApp, onToggleWeekl
             onDelete={onDelete}
             onEdit={onEdit}
             onWhatsApp={onWhatsApp}
+            onDetail={onDetail}
           />
         ))
       )}

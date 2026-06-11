@@ -25,19 +25,37 @@ function Login() {
     let email = credential.trim();
 
     if (!email.includes('@')) {
-      const { data: player } = await supabase
+      const userQuery = email.toLowerCase().trim();
+      const { data: players } = await supabase
         .from('players')
-        .select('username, email')
-        .eq('username', email)
-        .maybeSingle();
+        .select('first_name, last_name, username, nickname, email, apodo')
+        .or(`username.ilike.%${userQuery}%,username.eq.${userQuery},nickname.ilike.%${userQuery}%,nickname.eq.${userQuery}`)
+        .limit(5);
+
+      let player = null;
+      if (players?.length > 0) {
+        player = players.find(p =>
+          p.username === userQuery ||
+          p.nickname === userQuery ||
+          p.apodo === userQuery ||
+          `${p.first_name} ${p.last_name}`.toLowerCase() === userQuery
+        );
+        if (!player && players.length === 1) player = players[0];
+      }
 
       if (!player) {
-        setError('Usuario no encontrado. Verifica tu usuario o contacta a tu Comandante.');
+        setError('Guerrero no encontrado. Verifica tu nombre de usuario o contacta a tu Comandante de Horda para que te cree credenciales en Roster.');
         setLoading(false);
         return;
       }
 
-      email = player.email || `${player.username}@orcos.local`;
+      if (!player.email) {
+        setError('Tu perfil de Guerrero no tiene email vinculado. Pide a tu Comandante de Horda que complete tus datos de contacto en Roster → Editar Jugador.');
+        setLoading(false);
+        return;
+      }
+
+      email = player.email;
     }
 
     const { error: err } = await signIn(email, password);
@@ -172,7 +190,7 @@ function Login() {
         <p style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)', textAlign: 'center', lineHeight: '1.5' }}>
           {isFirstRun
             ? 'Ningun Arquitecto ha reclamado el Reino. Se el primero.'
-            : 'Staff: usa tu email. Guerrero: usa tu nombre de usuario.'}
+            : 'Staff: usa tu email. Guerrero: usa tu nombre de usuario (el que te asignaron en Roster).'}
         </p>
       </div>
     </div>

@@ -16,6 +16,7 @@ import DeleteConfirmModal from './Modals/DeleteConfirmModal';
 import CredentialModal from './Modals/CredentialModal';
 import ResetPasswordModal from './Modals/ResetPasswordModal';
 import PositionSelect from './PositionSelect';
+import PlayerCompare from './PlayerCompare';
 
 import RosterSkeleton from '../Skeletons/RosterSkeleton';
 
@@ -71,6 +72,7 @@ function Roster() {
   const [selectedPlayerIds, setSelectedPlayerIds] = useState(new Set());
   const [bulkPositionId, setBulkPositionId] = useState(null);
   const [bulkApplying, setBulkApplying] = useState(false);
+  const [showCompare, setShowCompare] = useState(false);
 
   useEffect(() => {
     if (!selectedPlayer) return;
@@ -147,8 +149,8 @@ function Roster() {
     runHiaProtocol(selectedPlayer.id, symptomsDetected);
   };
 
-  const handleCredential = async (password) => {
-    const result = await createPlayerCredentials(selectedPlayer.id, password);
+  const handleCredential = async () => {
+    const result = await createPlayerCredentials(selectedPlayer.id);
     if (result.error) {
       showToast(result.error, 'error');
       return null;
@@ -208,7 +210,7 @@ function Roster() {
     if (selectedPlayerIds.size === 0 || !bulkPositionId) return;
     setBulkApplying(true);
     try {
-      bulkUpdatePosition(selectedPlayerIds, bulkPositionId, '');
+      bulkUpdatePosition([...selectedPlayerIds], bulkPositionId, '');
       showToast(`Posicion asignada a ${selectedPlayerIds.size} guerreros.`, 'success');
     } catch (err) {
       showToast('Error al asignar posiciones.', 'error');
@@ -237,6 +239,7 @@ function Roster() {
           onToggleBulk={handleToggleBulk}
           bulkMode={bulkMode}
           searchInputRef={searchInputRef}
+          onCompare={() => setShowCompare(true)}
         />
 
         {bulkMode && (
@@ -346,6 +349,7 @@ function Roster() {
             setSelectedPlayer(player);
             setShowResetModal(true);
           }}
+          onUpdatePlayer={updatePlayer}
           hasPermission={hasPermission}
         />
       )}
@@ -371,6 +375,13 @@ function Roster() {
           player={selectedPlayer}
           onClose={() => setShowResetModal(false)}
           onReset={handleReset}
+        />
+      )}
+
+      {showCompare && (
+        <PlayerCompare
+          players={teamPlayers}
+          onClose={() => setShowCompare(false)}
         />
       )}
       </AnimatePresence>

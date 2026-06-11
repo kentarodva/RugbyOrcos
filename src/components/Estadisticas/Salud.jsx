@@ -1,7 +1,10 @@
 import React, { useMemo } from 'react';
 import { HorizontalBar } from './charts.jsx';
+import AttendanceTimeline from '../Dashboard/AttendanceTimeline';
+import InjuryReport from '../Dashboard/InjuryReport';
+import WellnessForm from '../Dashboard/WellnessForm';
 
-export default function Salud({ players }) {
+export default function Salud({ players, recordWellness }) {
   const stats = useMemo(() => {
     const total = players.length;
     const withF = players.filter(p => p.had_fractures).length;
@@ -73,6 +76,9 @@ export default function Salud({ players }) {
           </div>
         )) : <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>Sin registros de salud</p>}
       </div>
+      <AttendanceTimeline teamPlayers={players} />
+      <InjuryReport teamPlayers={players} />
+      {recordWellness && <WellnessForm teamPlayers={players} recordWellness={recordWellness} />}
     </div>
   );
 }

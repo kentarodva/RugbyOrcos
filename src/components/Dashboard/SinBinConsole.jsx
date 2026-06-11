@@ -3,6 +3,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 function SinBinConsole({ teamPlayers, showToast }) {
   const [sinBinLads, setSinBinLads] = useState([]);
   const [selectedPlayerForSinBin, setSelectedPlayerForSinBin] = useState('');
+  const [sinBinMinutes, setSinBinMinutes] = useState(10);
   const [demoMode, setDemoMode] = useState(false);
   const audioCtxRef = useRef(null);
 
@@ -63,7 +64,7 @@ function SinBinConsole({ teamPlayers, showToast }) {
       return;
     }
 
-    const duration = demoMode ? 10 : 600;
+    const duration = demoMode ? 10 : sinBinMinutes * 60;
     setSinBinLads(prev => [...prev, {
       id: playerObj.id,
       name: playerObj.name,
@@ -94,7 +95,7 @@ function SinBinConsole({ teamPlayers, showToast }) {
             Consola de Sin-Bin en Vivo (Sanciones del Staff)
           </h3>
           <p style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>
-            Expulsa temporalmente a un jugador (10 minutos de castigo) y sigue el conteo regresivo de reingreso en tiempo real.
+            Expulsa temporalmente a un jugador y sigue el conteo regresivo de reingreso en tiempo real.
           </p>
         </div>
 
@@ -114,18 +115,28 @@ function SinBinConsole({ teamPlayers, showToast }) {
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px', marginTop: '10px' }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          <div className="form-group">
-            <label>Seleccionar Infractor</label>
-            <select
-              value={selectedPlayerForSinBin}
-              onChange={(e) => setSelectedPlayerForSinBin(e.target.value)}
-              className="form-select"
-            >
-              <option value="">-- Seleccionar Guerrero --</option>
-              {teamPlayers.filter(p => p.rol !== 'Entrenador').map(p => (
-                <option key={p.id} value={p.id}>#{p.camiseta ?? '—'} {p.name}</option>
-              ))}
-            </select>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 100px', gap: '10px', alignItems: 'end' }}>
+            <div className="form-group" style={{ margin: 0 }}>
+              <label>Seleccionar Infractor</label>
+              <select
+                value={selectedPlayerForSinBin}
+                onChange={(e) => setSelectedPlayerForSinBin(e.target.value)}
+                className="form-select"
+              >
+                <option value="">-- Seleccionar Guerrero --</option>
+                {teamPlayers.filter(p => p.rol !== 'Entrenador').map(p => (
+                  <option key={p.id} value={p.id}>#{p.camiseta ?? '—'} {p.name}</option>
+                ))}
+              </select>
+            </div>
+            <div className="form-group" style={{ margin: 0 }}>
+              <label style={{ fontSize: '0.72rem' }}>Minutos</label>
+              <select value={sinBinMinutes} onChange={(e) => setSinBinMinutes(Number(e.target.value))} className="form-select" style={{ padding: '6px 8px', fontSize: '0.78rem' }}>
+                {[1, 2, 3, 5, 10, 15, 20].map(m => (
+                  <option key={m} value={m}>{m} min</option>
+                ))}
+              </select>
+            </div>
           </div>
 
           <button

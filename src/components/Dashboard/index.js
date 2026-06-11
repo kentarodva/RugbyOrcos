@@ -10,3 +10,5 @@ export { default as InjuryReport } from './InjuryReport';
 export { default as UpcomingEvents } from './UpcomingEvents';
 export { default as RecentMatches } from './RecentMatches';
 export { default as AddChampionshipModal } from './AddChampionshipModal';
+export { default as ActivityFeed } from './ActivityFeed';
+export { default as MiniRanking } from './MiniRanking';

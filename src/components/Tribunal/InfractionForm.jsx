@@ -85,7 +85,7 @@ function InfractionForm({
           <input type="text" value={infNotes} onChange={(e) => setInfNotes(e.target.value)} placeholder="Ej. Minuto 34, tackle alto a apertura rival" className="form-input" />
         </div>
 
-        <button type="submit" className="btn-neon" style={{ background: 'linear-gradient(135deg, var(--color-red), #d50000)', color: '#fff', justifyContent: 'center' }}>
+        <button type="submit" className="btn-danger" style={{ justifyContent: 'center' }}>
           Registrar Sancion Correctiva
         </button>
       </form>

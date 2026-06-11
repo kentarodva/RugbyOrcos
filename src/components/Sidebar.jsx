@@ -5,7 +5,7 @@ const GROUPS = [
     label: 'JUGADORES',
     tabs: [
       { id: 'dashboard', label: 'Dashboard' },
-      { id: 'roster', label: 'Roster' },
+      { id: 'roster', label: 'Guerreros' },
       { id: 'estadisticas', label: 'Estadísticas' },
     ],
   },

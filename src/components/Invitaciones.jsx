@@ -1,10 +1,10 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useMemo } from 'react';
 import { ClubContext } from '../context/ClubContext';
 import { useToast } from '../context/ToastContext';
 import { formatLocalDate } from '../utils/dates.js';
 
 function Invitaciones() {
-  const { matchInvitations, createInvitation, cancelInvitation, deleteInvitation, futureFixtures } = useContext(ClubContext);
+  const { matchInvitations, createInvitation, cancelInvitation, deleteInvitation, futureFixtures, fixtures } = useContext(ClubContext);
   const { showToast } = useToast();
   const [filter, setFilter] = useState('activas');
   const [expandedInvitation, setExpandedInvitation] = useState(null);
@@ -37,6 +37,18 @@ function Invitaciones() {
     showToast('Invitacion eliminada.', 'info');
   };
 
+  const getHeadToHead = (opponent) => {
+    if (!opponent || !fixtures) return null;
+    const matches = fixtures.filter(f =>
+      f.opponent?.toLowerCase().trim() === opponent.toLowerCase().trim()
+    );
+    if (matches.length === 0) return null;
+    const won = matches.filter(f => Number(f.orcosScore) > Number(f.opponentScore)).length;
+    const lost = matches.filter(f => Number(f.orcosScore) < Number(f.opponentScore)).length;
+    const drawn = matches.filter(f => Number(f.orcosScore) === Number(f.opponentScore)).length;
+    return { played: matches.length, won, lost, drawn };
+  };
+
   const handleCreate = async (e) => {
     e.preventDefault();
     if (!selectedFixture) {
@@ -46,7 +58,7 @@ function Invitaciones() {
     const fixture = futureFixtures.find(f => f.id === selectedFixture);
     if (!fixture) return;
 
-    const existing = matchInvitations.find(inv => inv.futureFixtureId === fixture.id && inv.status === 'active');
+    const existing = matchInvitations.find(inv => (inv.futureFixtureId ?? inv.future_fixture_id) === fixture.id && inv.status === 'active');
     if (existing) {
       showToast('Ya existe una invitacion activa para este partido.', 'warning');
       return;
@@ -238,6 +250,22 @@ function Invitaciones() {
                   {responseBadge(inv.response)}
                 </div>
 
+                {(() => {
+                  const h2h = getHeadToHead(inv.rivalName || fixture?.opponent);
+                  if (h2h) {
+                    return (
+                      <div style={{ fontSize: '0.72rem', display: 'flex', gap: '10px', alignItems: 'center', color: 'var(--color-text-muted)' }}>
+                        <span>⚔️ Historial vs {inv.rivalName || fixture?.opponent}:</span>
+                        <span style={{ color: 'var(--color-primary)', fontWeight: 700 }}>{h2h.won}V</span>
+                        <span style={{ color: 'var(--color-red)', fontWeight: 700 }}>{h2h.lost}D</span>
+                        {h2h.drawn > 0 && <span style={{ fontWeight: 700 }}>{h2h.drawn}E</span>}
+                        <span>({h2h.played} partidos)</span>
+                      </div>
+                    );
+                  }
+                  return null;
+                })()}
+
                 <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '4px' }}>
                   <button
                     onClick={() => copiarLink(inv.token)}
@@ -254,6 +282,16 @@ function Invitaciones() {
                     📤 WhatsApp
                   </button>
                   <button
+                    onClick={() => {
+                      const link = `${window.location.origin}/invitacion/${inv.token}`;
+                      window.open(`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(link)}`, '_blank');
+                    }}
+                    className="btn-outline"
+                    style={{ padding: '6px 12px', fontSize: '0.75rem', borderColor: 'var(--color-gold)', color: 'var(--color-gold)' }}
+                  >
+                    📱 QR
+                  </button>
+                  <button
                     onClick={() => setExpandedInvitation(isExpanded ? null : inv.id)}
                     className="btn-outline"
                     style={{ padding: '6px 12px', fontSize: '0.75rem' }}
@@ -262,17 +300,44 @@ function Invitaciones() {
                   </button>
                 </div>
 
-                {inv.status === 'active' && (
-                  <button
-                    onClick={() => handleCancelar(inv)}
-                    style={{
-                      background: 'rgba(255,61,0,0.08)', border: '1px solid var(--color-red)',
-                      color: 'var(--color-red)', padding: '6px 12px', borderRadius: 'var(--radius-sm)',
-                      cursor: 'pointer', fontSize: '0.75rem', fontWeight: 700, alignSelf: 'flex-start',
-                    }}
-                  >
-                    Cancelar Invitacion
-                  </button>
+                {inv.status === 'active' && fixture?.date && (
+                  <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                    {(() => {
+                      const matchDate = new Date(fixture.date + 'T00:00:00');
+                      const diffHours = (matchDate - new Date()) / 3600000;
+                      if (diffHours > 0 && diffHours < 48) {
+                        return (
+                          <button
+                            onClick={() => {
+                              const link = `${window.location.origin}/invitacion/${inv.token}`;
+                              const texto = encodeURIComponent(
+                                `🔴⚫ RECORDATORIO PARTIDO ⚫🔴\n\nRugby Orcos Negros vs ${inv.rivalName || fixture?.opponent}\n📅 ${fixture.date}\n⏰ ${fixture.time || '—'}\n📍 ${fixture.location || '—'}\n\nRegistra tus jugadores:\n${link}`
+                              );
+                              window.open(`https://api.whatsapp.com/send?text=${texto}`, '_blank');
+                            }}
+                            style={{
+                              background: 'rgba(255,179,0,0.1)', border: '1px solid var(--color-gold)',
+                              color: 'var(--color-gold)', padding: '6px 12px', borderRadius: 'var(--radius-sm)',
+                              cursor: 'pointer', fontSize: '0.75rem', fontWeight: 700,
+                            }}
+                          >
+                            ⏰ Recordar (faltan {Math.round(diffHours)}h)
+                          </button>
+                        );
+                      }
+                      return null;
+                    })()}
+                    <button
+                      onClick={() => handleCancelar(inv)}
+                      style={{
+                        background: 'rgba(255,61,0,0.08)', border: '1px solid var(--color-red)',
+                        color: 'var(--color-red)', padding: '6px 12px', borderRadius: 'var(--radius-sm)',
+                        cursor: 'pointer', fontSize: '0.75rem', fontWeight: 700,
+                      }}
+                    >
+                      Cancelar Invitacion
+                    </button>
+                  </div>
                 )}
 
                 {inv.status !== 'active' && (

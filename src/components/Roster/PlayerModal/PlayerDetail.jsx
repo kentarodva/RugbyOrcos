@@ -1,4 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { usePlayerAvatar } from '../../../hooks/usePlayerAvatar';
+import { PlayerPhoto } from '../../PlayerPhoto';
+import { AvatarPicker } from '../../AvatarPicker';
 import PlayerAttributes from './PlayerAttributes';
 import InjurySection from './InjurySection';
 import GymStatsSection from './GymStatsSection';
@@ -19,8 +22,12 @@ function PlayerDetail({
   onHiaSubmit,
   onCredential,
   onReset,
+  onUpdatePlayer,
   hasPermission
 }) {
+  const [showAvatarPicker, setShowAvatarPicker] = useState(false);
+  const { setAvatar, setPhoto, clearPhoto } = usePlayerAvatar(player, onUpdatePlayer);
+
   if (!player) return null;
 
   const isCoach = player.rol === 'Entrenador';
@@ -74,10 +81,8 @@ function PlayerDetail({
             </p>
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '10px' }}>
-            <div style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--color-primary)' }}>
-              #{player.camiseta ?? '—'}
-            </div>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px' }}>
+            <PlayerPhoto player={player} size={80} editable onClick={() => setShowAvatarPicker(true)} />
             <div style={{ display: 'flex', gap: '5px' }}>
               <button onClick={() => onEdit(player)} className="btn-outline" style={{ padding: '6px 10px', fontSize: '0.75rem' }}>
                 Editar
@@ -133,6 +138,16 @@ function PlayerDetail({
           </button>
         </div>
       </div>
+
+      {showAvatarPicker && (
+        <AvatarPicker
+          currentAvatarId={player?.avatar_id}
+          onSelect={(id) => { setAvatar(id); setShowAvatarPicker(false); }}
+          onPhoto={(file) => { setPhoto(file); setShowAvatarPicker(false); }}
+          onClear={() => { clearPhoto(); setShowAvatarPicker(false); }}
+          onClose={() => setShowAvatarPicker(false)}
+        />
+      )}
     </div>
   );
 }

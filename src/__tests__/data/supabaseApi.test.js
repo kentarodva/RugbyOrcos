@@ -37,6 +37,10 @@ describe('supabaseApi — Fix #10: campos sin fallback dual', () => {
     expect(result.teamCategory).toBe('');
     expect(result.systemRole).toBe('jugador');
     expect(result.estado).toBe('activo');
-    expect(result.attributes.force).toBe(50);
+    expect(result.attributes.force).toBeGreaterThanOrEqual(10);
+    expect(result.attributes.force).toBeLessThanOrEqual(100);
+    expect(result.attributes.speed).toBeGreaterThanOrEqual(10);
+    expect(result.attributes.stamina).toBeGreaterThanOrEqual(10);
+    expect(result.attributes.technique).toBeGreaterThanOrEqual(10);
   });
 });

@@ -1,6 +1,6 @@
 import React from 'react';
 
-function RosterControls({ search, onSearchChange, makgoraFilter, onMakgoraFilterChange, onAdd, onPrint, onToggleBulk, bulkMode, searchInputRef }) {
+function RosterControls({ search, onSearchChange, makgoraFilter, onMakgoraFilterChange, onAdd, onPrint, onToggleBulk, bulkMode, searchInputRef, onCompare }) {
   return (
     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '15px' }}>
       <div style={{ display: 'flex', gap: '10px', flex: 1, maxWidth: '600px' }}>
@@ -36,6 +36,9 @@ function RosterControls({ search, onSearchChange, makgoraFilter, onMakgoraFilter
       </div>
 
       <div style={{ display: 'flex', gap: '8px' }}>
+        <button onClick={onCompare} className="btn-outline" style={{ padding: '8px 14px', fontSize: '0.8rem', color: 'var(--color-blue)', borderColor: 'var(--color-blue)' }}>
+          ⚔️ Comparar
+        </button>
         <button onClick={onPrint} className="btn-outline" style={{ padding: '8px 14px', fontSize: '0.8rem' }}>
           Imprimir
         </button>

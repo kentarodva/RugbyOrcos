@@ -49,17 +49,24 @@ function AnnouncementModal({ onClose }) {
   };
 
   const markAsRead = async (msgId) => {
-    await supabase.from('announcement_views').upsert({
-      message_id: msgId, user_id: user.id, viewed_at: new Date().toISOString()
-    }, { onConflict: 'message_id,user_id' }).catch((err) => {
+    if (!user?.id || !msgId) return;
+    try {
+      await supabase.from('announcement_views').upsert({
+        message_id: msgId, user_id: user.id, viewed_at: new Date().toISOString()
+      }, { onConflict: 'message_id,user_id' });
+    } catch (err) {
       if (import.meta.env.DEV) {
-        console.warn('[AnnouncementModal] Failed to mark announcement as read:', err.message);
+        console.warn('[AnnouncementModal] Failed to mark announcement as read:', err.message || err);
       }
-    });
+    }
   };
 
   const handleNext = async () => {
-    await markAsRead(announcements[current].id);
+    try {
+      await markAsRead(announcements[current].id);
+    } catch (_) {
+      // ignored — markAsRead handles its own errors
+    }
     if (current < announcements.length - 1) {
       setCurrent(current + 1);
     } else {

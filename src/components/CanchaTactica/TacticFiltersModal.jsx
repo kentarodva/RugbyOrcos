@@ -142,7 +142,7 @@ function TacticFiltersModal({ onAssign, onClose }) {
           </button>
           <button
             onClick={handleAssign}
-            className="btn-primary"
+            className="btn-neon"
             style={{
               padding: '8px 16px',
               fontSize: '0.85rem',

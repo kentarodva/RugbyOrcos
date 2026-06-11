@@ -6,6 +6,7 @@ import { TournamentList } from './TournamentList';
 import { FixtureList } from './FixtureList';
 import { StandingsTable } from './StandingsTable';
 import { LoanList } from './LoanList';
+import ChampionsHistory from './ChampionsHistory';
 
 function MakgoraHub() {
   const state = useMakgoraState();
@@ -25,6 +26,9 @@ function MakgoraHub() {
         {TABS.map(t => (
           <button key={t.id} onClick={() => { state.setTab(t.id); state.setActiveTournament(null); }} className={state.tab === t.id ? 'btn-neon' : 'btn-outline'} style={{ padding: '8px 16px', fontSize: '0.85rem' }}>{t.label}</button>
         ))}
+        <button onClick={() => state.setTab('champions')} className={state.tab === 'champions' ? 'btn-neon' : 'btn-outline'} style={{ padding: '8px 16px', fontSize: '0.85rem', color: 'var(--color-gold)', borderColor: 'var(--color-gold)' }}>
+          🏆 Campeones
+        </button>
         {state.activeTournament && (
           <>
             <button onClick={() => state.setTab('fixture')} className={state.tab === 'fixture' ? 'btn-neon' : 'btn-outline'} style={{ padding: '8px 16px', fontSize: '0.85rem' }}>Fixture</button>
@@ -72,6 +76,14 @@ function MakgoraHub() {
           onApprove={(id) => state.handleUpdateLoanStatus(id, 'approved')}
           onReject={(id) => state.handleUpdateLoanStatus(id, 'rejected')}
           onReturn={(id) => state.handleUpdateLoanStatus(id, 'returned')}
+        />
+      )}
+
+      {state.tab === 'champions' && (
+        <ChampionsHistory
+          tournaments={state.tournaments}
+          teams={state.teams}
+          onSelect={state.selectTournament}
         />
       )}
     </div>

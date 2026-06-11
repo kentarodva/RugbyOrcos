@@ -82,7 +82,7 @@ function SaveTacticModal({
           <button
             onClick={handleSave}
             disabled={!name.trim() || saving}
-            className="btn-primary"
+            className="btn-neon"
             style={{
               padding: '8px 18px',
               fontSize: '0.85rem',

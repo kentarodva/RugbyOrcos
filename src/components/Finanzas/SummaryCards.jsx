@@ -3,7 +3,7 @@ import React from 'react';
 export function SummaryCards({ totalIncomes, totalExpenses, netBalance }) {
   return (
     <div className="glass-panel" style={{ padding: '25px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
-      <h3 style={{ fontSize: '1.2rem', fontWeight: 800, fontFamily: 'Outfit' }}>?? Caja Chica & Tercer Tiempo</h3>
+      <h3 style={{ fontSize: '1.2rem', fontWeight: 800, fontFamily: 'Outfit' }}>💰 Caja Chica & Tercer Tiempo</h3>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px' }}>
         <div style={{ background: 'var(--bg-dark)', padding: '12px', borderRadius: 'var(--radius-md)', borderLeft: '3px solid var(--color-primary)', textAlign: 'center' }}>
           <span style={{ fontSize: '0.65rem', color: 'var(--color-text-muted)', textTransform: 'uppercase', fontWeight: 700 }}>Ingresos</span>

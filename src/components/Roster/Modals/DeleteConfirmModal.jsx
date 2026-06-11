@@ -15,8 +15,7 @@ function DeleteConfirmModal({ playerName, onClose, onConfirm }) {
           <button onClick={onClose} className="btn-outline">Cancelar</button>
           <button
             onClick={onConfirm}
-            className="btn-neon"
-            style={{ background: 'linear-gradient(135deg, var(--color-red), #d50000)', color: '#fff', boxShadow: '0 4px 15px rgba(255, 61, 0, 0.3)' }}
+            className="btn-danger"
           >
             Confirmar Baja
           </button>

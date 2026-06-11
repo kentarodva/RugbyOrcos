@@ -1,19 +1,20 @@
 import { useState, useRef, useEffect, useCallback, useContext } from 'react';
 import { ClubContext } from '../../context/ClubContext';
+import { useAuth } from '../../context/AuthContext';
+import { supabase } from '../../supabaseClient.js';
 import { isAnyAIConfigured, getModelConfig, streamChatWithAI, chatWithAI } from '../../engine/multiProviderCoach';
 import { analyzeMatch } from '../../engine/matchAnalyzer';
+import { getActivePlan } from '../../engine/trainingPlanService';
 import { useToast } from '../../context/ToastContext';
 
 export function useAIChatState() {
-  const { activeTeam, players, fixtures, schedule, championships } = useContext(ClubContext);
+  const { activeTeam, players, fixtures, schedule, championships, futureFixtures } = useContext(ClubContext);
+  const { user, profile } = useAuth();
   const { showToast } = useToast();
   const messagesEndRef = useRef(null);
 
   const [input, setInput] = useState('');
-  const [messages, setMessages] = useState(() => {
-    const saved = localStorage.getItem('orcos_ai_chat');
-    return saved ? JSON.parse(saved) : [];
-  });
+  const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
   const [streamingText, setStreamingText] = useState('');
   const [streamingProvider, setStreamingProvider] = useState(null);
@@ -21,6 +22,44 @@ export function useAIChatState() {
   const [showAnalysis, setShowAnalysis] = useState(false);
   const [analysisResult, setAnalysisResult] = useState(null);
   const [analyzingMatch, setAnalyzingMatch] = useState(false);
+  const [activePlan, setActivePlan] = useState(null);
+
+  useEffect(() => {
+    if (!user?.id) return;
+    supabase.from('ai_chat_history').select('messages').eq('user_id', user.id).single().then(({ data }) => {
+      if (data?.messages) {
+        try {
+          const parsed = typeof data.messages === 'string' ? JSON.parse(data.messages) : data.messages;
+          if (Array.isArray(parsed)) setMessages(parsed);
+        } catch { /* ignore */ }
+      }
+    }).catch(() => {});
+  }, [user?.id]);
+
+  useEffect(() => {
+    if (!user?.id || messages.length === 0) return;
+    const timer = setTimeout(async () => {
+      try {
+        await supabase.from('ai_chat_history').upsert({
+          user_id: user.id,
+          messages: messages.slice(-50),
+          updated_at: new Date().toISOString()
+        }, { onConflict: 'user_id' });
+      } catch { /* silencioso */ }
+    }, 2000);
+    return () => clearTimeout(timer);
+  }, [messages, user?.id]);
+
+  const player = (players || []).find(p => {
+    if (profile?.display_name && p.name.toLowerCase() === profile.display_name.toLowerCase()) return true;
+    if (user?.email && p.contacto?.email === user.email) return true;
+    return false;
+  });
+
+  useEffect(() => {
+    if (!player?.id) return;
+    getActivePlan(player.id).then(setActivePlan).catch(() => {});
+  }, [player?.id]);
 
   const configured = isAnyAIConfigured();
   const modelConfig = getModelConfig();
@@ -32,26 +71,90 @@ export function useAIChatState() {
   const teamFixtures = fixtures
     .filter(f => f.teamCategory === activeTeam)
     .sort((a, b) => new Date(b.date) - new Date(a.date));
-  const nextFixture = teamFixtures[0];
-  const opponent = nextFixture?.opponent || '';
+  const lastFixture = teamFixtures[0];
+  const nextUpcoming = (futureFixtures || [])
+    .filter(f => f.teamCategory === activeTeam)
+    .sort((a, b) => new Date(a.date) - new Date(b.date));
+  const opponent = nextUpcoming[0]?.opponent || lastFixture?.opponent || '';
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, streamingText]);
 
-  useEffect(() => {
-    localStorage.setItem('orcos_ai_chat', JSON.stringify(messages.slice(-20)));
-  }, [messages]);
+  const PROFILE_KEYWORDS = ['perfil', 'profile', 'datos', 'cómo estoy', 'como estoy', 'cómo soy', 'como soy', 'mis stats', 'mis atributos', 'mis datos'];
 
-  const buildContext = useCallback(() => ({
-    activeTeam,
-    opponentName: opponent,
-    players,
-    schedule,
-    championships,
-    fixtures,
-    mode: chatMode
-  }), [activeTeam, opponent, players, schedule, championships, fixtures, chatMode]);
+  function isProfileQuery(text) {
+    const lower = text.toLowerCase();
+    return PROFILE_KEYWORDS.some(k => lower.includes(k));
+  }
+
+  function buildProfileResponse(p) {
+    if (!p) return 'No se encontró tu perfil de jugador. Contacta al staff.';
+    const attrs = p.attributes || {};
+    const gym = p.gymStats || {};
+    const att = p.attendance || {};
+    const injury = p.injuryLog?.[0];
+    const lines = [];
+
+    lines.push(`**${p.name}**${p.apodo ? ` "${p.apodo}"` : ''}`);
+    lines.push(`#${p.camiseta || '—'} · ${p.posicion || '—'}`);
+    lines.push(`Rol: ${p.systemRole || 'jugador'} · Equipo: ${p.teamCategory || '—'}`);
+    lines.push(`Estado: **${p.estado === 'activo' ? '✅ Activo' : p.estado === 'lesionado' ? '🩹 Lesionado' : p.estado === 'suspendido' ? '🔴 Suspendido' : p.estado || '—'}**`);
+
+    lines.push('');
+    lines.push('**Atributos de Batalla:**');
+    lines.push(`• Fuerza: ${attrs.force || 50}/100`);
+    lines.push(`• Velocidad: ${attrs.speed || 50}/100`);
+    lines.push(`• Resistencia: ${attrs.stamina || 50}/100`);
+    lines.push(`• Técnica: ${attrs.technique || 50}/100`);
+
+    if (gym.squat || gym.bench || gym.deadlift) {
+      lines.push('');
+      lines.push('**Rendimiento Físico:**');
+      lines.push(`• Sentadilla: ${gym.squat || 0}kg`);
+      lines.push(`• Press Banca: ${gym.bench || 0}kg`);
+      lines.push(`• Peso Muerto: ${gym.deadlift || 0}kg`);
+      if (p.weight) {
+        const rel = ((gym.squat + gym.bench + gym.deadlift) / p.weight).toFixed(1);
+        lines.push(`• Fuerza Relativa: ${rel}x PC`);
+      }
+    }
+
+    if (injury) {
+      lines.push('');
+      lines.push(`🩹 **Lesión Activa:** ${injury.diagnosis || 'N/A'}`);
+      lines.push(`Fase ${injury.phase || 1}/4 de recuperación`);
+    }
+
+    const totalAtt = att.total || 0;
+    if (totalAtt > 0) {
+      const pct = Math.round((att.present || 0) / totalAtt * 100);
+      lines.push('');
+      lines.push(`**Asistencia:** ${pct}% (${att.present || 0}/${totalAtt} presentes)`);
+    }
+
+    return lines.join('\n');
+  }
+
+  const buildContext = useCallback(() => {
+    const ctx = {
+      activeTeam,
+      opponentName: opponent,
+      players,
+      schedule,
+      championships,
+      fixtures,
+      mode: chatMode,
+    };
+    if (player) {
+      ctx.playerProfile = `Nombre: ${player.name}, Posición: ${player.posicion || '—'}, Equipo: ${player.teamCategory || '—'}`;
+    }
+    if (activePlan) {
+      const total = Object.values(activePlan.plan || {}).reduce((s, list) => s + list.length, 0);
+      ctx.activePlan = `Plan activo: ${total} ejercicios esta semana (${activePlan.source.toUpperCase()})`;
+    }
+    return ctx;
+  }, [activeTeam, opponent, players, schedule, championships, fixtures, futureFixtures, chatMode, activePlan, player]);
 
   const handleSend = useCallback(async () => {
     const q = input.trim();
@@ -61,6 +164,18 @@ export function useAIChatState() {
     const newMessages = [...messages, userMsg];
     setMessages(newMessages);
     setInput('');
+
+    // Profile query: responder desde estado local, sin IA
+    if (isProfileQuery(q) && player) {
+      const profileText = buildProfileResponse(player);
+      const profileMsg = {
+        role: 'ai', text: profileText, time: new Date().toISOString(),
+        mode: chatMode, provider: 'local', isError: false,
+      };
+      setMessages(prev => [...prev, profileMsg]);
+      return;
+    }
+
     setLoading(true);
     setStreamingText('');
     setStreamingProvider(null);
@@ -68,16 +183,26 @@ export function useAIChatState() {
     if (configured) {
       let fullResponse = '';
       let usedProvider = null;
+      let hadError = false;
 
+      const streamCtx = { mode: chatMode };
+      if (player) {
+        streamCtx.playerProfile = `Nombre: ${player.name}, Posición: ${player.posicion || '—'}, Equipo: ${player.teamCategory || '—'}`;
+      }
+      if (activePlan) {
+        const total = Object.values(activePlan.plan || {}).reduce((s, list) => s + list.length, 0);
+        streamCtx.activePlan = `Plan activo: ${total} ejercicios esta semana (${activePlan.source.toUpperCase()})`;
+      }
       await streamChatWithAI(
         q,
         (chunk) => {
           if (chunk.error) {
+            hadError = true;
             fullResponse = 'Error: ' + chunk.error;
             setStreamingText(fullResponse);
           } else if (chunk.done) {
             fullResponse = chunk.fullText || fullResponse;
-            if (!chunk.error) {
+            if (!chunk.error && !chunk.empty) {
               const aiMsg = {
                 role: 'ai',
                 text: fullResponse,
@@ -96,13 +221,13 @@ export function useAIChatState() {
             setStreamingProvider(chunk.provider || null);
           }
         },
-        { mode: chatMode }
+        streamCtx
       );
 
-      if (!streamingText && !fullResponse) {
+      if (!streamingText && !fullResponse && !hadError) {
         const aiMsg = {
           role: 'ai',
-          text: 'No se pudo obtener respuesta de ningun proveedor.',
+          text: 'El servicio de IA no generó respuesta. Intenta de nuevo con otra pregunta.',
           time: new Date().toISOString(),
           mode: chatMode,
           isError: true
@@ -123,7 +248,7 @@ export function useAIChatState() {
     }
 
     setLoading(false);
-  }, [input, loading, messages, chatMode, configured, buildContext]);
+  }, [input, loading, messages, chatMode, configured, buildContext, player]);
 
   const handleKeyDown = useCallback((e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -134,7 +259,6 @@ export function useAIChatState() {
 
   const handleClear = useCallback(() => {
     setMessages([]);
-    localStorage.removeItem('orcos_ai_chat');
     showToast('Chat limpiado.', 'info');
   }, [showToast]);
 
@@ -171,6 +295,8 @@ export function useAIChatState() {
     configured,
     activeProvInfo,
     teamFixtures,
+    teamSchedule: schedule,
+    teamFutureFixtures: futureFixtures,
     opponent,
     handleSend,
     handleKeyDown,

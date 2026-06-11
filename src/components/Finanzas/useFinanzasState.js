@@ -1,5 +1,5 @@
 import { useState, useMemo, useCallback } from 'react';
-import { MENSUALIDAD_BASE, ABONOS_RAPIDOS } from './constants';
+import { MENSUALIDAD_BASE } from './constants';
 
 export function useFinanzasState({ finances, players, activeTeam, viewMode, divisionView, makgoraTeamId, addFinanceRecord, recordMembershipPayment, updateInventoryItem, showToast }) {
   const [activeSubTab, setActiveSubTab] = useState('finances');
@@ -10,7 +10,6 @@ export function useFinanzasState({ finances, players, activeTeam, viewMode, divi
   const [finType, setFinType] = useState('ingreso');
   const [finCategory, setFinCategory] = useState('general');
   const [finDate, setFinDate] = useState(new Date().toISOString().split('T')[0]);
-  const [customAbono, setCustomAbono] = useState('');
 
   const filterByView = useCallback((items) => {
     if (viewMode === 'general' && divisionView === 'all') {
@@ -70,21 +69,10 @@ export function useFinanzasState({ finances, players, activeTeam, viewMode, divi
     setShowAddForm(false);
   }, [finDesc, finAmount, finType, finDate, finCategory, addFinanceRecord]);
 
-  const handlePayMembership = useCallback((player, amount) => {
-    recordMembershipPayment(player.id, amount);
+  const handlePayMembership = useCallback(async (player, amount) => {
+    await recordMembershipPayment(player.id, amount);
     showToast(`${amount.toLocaleString()} para ${player.name} registrado.`, 'success');
-    setCustomAbono('');
   }, [recordMembershipPayment, showToast]);
-
-  const handleCustomAbono = useCallback((player, e) => {
-    e.preventDefault();
-    const amount = Number(customAbono);
-    if (!amount || amount <= 0) {
-      showToast('Ingresa un monto valido.', 'warning');
-      return;
-    }
-    handlePayMembership(player, amount);
-  }, [customAbono, handlePayMembership, showToast]);
 
   const getMembershipStatus = useCallback((player) => {
     const m = player.memberships || { paid: 0, due: MENSUALIDAD_BASE };
@@ -119,7 +107,6 @@ export function useFinanzasState({ finances, players, activeTeam, viewMode, divi
     finType, setFinType,
     finCategory, setFinCategory,
     finDate, setFinDate,
-    customAbono, setCustomAbono,
     teamFinances,
     teamPlayers,
     totalIncomes,
@@ -127,12 +114,10 @@ export function useFinanzasState({ finances, players, activeTeam, viewMode, divi
     netBalance,
     handleSaveMovement,
     handlePayMembership,
-    handleCustomAbono,
     getMembershipStatus,
     handleStockChange,
     handleCustodianChange,
     handleStatusChange,
-    ABONOS_RAPIDOS,
     MENSUALIDAD_BASE
   };
 }

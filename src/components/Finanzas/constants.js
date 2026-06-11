@@ -8,6 +8,10 @@ export const FINANCE_CATEGORIES = [
   { value: 'implementos', label: 'Implementos deportivos' },
   { value: 'tercer_tiempo', label: 'Tercer Tiempo' },
   { value: 'transporte', label: 'Transporte' },
+  { value: 'reunion', label: 'Reunión / Evento Social' },
+  { value: 'hotel', label: 'Hotel / Alojamiento' },
+  { value: 'prestamo', label: 'Préstamo / Deuda' },
+  { value: 'alimentacion', label: 'Alimentación (comidas, hidratación)' },
   { value: 'otro', label: 'Otro' }
 ];
 
@@ -16,7 +20,11 @@ export const CATEGORY_LABELS = {
   mensualidad: '👑 Mensualidad',
   implementos: '📦 Implementos',
   tercer_tiempo: '🍻 Tercer Tiempo',
-  transporte: '🚌 Transporte'
+  transporte: '🚌 Transporte',
+  reunion: '🤝 Reunión',
+  hotel: '🏨 Hotel',
+  prestamo: '💳 Préstamo',
+  alimentacion: '🍽️ Alimentación'
 };
 
 export const MEMBERSHIP_STATUS = {
@@ -50,5 +58,6 @@ export const FINANCE_SUB_TABS = [
 
 export const MAIN_SUB_TABS = [
   { id: 'finances', label: '💰 Caja Chica y Membresías', activeColor: 'var(--color-primary)' },
-  { id: 'inventory', label: '📦 Inventario', activeColor: 'var(--color-gold)' }
+  { id: 'fundraising', label: '🎟️ Recaudación', activeColor: 'var(--color-gold)' },
+  { id: 'inventory', label: '📦 Inventario', activeColor: 'var(--color-blue)' },
 ];

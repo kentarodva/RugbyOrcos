@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { PlayerPhoto } from '../PlayerPhoto';
 import getPlayerBadges from './PlayerBadges';
 import { DIVISIONES_LABELS } from '../../context/ClubContext';
 
@@ -61,23 +62,7 @@ function PlayerCard({ player, onClick, activeLoans, makgoraTeams, bulkMode, isSe
           )}
         </div>
 
-        {!isCoach && (
-          <div style={{
-            background: 'var(--bg-input)',
-            width: '35px',
-            height: '35px',
-            borderRadius: '50%',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            fontSize: '0.9rem',
-            fontWeight: 800,
-            color: player.rol === 'Capitan' ? 'var(--color-gold)' : 'var(--color-text)',
-            border: player.rol === 'Capitan' ? '1.5px solid var(--color-gold)' : '1px solid var(--border-glass)'
-          }}>
-            #{player.camiseta ?? '—'}
-          </div>
-        )}
+        <PlayerPhoto player={player} size={42} />
       </div>
 
       <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '15px' }}>
@@ -117,28 +102,30 @@ function PlayerCard({ player, onClick, activeLoans, makgoraTeams, bulkMode, isSe
       </div>
 
       {!isCoach && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-          <div className="rpg-stat">
-            <div className="rpg-stat-bar-container">
-              <motion.div className="rpg-stat-bar force"
-                animate={{ width: `${player.attributes?.force || 50}%` }}
-                transition={{ type: 'spring', stiffness: 80, damping: 15 }}
-              />
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+          {[
+            { key: 'force', color: 'var(--color-red)', label: 'FUE' },
+            { key: 'speed', color: 'var(--color-blue)', label: 'VEL' },
+            { key: 'stamina', color: 'var(--color-primary)', label: 'RES' },
+            { key: 'technique', color: '#ce93d8', label: 'TEC' },
+          ].map(stat => (
+            <div key={stat.key} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <span style={{ fontSize: '0.6rem', fontWeight: 700, color: stat.color, width: '26px', textAlign: 'right', fontFamily: 'Outfit' }}>{stat.label}</span>
+              <div style={{ flex: 1, height: '6px', background: 'var(--bg-dark)', borderRadius: '3px', overflow: 'hidden' }}>
+                <motion.div
+                  style={{ height: '100%', background: stat.color, borderRadius: '3px' }}
+                  animate={{ width: `${player.attributes?.[stat.key] || 50}%` }}
+                  transition={{ type: 'spring', stiffness: 80, damping: 15 }}
+                />
+              </div>
+              <span style={{ fontSize: '0.62rem', fontWeight: 700, color: 'var(--color-text-muted)', width: '24px', fontFamily: 'monospace' }}>{player.attributes?.[stat.key] || 50}</span>
             </div>
-          </div>
-          <div className="rpg-stat">
-            <div className="rpg-stat-bar-container">
-              <motion.div className="rpg-stat-bar speed"
-                animate={{ width: `${player.attributes?.speed || 50}%` }}
-                transition={{ type: 'spring', stiffness: 80, damping: 15 }}
-              />
-            </div>
-          </div>
+          ))}
         </div>
       )}
 
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '15px', paddingTop: '10px', borderTop: '1px solid rgba(255,255,255,0.03)', fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
-        <span>Nivel: {isCoach ? 'Coach' : Math.round(((player.attributes?.force || 50) + (player.attributes?.speed || 50) + (player.attributes?.stamina || 50) + (player.attributes?.technique || 50)) / 4)}</span>
+        <span title="Promedio RPG (Fuerza + Velocidad + Resistencia + Tecnica) / 4">Overall RPG: {isCoach ? 'Coach' : Math.round(((player.attributes?.force || 50) + (player.attributes?.speed || 50) + (player.attributes?.stamina || 50) + (player.attributes?.technique || 50)) / 4)}</span>
         <span style={{ color: 'var(--color-primary)' }}>Ver Ficha →</span>
       </div>
     </motion.div>

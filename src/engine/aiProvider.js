@@ -1,13 +1,16 @@
 import { PROVIDERS, DEFAULT_PROVIDER_ORDER } from './aiConfig';
 import { filterMessage, isValidRugbyExercise } from './contentFilter';
-import { buildSystemPrompt, buildTrainingEnrichmentPrompt } from './promptBuilder';
+import { buildSystemPrompt, buildTrainingEnrichmentPrompt, buildAITrainingPlanPrompt } from './promptBuilder';
 import { getCachedResponse, setCachedResponse } from './aiCache';
+import { getSetting } from '../data/clubSettings';
+import * as openrouterProvider from './providers/openrouterProvider';
 import * as groqProvider from './providers/groqProvider';
 import * as deepseekProvider from './providers/deepseekProvider';
 import * as geminiProvider from './providers/geminiProvider';
 
 function getProviderModule(providerId) {
   switch (providerId) {
+    case 'openrouter': return openrouterProvider;
     case 'groq': return groqProvider;
     case 'deepseek': return deepseekProvider;
     case 'gemini': return geminiProvider;
@@ -16,30 +19,35 @@ function getProviderModule(providerId) {
 }
 
 function getActiveProviderId() {
-  const saved = localStorage.getItem('orcos_ai_provider');
+  const saved = getSetting('ai_provider');
   if (saved === 'auto' || !saved) return 'auto';
   if (PROVIDERS[saved]) return saved;
   return 'auto';
 }
 
 function getProviderOrder() {
-  const saved = localStorage.getItem('orcos_ai_provider');
+  const saved = getSetting('ai_provider');
   if (!saved || saved === 'auto') return DEFAULT_PROVIDER_ORDER;
   return [saved, ...DEFAULT_PROVIDER_ORDER.filter(p => p !== saved)];
 }
 
 function isAnyProviderConfigured() {
+  // OpenRouter via Edge Function siempre está disponible
+  if (openrouterProvider.isConfigured()) return true;
   return DEFAULT_PROVIDER_ORDER.some(id => {
-    const p = PROVIDERS[id];
-    return p && !!localStorage.getItem(p.apiKeyStorage);
+    return !!getSetting(`${id}_key`);
   });
 }
 
 function getConfiguredProviders() {
-  return DEFAULT_PROVIDER_ORDER.filter(id => {
-    const p = PROVIDERS[id];
-    return p && !!localStorage.getItem(p.apiKeyStorage);
+  // OpenRouter siempre disponible
+  const configured = ['openrouter'];
+  DEFAULT_PROVIDER_ORDER.forEach(id => {
+    if (id !== 'openrouter' && !!getSetting(`${id}_key`)) {
+      configured.push(id);
+    }
   });
+  return configured;
 }
 
 function getRateLimitInfo(providerId) {
@@ -65,7 +73,7 @@ export async function chat(question, context = {}) {
   if (!filterResult.allowed) return { error: filterResult.reason };
 
   const mode = context.mode || 'general';
-  const systemPrompt = buildSystemPrompt(mode);
+  const systemPrompt = buildSystemPrompt(mode, context);
 
   const cached = getCachedResponse(question, 'auto', mode);
   if (cached) return { text: cached, provider: 'cache' };
@@ -120,7 +128,7 @@ export async function streamChat(question, onChunk, context = {}) {
   }
 
   const mode = context.mode || 'general';
-  const systemPrompt = buildSystemPrompt(mode);
+  const systemPrompt = buildSystemPrompt(mode, context);
 
   const providerOrder = getProviderOrder();
   let lastError = '';
@@ -138,12 +146,14 @@ export async function streamChat(question, onChunk, context = {}) {
 
     triedOne = true;
     let success = false;
+    let providerError = '';
 
     try {
       await mod.streamChat(question, (chunk) => {
         if (!chunk.error) {
           onChunk({ ...chunk, provider: providerId });
         } else {
+          providerError = chunk.error;
           onChunk(chunk);
         }
         if (chunk.done && !chunk.error) {
@@ -153,6 +163,7 @@ export async function streamChat(question, onChunk, context = {}) {
       }, { systemPrompt });
 
       if (success) return;
+      if (providerError) lastError = `${PROVIDERS[providerId].name}: ${providerError}`;
     } catch (e) {
       lastError = `${PROVIDERS[providerId].name}: ${e.message}`;
     }
@@ -218,6 +229,29 @@ export async function enrichPlan(plan, player) {
   }
 
   return plan;
+}
+
+export async function generateTrainingPlan(player) {
+  if (!isAnyProviderConfigured()) return null;
+  const prompt = buildAITrainingPlanPrompt(player);
+  const providerOrder = getProviderOrder();
+  for (const providerId of providerOrder) {
+    const mod = getProviderModule(providerId);
+    if (!mod || !mod.isConfigured()) continue;
+    const { used, limit } = getRateLimitInfo(providerId);
+    if (used >= limit) continue;
+    try {
+      const result = await mod.call(prompt, { temperature: 0.7, maxTokens: 1500, retryOnFailure: false });
+      if (result.error || !result.text) continue;
+      mod.incrementRateLimit();
+      const trimmed = result.text.replace(/```json|```/g, '').trim();
+      const parsed = JSON.parse(trimmed);
+      if (parsed.plan) {
+        return { ...parsed, provider: providerId, fromAI: true };
+      }
+    } catch { continue; }
+  }
+  return null;
 }
 
 export async function debugConnection(providerId) {

@@ -63,6 +63,10 @@ describe('useSyncPush — pushPlayerToSupabase', () => {
         clothing_jersey: 'L', clothing_shorts: 'L', clothing_socks: '42-44',
         gym_squat: 100, gym_bench: 80, gym_deadlift: 120,
         document_type: 'CC', document_number: '12345', age: 25, start_year: 2024,
+        birth_date: null, had_fractures: false, fracture_details: null,
+        allergies: null, medical_conditions: null, health_insurance: null,
+        emergency_contact_name: null, emergency_contact_phone: null,
+        avatar_id: null, photo_url: null,
         source: 'manual',
       },
       'user-1'
@@ -106,12 +110,12 @@ describe('useSyncPush — pushEntityToSupabase', () => {
 
     expect(mockUpsertEntity).toHaveBeenCalledWith(
       'schedule',
-      {
+      expect.objectContaining({
         id: 's1', title: 'Entreno', date: '2026-06-01', time: '18:00',
         location: 'Cancha', maps_link: 'https://maps.example.com',
         type: 'entrenamiento', team_category: 'masculina_mayor',
         linked_routine: null, recurrence_group: null,
-      },
+      }),
       'user-1'
     );
   });

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { supabase } from '../supabaseClient.js';
-import { getRpgRole, CLUBS_LABELS, ClubContext } from '../context/ClubContext.jsx';
+import { getRpgRole, RPG_ROLES, CLUBS_LABELS, ClubContext } from '../context/ClubContext.jsx';
 
 function UserManagement() {
   const { resetStaffPassword } = useContext(ClubContext);
@@ -18,7 +18,14 @@ function UserManagement() {
     setLoading(true);
     const { data, error } = await supabase.from('user_profiles').select('*');
     if (!error && data) {
-      setUsers(data.map(u => ({ ...u, rpg: getRpgRole(u.system_role) })));
+      const grouped = {};
+      data.forEach(u => {
+        const key = u.display_name || u.user_id;
+        if (!grouped[key] || new Date(u.created_at || 0) > new Date(grouped[key].created_at || 0)) {
+          grouped[key] = u;
+        }
+      });
+      setUsers(Object.values(grouped).map(u => ({ ...u, rpg: getRpgRole(u.system_role) })));
     }
     setLoading(false);
   };
@@ -121,13 +128,9 @@ function UserManagement() {
             <label style={labelS}>Rango</label>
             <select value={form.systemRole} onChange={e => setForm({...form, systemRole: e.target.value})}
               style={{...inputS, cursor: 'pointer'}}>
-              <option value="jugador">👹 Guerrero</option>
-              <option value="entrenador">🏋️ Maestro de Armas</option>
-              <option value="tesorero">💰 Guardian del Botin</option>
-              <option value="arbitro">⚖️ Juez del Coliseo</option>
-              <option value="promotor">🛡️ Comandante de Horda</option>
-              <option value="presidente">⚔️ Senor de la Guerra</option>
-              <option value="desarrollador">🏰 Arquitecto del Reino</option>
+              {Object.entries(RPG_ROLES).map(([key, val]) => (
+                <option key={key} value={key}>{val.icon} {val.rpg} - {val.original}</option>
+              ))}
             </select>
           </div>
           <div>
@@ -169,7 +172,7 @@ function UserManagement() {
                     <span style={{ color: u.rpg.color, marginRight: '6px' }}>{u.rpg.icon}</span>
                     {u.display_name}
                   </td>
-                  <td style={{...tdS, color: u.rpg.color, fontWeight: 700}}>{u.rpg.rpg}</td>
+                  <td style={{...tdS, color: u.rpg.color, fontWeight: 700}}>{u.rpg.rpg} - {u.rpg.original}</td>
                   <td style={{...tdS, color: 'var(--color-text-muted)'}}>{u.club_scope || 'Todos'}</td>
                   <td style={tdS}>
                     <span style={{
@@ -191,8 +194,8 @@ function UserManagement() {
                           }}>{u.is_active ? 'Desactivar' : 'Activar'}</button>
                         <select value={u.system_role} onChange={e => handleRoleChange(u.user_id, e.target.value)}
                           style={{...inputS, padding: '4px 8px', fontSize: '0.75rem', width: 'auto' }}>
-                          {['jugador','entrenador','tesorero','arbitro','promotor','presidente'].map(r => (
-                            <option key={r} value={r}>{getRpgRole(r).rpg}</option>
+                          {Object.entries(RPG_ROLES).filter(([k]) => k !== 'desarrollador').map(([key, val]) => (
+                            <option key={key} value={key}>{val.icon} {val.rpg} - {val.original}</option>
                           ))}
                         </select>
                       </>
@@ -220,7 +223,7 @@ function UserManagement() {
             {error && <p style={{ color: 'var(--color-red)', fontSize: '0.8rem', marginBottom: '10px' }}>{error}</p>}
             <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
               <button onClick={() => { setResetModal({ ...resetModal, open: false }); setError(''); }} className="btn-outline">Cancelar</button>
-              <button onClick={handleResetPassword} className="btn-neon" style={{ background: 'linear-gradient(135deg, var(--color-gold), #ff8f00)', color: '#000' }}>Restablecer</button>
+              <button onClick={handleResetPassword} className="btn-gold">Restablecer</button>
             </div>
           </div>
         </div>

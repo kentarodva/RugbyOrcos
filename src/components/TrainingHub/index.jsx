@@ -5,6 +5,7 @@ import { useTrainingState } from './useTrainingState';
 import PlanTab from './PlanTab';
 import PlayersTab from './PlayersTab';
 import CatalogTab from './CatalogTab';
+import TeamOverview from './TeamOverview';
 
 function TrainingHub() {
   const { players, activeTeam, logWorkout, schedule, viewMode, divisionView, makgoraTeamId } = useContext(ClubContext);
@@ -56,6 +57,13 @@ function TrainingHub() {
 
       <div style={{ display: 'flex', gap: '10px', borderBottom: '1px solid var(--border-glass)', paddingBottom: '12px', flexWrap: 'wrap' }}>
         <button
+          onClick={() => setActiveTab('team')}
+          className={`tab-btn ${activeTab === 'team' ? 'active' : ''}`}
+          style={{ fontSize: '0.9rem', padding: '10px 20px' }}
+        >
+          📊 Vista Equipo
+        </button>
+        <button
           onClick={() => setActiveTab('plan')}
           className={`tab-btn ${activeTab === 'plan' ? 'active' : ''}`}
           style={{ fontSize: '0.9rem', padding: '10px 20px' }}
@@ -77,6 +85,13 @@ function TrainingHub() {
           Catálogo General
         </button>
       </div>
+
+      {activeTab === 'team' && (
+        <TeamOverview
+          teamPlayers={teamPlayers}
+          onSelectPlayer={(id) => { setSelectedPlayerId(id); setActiveTab('players'); }}
+        />
+      )}
 
       {activeTab === 'plan' && (
         <PlanTab
@@ -100,6 +115,15 @@ function TrainingHub() {
           teamPlayers={teamPlayers}
           selectedPlayerId={selectedPlayerId}
           onSelectPlayer={setSelectedPlayerId}
+          generatedPlan={generatedPlan}
+          generating={generating}
+          completedExercises={completedExercises}
+          linkToDate={linkToDate}
+          setLinkToDate={setLinkToDate}
+          scheduledEvents={scheduledEvents}
+          onGeneratePlan={handleGeneratePlan}
+          onToggleExercise={handleToggleExercise}
+          onSaveWorkout={handleSaveWorkout}
         />
       )}
 

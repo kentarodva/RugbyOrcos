@@ -3,6 +3,8 @@ import { supabase } from '../../supabaseClient.js';
 import { handleError } from '../../utils/errorHandler';
 import apisupabase from '../../data/supabaseApi.js';
 import { SYSTEM_ROLES, EQUIPOS_LABELS } from '../constants';
+import { calculateAttributes } from '../../engine/attributeCalculator.js';
+import { playerSchema } from '../../schemas/player.js';
 
 const generateId = (prefix = '') => {
   if (typeof crypto !== 'undefined' && crypto.randomUUID) {
@@ -27,18 +29,36 @@ const normalizePlayer = (p) => ({
   infractionLog: p.infractionLog || [],
 });
 
-export function usePlayers(activeTeam, sendLocalNotification, pushPlayerToSupabase, pushEntityToSupabase, user) {
+export function usePlayers(activeTeam, sendLocalNotification, pushPlayerToSupabase, pushEntityToSupabase, user, mensualidadBase = 10000) {
   const [players, setPlayers] = useState(() => []);
 
+  const saveAttributeHistory = (playerId, date, attrs, source = 'auto') => {
+    supabase.from('attribute_history').upsert({
+      player_id: playerId,
+      recorded_date: date,
+      attr_force: attrs.force,
+      attr_speed: attrs.speed,
+      attr_stamina: attrs.stamina,
+      attr_technique: attrs.technique,
+      source,
+    }).then(() => {}).catch(err => handleError(err, 'usePlayers.saveAttributeHistory', { notifyUser: true }));
+  };
+
   const addPlayer = useCallback(async (player) => {
+    const validation = playerSchema.safeParse(player);
+    if (!validation.success && import.meta.env.DEV) {
+      console.warn('[usePlayers.addPlayer] Schema validation:', validation.error.issues.map(i => `${i.path.join('.')}: ${i.message}`).join('; '));
+    }
+    const computedAttrs = player.attributes || calculateAttributes(player);
+    const today = new Date().toISOString().split('T')[0];
     const newPlayer = {
       ...player,
       id: generateId(),
       name: sanitize(player.name),
       apodo: sanitize(player.apodo),
       estado: player.estado || 'activo',
-      attributes: player.attributes || { force: 50, speed: 50, stamina: 50, technique: 50 },
-      history: player.history || [{ date: new Date().toISOString().split('T')[0], ...(player.attributes || { force: 50, speed: 50, stamina: 50, technique: 50 }) }],
+      attributes: computedAttrs,
+      history: player.history || [{ date: today, source: 'auto', ...computedAttrs }],
       injuryLog: player.injuryLog || [],
       attendance: player.attendance || { total: 0, present: 0, late: 0, absentUnjustified: 0, absentJustified: 0 },
       penalties: player.penalties || { burpees: 0, cones: false },
@@ -53,6 +73,7 @@ export function usePlayers(activeTeam, sendLocalNotification, pushPlayerToSupaba
       teamCategory: activeTeam
     };
     setPlayers(prev => [...prev, newPlayer]);
+    saveAttributeHistory(newPlayer.id, today, computedAttrs, 'auto');
     sendLocalNotification('Nuevo Orco Reclutado', `${newPlayer.name} ("${newPlayer.apodo}") se ha unido a ${EQUIPOS_LABELS[activeTeam]}.`);
     pushPlayerToSupabase(newPlayer);
   }, [activeTeam, sendLocalNotification, pushPlayerToSupabase]);
@@ -67,9 +88,23 @@ export function usePlayers(activeTeam, sendLocalNotification, pushPlayerToSupaba
         email: sanitize(updatedPlayer.contacto?.email || '')
       }
     };
+    const prevPlayer = players.find(p => p.id === updatedPlayer.id);
+    const physicalChanged = prevPlayer && (
+      prevPlayer.weight !== updatedPlayer.weight ||
+      prevPlayer.height !== updatedPlayer.height ||
+      (prevPlayer._meta?.age ?? prevPlayer.age) !== (updatedPlayer._meta?.age ?? updatedPlayer.age) ||
+      prevPlayer.posicion !== updatedPlayer.posicion
+    );
+    if (physicalChanged) {
+      const newAttrs = calculateAttributes(safePlayer);
+      const today = new Date().toISOString().split('T')[0];
+      safePlayer.attributes = newAttrs;
+      safePlayer.history = [...(prevPlayer.history || []), { date: today, source: 'auto', ...newAttrs }];
+      saveAttributeHistory(safePlayer.id, today, newAttrs, 'auto');
+    }
     setPlayers(prev => prev.map(p => p.id === updatedPlayer.id ? safePlayer : p));
     pushPlayerToSupabase(safePlayer);
-  }, [pushPlayerToSupabase]);
+  }, [players, pushPlayerToSupabase]);
 
   const deletePlayer = useCallback(async (id) => {
     const playerToDelete = players.find(p => p.id === id);
@@ -79,12 +114,14 @@ export function usePlayers(activeTeam, sendLocalNotification, pushPlayerToSupaba
     }
     if (user?.id) {
       try { await apisupabase.deletePlayer(id); } catch (err) {
-        handleError(err, 'usePlayers.delete', { silent: true });
+        handleError(err, 'usePlayers.delete', { notifyUser: true });
       }
     }
   }, [players, sendLocalNotification, user?.id]);
 
   const recordAttendance = useCallback((sessionDate, attendanceList) => {
+    const records = [];
+    const statusMap = { presente: 'present', tarde: 'late', falta_injustificada: 'absent_unjustified', falta_justificada: 'absent_justified' };
     setPlayers(prev => prev.map(player => {
       if (player.teamCategory !== activeTeam) return player;
       const status = attendanceList[player.id];
@@ -104,12 +141,16 @@ export function usePlayers(activeTeam, sendLocalNotification, pushPlayerToSupaba
       } else if (status === 'falta_justificada') {
         newAttendance.absentJustified += 1;
       }
+      records.push({ player_id: player.id, event_date: sessionDate, status: statusMap[status] || status });
       return { ...player, attendance: newAttendance, penalties: newPenalties };
     }));
+    records.forEach(r => supabase.from('attendance').upsert(r).then(() => {}, () => {}));
     sendLocalNotification('Asistencia Guardada', `Se registro la asistencia del entrenamiento del ${sessionDate}.`);
   }, [activeTeam, sendLocalNotification]);
 
   const recordMatchInfractions = useCallback((matchDate, infractionsList) => {
+    const penaltyRecords = [];
+    const infractionRecords = [];
     setPlayers(prev => prev.map(player => {
       const inf = infractionsList.find(i => i.playerId === player.id);
       if (!inf) return player;
@@ -124,8 +165,12 @@ export function usePlayers(activeTeam, sendLocalNotification, pushPlayerToSupaba
         rojas: inf.rojas || 0, faultType: inf.faultType || null,
         context: inf.context || 'partido', notes: inf.notes || ''
       };
+      penaltyRecords.push({ player_id: player.id, burpees: newPenalties.burpees, cones: newPenalties.cones });
+      infractionRecords.push({ player_id: player.id, infraction_date: matchDate, penalties: inf.penales || 0, yellow_cards: inf.amarillas || 0, red_cards: inf.rojas || 0, fault_type: inf.faultType || null, context: inf.context || 'partido', notes: inf.notes || '' });
       return { ...player, penalties: newPenalties, estado: newEstado, infractionLog: [...(player.infractionLog || []), infractionLog] };
     }));
+    penaltyRecords.forEach(r => supabase.from('penalties').upsert(r).then(() => {}, () => {}));
+    infractionRecords.forEach(r => supabase.from('infractions').upsert(r).then(() => {}, () => {}));
     sendLocalNotification('Sanciones del Tribunal Aplicadas', `Se procesaron las infracciones del partido (${matchDate}).`);
   }, [sendLocalNotification]);
 
@@ -137,6 +182,7 @@ export function usePlayers(activeTeam, sendLocalNotification, pushPlayerToSupaba
       if (type === 'burpees') newPenalties.burpees = 0;
       else if (type === 'cones') newPenalties.cones = false;
       if (newEstado === 'suspendido' && newPenalties.burpees === 0) newEstado = 'activo';
+      supabase.from('penalties').upsert({ player_id: playerId, burpees: newPenalties.burpees, cones: newPenalties.cones }).then(() => {}).catch(err => handleError(err, 'usePlayers', { notifyUser: true }));
       return { ...player, penalties: newPenalties, estado: newEstado };
     }));
   }, []);
@@ -144,7 +190,8 @@ export function usePlayers(activeTeam, sendLocalNotification, pushPlayerToSupaba
   const recordPhysicalTest = useCallback((playerId, testDate, attributes) => {
     setPlayers(prev => prev.map(player => {
       if (player.id !== playerId) return player;
-      const newHistory = [...player.history, { date: testDate, ...attributes }];
+      supabase.from('attribute_history').upsert({ player_id: playerId, recorded_date: testDate, attr_force: attributes.force, attr_speed: attributes.speed, attr_stamina: attributes.stamina, attr_technique: attributes.technique, source: 'test' }).then(() => {}).catch(err => handleError(err, 'usePlayers', { notifyUser: true }));
+      const newHistory = [...player.history, { date: testDate, source: 'test', ...attributes }];
       return { ...player, attributes, history: newHistory };
     }));
   }, []);
@@ -152,6 +199,7 @@ export function usePlayers(activeTeam, sendLocalNotification, pushPlayerToSupaba
   const recordInjury = useCallback((playerId, diagnosis, weeks, date = new Date().toISOString().split('T')[0]) => {
     setPlayers(prev => prev.map(p => {
       if (p.id !== playerId) return p;
+      supabase.from('injury_log').upsert({ player_id: playerId, injury_date: date, diagnosis: sanitize(diagnosis), recovery_weeks: weeks, phase: 1 }).then(() => {}).catch(err => handleError(err, 'usePlayers', { notifyUser: true }));
       return { ...p, estado: 'lesionado', injuryLog: [{ diagnosis: sanitize(diagnosis), date, weeks, phase: 1 }] };
     }));
   }, []);
@@ -164,6 +212,7 @@ export function usePlayers(activeTeam, sendLocalNotification, pushPlayerToSupaba
       newLog[0] = { ...newLog[0], phase: Number(phase) };
       let newEstado = p.estado;
       if (Number(phase) === 4) newEstado = 'activo';
+      supabase.from('injury_log').upsert({ player_id: playerId, injury_date: newLog[0].date, diagnosis: newLog[0].diagnosis, recovery_weeks: newLog[0].weeks, phase: Number(phase) }).then(() => {}).catch(err => handleError(err, 'usePlayers', { notifyUser: true }));
       return { ...p, estado: newEstado, injuryLog: newEstado === 'activo' ? [] : newLog };
     }));
   }, []);
@@ -173,16 +222,15 @@ export function usePlayers(activeTeam, sendLocalNotification, pushPlayerToSupaba
       if (p.id !== playerId) return p;
       let newEstado = p.estado;
       if (Number(stats.redCards) > 0) newEstado = 'suspendido';
-      return {
-        ...p, estado: newEstado,
-        matchStats: [...(p.matchStats || []), { id: generateId('st_'), ...stats, opponent: sanitize(stats.opponent) }]
-      };
+      supabase.from('match_stats').upsert({ player_id: playerId, match_date: stats.date, opponent: sanitize(stats.opponent), tries: stats.tries || 0, conversions: stats.conversions || 0, tackles: stats.tackles || 0, turnovers: stats.turnovers || 0, yellow_cards: stats.yellowCards || 0, red_cards: stats.redCards || 0, mvp: stats.mvp || false, context: 'general' }).then(() => {}).catch(err => handleError(err, 'usePlayers', { notifyUser: true }));
+      return { ...p, estado: newEstado, matchStats: [...(p.matchStats || []), { id: generateId('st_'), ...stats, opponent: sanitize(stats.opponent) }] };
     }));
   }, []);
 
   const recordWellness = useCallback((playerId, wellnessData) => {
     setPlayers(prev => prev.map(p => {
       if (p.id !== playerId) return p;
+      supabase.from('wellness_logs').upsert({ player_id: playerId, log_date: wellnessData.date || new Date().toISOString().split('T')[0], sleep_quality: wellnessData.sleep, muscle_soreness: wellnessData.soreness, stress_level: wellnessData.stress }).then(() => {}).catch(err => handleError(err, 'usePlayers', { notifyUser: true }));
       const logs = p.wellnessLogs || [];
       return { ...p, wellnessLogs: [...logs, { id: generateId('wl_'), ...wellnessData }].slice(-30) };
     }));
@@ -193,6 +241,8 @@ export function usePlayers(activeTeam, sendLocalNotification, pushPlayerToSupaba
       if (p.id !== playerId) return p;
       const currentHia = p.hiaAssessments || [];
       const today = new Date().toISOString().split('T')[0];
+      const symptoms = symptomsDetected ? ['Sintomas detectados'] : ['Sin sintomas'];
+      supabase.from('hia_assessments').upsert({ player_id: playerId, assessment_date: today, symptoms }).then(() => {}).catch(err => handleError(err, 'usePlayers', { notifyUser: true }));
       let newEstado = p.estado;
       let newInjuryLog = [...p.injuryLog];
       if (symptomsDetected) {
@@ -206,52 +256,94 @@ export function usePlayers(activeTeam, sendLocalNotification, pushPlayerToSupaba
     }));
   }, [sendLocalNotification]);
 
-  const updateClothingSizes = useCallback((playerId, sizes) => {
-    const safe = { jersey: sanitize(sizes.jersey), shorts: sanitize(sizes.shorts), socks: sanitize(sizes.socks) };
-    setPlayers(prev => prev.map(p => p.id !== playerId ? p : { ...p, clothingSizes: safe }));
-  }, []);
-
-  const updateGymStats = useCallback((playerId, gymStats) => {
-    setPlayers(prev => prev.map(p => {
-      if (p.id !== playerId) return p;
-      return {
-        ...p,
-        gymStats: { squat: Number(gymStats.squat || 0), bench: Number(gymStats.bench || 0), deadlift: Number(gymStats.deadlift || 0) },
-        weight: Number(gymStats.weight || 85)
-      };
-    }));
-  }, []);
-
   const logWorkout = useCallback((playerId, workoutData) => {
     setPlayers(prev => prev.map(p => {
       if (p.id !== playerId) return p;
-      const newLog = { id: generateId('wl_'), date: new Date().toISOString().split('T')[0], ejercicios: workoutData.ejercicios || [], type: workoutData.type || 'general' };
+      const today = new Date().toISOString().split('T')[0];
+      supabase.from('workout_logs').upsert({ player_id: playerId, workout_date: today, type: workoutData.type || 'general', exercises: workoutData.ejercicios || [], completed: true }).then(() => {}).catch(err => handleError(err, 'usePlayers', { notifyUser: true }));
+      const newLog = { id: generateId('wl_'), date: today, ejercicios: workoutData.ejercicios || [], type: workoutData.type || 'general' };
       return { ...p, workoutLog: [...(p.workoutLog || []), newLog] };
     }));
   }, []);
 
-  const recordMembershipPayment = useCallback((playerId, amount) => {
+  const updateClothingSizes = useCallback((playerId, sizes) => {
+    const safe = { jersey: sanitize(sizes.jersey), shorts: sanitize(sizes.shorts), socks: sanitize(sizes.socks) };
+    setPlayers(prev => prev.map(p => {
+      if (p.id !== playerId) return p;
+      const updated = { ...p, clothingSizes: safe };
+      pushPlayerToSupabase(updated);
+      return updated;
+    }));
+  }, [pushPlayerToSupabase]);
+
+  const updateGymStats = useCallback((playerId, gymStats) => {
+    const today = new Date().toISOString().split('T')[0];
+    const squat = Number(gymStats.squat || 0);
+    const bench = Number(gymStats.bench || 0);
+    const deadlift = Number(gymStats.deadlift || 0);
+    const weight = Number(gymStats.weight || 0);
+    supabase.from('gym_history').insert({
+      player_id: playerId, recorded_date: today,
+      squat, bench, deadlift,
+      weight: weight > 0 ? weight : null,
+    }).then(() => {}).catch(err => handleError(err, 'usePlayers', { notifyUser: true }));
+    setPlayers(prev => prev.map(p => {
+      if (p.id !== playerId) return p;
+      const updated = {
+        ...p,
+        gymStats: { squat, bench, deadlift },
+        weight: weight > 0 ? weight : p.weight || 85,
+      };
+      const newAttrs = calculateAttributes(updated);
+      updated.attributes = newAttrs;
+      updated.history = [...(p.history || []), { date: today, source: 'gym', ...newAttrs }];
+      saveAttributeHistory(playerId, today, newAttrs, 'gym');
+      pushPlayerToSupabase(updated);
+      return updated;
+    }));
+  }, [pushPlayerToSupabase]);
+
+  const recordMembershipPayment = useCallback(async (playerId, amount) => {
     const today = new Date().toISOString().split('T')[0];
     let playerName = '';
+    let updatedPlayer = null;
     setPlayers(prev => prev.map(p => {
       if (p.id !== playerId) return p;
       playerName = p.name;
-      const current = p.memberships || { paid: 0, due: 10000 };
-      const due = current.due > 0 ? current.due : 10000;
-      const newPaid = Math.min(current.paid + amount, due);
-      const newDue = Math.max(0, due - newPaid);
-      return { ...p, memberships: { paid: newPaid, due: newDue, lastPayment: today, lastAmount: amount } };
+      const current = p.memberships || { paid: 0, due: 0 };
+      const newPaid = (current.paid || 0) + amount;
+      updatedPlayer = { ...p, memberships: { paid: newPaid, due: mensualidadBase, lastPayment: today, lastAmount: amount } };
+      return updatedPlayer;
     }));
-    return { playerName, date: today };
-  }, []);
+    if (updatedPlayer) pushPlayerToSupabase(updatedPlayer);
+    const paymentId = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => { const r = Math.random() * 16 | 0; return (c === 'x' ? r : r & 0x3 | 0x8).toString(16); });
+    const { error: insertError } = await supabase.from('player_payments').insert({
+      id: paymentId, player_id: playerId, amount,
+      payment_date: today, source: 'membership',
+      notes: `Abono Membresia - ${playerName}`,
+    });
+    if (insertError) handleError(insertError, 'usePlayers.recordMembershipPayment', { notifyUser: true });
+    return { playerName, date: today, paymentId };
+  }, [pushPlayerToSupabase, mensualidadBase]);
 
-  const createPlayerCredentials = useCallback(async (playerId, password) => {
+  const reverseMembershipPayment = useCallback((playerId, amount) => {
+    setPlayers(prev => prev.map(p => {
+      if (p.id !== playerId) return p;
+      const current = p.memberships || { paid: 0, due: 0 };
+      const newPaid = Math.max(0, (current.paid || 0) - amount);
+      const updated = { ...p, memberships: { ...current, paid: newPaid } };
+      pushPlayerToSupabase(updated);
+      return updated;
+    }));
+  }, [pushPlayerToSupabase]);
+
+  const createPlayerCredentials = useCallback(async (playerId) => {
     const player = players.find(p => p.id === playerId);
     if (!player) return { error: 'Jugador no encontrado' };
 
     const { data, error } = await supabase.rpc('admin_create_player_credentials', {
       p_player_id: playerId,
-      p_password: password || null,
+      p_password: null,
     });
 
     if (error) return { error: error.message };
@@ -259,10 +351,10 @@ export function usePlayers(activeTeam, sendLocalNotification, pushPlayerToSupaba
 
     setPlayers(prev => prev.map(p => {
       if (p.id !== playerId) return p;
-      return { ...p, username: data.username, contacto: { ...p.contacto, email: data.email } };
+      return { ...p, username: data.username || '', contacto: { ...(p.contacto || {}), email: data.email || '' } };
     }));
 
-    return { data, username: data.username, password: data.password };
+    return { data, username: data.username || '', password: data.password || '' };
   }, [players]);
 
   const resetPlayerPassword = useCallback(async (playerId, newPassword) => {
@@ -286,10 +378,23 @@ export function usePlayers(activeTeam, sendLocalNotification, pushPlayerToSupaba
     }));
     if (updates.length > 0 && user?.id) {
       apisupabase.batchUpdatePositions(updates, user.id).catch(err => {
-        handleError(err, 'usePlayers.bulkUpdatePosition', { silent: true });
+        handleError(err, 'usePlayers.bulkUpdatePosition', { notifyUser: true });
       });
     }
   }, [user?.id]);
+
+  const applyMonthlyCharge = useCallback(async (playerIds, amount) => {
+    let count = 0;
+    setPlayers(prev => prev.map(p => {
+      if (!playerIds.includes(p.id)) return p;
+      count++;
+      const current = p.memberships || { paid: 0, due: 0 };
+      const updated = { ...p, memberships: { ...current, due: (current.due || 0) + amount } };
+      pushPlayerToSupabase(updated);
+      return updated;
+    }));
+    return count;
+  }, [pushPlayerToSupabase]);
 
   return {
     players, setPlayers, normalizePlayer,
@@ -299,5 +404,6 @@ export function usePlayers(activeTeam, sendLocalNotification, pushPlayerToSupaba
     recordMatchStats, recordWellness, runHiaProtocol,
     updateClothingSizes, updateGymStats, logWorkout,
     recordMembershipPayment, createPlayerCredentials, resetPlayerPassword, bulkUpdatePosition,
+    applyMonthlyCharge, reverseMembershipPayment,
   };
 }

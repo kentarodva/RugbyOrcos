@@ -23,6 +23,7 @@ import AnnouncementModal from './components/AnnouncementModal';
 import BirthdayCelebration from './components/BirthdayCelebration';
 import ImportCSVModal from './components/Admin/ImportCSVModal';
 import Sidebar from './components/Sidebar';
+import { ChangePasswordModal } from './components/Auth/ChangePasswordModal';
 import apisupabase from './data/supabaseApi';
 
 import { useGlobalShortcuts } from './utils/keyboardShortcuts';
@@ -40,7 +41,7 @@ function App() {
     viewMode, setViewMode, divisionView, setDivisionView,
     makgoraTeamId, setMakgoraTeamId, makgoraTeams,
   } = useContext(ClubContext);
-  const { isAuthenticated, signOut, profile, user } = useAuth();
+  const { isAuthenticated, signOut, profile, user, requirePasswordChange, clearPasswordChangeFlag } = useAuth();
   const { showToast } = useToast();
   const [activeTab, setActiveTab] = useState('dashboard');
   const [showSettings, setShowSettings] = useState(false);
@@ -51,6 +52,15 @@ function App() {
   const [newClubName, setNewClubName] = useState('');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const fileInputRef = useRef(null);
+
+  const [theme, setTheme] = useState(() => {
+    try { return localStorage.getItem('orcos_theme') || 'dark'; } catch { return 'dark'; }
+  });
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    try { localStorage.setItem('orcos_theme', theme); } catch (e) { /* localStorage no disponible */ }
+  }, [theme]);
 
   useGlobalShortcuts(activeTab, setActiveTab);
 
@@ -70,11 +80,40 @@ function App() {
     return <Login />;
   }
 
+  if (requirePasswordChange) {
+    return <ChangePasswordModal onPasswordChanged={clearPasswordChangeFlag} />;
+  }
+
   if (profile?.system_role === 'jugador') {
     return (
       <div className="app-container" style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
         <PlayerDashboard />
         <Footer />
+      </div>
+    );
+  }
+
+  if (!profile) {
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', background: 'var(--bg-root)', padding: '20px' }}>
+        <div className="glass-panel" style={{ maxWidth: '440px', padding: '40px', textAlign: 'center', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          <span style={{ fontSize: '3rem' }}>🛡️</span>
+          <h2 style={{ fontFamily: 'Outfit', fontWeight: 800, fontSize: '1.3rem', color: 'var(--color-gold)' }}>
+            Sin rango en el Reino
+          </h2>
+          <p style={{ color: 'var(--color-text-muted)', fontSize: '0.85rem', lineHeight: 1.6 }}>
+            Tu cuenta fue autenticada pero no tiene un rol asignado en el sistema.
+            Esto suele pasar cuando el perfil en <strong>user_profiles</strong> no existe o no esta vinculado a tu cuenta.
+          </p>
+          <p style={{ color: 'var(--color-text-muted)', fontSize: '0.8rem' }}>
+            Contacta al <strong>Arquitecto del Reino</strong> o <strong>Senor de la Guerra</strong> para que repare tu perfil.
+          </p>
+          <button onClick={() => signOut()}
+            className="btn-outline"
+            style={{ padding: '10px', fontSize: '0.85rem', color: 'var(--color-red)', borderColor: 'var(--color-red)', alignSelf: 'center' }}>
+            Cerrar Sesion
+          </button>
+        </div>
       </div>
     );
   }
@@ -222,7 +261,7 @@ function App() {
       {showSettings && (
         <motion.div key="settings"
           initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
-          <Settings onClose={() => setShowSettings(false)} />
+          <Settings onClose={() => setShowSettings(false)} theme={theme} setTheme={setTheme} />
         </motion.div>
       )}
       {showAnnouncements && isAuthenticated && (

@@ -70,7 +70,8 @@ export function useMakgoraState() {
 
     const teamsToAdd = teams.filter(t => t.is_active);
     const { data: tt, error: ttError } = await supabase.from('tournament_teams').insert(
-      teamsToAdd.map(t => ({ tournament_id: data.id, team_id: t.id }))
+      teamsToAdd.map(t => ({ tournament_id: data.id, team_id: t.id })),
+      { onConflict: '(tournament_id, team_id)', ignoreDuplicates: true }
     );
 
     if (ttError) { showToast(ttError.message, 'error'); return; }
@@ -151,7 +152,7 @@ export function useMakgoraState() {
           p_played: 1, p_won: won, p_drawn: drawn, p_lost: lost,
           p_points_for: points_for, p_points_against: points_against,
           p_total_points: pts, p_bonus: bonus ? 1 : 0
-        }).catch(wrapCatch('useMakgoraState.updateStanding', { silent: true }));
+        }).catch(wrapCatch('useMakgoraState.updateStanding', { notifyUser: true }));
       }
 
       const { data: freshData, error: freshError } = await supabase.from('tournament_matches').select('status').eq('tournament_id', activeTournament.id);

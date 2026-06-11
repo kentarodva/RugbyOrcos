@@ -122,10 +122,13 @@ ALTER TABLE custom_tactics ENABLE ROW LEVEL SECURITY;
 
 -- Políticas RLS (se dropean primero por si ya existen)
 DROP POLICY IF EXISTS "Todos los autenticados pueden leer tácticas" ON custom_tactics;
-CREATE POLICY "Todos los autenticados pueden leer tácticas"
+DROP POLICY IF EXISTS "custom_tactics_select" ON custom_tactics;
+CREATE POLICY "custom_tactics_select"
   ON custom_tactics FOR SELECT
   TO authenticated
-  USING (true);
+  USING (
+    scope = 'all' OR user_id = auth.uid()
+  );
 
 DROP POLICY IF EXISTS "Usuarios pueden insertar sus propias tácticas" ON custom_tactics;
 CREATE POLICY "Usuarios pueden insertar sus propias tácticas"

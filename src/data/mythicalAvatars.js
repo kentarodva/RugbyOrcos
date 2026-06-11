@@ -1,0 +1,48 @@
+const AVATARS = [
+  { id: 'dragon-head',    name: 'Dragón' },
+  { id: 'wyvern',         name: 'Wyvern' },
+  { id: 'hydra',          name: 'Hidra' },
+  { id: 'sea-dragon',     name: 'Dragón Marino' },
+  { id: 'double-dragon',  name: 'Dragón Doble' },
+  { id: 'spiked-dragon-head', name: 'Dragón con Espinas' },
+  { id: 'drakkar-dragon', name: 'Drakkar Vikingo' },
+  { id: 'dragon-spiral',  name: 'Dragón Espiral' },
+  { id: 'minotaur',       name: 'Minotauro' },
+  { id: 'centaur',        name: 'Centauro' },
+  { id: 'griffin-symbol', name: 'Grifo' },
+  { id: 'pegasus',        name: 'Pegaso' },
+  { id: 'unicorn',        name: 'Unicornio' },
+  { id: 'cyclops',        name: 'Cíclope' },
+  { id: 'werewolf',       name: 'Hombre Lobo' },
+  { id: 'ogre',           name: 'Ogro' },
+  { id: 'golem-head',     name: 'Gólem' },
+  { id: 'gargoyle',       name: 'Gárgola' },
+  { id: 'troll',          name: 'Troll' },
+  { id: 'lizardman',      name: 'Hombre Lagarto' },
+  { id: 'wolf-head',      name: 'Lobo' },
+  { id: 'bear-head',      name: 'Oso' },
+  { id: 'lion',           name: 'León' },
+  { id: 'tiger-head',     name: 'Tigre' },
+  { id: 'feline',         name: 'Pantera' },
+  { id: 'shark-jaws',     name: 'Tiburón' },
+  { id: 'croc-jaws',      name: 'Cocodrilo' },
+  { id: 'snake',          name: 'Serpiente' },
+  { id: 'boar-tusks',     name: 'Jabalí' },
+  { id: 'gorilla',        name: 'Gorila' },
+  { id: 'eagle-head',     name: 'Águila' },
+  { id: 'stag-head',      name: 'Ciervo' },
+  { id: 'horse-head',     name: 'Caballo' },
+  { id: 'raven',          name: 'Cuervo' },
+  { id: 'owl',            name: 'Búho' },
+  { id: 'fox-head',       name: 'Zorro' },
+  { id: 'vulture',        name: 'Buitre' },
+  { id: 'anubis',         name: 'Anubis' },
+  { id: 'horus',          name: 'Horus' },
+  { id: 'horned-helm',    name: 'Casco Vikingo' },
+];
+
+export default AVATARS;
+
+export function getAvatarPath(id) {
+  return `/avatars/${id}.svg`;
+}

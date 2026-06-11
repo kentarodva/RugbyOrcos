@@ -1,4 +1,26 @@
 const PROVIDERS = {
+  openrouter: {
+    id: 'openrouter',
+    name: 'OpenRouter (gratis)',
+    icon: '🌐',
+    desc: '26+ modelos gratuitos vía Edge Function',
+    priority: 0,
+    apiKeyStorage: 'server',
+    endpoint: '',
+    models: {
+      free: {
+        id: 'openrouter/free',
+        label: 'Router Automático (gratis)',
+        icon: '🎲',
+        desc: 'Selecciona el mejor modelo gratuito disponible',
+        maxTokens: 4096,
+        timeout: 30000,
+        dailyLimit: 999999,
+        temperature: { chat: 0.7, training: 0.7, analysis: 0.3 }
+      }
+    },
+    defaultModel: 'free'
+  },
   groq: {
     id: 'groq',
     name: 'Groq',
@@ -169,10 +191,12 @@ const RUGBY_KEYWORDS_WEIGHTED = [
   { word: 'liga', weight: 1 }, { word: 'temporada', weight: 1 },
   { word: 'lesión', weight: 1 }, { word: 'lesion', weight: 1 },
   { word: 'rehabilitación', weight: 1 }, { word: 'prevenir', weight: 1 },
-  { word: 'orcos', weight: 2 }, { word: 'orco', weight: 2 }
+  { word: 'orcos', weight: 2 }, { word: 'orco', weight: 2 },
+  { word: 'perfil', weight: 1 }, { word: 'profile', weight: 1 },
+  { word: 'atributos', weight: 1 }, { word: 'attributes', weight: 1 }
 ];
 
-const DEFAULT_PROVIDER_ORDER = ['groq', 'deepseek', 'gemini'];
+const DEFAULT_PROVIDER_ORDER = ['openrouter', 'groq', 'deepseek', 'gemini'];
 
 export {
   PROVIDERS,

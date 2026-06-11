@@ -1,11 +1,11 @@
 import React from 'react';
 
 export function CategorySummary({ teamFinances }) {
-  const categories = ['mensualidad', 'eventualidad', 'implementos', 'tercer_tiempo', 'transporte', 'general'];
+  const categories = ['mensualidad', 'eventualidad', 'implementos', 'tercer_tiempo', 'transporte', 'general', 'reunion', 'hotel', 'prestamo', 'alimentacion'];
 
   return (
     <div className="glass-panel" style={{ padding: '25px', display: 'flex', flexDirection: 'column', gap: '15px' }}>
-      <h3 style={{ fontSize: '1.1rem', fontWeight: 800, fontFamily: 'Outfit' }}>?? Resumen por Categor�a</h3>
+      <h3 style={{ fontSize: '1.1rem', fontWeight: 800, fontFamily: 'Outfit' }}>📊 Resumen por Categoría</h3>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
         {categories.map(cat => {
           const catTotal = teamFinances

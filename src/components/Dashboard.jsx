@@ -2,22 +2,18 @@ import React, { useContext, useState, useEffect, useCallback } from 'react';
 import { ClubContext, EQUIPOS_LABELS } from '../context/ClubContext';
 import { useToast } from '../context/ToastContext';
 import {
-  RadarChart,
-  AttendanceTimeline,
-  DivisionComparison,
   MetricsCards,
-  ForwardsBacksBalance,
   ChampionshipCountdown,
   SinBinConsole,
-  WellnessForm,
-  InjuryReport,
-  UpcomingEvents,
   RecentMatches,
   AddChampionshipModal,
 } from './Dashboard/index';
+import AgendaSemanal from './Dashboard/AgendaSemanal';
+import ActivityFeed from './Dashboard/ActivityFeed';
+import MiniRanking from './Dashboard/MiniRanking';
 
 function Dashboard() {
-  const { players, schedule, championships, fixtures, addChampionship, activeTeam, recordWellness, viewMode, divisionView, makgoraTeamId } = useContext(ClubContext);
+  const { players, championships, fixtures, addChampionship, activeTeam, viewMode, divisionView, makgoraTeamId, finances, schedule } = useContext(ClubContext);
   const { showToast } = useToast();
 
   const filterByView = useCallback((items) => {
@@ -46,8 +42,6 @@ function Dashboard() {
   }, []);
 
   const teamPlayers = filterByView(players);
-  const teamSchedule = filterByView(schedule)
-    .sort((a, b) => new Date(a.date) - new Date(b.date));
   const teamChamps = filterByView(championships);
 
   const hiaSuspendedPlayers = teamPlayers.filter(p =>
@@ -123,18 +117,7 @@ function Dashboard() {
           inactivos={inactivos}
         />
 
-        <RadarChart teamPlayers={teamPlayers.filter(p => p.rol !== 'Entrenador')} />
-
-        <DivisionComparison allPlayers={players.filter(p => p.rol !== 'Entrenador')} />
-
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '20px' }}>
-          <ForwardsBacksBalance teamPlayers={teamPlayers} />
-          <ChampionshipCountdown
-            teamChamps={teamChamps}
-            currentTime={time}
-            onAddChampionship={() => setShowAddChamp(true)}
-          />
-        </div>
+        <AgendaSemanal />
 
         <SinBinConsole
           teamPlayers={teamPlayers}
@@ -142,12 +125,22 @@ function Dashboard() {
         />
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '20px' }}>
-          <WellnessForm teamPlayers={teamPlayers} recordWellness={recordWellness} />
-          <InjuryReport teamPlayers={teamPlayers} />
-          <AttendanceTimeline teamPlayers={teamPlayers.filter(p => p.rol !== 'Entrenador')} />
-          <UpcomingEvents teamSchedule={teamSchedule} />
+          <ChampionshipCountdown
+            teamChamps={teamChamps}
+            currentTime={time}
+            onAddChampionship={() => setShowAddChamp(true)}
+          />
           <RecentMatches fixtures={fixtures} activeTeam={activeTeam} />
         </div>
+
+        <MiniRanking teamPlayers={teamPlayers} />
+
+        <ActivityFeed
+          players={teamPlayers}
+          fixtures={fixtures}
+          finances={finances}
+          schedule={schedule}
+        />
       </div>
 
       {showAddChamp && (

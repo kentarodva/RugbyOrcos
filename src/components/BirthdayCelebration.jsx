@@ -8,9 +8,15 @@ function BirthdayCelebration() {
   const { user } = useAuth();
   const [celebrating, setCelebrating] = useState(null);
   const announcedRef = useRef(new Set());
+  const celebratedRef = useRef(new Set());
+  const lastPlayerSnapshotRef = useRef('');
 
   useEffect(() => {
     if (!players?.length || !user?.id) return;
+
+    const snapshot = players.map(p => p.id).sort().join(',');
+    if (snapshot === lastPlayerSnapshotRef.current) return;
+    lastPlayerSnapshotRef.current = snapshot;
 
     const today = new Date();
     const todayMD = `${today.getMonth() + 1}-${today.getDate()}`;
@@ -27,8 +33,7 @@ function BirthdayCelebration() {
 
     const mine = birthdayPlayers.find(p => p.user_id === user.id || p.email === user.email);
     if (mine) {
-      const key = `bday_celebrated_${mine.id}`;
-      if (!localStorage.getItem(key)) {
+      if (!celebratedRef.current.has(mine.id)) {
         setCelebrating(mine);
       }
     }
@@ -37,14 +42,13 @@ function BirthdayCelebration() {
       if (announcedRef.current.has(bp.id)) return;
 
       (async () => {
-        const todayStart = new Date();
-        todayStart.setHours(0, 0, 0, 0);
-
+        // Ventana de 30h para evitar duplicados en zona horaria Colombia (UTC-5)
+        const since = new Date(Date.now() - 30 * 60 * 60 * 1000);
         const { data: existing } = await supabase
           .from('messages')
           .select('id')
           .eq('channel', 'announcement')
-          .gte('created_at', todayStart.toISOString())
+          .gte('created_at', since.toISOString())
           .ilike('text', `%Feliz cumpleaños%${bp.name}%`)
           .limit(1);
 
@@ -67,7 +71,7 @@ function BirthdayCelebration() {
 
   const handleClose = () => {
     if (celebrating) {
-      localStorage.setItem(`bday_celebrated_${celebrating.id}`, '1');
+      celebratedRef.current.add(celebrating.id);
     }
     setCelebrating(null);
   };

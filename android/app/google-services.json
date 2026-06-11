@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "164309289044",
+    "project_id": "rugby-orcos",
+    "storage_bucket": "rugby-orcos.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:164309289044:android:ec9e0fe3cc1389091f45c1",
+        "android_client_info": {
+          "package_name": "com.rugbyorcos.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB2alIOyOREPfHENKhrMT0drJRslusx8-k"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

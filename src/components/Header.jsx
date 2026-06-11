@@ -1,23 +1,10 @@
 import React from 'react';
 import { DIVISIONES, DIVISIONES_LABELS } from '../context/ClubContext';
-import { isGeminiConfigured } from '../engine/multiProviderCoach';
+import { getRpgRole } from '../context/constants';
+import { isAnyAIConfigured } from '../engine/multiProviderCoach';
 import { useAuth } from '../context/AuthContext';
 import NavBar from './NavBar';
 import NotificationsButton from './Notifications/NotificationsButton';
-
-const RPG_TITLES = {
-  desarrollador: 'Arquitecto del Reino',
-  presidente: 'Señor de la Guerra',
-  promotor: 'Comandante de Horda',
-  entrenador: 'Maestro de Armas',
-  tesorero: 'Guardian del Botin',
-  arbitro: 'Juez del Coliseo',
-  jugador: 'Guerrero',
-};
-
-function getRpgTitle(role) {
-  return RPG_TITLES[role] || role;
-}
 
 export default function Header({
   sidebarOpen, setSidebarOpen,
@@ -66,33 +53,13 @@ export default function Header({
             Reino Manager v4.0
               <span style={{ color: 'var(--color-gold)', marginLeft: '6px' }}>
                 {profile?.display_name ? (
-                  <> · <span style={{ fontWeight: 700 }}>{profile.display_name}</span> ({getRpgTitle(profile.system_role)})</>
+                  <> · <span style={{ fontWeight: 700 }}>{profile.display_name}</span> ({getRpgRole(profile.system_role).rpg} - {getRpgRole(profile.system_role).original})</>
                 ) : profile?.system_role ? (
-                  <> · {getRpgTitle(profile.system_role)}</>
+                  <> · {getRpgRole(profile.system_role).rpg} - {getRpgRole(profile.system_role).original}</>
                 ) : (
                   <> · (Sin rango)</>
                 )}
-                {/* ⚠️ RESPALDO: cambiar false por (!profile || (profile.system_role !== 'desarrollador' && profile.system_role !== 'presidente')) para reactivar */}
-                {false && (
-                  <button
-                    onClick={async () => {
-                      const ok = await forceAdmin();
-                      if (ok) window.location.reload();
-                    }}
-                    title="Reparar permisos de administrador"
-                    style={{
-                      marginLeft: '6px',
-                      background: 'rgba(255,179,0,0.12)',
-                      border: '1px solid rgba(255,179,0,0.4)',
-                      color: '#ffb300',
-                      borderRadius: '4px',
-                      cursor: 'pointer',
-                      fontSize: '0.65rem',
-                      fontWeight: 700,
-                      padding: '2px 6px',
-                    }}
-                  >⚠️ Reparar Admin</button>
-                )}
+
                 {syncStatus === 'idle' && (
                   <span style={{ color: 'var(--color-text-muted)', marginLeft: '6px' }} title="Conectando al Reino...">· ⏳ Conectando...</span>
                 )}
@@ -217,11 +184,11 @@ export default function Header({
             style={{
               padding: '8px 12px',
               fontSize: '0.8rem',
-              borderColor: isGeminiConfigured() ? 'var(--color-primary)' : 'var(--border-glass)',
-              background: isGeminiConfigured() ? 'rgba(0, 230, 118, 0.05)' : 'transparent'
+              borderColor: isAnyAIConfigured() ? 'var(--color-primary)' : 'var(--border-glass)',
+              background: isAnyAIConfigured() ? 'rgba(0, 230, 118, 0.05)' : 'transparent'
             }}
           >
-            {isGeminiConfigured() ? 'IA Activa' : 'IA'}
+            {isAnyAIConfigured() ? 'IA Activa' : 'IA'}
           </button>
           <button
             onClick={exportData}

@@ -1,20 +1,42 @@
-import React, { useState } from 'react';
-import { ABONOS_RAPIDOS } from './constants';
+import React, { useState, useContext } from 'react';
+import { ClubContext } from '../../context/ClubContext';
+import { MENSUALIDAD_BASE, ABONOS_RAPIDOS } from './constants';
 
-export function MembershipCard({ player, getMembershipStatus, onPayMembership, onCustomAbono }) {
+export function MembershipCard({ player, getMembershipStatus, onRequestConfirm, onRequestHistory, isStaff }) {
+  const { getAssignments, campaigns } = useContext(ClubContext);
   const [customAmount, setCustomAmount] = useState('');
-  const m = player.memberships || { paid: 0, due: 10000 };
-  const due = m.due > 0 ? m.due : 10000;
+  const [fundraisingDebts, setFundraisingDebts] = useState(null);
+
+  const m = player.memberships || { paid: 0, due: MENSUALIDAD_BASE };
+  const due = m.due > 0 ? m.due : MENSUALIDAD_BASE;
   const paid = m.paid || 0;
   const remaining = Math.max(0, due - paid);
   const progress = Math.min(100, (paid / due) * 100);
   const status = getMembershipStatus(player);
 
+  const handleLoadDebts = async () => {
+    if (fundraisingDebts) return;
+    const activeCampaigns = campaigns.filter(c => c.status === 'active');
+    const all = [];
+    for (const c of activeCampaigns) {
+      const assignments = await getAssignments(c.id);
+      const playerAssignments = assignments.filter(a => a.player_id === player.id);
+      if (playerAssignments.length > 0) {
+        all.push({ campaign: c, assignments: playerAssignments });
+      }
+    }
+    setFundraisingDebts(all);
+  };
+
+  const handleQuickPay = (amount) => {
+    onRequestConfirm(player, amount);
+  };
+
   const handleCustomSubmit = (e) => {
     e.preventDefault();
     const amount = Number(customAmount);
     if (!amount || amount <= 0) return;
-    onCustomAbono(player, amount);
+    onRequestConfirm(player, amount);
     setCustomAmount('');
   };
 
@@ -62,13 +84,13 @@ export function MembershipCard({ player, getMembershipStatus, onPayMembership, o
         </div>
       )}
 
-      {remaining > 0 && (
+      {remaining > 0 && isStaff && (
         <div>
           <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginTop: '5px' }}>
             {ABONOS_RAPIDOS.map(amount => (
               <button
                 key={amount}
-                onClick={() => onPayMembership(player, amount)}
+                onClick={() => handleQuickPay(amount)}
                 className="btn-outline"
                 style={{
                   padding: '4px 8px', fontSize: '0.7rem',
@@ -95,6 +117,31 @@ export function MembershipCard({ player, getMembershipStatus, onPayMembership, o
           </form>
         </div>
       )}
+
+      <div style={{ borderTop: '1px solid var(--border-glass)', paddingTop: '10px', marginTop: '5px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-gold)' }}>🎟️ Recaudación</span>
+          <button
+            onClick={() => onRequestHistory(player.id)}
+            className="btn-outline"
+            style={{ padding: '3px 8px', fontSize: '0.65rem' }}
+          >
+            📜 Historial
+          </button>
+        </div>
+        <button
+          onClick={handleLoadDebts}
+          className="btn-outline"
+          style={{ width: '100%', padding: '6px', fontSize: '0.7rem', marginTop: '6px', justifyContent: 'center' }}
+        >
+          {fundraisingDebts === null ? '🔄 Cargar deudas activas' :
+            fundraisingDebts.length === 0 ? '✅ Sin deudas de recaudación' :
+            fundraisingDebts.map(({ campaign: c, assignments: a }) =>
+              `${c.name}: $${a.reduce((s, x) => s + Number(x.amount_paid), 0).toLocaleString()}/$${a.reduce((s, x) => s + Number(x.amount_due), 0).toLocaleString()}`
+            ).join(' · ')
+          }
+        </button>
+      </div>
     </div>
   );
 }

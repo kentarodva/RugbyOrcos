@@ -26,7 +26,7 @@ function ResetPasswordModal({ player, onClose, onReset }) {
           style={{ textAlign: 'center', padding: '12px', marginBottom: '15px', width: '100%', boxSizing: 'border-box' }} />
         <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
           <button onClick={() => { onClose(); setPass(''); }} className="btn-outline">Cancelar</button>
-          <button onClick={handleReset} className="btn-neon" style={{ background: 'linear-gradient(135deg, var(--color-gold), #ff8f00)', color: '#000' }}>Restablecer</button>
+          <button onClick={handleReset} className="btn-gold">Restablecer</button>
         </div>
       </div>
     </div>

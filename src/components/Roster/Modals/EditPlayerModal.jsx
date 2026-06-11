@@ -8,7 +8,8 @@ function EditPlayerModal({ player, onClose, onSubmit, makgoraTeams, SYSTEM_ROLES
   const [form, setForm] = useState({
     name: '', apodo: '', camiseta: '', phone: '', email: '',
     rol: 'Titular', systemRole: 'jugador',
-    positionId: null, makgoraTeamId: ''
+    positionId: null, makgoraTeamId: '',
+    weight: '', height: '', age: '',
   });
 
   useEffect(() => {
@@ -22,7 +23,10 @@ function EditPlayerModal({ player, onClose, onSubmit, makgoraTeams, SYSTEM_ROLES
         rol: player.rol || 'Titular',
         systemRole: player.systemRole || 'jugador',
         positionId: player.position_id ?? null,
-        makgoraTeamId: player.makgora_team_id || ''
+        makgoraTeamId: player.makgora_team_id || '',
+        weight: player.weight ?? '',
+        height: player.height ?? '',
+        age: player._meta?.age ?? player.age ?? '',
       });
     }
   }, [player]);
@@ -45,7 +49,10 @@ function EditPlayerModal({ player, onClose, onSubmit, makgoraTeams, SYSTEM_ROLES
       posicion: form.posicion || '',
       position_id: form.positionId,
       systemRole: form.systemRole,
-      makgora_team_id: form.makgoraTeamId || null
+      makgora_team_id: form.makgoraTeamId || null,
+      weight: form.weight ? Number(form.weight) : null,
+      height: form.height ? Number(form.height) : null,
+      _meta: { ...player._meta, age: form.age ? Number(form.age) : null },
     });
   };
 
@@ -102,6 +109,21 @@ function EditPlayerModal({ player, onClose, onSubmit, makgoraTeams, SYSTEM_ROLES
             />
           </div>
 
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px' }}>
+            <div className="form-group" style={{ margin: 0 }}>
+              <label style={{ fontSize: '0.72rem' }}>Peso (kg)</label>
+              <input type="number" value={form.weight} onChange={set('weight')} placeholder="Ej. 95" className="form-input" style={{ padding: '6px 8px', fontSize: '0.78rem' }} min="40" max="160" />
+            </div>
+            <div className="form-group" style={{ margin: 0 }}>
+              <label style={{ fontSize: '0.72rem' }}>Altura (m)</label>
+              <input type="number" value={form.height} onChange={set('height')} placeholder="Ej. 1.82" className="form-input" style={{ padding: '6px 8px', fontSize: '0.78rem' }} min="1.4" max="2.2" step="0.01" />
+            </div>
+            <div className="form-group" style={{ margin: 0 }}>
+              <label style={{ fontSize: '0.72rem' }}>Edad</label>
+              <input type="number" value={form.age} onChange={set('age')} placeholder="Ej. 25" className="form-input" style={{ padding: '6px 8px', fontSize: '0.78rem' }} min="14" max="60" />
+            </div>
+          </div>
+
           <div className="form-group">
             <label>Equipo Mak'Gora (Torneo Interno)</label>
             <select value={form.makgoraTeamId} onChange={set('makgoraTeamId')} className="form-select">
@@ -125,7 +147,7 @@ function EditPlayerModal({ player, onClose, onSubmit, makgoraTeams, SYSTEM_ROLES
 
           <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', marginTop: '10px' }}>
             <button type="button" onClick={onClose} className="btn-outline">Cancelar</button>
-            <button type="submit" className="btn-neon" style={{ background: 'linear-gradient(135deg, var(--color-gold), #ff8f00)', color: '#000', boxShadow: '0 4px 15px rgba(255, 179, 0, 0.3)' }}>
+            <button type="submit" className="btn-gold">
               Guardar Cambios
             </button>
           </div>

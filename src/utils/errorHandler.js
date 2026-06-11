@@ -1,7 +1,7 @@
 const IS_DEV = typeof import.meta !== 'undefined' && import.meta?.env?.DEV;
 
 export function handleError(error, context = 'App', options = {}) {
-  const { silent = false, showToast, toastMessage, rethrow = false } = options;
+  const { silent = false, showToast, toastMessage, rethrow = false, notifyUser = false } = options;
 
   if (IS_DEV) {
     console.error(`[${context}]`, error?.message || error);
@@ -11,6 +11,15 @@ export function handleError(error, context = 'App', options = {}) {
   if (!silent && showToast) {
     const msg = toastMessage || error?.message || 'Error inesperado';
     showToast(msg, 'error');
+  }
+
+  if (notifyUser) {
+    const msg = toastMessage || error?.message || 'Error inesperado';
+    try {
+      window.dispatchEvent(new CustomEvent('app:db-error', {
+        detail: { message: msg, context }
+      }));
+    } catch { /* fallback si window no existe (testing) */ }
   }
 
   if (rethrow) throw error;

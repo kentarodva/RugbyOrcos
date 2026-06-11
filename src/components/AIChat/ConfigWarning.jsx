@@ -1,4 +1,5 @@
 import React from 'react';
+import { Icon } from './icons';
 
 export function ConfigWarning() {
   return (
@@ -9,9 +10,9 @@ export function ConfigWarning() {
       alignItems: 'center',
       gap: '10px'
     }}>
-      <span style={{ fontSize: '1.3rem' }}>??</span>
+      <Icon name="warning" size={20} style={{ flexShrink: 0, color: 'var(--color-gold)' }} />
       <p style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>
-        Ningun proveedor IA configurado. Ve a <strong>Configuracion (??)</strong> y agrega al menos una API key (Groq, DeepSeek o Gemini).
+        Ningun proveedor IA configurado. Ve a <strong>Configuracion (<Icon name="gear" size={14} />)</strong> y agrega al menos una API key (Groq, DeepSeek o Gemini).
       </p>
     </div>
   );

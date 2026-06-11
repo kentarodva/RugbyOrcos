@@ -64,7 +64,7 @@ vi.mock('../../context/ToastContext', () => ({
 }));
 
 vi.mock('../../engine/multiProviderCoach', () => ({
-  isGeminiConfigured: function () { return false; },
+  isAnyAIConfigured: function () { return false; },
   getModelConfig: function () { return { activeProviderId: 'auto', current: {}, available: [] }; },
   getActiveProvider: function () { return 'auto'; },
   setProviderKey: vi.fn(),
@@ -143,10 +143,8 @@ describe('Settings — renderizado', function () {
   it('renderiza la configuracion de IA', function () {
     render(wrapInClubContext(React.createElement(Settings, {
       onClose: vi.fn(),
-      apiKeys: { groq: '', deepseek: '', gemini: '' },
-      onChangeKey: vi.fn(),
     })));
-    expect(screen.getByText(/Proveedor Activo/)).toBeDefined();
+    expect(screen.getByText(/OpenRouter \(Edge Function\)/)).toBeDefined();
   });
 });
 

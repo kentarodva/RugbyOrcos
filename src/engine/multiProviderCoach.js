@@ -1,8 +1,10 @@
 // ── Multi-Provider AI Coach (Groq / DeepSeek / Gemini) ──
 // Fachada unificada sobre todos los proveedores de IA.
-import { chat, streamChat, enrichPlan, debugConnection, isAnyProviderConfigured, getConfiguredProviders, getRateLimitInfoForAll, getRateLimitInfo, getActiveProviderId, PROVIDERS, DEFAULT_PROVIDER_ORDER } from './aiProvider';
+import { chat, streamChat, enrichPlan, debugConnection, generateTrainingPlan, isAnyProviderConfigured, getConfiguredProviders, getRateLimitInfoForAll, getRateLimitInfo, getActiveProviderId, PROVIDERS, DEFAULT_PROVIDER_ORDER } from './aiProvider';
 import { filterMessage, isValidRugbyExercise } from './contentFilter';
 import { clearCache, getCacheStats } from './aiCache';
+import { saveSetting } from '../data/clubSettings';
+import * as openrouterProvider from './providers/openrouterProvider';
 import * as groqProvider from './providers/groqProvider';
 import * as deepseekProvider from './providers/deepseekProvider';
 import * as geminiProvider from './providers/geminiProvider';
@@ -15,11 +17,8 @@ export function isRugbyRelated(text) {
 export { isValidRugbyExercise, clearCache, getCacheStats };
 
 export function isAnyAIConfigured() {
-  return isAnyProviderConfigured();
-}
-
-/** @deprecated Usar isAnyAIConfigured() */
-export function isGeminiConfigured() {
+  // OpenRouter via Edge Function siempre está disponible
+  if (openrouterProvider.isConfigured()) return true;
   return isAnyProviderConfigured();
 }
 
@@ -39,16 +38,18 @@ export function getModelConfig() {
 
 export function setGeminiKey(key) {
   if (key) {
-    localStorage.setItem('orcos_gemini_key', key.trim());
+    saveSetting('gemini_key', key.trim());
+    geminiProvider.setApiKey(key.trim());
   } else {
-    localStorage.removeItem('orcos_gemini_key');
+    saveSetting('gemini_key', '');
+    geminiProvider.setApiKey('');
   }
 }
 
 export function setSelectedModel(modelId, providerId = 'gemini') {
   const models = PROVIDERS[providerId]?.models;
   if (models?.[modelId]) {
-    localStorage.setItem(`orcos_${providerId}_model`, modelId);
+    saveSetting(`${providerId}_model`, modelId);
   }
 }
 
@@ -59,17 +60,7 @@ export async function chatWithAI(question, context = {}) {
   return chat(question, context);
 }
 
-/** @deprecated Usar chatWithAI() */
-export async function chatWithGemini(question, context = {}) {
-  return chat(question, context);
-}
-
 export async function streamChatWithAI(prompt, onChunk, options = {}) {
-  return streamChat(prompt, onChunk, { mode: options.mode || 'general' });
-}
-
-/** @deprecated Usar streamChatWithAI() */
-export async function streamChatWithGemini(prompt, onChunk, options = {}) {
   return streamChat(prompt, onChunk, { mode: options.mode || 'general' });
 }
 
@@ -77,9 +68,8 @@ export async function enrichWithAI(plan, player) {
   return enrichPlan(plan, player);
 }
 
-/** @deprecated Usar enrichWithAI() */
-export async function enrichWithGemini(plan, player) {
-  return enrichPlan(plan, player);
+export async function generatePlanWithAI(player) {
+  return generateTrainingPlan(player);
 }
 
 export async function debugAIConnection() {
@@ -88,16 +78,10 @@ export async function debugAIConnection() {
   return debugConnection(configured[0]);
 }
 
-/** @deprecated Usar debugAIConnection() */
-export async function debugGeminiConnection() {
-  const configured = getConfiguredProviders();
-  if (configured.length === 0) return { error: true, message: 'Ningún proveedor configurado.' };
-  return debugConnection(configured[0]);
-}
-
 export function setProviderKey(providerId, key) {
-  const map = { groq: groqProvider, deepseek: deepseekProvider, gemini: geminiProvider };
+  const map = { openrouter: openrouterProvider, groq: groqProvider, deepseek: deepseekProvider, gemini: geminiProvider };
   map[providerId]?.setApiKey(key);
+  saveSetting(`${providerId}_key`, key ? key.trim() : '');
 }
 
 export { debugConnection as debugProviderConnection };

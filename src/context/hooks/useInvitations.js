@@ -61,7 +61,7 @@ export function useInvitations(user, userTier, profile) {
         inv.id === invitationId ? { ...inv, status: 'expired' } : inv
       ));
     } catch (err) {
-      handleError(err, 'useInvitations.cancel', { silent: true });
+      handleError(err, 'useInvitations.cancel', { notifyUser: true });
     }
   }, [user?.id]);
 
@@ -71,7 +71,7 @@ export function useInvitations(user, userTier, profile) {
       await apisupabase.deleteInvitation(invitationId);
       setMatchInvitations(prev => prev.filter(inv => inv.id !== invitationId));
     } catch (err) {
-      handleError(err, 'useInvitations.delete', { silent: true });
+      handleError(err, 'useInvitations.delete', { notifyUser: true });
     }
   }, [user?.id]);
 

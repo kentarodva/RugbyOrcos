@@ -1,14 +1,15 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { EQUIPOS } from '../constants';
 
-export function useActiveTeam() {
-  const [activeTeam, setActiveTeam] = useState(() => {
-    return localStorage.getItem('orcos_active_team') || EQUIPOS.ORCOS_MASCULINA_MAYOR;
+export function useActiveTeam(initialValue, savePreferences) {
+  const [activeTeam, setActiveTeamRaw] = useState(() => {
+    return initialValue || EQUIPOS.ORCOS_MASCULINA_MAYOR;
   });
 
-  useEffect(() => {
-    localStorage.setItem('orcos_active_team', activeTeam);
-  }, [activeTeam]);
+  const setActiveTeam = (team) => {
+    setActiveTeamRaw(team);
+    savePreferences?.({ active_team: team });
+  };
 
   return { activeTeam, setActiveTeam };
 }

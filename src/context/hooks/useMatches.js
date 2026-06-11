@@ -33,7 +33,7 @@ export function useFixtures(activeTeam, sendLocalNotification, pushEntityToSupab
   const deleteFixture = useCallback((id) => {
     setFixtures(prev => prev.filter(f => f.id !== id));
     if (user?.id) {
-      apisupabase.deleteEntity('fixtures', id).catch(wrapCatch('useFixtures.delete', { silent: true }));
+      apisupabase.deleteEntity('fixtures', id).catch(wrapCatch('useFixtures.delete', { notifyUser: true }));
     }
   }, [user?.id]);
 
@@ -66,7 +66,7 @@ export function useRivals(pushEntityToSupabase, user) {
   const deleteRival = useCallback((id) => {
     setRivals(prev => prev.filter(r => r.id !== id));
     if (user?.id) {
-      apisupabase.deleteEntity('rivals', id).catch(wrapCatch('useRivals.delete', { silent: true }));
+      apisupabase.deleteEntity('rivals', id).catch(wrapCatch('useRivals.delete', { notifyUser: true }));
     }
   }, [user?.id]);
 
@@ -89,7 +89,7 @@ export function useFutureFixtures(activeTeam, sendLocalNotification, pushEntityT
   const deleteFutureFixture = useCallback((id) => {
     setFutureFixtures(prev => prev.filter(f => f.id !== id));
     if (user?.id) {
-      apisupabase.deleteEntity('futureFixtures', id).catch(wrapCatch('useFutureFixtures.delete', { silent: true }));
+      apisupabase.deleteEntity('futureFixtures', id).catch(wrapCatch('useFutureFixtures.delete', { notifyUser: true }));
     }
   }, [user?.id]);
 

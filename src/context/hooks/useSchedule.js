@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
 import { supabase } from '../../supabaseClient.js';
 import apisupabase from '../../data/supabaseApi.js';
-import { wrapCatch } from '../../utils/errorHandler';
+import { wrapCatch, handleError } from '../../utils/errorHandler';
 import { formatLocalDate } from '../../utils/dates.js';
 import { EQUIPOS_LABELS } from '../constants';
 
@@ -29,7 +29,10 @@ export function useSchedule(activeTeam, sendLocalNotification, scheduleReminder,
     const baseEvent = {
       title: sanitize(event.title), location: sanitize(event.location),
       time: event.time, mapsLink: sanitize(event.mapsLink || ''),
-      type: event.type || 'entrenamiento', teamCategory: event.teamCategory || activeTeam
+      type: event.type || 'entrenamiento', teamCategory: event.teamCategory || activeTeam,
+      notes: event.notes || null, endDate: event.endDate || null,
+      scopeType: event.scopeType || 'division',
+      scopeValue: event.scopeValue || {},
     };
     const recurrence = event.recurrence || 'none';
     const recurrenceGroup = recurrence !== 'none' ? (event.recurrenceGroup || generateId()) : null;
@@ -83,16 +86,12 @@ export function useSchedule(activeTeam, sendLocalNotification, scheduleReminder,
         id: e.id, title: e.title, date: e.date, time: e.time, location: e.location,
         maps_link: e.mapsLink, type: e.type, team_category: e.teamCategory,
         linked_routine: e.linkedRoutine, recurrence_group: e.recurrenceGroup,
+        notes: e.notes || null, end_date: e.endDate || null,
+        scope_type: e.scopeType, scope_value: e.scopeValue,
         user_id: user?.id, context: 'general'
       }).then(({ error }) => {
-        if (error && import.meta.env.DEV) {
-          console.warn('[Schedule] Supabase upsert error:', error.message);
-        }
-      }, (err) => {
-        if (import.meta.env.DEV) {
-          console.warn('[Schedule] Supabase upsert failed:', err?.message || err);
-        }
-      });
+        if (error) handleError(error, 'useSchedule.addScheduleEvent', { notifyUser: true });
+      }).catch(err => handleError(err, 'useSchedule.addScheduleEvent', { notifyUser: true }));
     });
     const skipped = events.length - created.length;
     sendLocalNotification('Evento Programado',
@@ -107,10 +106,34 @@ export function useSchedule(activeTeam, sendLocalNotification, scheduleReminder,
     }
   }, [activeTeam, sendLocalNotification, scheduleReminder, user]);
 
+  const updateScheduleEvent = useCallback(async (event) => {
+    const updated = {
+      ...event,
+      title: sanitize(event.title),
+      location: sanitize(event.location),
+      mapsLink: sanitize(event.mapsLink || ''),
+      notes: sanitize(event.notes || ''),
+    };
+    setSchedule(prev => prev.map(e => e.id === event.id ? { ...e, ...updated } : e));
+    if (user?.id) {
+      supabase.from('schedule_events').upsert({
+        id: updated.id, title: updated.title, date: updated.date, time: updated.time,
+        location: updated.location, maps_link: updated.mapsLink, type: updated.type,
+        team_category: updated.teamCategory, linked_routine: updated.linkedRoutine || null,
+        recurrence_group: updated.recurrenceGroup || null, notes: updated.notes || null,
+        end_date: updated.endDate || null,
+        scope_type: updated.scopeType, scope_value: updated.scopeValue,
+        user_id: user?.id, context: 'general'
+      }).then(({ error }) => {
+        if (error) handleError(error, 'useSchedule.updateScheduleEvent', { notifyUser: true });
+      }).catch(err => handleError(err, 'useSchedule.updateScheduleEvent', { notifyUser: true }));
+    }
+  }, [user?.id]);
+
   const deleteScheduleEvent = useCallback((id) => {
     setSchedule(prev => prev.filter(e => e.id !== id));
     if (user?.id) {
-      apisupabase.deleteEntity('schedule', id).catch(wrapCatch('useSchedule.delete', { silent: true }));
+      apisupabase.deleteEntity('schedule', id).catch(wrapCatch('useSchedule.delete', { notifyUser: true }));
     }
   }, [user?.id]);
 
@@ -129,5 +152,5 @@ export function useSchedule(activeTeam, sendLocalNotification, scheduleReminder,
       'Puntualidad de Orco, lleven hidratacion y protector bucal!  #RugbyOrcos';
   }, [activeTeam]);
 
-  return { schedule, setSchedule, addScheduleEvent, deleteScheduleEvent, generateWhatsAppMessage };
+  return { schedule, setSchedule, addScheduleEvent, updateScheduleEvent, deleteScheduleEvent, generateWhatsAppMessage };
 }

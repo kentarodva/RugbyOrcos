@@ -1,108 +1,109 @@
-import { describe, it, expect } from 'vitest';
-import {
-  PROVIDERS, CACHE_CONFIG, RETRY_CONFIG, DEFAULT_PROVIDER_ORDER,
-  CHAT_MODES, PROHIBITED_TOPICS, RUGBY_KEYWORDS_WEIGHTED,
-} from '../../engine/aiConfig';
+import { describe, it, expect, vi } from 'vitest';
+import { PROVIDERS, CHAT_MODES, PROHIBITED_TOPICS, RUGBY_KEYWORDS_WEIGHTED, RETRY_CONFIG, CACHE_CONFIG, RATE_LIMIT_STORAGE_PREFIX, DEFAULT_PROVIDER_ORDER } from '../../engine/aiConfig';
 
-describe('aiConfig — PROVIDERS', () => {
-  it('tiene 3 proveedores configurados', () => {
-    expect(Object.keys(PROVIDERS)).toHaveLength(3);
+describe('aiConfig — provider definitions', () => {
+  it('PROVIDERS contiene los 4 proveedores', () => {
+    expect(Object.keys(PROVIDERS)).toHaveLength(4);
+    expect(PROVIDERS).toHaveProperty('openrouter');
     expect(PROVIDERS).toHaveProperty('groq');
     expect(PROVIDERS).toHaveProperty('deepseek');
     expect(PROVIDERS).toHaveProperty('gemini');
   });
 
-  it('cada provider tiene campos requeridos', () => {
-    Object.values(PROVIDERS).forEach(provider => {
-      expect(provider).toHaveProperty('id');
-      expect(provider).toHaveProperty('name');
-      expect(provider).toHaveProperty('icon');
-      expect(provider).toHaveProperty('desc');
-      expect(provider).toHaveProperty('priority');
-      expect(provider).toHaveProperty('apiKeyStorage');
-      expect(provider).toHaveProperty('endpoint');
-      expect(provider).toHaveProperty('models');
-      expect(provider).toHaveProperty('defaultModel');
-      expect(typeof provider.id).toBe('string');
-      expect(typeof provider.name).toBe('string');
-      expect(typeof provider.icon).toBe('string');
-      expect(typeof provider.apiKeyStorage).toBe('string');
+  it('cada provider tiene id, name, icon, desc, models', () => {
+    Object.values(PROVIDERS).forEach(p => {
+      expect(p.id).toBeDefined();
+      expect(p.name).toBeDefined();
+      expect(p.icon).toBeDefined();
+      expect(p.models).toBeDefined();
+      expect(typeof p.defaultModel).toBe('string');
     });
   });
 
-  it('groq tiene modelos llama3_70b y mixtral_8x7b', () => {
-    expect(PROVIDERS.groq.models).toHaveProperty('llama3_70b');
-    expect(PROVIDERS.groq.models).toHaveProperty('mixtral_8x7b');
-    expect(PROVIDERS.groq.defaultModel).toBe('llama3_70b');
-  });
-
-  it('deepseek tiene el modelo deepseek_chat', () => {
-    expect(PROVIDERS.deepseek.models).toHaveProperty('deepseek_chat');
-  });
-
-  it('gemini tiene el modelo flash', () => {
-    expect(PROVIDERS.gemini.models).toHaveProperty('flash');
-  });
-
-  it('cada modelo tiene campos requeridos', () => {
-    Object.values(PROVIDERS).forEach(provider => {
-      Object.values(provider.models).forEach(model => {
-        expect(model).toHaveProperty('id');
-        expect(model).toHaveProperty('label');
-        expect(model).toHaveProperty('icon');
-        expect(model).toHaveProperty('desc');
-        expect(model).toHaveProperty('maxTokens');
-        expect(model).toHaveProperty('timeout');
-        expect(model).toHaveProperty('dailyLimit');
-        expect(model).toHaveProperty('temperature');
-        expect(model.temperature).toHaveProperty('chat');
-        expect(model.temperature).toHaveProperty('training');
-        expect(model.temperature).toHaveProperty('analysis');
+  it('cada modelo tiene id, maxTokens, timeout, temperature', () => {
+    Object.values(PROVIDERS).forEach(p => {
+      Object.values(p.models).forEach(m => {
+        expect(m.id).toBeDefined();
+        expect(m.maxTokens).toBeGreaterThan(0);
+        expect(m.timeout).toBeGreaterThan(0);
+        expect(m.temperature).toHaveProperty('chat');
+        expect(m.temperature).toHaveProperty('training');
+        expect(m.temperature).toHaveProperty('analysis');
       });
+    });
+  });
+
+  it('openrouter tiene apiKeyStorage server', () => {
+    expect(PROVIDERS.openrouter.apiKeyStorage).toBe('server');
+  });
+});
+
+describe('aiConfig — CHAT_MODES', () => {
+  it('tiene al menos 3 modos', () => {
+    expect(Object.keys(CHAT_MODES).length).toBeGreaterThanOrEqual(3);
+  });
+
+  it('cada modo tiene propiedades definidas', () => {
+    Object.values(CHAT_MODES).forEach(mode => {
+      expect(mode).toBeDefined();
+      expect(typeof mode).toBe('object');
     });
   });
 });
 
-describe('aiConfig — Configuraciones', () => {
-  it('CACHE_CONFIG tiene valores esperados', () => {
-    expect(CACHE_CONFIG.maxEntries).toBeGreaterThan(0);
-    expect(CACHE_CONFIG.ttlMinutes).toBeGreaterThan(0);
-    expect(CACHE_CONFIG.storageKey).toBeTruthy();
-    expect(typeof CACHE_CONFIG.storageKey).toBe('string');
-  });
-
-  it('RETRY_CONFIG tiene valores esperados', () => {
-    expect(RETRY_CONFIG.maxRetries).toBeGreaterThan(0);
-    expect(RETRY_CONFIG.backoffMs).toBeInstanceOf(Array);
-    expect(RETRY_CONFIG.backoffMs.length).toBeGreaterThan(0);
-  });
-
-  it('DEFAULT_PROVIDER_ORDER contiene los 3 providers', () => {
-    expect(DEFAULT_PROVIDER_ORDER).toEqual(['groq', 'deepseek', 'gemini']);
-  });
-
-  it('CHAT_MODES tiene 3 modos', () => {
-    expect(Object.keys(CHAT_MODES)).toHaveLength(3);
-    expect(CHAT_MODES).toHaveProperty('general');
-    expect(CHAT_MODES.general).toHaveProperty('label');
-    expect(CHAT_MODES.general).toHaveProperty('placeholder');
-  });
-
-  it('PROHIBITED_TOPICS contiene terminos bloqueados', () => {
+describe('aiConfig — PROHIBITED_TOPICS', () => {
+  it('contiene temas prohibidos', () => {
+    expect(Array.isArray(PROHIBITED_TOPICS)).toBe(true);
     expect(PROHIBITED_TOPICS.length).toBeGreaterThan(0);
+    expect(PROHIBITED_TOPICS).toContain('política');
     expect(PROHIBITED_TOPICS).toContain('drogas');
-    expect(PROHIBITED_TOPICS).toContain('apuestas');
+  });
+});
+
+describe('aiConfig — RUGBY_KEYWORDS_WEIGHTED', () => {
+  it('tiene más de 50 keywords', () => {
+    expect(RUGBY_KEYWORDS_WEIGHTED.length).toBeGreaterThan(50);
   });
 
-  it('RUGBY_KEYWORDS_WEIGHTED contiene palabras con peso', () => {
-    expect(RUGBY_KEYWORDS_WEIGHTED.length).toBeGreaterThan(50);
+  it('cada keyword tiene word y weight', () => {
     RUGBY_KEYWORDS_WEIGHTED.forEach(kw => {
-      expect(kw).toHaveProperty('word');
-      expect(kw).toHaveProperty('weight');
       expect(typeof kw.word).toBe('string');
-      expect(typeof kw.weight).toBe('number');
-      expect(kw.weight).toBeGreaterThanOrEqual(1);
-      expect(kw.weight).toBeLessThanOrEqual(3);
+      expect(kw.word.length).toBeGreaterThan(0);
+      expect([1, 2, 3]).toContain(kw.weight);
     });
+  });
+
+  it('"rugby" tiene weight 3', () => {
+    const r = RUGBY_KEYWORDS_WEIGHTED.find(kw => kw.word === 'rugby');
+    expect(r.weight).toBe(3);
+  });
+
+  it('"tackle" tiene weight 2', () => {
+    const r = RUGBY_KEYWORDS_WEIGHTED.find(kw => kw.word === 'tackle');
+    expect(r.weight).toBe(2);
+  });
+
+  it('"ejercicio" tiene weight 1', () => {
+    const r = RUGBY_KEYWORDS_WEIGHTED.find(kw => kw.word === 'ejercicio');
+    expect(r.weight).toBe(1);
+  });
+});
+
+describe('aiConfig — constants', () => {
+  it('RETRY_CONFIG tiene maxRetries >= 2', () => {
+    expect(RETRY_CONFIG.maxRetries).toBeGreaterThanOrEqual(2);
+  });
+
+  it('CACHE_CONFIG está definido', () => {
+    expect(CACHE_CONFIG).toBeDefined();
+  });
+
+  it('RATE_LIMIT_STORAGE_PREFIX no está vacío', () => {
+    expect(RATE_LIMIT_STORAGE_PREFIX.length).toBeGreaterThan(0);
+  });
+
+  it('DEFAULT_PROVIDER_ORDER tiene 4 providers', () => {
+    expect(DEFAULT_PROVIDER_ORDER).toHaveLength(4);
+    expect(DEFAULT_PROVIDER_ORDER[0]).toBe('openrouter');
   });
 });

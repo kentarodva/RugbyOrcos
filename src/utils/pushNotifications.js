@@ -31,7 +31,6 @@ async function registerPush() {
     await PushNotifications.register();
 
     PushNotifications.addListener('registration', async (token) => {
-      localStorage.setItem('orcos_push_token', token.value);
       if (import.meta.env.DEV) console.log('[Push] Token registrado:', token.value);
       await saveTokenToSupabase(token.value);
     });
@@ -106,7 +105,7 @@ function handleNotificationTap(data) {
 }
 
 export function getPushToken() {
-  return localStorage.getItem('orcos_push_token');
+  return null;
 }
 
 export function addPushNavigateListener(handler) {

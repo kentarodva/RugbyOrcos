@@ -176,7 +176,7 @@ export function parseCSVRow(row, makgoraTeams) {
     attr_force: 50,
     attr_speed: 50,
     attr_stamina: 50,
-    attr_technique: 70,
+    attr_technique: 50,
   };
 }
 

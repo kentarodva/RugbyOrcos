@@ -92,7 +92,7 @@ function buildChatContext(contextData = {}) {
   return parts.length > 0 ? `\n\n--- Contexto del club ---\n${parts.join('\n')}` : '';
 }
 
-function buildSystemPrompt(mode = 'general') {
+function buildSystemPrompt(mode = 'general', context = {}) {
   const base = `Eres un coach y árbitro de rugby de élite con 20 años de experiencia en World Rugby. Responde SIEMPRE en español con tono profesional y cercano. El club se llama "Rugby Orcos".`;
 
   const modePrompts = {
@@ -130,32 +130,34 @@ Reglas:
 6. Máximo 4 párrafos precisos y técnicos`
   };
 
-  return modePrompts[mode] || modePrompts.general;
+  let prompt = modePrompts[mode] || modePrompts.general;
+
+  if (context.playerProfile) {
+    prompt += `\n\n--- Perfil del jugador ---\n${context.playerProfile}`;
+  }
+  if (context.activePlan) {
+    prompt += `\n\n--- Plan de entreno del jugador ---\n${context.activePlan}`;
+  }
+
+  return prompt;
 }
 
 function buildTrainingEnrichmentPrompt(plan, player) {
-  const faultList = plan.matchFaults.length > 0
-    ? plan.matchFaults.join(', ')
-    : 'Ningún fallo detectado';
-
+  const ctx = buildAITrainingContext(player, plan);
   const currentExercises = [
     ...plan.plan.campo.map(e => `- ${e.name} (Campo)`),
     ...plan.plan.gym.map(e => `- ${e.name} (Gimnasio)`),
     ...plan.plan.recuperacion.map(e => `- ${e.name} (Recuperación)`)
   ].join('\n');
 
-  return `Eres un coach de rugby y preparador físico profesional. Genera ejercicios adicionales para este jugador:
+  return `Eres un coach de rugby y preparador físico profesional. Conoces todo el historial de este jugador:
 
-Nombre: ${player.name}
-Posición: ${player.posicion} | Rol: ${player.rol} | Estado: ${player.estado}
-Atributos: Fuerza ${player.attributes.force}/100, Velocidad ${player.attributes.speed}/100, Resistencia ${player.attributes.stamina}/100, Técnica ${player.attributes.technique}/100
-${player.gymStats ? `1RM: Sentadilla ${player.gymStats.squat}kg, Press Banca ${player.gymStats.bench}kg, Peso Muerto ${player.gymStats.deadlift}kg. Peso: ${player.weight}kg` : ''}
-Fallos recientes detectados: ${faultList}
+${ctx}
 
-Ejercicios ya asignados en el plan:
+Ejercicios ya asignados en el plan base:
 ${currentExercises}
 
-Sugiere 2-3 ejercicios de rugby NUEVOS (que NO estén en la lista actual) para corregir los fallos detectados y mejorar los atributos más débiles. Responde SOLO en JSON válido sin markdown:
+Sugiere 2-3 ejercicios de rugby NUEVOS (que NO estén en la lista actual) para corregir los fallos detectados y mejorar los atributos más débiles. Considera lesiones, fatiga y tendencias. Responde SOLO en JSON válido sin markdown:
 {
   "sugerencias": [
     {
@@ -167,6 +169,169 @@ Sugiere 2-3 ejercicios de rugby NUEVOS (que NO estén en la lista actual) para c
   ]
 }`;
 }
+
+function buildAITrainingContext(player) {
+  const a = player.attributes || {};
+  const gym = player.gymStats || {};
+  const w = player.weight || 85;
+  const stats = player.matchStats || [];
+  const logs = player.wellnessLogs || [];
+  const history = player.history || [];
+  const workoutLog = player.workoutLog || [];
+  const injuryLog = player.injuryLog || [];
+  const hia = player.hiaAssessments || [];
+  const att = player.attendance || {};
+
+  const parts = [];
+
+  parts.push(`PERFIL: ${player.name}, ${player.posicion || '—'}, ${player._meta?.age || '?'} años, ${player._meta?.startYear ? new Date().getFullYear() - player._meta.startYear + ' años en el club' : ''}`);
+  parts.push(`ESTADO: ${player.estado}${player.rol === 'Capitán' ? ' (Capitán)' : player.rol === 'Subcapitán' ? ' (Subcapitán)' : ''}`);
+
+  // Atributos + tendencia
+  parts.push(`ATRIBUTOS: Fuerza ${a.force || 50}/100, Velocidad ${a.speed || 50}/100, Resistencia ${a.stamina || 50}/100, Técnica ${a.technique || 50}/100`);
+  if (history.length >= 2) {
+    const first = history[0], last = history[history.length - 1];
+    const trend = (v, k) => (last[k] || 0) - (first[k] || 0);
+    const trends = [
+      `Fuerza ${trend(first, 'force') >= 0 ? '+' : ''}${trend(first, 'force')}`,
+      `Velocidad ${trend(first, 'speed') >= 0 ? '+' : ''}${trend(first, 'speed')}`,
+      `Resistencia ${trend(first, 'stamina') >= 0 ? '+' : ''}${trend(first, 'stamina')}`,
+      `Técnica ${trend(first, 'technique') >= 0 ? '+' : ''}${trend(first, 'technique')}`,
+    ];
+    parts.push(`TENDENCIA (últimos ${history.length} tests): ${trends.join(', ')}`);
+  }
+
+  // Fuerza relativa
+  if (gym.squat || gym.bench || gym.deadlift) {
+    const squat = gym.squat ? `${gym.squat}kg (${(gym.squat / w).toFixed(1)}xBW)` : 'N/A';
+    const bench = gym.bench ? `${gym.bench}kg (${(gym.bench / w).toFixed(1)}xBW)` : 'N/A';
+    const dead = gym.deadlift ? `${gym.deadlift}kg (${(gym.deadlift / w).toFixed(1)}xBW)` : 'N/A';
+    parts.push(`1RM: Sentadilla ${squat}, Press Banca ${bench}, Peso Muerto ${dead}. Peso: ${w}kg`);
+  }
+
+  // Rendimiento en partidos
+  if (stats.length > 0) {
+    const total = stats.length;
+    const tries = stats.reduce((s, m) => s + (m.tries || 0), 0);
+    const tackles = stats.reduce((s, m) => s + (m.tackles || 0), 0);
+    const avgTackles = (tackles / total).toFixed(1);
+    const mvps = stats.filter(m => m.mvp).length;
+    const yellows = stats.reduce((s, m) => s + (m.yellowCards || 0), 0);
+    const reds = stats.reduce((s, m) => s + (m.redCards || 0), 0);
+    parts.push(`PARTIDOS: ${total} jugados, ${tries} tries, ${avgTackles} tackles/partido, ${mvps} MVP, ${yellows} amarillas, ${reds} rojas`);
+
+    if (total >= 3) {
+      const recent = stats.slice(-3);
+      const recentAvg = (recent.reduce((s, m) => s + (m.tackles || 0), 0) / 3).toFixed(1);
+      if (recentAvg < avgTackles) parts.push(`TENDENCIA TACKLES: ↓ bajando (${recentAvg}/partido últimos 3 vs ${avgTackles} promedio)`);
+      else if (recentAvg > avgTackles) parts.push(`TENDENCIA TACKLES: ↑ subiendo (${recentAvg}/partido últimos 3)`);
+    }
+  }
+
+  // Entrenamientos
+  if (workoutLog.length > 0) {
+    const last30 = workoutLog.filter(w => new Date(w.date) > Date.now() - 30 * 86400000);
+    const totalCompleted = last30.length;
+    // Estimate completion rate based on total exercises vs expected
+    const recentDays = last30.map(w => w.date).sort();
+    let streak = 0, maxStreak = 0;
+    for (let i = recentDays.length - 1; i >= 0; i--) {
+      const d = new Date(recentDays[i]);
+      const next = i > 0 ? new Date(recentDays[i - 1]) : null;
+      const diff = next ? (d - next) / 86400000 : 999;
+      streak++;
+      if (diff > 2 || i === 0) { maxStreak = Math.max(maxStreak, streak); streak = 0; }
+    }
+    parts.push(`ENTRENAMIENTO: ${totalCompleted} sesiones en 30d, racha máxima ${maxStreak} días`);
+
+    const skipCounts = {};
+    workoutLog.forEach(w => (w.ejercicios || []).forEach(e => {
+      if (e.completed === false) { skipCounts[e.exerciseId] = (skipCounts[e.exerciseId] || 0) + 1; }
+    }));
+    const mostSkipped = Object.entries(skipCounts).sort((a, b) => b[1] - a[1]).slice(0, 3);
+    if (mostSkipped.length > 0) parts.push(`EJERCICIOS MÁS SALTADOS: ${mostSkipped.map(([id, n]) => `${id} (${n}x)`).join(', ')}`);
+  }
+
+  // Wellness
+  if (logs.length > 0) {
+    const recent = logs.slice(-7);
+    const avg = (k) => (recent.reduce((s, l) => s + (l[k] || 0), 0) / recent.length).toFixed(1);
+    parts.push(`WELLNESS (7d): Sueño ${avg('sleep')}/5, Dolor ${avg('soreness')}/5, Estrés ${avg('stress')}/5`);
+    if (Number(avg('sleep')) < 3) parts.push('⚠️ FATIGA: Sueño bajo — reducir intensidad esta semana');
+    if (Number(avg('soreness')) > 3.5) parts.push('⚠️ DOLOR ALTO: Posible sobreentrenamiento — priorizar recuperación');
+  }
+
+  // Lesiones
+  if (injuryLog.length > 0) {
+    const current = injuryLog[0];
+    parts.push(`LESIÓN ACTIVA: ${current.diagnosis || 'N/A'} (Fase ${current.phase || 1}/4, ${current.weeks || '?'} semanas)`);
+  }
+  const pastInjuries = injuryLog.slice(1).map(i => i.diagnosis).filter(Boolean);
+  if (pastInjuries.length > 0) parts.push(`LESIONES PASADAS: ${pastInjuries.join(', ')}`);
+
+  // Fracturas
+  if (player.had_fractures) parts.push('FRACTURAS PREVIAS: Sí — precaución en ejercicios de alto impacto');
+
+  // HIA
+  if (hia.length > 0) {
+    const withSymptoms = hia.filter(h => h.symptomsDetected).length;
+    if (withSymptoms > 0) parts.push(`HIA: ${hia.length} evaluaciones, ${withSymptoms} con síntomas — REDUCIR contacto`);
+  }
+
+  // Asistencia
+  if (att.total > 0) {
+    const pct = ((att.present || 0) / att.total * 100).toFixed(0);
+    parts.push(`ASISTENCIA: ${pct}% (${att.present || 0}/${att.total}), ${att.late || 0} tarde`);
+  }
+
+  // Penalizaciones
+  const burpees = player.penalties?.burpees || 0;
+  if (burpees > 0) parts.push(`PENALIZACIONES: ${burpees} burpees pendientes — considerar carga adicional`);
+
+  // Feedback de la semana anterior
+  const lastFeedback = player.lastPlanFeedback;
+  const lastRate = player.lastPlanCompletionRate;
+  if (lastFeedback || lastRate != null) {
+    const fb = [];
+    if (lastRate != null) fb.push(`Tasa de finalización: ${lastRate}%`);
+    if (lastFeedback?.rating) fb.push(`Calificación: ${lastFeedback.rating}/5`);
+    if (lastFeedback?.comment) fb.push(`Comentario: "${lastFeedback.comment}"`);
+    if (fb.length > 0) parts.push(`SEMANA ANTERIOR: ${fb.join(' · ')}`);
+  }
+
+  return parts.join('\n');
+}
+
+function buildAITrainingPlanPrompt(player) {
+  const ctx = buildAITrainingContext(player);
+  return `Eres un coach de rugby personal de élite. Tienes acceso COMPLETO al historial de este jugador. Basado en esta información, genera un plan de entrenamiento completo:
+
+${ctx}
+
+Genera un plan con esta estructura JSON:
+{
+  "analisis": "Un párrafo resumiendo la condición actual del jugador y qué necesita trabajar",
+  "riesgos": ["Riesgo 1", "Riesgo 2"],
+  "metas": ["Meta realista a 30 días", "Meta realista a 90 días"],
+  "plan": {
+    "campo": [
+      { "nombre": "Ejercicio campo", "sets": "4x8", "descripcion": "Cómo hacerlo", "razon": "Por qué" }
+    ],
+    "gimnasio": [
+      { "nombre": "Ejercicio gym", "sets": "3x10", "carga": "65% 1RM", "descripcion": "Cómo hacerlo", "razon": "Por qué" }
+    ],
+    "recuperacion": [
+      { "nombre": "Recuperación", "duracion": "10 min", "descripcion": "Cómo hacerlo" }
+    ]
+  },
+  "recomendaciones": {
+    "sueno": "Recomendación sobre descanso",
+    "nutricion": "Sugerencia nutricional breve",
+    "prevencion": "Ejercicio preventivo extra"
+  }
+}
+
+Responde SOLO el JSON, sin markdown.`}
 
 function buildMatchAnalysisPrompt(fixture, players, teamLabel) {
   const playerStats = players
@@ -210,5 +375,7 @@ export {
   buildChatContext,
   buildSystemPrompt,
   buildTrainingEnrichmentPrompt,
+  buildAITrainingContext,
+  buildAITrainingPlanPrompt,
   buildMatchAnalysisPrompt
 };

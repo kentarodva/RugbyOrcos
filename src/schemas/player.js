@@ -80,8 +80,10 @@ const playerWellnessLogSchema = z.object({
 const playerWorkoutLogSchema = z.object({
   id: z.string(),
   date: z.string(),
-  ejercicios: z.array(z.object({ exerciseId: z.string() })),
-  type: z.string(),
+  routine: z.string().optional().nullable(),
+  category: z.string().optional().nullable(),
+  exercises: z.array(z.object({ exerciseId: z.string() })),
+  completed: z.boolean(),
 });
 
 export const playerSchema = z.object({

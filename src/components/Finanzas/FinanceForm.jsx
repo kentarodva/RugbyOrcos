@@ -11,11 +11,11 @@ export function FinanceForm({
 }) {
   return (
     <div className="glass-panel animated-slide" style={{ padding: '25px' }}>
-      <h3 className="neon-text-primary" style={{ marginBottom: '20px', fontFamily: 'Outfit' }}>?? Registrar Movimiento</h3>
+      <h3 className="neon-text-primary" style={{ marginBottom: '20px', fontFamily: 'Outfit' }}>💰 Registrar Movimiento</h3>
       <form onSubmit={onSave} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
         <div className="form-group">
-          <label>Descripci�n / Detalle</label>
-          <input type="text" value={finDesc} onChange={(e) => setFinDesc(e.target.value)} placeholder="Ej. Balones Gilbert, Compra botiqu�n" className="form-input" required />
+          <label>Descripción / Detalle</label>
+          <input type="text" value={finDesc} onChange={(e) => setFinDesc(e.target.value)} placeholder="Ej. Balones Gilbert, Compra botiquín" className="form-input" required />
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
           <div className="form-group">
@@ -31,7 +31,7 @@ export function FinanceForm({
           </div>
         </div>
         <div className="form-group">
-          <label>Categor�a</label>
+          <label>Categoría</label>
           <select value={finCategory} onChange={(e) => setFinCategory(e.target.value)} className="form-select">
             {FINANCE_CATEGORIES.map(cat => (
               <option key={cat.value} value={cat.value}>{cat.label}</option>
@@ -39,7 +39,7 @@ export function FinanceForm({
           </select>
         </div>
         <div className="form-group">
-          <label>Fecha de Transacci�n</label>
+          <label>Fecha de Transacción</label>
           <input type="date" value={finDate} onChange={(e) => setFinDate(e.target.value)} className="form-input" required />
         </div>
         <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', marginTop: '10px' }}>

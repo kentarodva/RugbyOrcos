@@ -10,3 +10,4 @@ export { useFixtures, useRivals, useFutureFixtures } from './useMatches';
 export { useInvitations } from './useInvitations';
 export { useLoans } from './useLoans';
 export { useDataIO } from './useDataIO';
+export { useFundraising } from './useFundraising';

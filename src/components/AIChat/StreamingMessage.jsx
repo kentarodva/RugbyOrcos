@@ -1,4 +1,5 @@
 import React from 'react';
+import { Icon } from './icons';
 import { sanitizeAndFormatAI } from '../../engine/contentFilter';
 import { PROVIDERS } from '../../engine/multiProviderCoach';
 
@@ -31,7 +32,7 @@ export function StreamingMessage({ streamingText, streamingProvider }) {
         color: '#000',
         fontWeight: 800
       }}>
-        ??
+        <Icon name="ai" size={16} />
       </div>
       <div style={{
         padding: '12px 15px',
@@ -43,7 +44,7 @@ export function StreamingMessage({ streamingText, streamingProvider }) {
         color: 'var(--color-text)'
       }}>
         <span dangerouslySetInnerHTML={{ __html: sanitizeAndFormatAI(streamingText) }} />
-        <span className="blink" style={{ color: 'var(--color-primary)' }}>�</span>
+        <Icon name="typing" size={16} className="ai-blink" style={{ marginLeft: '2px', color: 'var(--color-primary)', verticalAlign: 'middle' }} />
         {badge && (
           <div style={{ fontSize: '0.6rem', color: 'var(--color-gold)', marginTop: '2px' }}>
             {badge.icon} {badge.name}

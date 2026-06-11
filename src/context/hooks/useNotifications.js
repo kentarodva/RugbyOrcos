@@ -30,9 +30,6 @@ export function useNotifications() {
 
   const sendLocalNotification = useCallback(async (title, body) => {
     try {
-      let badgeCount = parseInt(localStorage.getItem('orcos_badge_count') || '0');
-      badgeCount++;
-      localStorage.setItem('orcos_badge_count', String(badgeCount));
       if (LocalNotifications) {
         await LocalNotifications.schedule({
           notifications: [{

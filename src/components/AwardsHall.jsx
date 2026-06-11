@@ -1,6 +1,7 @@
 import React, { useContext, useState, useMemo } from 'react';
 import { ClubContext } from '../context/ClubContext.jsx';
 import { formatLocalDate } from '../utils/dates.js';
+import { MENSUALIDAD_BASE } from './Finanzas/constants';
 
 const HONOR_AWARDS = [
   { id: 'mvp', name: 'MVP Legendario', icon: '🏆', desc: 'Mas MVPs', calc: p => (p.matchStats || []).filter(m => m.mvp).length, higher: true },
@@ -29,7 +30,7 @@ const TAVERN_AWARDS = [
   { id: 'fridge', name: 'Nevera del Año', icon: '🧊', desc: 'Mas semanas lesionado', calc: p => (p.injuryLog || []).reduce((s, i) => s + (i.weeks || 0), 0), higher: true },
   { id: 'slip', name: 'Resbalon de Oro', icon: '🍌', desc: 'Turnovers perdidos', calc: p => -(p.matchStats || []).reduce((s, m) => s + (m.turnovers || 0), 0), higher: false },
   { id: 'ghost', name: 'El Fantasma', icon: '💨', desc: '0 tackles', calc: p => (p.matchStats || []).reduce((s, m) => s + (m.tackles || 0), 0) === 0 && (p.matchStats || []).length > 0 ? 1 : 0, higher: true },
-  { id: 'debt', name: 'Moroso del Año', icon: '💸', desc: 'Mayor deuda membresia', calc: p => { const m = p.memberships || {}; return Math.max(0, (m.due || 10000) - (m.paid || 0)); }, higher: true },
+  { id: 'debt', name: 'Moroso del Año', icon: '💸', desc: 'Mayor deuda membresia', calc: p => { const m = p.memberships || {}; return Math.max(0, (m.due || MENSUALIDAD_BASE) - (m.paid || 0)); }, higher: true },
   { id: 'sleepy', name: 'Dormilon', icon: '😴', desc: 'Promedio mas bajo sueño', calc: p => { const w = p.wellnessLogs || []; if (!w.length) return 5; return w.reduce((s, x) => s + (x.sleep || 0), 0) / w.length; }, higher: false },
   { id: 'stressed', name: 'Estresado Cronico', icon: '😰', desc: 'Promedio mas alto estres', calc: p => { const w = p.wellnessLogs || []; if (!w.length) return 1; return w.reduce((s, x) => s + (x.stress || 0), 0) / w.length; }, higher: true },
   { id: 'latelate', name: 'Golpeador de Puertas', icon: '🚪', desc: 'Mas llegadas tarde', calc: p => (p.attendance || {}).late || 0, higher: true },
@@ -146,6 +147,12 @@ function AwardsHall() {
                     <button onClick={() => openPrint(player, award)}
                       style={{ background: 'none', border: '1px solid var(--border-glass)', borderRadius: '4px', color: 'var(--color-text-muted)', cursor: 'pointer', fontSize: '0.7rem', padding: '2px 6px' }}
                       title="Generar certificado">📜</button>
+                    <button onClick={() => {
+                      const msg = `🏆 *Rugby Orcos Negros* 🏆\n\n${player.name} ha ganado *${award.name}* ${award.icon}\n"${award.desc}"\n\n🔴⚫ #RugbyOrcos`;
+                      window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`, '_blank');
+                    }}
+                      style={{ background: 'none', border: '1px solid var(--border-glass)', borderRadius: '4px', color: 'var(--color-primary)', cursor: 'pointer', fontSize: '0.7rem', padding: '2px 6px' }}
+                      title="Compartir en WhatsApp">💬</button>
                   </div>
                 </div>
               );

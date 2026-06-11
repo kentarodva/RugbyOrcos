@@ -1,4 +1,5 @@
 import React from 'react';
+import { Icon } from './icons';
 import { CHAT_MODES } from '../../engine/aiConfig';
 import { ChatMessage } from './ChatMessage';
 import { StreamingMessage } from './StreamingMessage';
@@ -20,9 +21,9 @@ export function MessageList({ messages, streamingText, streamingProvider, chatMo
     }}>
       {messages.length === 0 && !streamingText ? (
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '15px', height: '100%', padding: '30px 0' }}>
-          <span style={{ fontSize: '3rem' }}>??</span>
+          <span style={{ fontSize: '3rem' }}><Icon name="rugby" size={48} /></span>
           <h3 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--color-text-muted)' }}>
-            {CHAT_MODES[chatMode].icon} Coach de Rugby IA � {CHAT_MODES[chatMode].label}
+            {CHAT_MODES[chatMode].icon} Coach de Rugby IA &middot; {CHAT_MODES[chatMode].label}
           </h3>
           <p style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', textAlign: 'center', maxWidth: '450px' }}>
             {chatMode === 'general' && 'Preguntame sobre reglas de World Rugby, tactica de juego, como contrarrestar al rival o ejercicios especificos para tus jugadores.'}

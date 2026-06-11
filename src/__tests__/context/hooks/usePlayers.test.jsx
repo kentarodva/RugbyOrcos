@@ -6,7 +6,13 @@ vi.mock('../../../data/supabaseApi.js', () => ({
 }));
 
 vi.mock('../../../supabaseClient.js', () => ({
-  supabase: { rpc: vi.fn() },
+  supabase: {
+    rpc: vi.fn(),
+    from: vi.fn(() => ({
+      upsert: vi.fn(() => Promise.resolve({ data: null, error: null })),
+      insert: vi.fn(() => Promise.resolve({ data: null, error: null })),
+    })),
+  },
 }));
 
 vi.mock('../../../utils/errorHandler', () => ({
@@ -50,7 +56,11 @@ describe('usePlayers — CRUD', () => {
       expect(result.current.players[0].name).toBe('Juan Pérez');
       expect(result.current.players[0].id).toMatch(/^[0-9a-f-]{36}$/);
       expect(result.current.players[0].estado).toBe('activo');
-      expect(result.current.players[0].attributes).toEqual({ force: 50, speed: 50, stamina: 50, technique: 50 });
+      expect(result.current.players[0].attributes.force).toBeGreaterThanOrEqual(10);
+      expect(result.current.players[0].attributes.force).toBeLessThanOrEqual(100);
+      expect(result.current.players[0].attributes.speed).toBeGreaterThanOrEqual(10);
+      expect(result.current.players[0].attributes.stamina).toBeGreaterThanOrEqual(10);
+      expect(result.current.players[0].attributes.technique).toBeGreaterThanOrEqual(10);
       expect(result.current.players[0].teamCategory).toBe('masculina_mayor');
       expect(result.current.players[0].systemRole).toBe('jugador');
       expect(pushPlayerToSupabase).toHaveBeenCalledWith(result.current.players[0]);
@@ -311,7 +321,7 @@ describe('usePlayers — Membresia', () => {
 
     const p = result.current.players[0];
     expect(p.memberships.paid).toBe(5000);
-    expect(p.memberships.due).toBe(5000);
+    expect(p.memberships.due).toBe(10000);
     expect(p.memberships.lastAmount).toBe(5000);
   });
 });

@@ -8,7 +8,8 @@ function AddPlayerModal({ onClose, onSubmit, makgoraTeams, SYSTEM_ROLES, SYSTEM_
   const [form, setForm] = useState({
     name: '', apodo: '', camiseta: '', phone: '', email: '',
     rol: 'Titular', systemRole: SYSTEM_ROLES?.JUGADOR || 'jugador',
-    positionId: null, posicion: '', force: 50, speed: 50, stamina: 50, technique: 50,
+    positionId: null, posicion: '',
+    weight: '', height: '', age: '',
     makgoraTeamId: ''
   });
 
@@ -30,12 +31,9 @@ function AddPlayerModal({ onClose, onSubmit, makgoraTeams, SYSTEM_ROLES, SYSTEM_
       position_id: form.positionId,
       systemRole: form.systemRole,
       makgora_team_id: form.makgoraTeamId || null,
-      attributes: {
-        force: Number(form.force),
-        speed: Number(form.speed),
-        stamina: Number(form.stamina),
-        technique: Number(form.technique)
-      }
+      weight: form.weight ? Number(form.weight) : null,
+      height: form.height ? Number(form.height) : null,
+      age: form.age ? Number(form.age) : null,
     });
   };
 
@@ -114,21 +112,23 @@ function AddPlayerModal({ onClose, onSubmit, makgoraTeams, SYSTEM_ROLES, SYSTEM_
           </div>
 
           <div style={{ background: 'var(--bg-dark)', padding: '15px', borderRadius: 'var(--radius-md)', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-            <h4 style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--color-primary)' }}>Atributos Iniciales RPG</h4>
+            <h4 style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--color-primary)' }}>Datos Fisicos (Opcional)</h4>
+            <p style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)' }}>Los atributos RPG se calculan automaticamente segun posicion, peso, altura y edad.</p>
 
-            {[
-              { key: 'force', label: 'Fuerza', color: '#ff1744' },
-              { key: 'speed', label: 'Velocidad', color: '#2979ff' },
-              { key: 'stamina', label: 'Resistencia', color: '#00e676' },
-              { key: 'technique', label: 'Tecnica/Destreza', color: '#d500f9' }
-            ].map(attr => (
-              <div className="form-group" key={attr.key}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem' }}>
-                  <label>{attr.label}: {form[attr.key]}</label>
-                </div>
-                <input type="range" min="10" max="100" value={form[attr.key]} onChange={set(attr.key)} style={{ accentColor: attr.color }} />
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px' }}>
+              <div className="form-group" style={{ margin: 0 }}>
+                <label style={{ fontSize: '0.72rem' }}>Peso (kg)</label>
+                <input type="number" value={form.weight} onChange={set('weight')} placeholder="Ej. 95" className="form-input" style={{ padding: '6px 8px', fontSize: '0.78rem' }} min="40" max="160" />
               </div>
-            ))}
+              <div className="form-group" style={{ margin: 0 }}>
+                <label style={{ fontSize: '0.72rem' }}>Altura (m)</label>
+                <input type="number" value={form.height} onChange={set('height')} placeholder="Ej. 1.82" className="form-input" style={{ padding: '6px 8px', fontSize: '0.78rem' }} min="1.4" max="2.2" step="0.01" />
+              </div>
+              <div className="form-group" style={{ margin: 0 }}>
+                <label style={{ fontSize: '0.72rem' }}>Edad</label>
+                <input type="number" value={form.age} onChange={set('age')} placeholder="Ej. 25" className="form-input" style={{ padding: '6px 8px', fontSize: '0.78rem' }} min="14" max="60" />
+              </div>
+            </div>
           </div>
 
           <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', marginTop: '10px' }}>

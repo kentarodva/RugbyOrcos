@@ -1,17 +1,19 @@
-// ── Factory compartido para providers OpenAI-compatibles (Groq, DeepSeek) ──
-// La lógica es idéntica entre groqProvider y deepseekProvider; solo cambia PROVIDER_ID.
-// Este módulo exporta un factory que recibe el id y devuelve el provider completo.
 import { PROVIDERS, RETRY_CONFIG } from '../aiConfig';
+import { getSetting, setSetting } from '../../data/clubSettings';
 import { callOpenAICompatible, streamOpenAICompatible, sleep } from './openaiCompatible';
 
 export function createProvider(providerId) {
   const P = PROVIDERS[providerId];
   if (!P) throw new Error(`Provider "${providerId}" not found in PROVIDERS config.`);
 
+  function getApiKey() {
+    return getSetting(`${providerId}_key`) || null;
+  }
+
   function getConfig() {
-    const modelKey = localStorage.getItem(`orcos_${providerId}_model`) || P.defaultModel;
+    const modelKey = getSetting(`${providerId}_model`) || P.defaultModel;
     const model = P.models[modelKey] || P.models[P.defaultModel];
-    const apiKey = localStorage.getItem(P.apiKeyStorage) || null;
+    const apiKey = getApiKey();
     return { model, apiKey, endpoint: P.endpoint };
   }
 
@@ -23,38 +25,32 @@ export function createProvider(providerId) {
   }
 
   function setApiKey(key) {
-    if (key) localStorage.setItem(P.apiKeyStorage, key.trim());
-    else localStorage.removeItem(P.apiKeyStorage);
+    setSetting(`${providerId}_key`, key ? key.trim() : '');
   }
 
   function getRateLimitInfo() {
     const { model } = getConfig();
     const key = `orcos_ai_rate_${providerId}_${model.id}_${new Date().toISOString().split('T')[0]}`;
-    return { used: Number(localStorage.getItem(key) || 0), limit: model.dailyLimit };
+    return { used: Number(getSetting(key) || 0), limit: model.dailyLimit };
   }
 
   function checkRateLimit() {
     const { model } = getConfig();
     const key = `orcos_ai_rate_${providerId}_${model.id}_${new Date().toISOString().split('T')[0]}`;
-    return Number(localStorage.getItem(key) || 0) < model.dailyLimit;
+    return Number(getSetting(key) || 0) < model.dailyLimit;
   }
 
   function incrementRateLimit() {
     const { model } = getConfig();
     const key = `orcos_ai_rate_${providerId}_${model.id}_${new Date().toISOString().split('T')[0]}`;
-    const used = Number(localStorage.getItem(key) || 0);
-    localStorage.setItem(key, String(used + 1));
-    try {
-      const bc = new BroadcastChannel('orcos_ai_rate');
-      bc.postMessage({ providerId, used: used + 1, modelId: model.id });
-      bc.close();
-    } catch { /* BroadcastChannel no soportado */ }
+    const used = Number(getSetting(key) || 0);
+    setSetting(key, String(used + 1));
   }
 
   async function call(prompt, options = {}) {
     const { apiKey, model, endpoint } = getConfig();
     if (!apiKey) return { error: true, message: `${P.name} no configurado.` };
-    if (!checkRateLimit()) return { error: true, message: 'Límite diario alcanzado.' };
+    if (!checkRateLimit()) return { error: true, message: 'Limite diario alcanzado.' };
 
     const opts = {
       endpoint, apiKey, modelId: model.id,
@@ -85,7 +81,7 @@ export function createProvider(providerId) {
   async function streamChat(prompt, onChunk, options = {}) {
     const { apiKey, model, endpoint } = getConfig();
     if (!apiKey) { onChunk({ error: `${P.name} no configurado.`, done: true }); return; }
-    if (!checkRateLimit()) { onChunk({ error: 'Límite diario alcanzado.', done: true }); return; }
+    if (!checkRateLimit()) { onChunk({ error: 'Limite diario alcanzado.', done: true }); return; }
 
     let streamError = false;
     const wrappedOnChunk = (chunk) => {
@@ -114,14 +110,3 @@ export function createProvider(providerId) {
 
   return { isConfigured, getProviderInfo, setApiKey, getRateLimitInfo, incrementRateLimit, call, streamChat, debugConnection };
 }
-
-try {
-  const bc = new BroadcastChannel('orcos_ai_rate');
-  bc.onmessage = (event) => {
-    const { providerId: pid, used, modelId: mid } = event.data || {};
-    if (!pid || !mid) return;
-    const key = `orcos_ai_rate_${pid}_${mid}_${new Date().toISOString().split('T')[0]}`;
-    const current = Number(localStorage.getItem(key) || 0);
-    if (used > current) localStorage.setItem(key, String(used));
-  };
-} catch { /* BroadcastChannel no soportado */ }

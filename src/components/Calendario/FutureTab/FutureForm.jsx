@@ -83,7 +83,7 @@ function FutureForm({ onSave }) {
           />
         </div>
 
-        <button type="submit" className="btn-neon" style={{ justifyContent: 'center', background: 'linear-gradient(135deg, var(--color-gold), #ff8f00)', color: '#000', marginTop: '10px' }}>
+        <button type="submit" className="btn-gold" style={{ justifyContent: 'center', marginTop: '10px' }}>
           Agendar Proximo Compromiso
         </button>
       </form>

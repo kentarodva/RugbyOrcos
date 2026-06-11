@@ -1,6 +1,7 @@
 import { supabase } from '../supabaseClient.js';
 import { handleError } from '../utils/errorHandler';
 import { playerSchema } from '../schemas/player.js';
+import { calculateAttributes } from '../engine/attributeCalculator.js';
 
 const apisupabase = {
   tableMap: {
@@ -141,7 +142,7 @@ const apisupabase = {
         attr_force: player.attr_force || (player.attributes?.force ?? 50),
         attr_speed: player.attr_speed || (player.attributes?.speed ?? 50),
         attr_stamina: player.attr_stamina || (player.attributes?.stamina ?? 50),
-        attr_technique: player.attr_technique || (player.attributes?.technique ?? 70),
+        attr_technique: player.attr_technique || (player.attributes?.technique ?? 50),
         clothing_jersey: player.clothing_jersey || player.clothingSizes?.jersey,
         clothing_shorts: player.clothing_shorts || player.clothingSizes?.shorts,
         clothing_socks: player.clothing_socks || player.clothingSizes?.socks,
@@ -150,6 +151,8 @@ const apisupabase = {
         gym_deadlift: player.gym_deadlift || player.gymStats?.deadlift,
         system_role: player.system_role,
         makgora_team_id: player.makgora_team_id || null,
+        avatar_id: player.avatar_id || null,
+        photo_url: player.photo_url || null,
         source: player.source || 'manual',
         form_submitted_at: player.form_submitted_at,
         updated_at: new Date().toISOString(),
@@ -192,7 +195,7 @@ const apisupabase = {
       attr_force: p.attr_force ?? 50,
       attr_speed: p.attr_speed ?? 50,
       attr_stamina: p.attr_stamina ?? 50,
-      attr_technique: p.attr_technique ?? 70,
+      attr_technique: p.attr_technique ?? 50,
       source: p.source || 'csv_import',
       updated_at: new Date().toISOString(),
     }));
@@ -278,10 +281,10 @@ const apisupabase = {
     if (error) return [];
     if (tier >= 4) return (data || []).filter(inv => inv.user_id === userId);
     if (tier >= 2 && clubScope) {
-      return (data || []).filter(inv => {
-        if (inv.user_id === userId) return true;
-        return true;
-      });
+      return (data || []).filter(inv =>
+        inv.user_id === userId ||
+        inv.future_fixtures?.team_category === clubScope
+      );
     }
     return data || [];
   },
@@ -383,7 +386,7 @@ export async function createCustomTactic(data) {
     .single();
 
   if (error) {
-    handleError(error, 'supabaseApi.createTactic', { silent: true });
+    handleError(error, 'supabaseApi.createTactic', { notifyUser: true });
     return null;
   }
   return result;
@@ -398,7 +401,7 @@ export async function updateCustomTactic(id, updates) {
     .single();
 
   if (error) {
-    handleError(error, 'supabaseApi.updateTactic', { silent: true });
+    handleError(error, 'supabaseApi.updateTactic', { notifyUser: true });
     return null;
   }
   return data;
@@ -411,7 +414,7 @@ export async function deleteCustomTactic(id) {
     .eq('id', id);
 
   if (error) {
-    handleError(error, 'supabaseApi.deleteTactic', { silent: true });
+    handleError(error, 'supabaseApi.deleteTactic', { notifyUser: true });
     return false;
   }
   return true;
@@ -494,6 +497,21 @@ export function supabasePlayerToReact(p) {
   const att = p.player_attendance_summary?.[0] || p.attendance_summary || {};
   const pen = p.penalties?.[0] || p.penalties || {};
 
+  const ninetyDaysAgo = new Date();
+  ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
+
+  const recentTest = (p.attribute_history || []).find(h =>
+    h.source === 'test' && new Date(h.recorded_date) > ninetyDaysAgo
+  );
+
+  const computedAttrs = recentTest
+    ? { force: recentTest.attr_force, speed: recentTest.attr_speed, stamina: recentTest.attr_stamina, technique: recentTest.attr_technique }
+    : calculateAttributes({
+        posicion: p.position,
+        weight: p.weight_kg,
+        height: p.height_m,
+      });
+
   const player = {
     id: p.id,
     userId: p.user_id,
@@ -505,14 +523,10 @@ export function supabasePlayerToReact(p) {
     posicion: p.position || '',
     position_id: p.position_id || null,
     estado: p.status || 'activo',
-    attributes: {
-      force: p.attr_force || 50,
-      speed: p.attr_speed || 50,
-      stamina: p.attr_stamina || 50,
-      technique: p.attr_technique || 70,
-    },
+    attributes: computedAttrs,
     history: (p.attribute_history || []).map((h) => ({
       date: h.recorded_date,
+      source: h.source || 'auto',
       force: h.attr_force,
       speed: h.attr_speed,
       stamina: h.attr_stamina,
@@ -596,7 +610,9 @@ export function supabasePlayerToReact(p) {
     teamCategory: p.team_category || '',
     makgora_team_id: p.makgora_team_id,
     systemRole: p.system_role || 'jugador',
-    memberships: { paid: 0, due: 10000 },
+    avatar_id: p.avatar_id || null,
+    photo_url: p.photo_url || null,
+    memberships: { paid: 0, due: 0 },
     _meta: {
       docType: p.document_type,
       docNum: p.document_number,

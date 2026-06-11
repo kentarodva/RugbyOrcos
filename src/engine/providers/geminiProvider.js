@@ -1,13 +1,14 @@
 import { PROVIDERS, RETRY_CONFIG } from '../aiConfig';
+import { getSetting, setSetting } from '../../data/clubSettings';
 import { sleep } from './openaiCompatible';
 
 const PROVIDER_ID = 'gemini';
 
 function getConfig() {
   const provider = PROVIDERS[PROVIDER_ID];
-  const modelKey = localStorage.getItem('orcos_ai_model') || provider.defaultModel;
+  const modelKey = getSetting(`${PROVIDER_ID}_model`) || provider.defaultModel;
   const model = provider.models[modelKey] || provider.models[provider.defaultModel];
-  const apiKey = localStorage.getItem(provider.apiKeyStorage) || null;
+  const apiKey = getSetting(`${PROVIDER_ID}_key`) || null;
   return { provider, model, modelKey, apiKey, endpoint: provider.endpoint };
 }
 
@@ -21,19 +22,14 @@ export function getProviderInfo() {
 }
 
 export function setApiKey(key) {
-  const provider = PROVIDERS[PROVIDER_ID];
-  if (key) {
-    localStorage.setItem(provider.apiKeyStorage, key.trim());
-  } else {
-    localStorage.removeItem(provider.apiKeyStorage);
-  }
+  setSetting(`${PROVIDER_ID}_key`, key ? key.trim() : '');
 }
 
 export function getRateLimitInfo() {
   const { model } = getConfig();
   const key = `orcos_ai_rate_${PROVIDER_ID}_${model.id}_${new Date().toISOString().split('T')[0]}`;
   return {
-    used: Number(localStorage.getItem(key) || 0),
+    used: Number(getSetting(key) || 0),
     limit: model.dailyLimit
   };
 }
@@ -41,8 +37,8 @@ export function getRateLimitInfo() {
 export function incrementRateLimit() {
   const { model } = getConfig();
   const key = `orcos_ai_rate_${PROVIDER_ID}_${model.id}_${new Date().toISOString().split('T')[0]}`;
-  const used = Number(localStorage.getItem(key) || 0);
-  localStorage.setItem(key, String(used + 1));
+  const used = Number(getSetting(key) || 0);
+  setSetting(key, String(used + 1));
 }
 
 function buildUrl(modelId, stream) {
@@ -108,19 +104,19 @@ async function callGeminiRaw(prompt, options = {}) {
 
     if (!text) {
       if (data?.candidates?.[0]?.finishReason === 'SAFETY') {
-        return { error: true, message: 'Gemini bloqueó la respuesta por políticas de seguridad. Reformula tu pregunta con otros términos.' };
+        return { error: true, message: 'Gemini bloqueo la respuesta por politicas de seguridad. Reformula tu pregunta con otros terminos.' };
       }
       const reason = data?.candidates?.[0]?.finishReason || 'desconocido';
-      return { error: true, message: `Gemini no generó respuesta (motivo: ${reason}).` };
+      return { error: true, message: `Gemini no genero respuesta (motivo: ${reason}).` };
     }
 
     return { text, error: false };
   } catch (err) {
     clearTimeout(timer);
     if (err.name === 'AbortError') {
-      return { error: true, message: 'La consulta excedió el tiempo límite. Intenta con una pregunta más corta.' };
+      return { error: true, message: 'La consulta excedio el tiempo limite. Intenta con una pregunta mas corta.' };
     }
-    return { error: true, message: `Error de conexión: ${err.message}.` };
+    return { error: true, message: `Error de conexion: ${err.message}.` };
   }
 }
 
@@ -210,7 +206,7 @@ export async function streamChat(prompt, onChunk, options = {}) {
           if (parsed?.candidates?.[0]?.finishReason) {
             const reason = parsed.candidates[0].finishReason;
             if (reason === 'SAFETY') {
-              onChunk({ error: 'Gemini bloqueó la respuesta por políticas de seguridad.', done: true });
+              onChunk({ error: 'Gemini bloqueo la respuesta por politicas de seguridad.', done: true });
               return;
             }
           }

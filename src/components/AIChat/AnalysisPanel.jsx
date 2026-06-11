@@ -1,4 +1,5 @@
 import React from 'react';
+import { Icon } from './icons';
 
 export function AnalysisPanel({ showAnalysis, analyzingMatch, analysisResult, onClose }) {
   if (!showAnalysis) return null;
@@ -17,11 +18,11 @@ export function AnalysisPanel({ showAnalysis, analyzingMatch, analysisResult, on
           cursor: 'pointer', fontSize: '1rem'
         }}
       >
-        X
+        <Icon name="close" size={18} />
       </button>
       {analyzingMatch ? (
         <div style={{ textAlign: 'center', padding: '20px' }}>
-          <span style={{ fontSize: '2rem' }}>?</span>
+          <Icon name="loading" size={32} className="ai-icon-spin" />
           <p style={{ marginTop: '10px', color: 'var(--color-text-muted)' }}>Analizando ultimo partido con IA...</p>
         </div>
       ) : analysisResult ? (
@@ -30,14 +31,14 @@ export function AnalysisPanel({ showAnalysis, analyzingMatch, analysisResult, on
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
             <h3 style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--color-gold)' }}>
-              ?? Analisis: {analysisResult.fixture.opponent} ({analysisResult.fixture.score})
+              <Icon name="chart" size={18} /> Analisis: {analysisResult.fixture.opponent} ({analysisResult.fixture.score})
             </h3>
             <div style={{ fontSize: '0.85rem', lineHeight: 1.6, color: 'var(--color-text)' }}>
               <strong>Resumen:</strong> {analysisResult.resumen}
             </div>
             {analysisResult.puntosFuertes.length > 0 && (
               <div>
-                <strong style={{ color: 'var(--color-primary)', fontSize: '0.8rem' }}>? Puntos Fuertes:</strong>
+                <strong style={{ color: 'var(--color-primary)', fontSize: '0.8rem' }}><Icon name="check" size={14} /> Puntos Fuertes:</strong>
                 <ul style={{ paddingLeft: '20px', fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>
                   {analysisResult.puntosFuertes.map((p, i) => <li key={i}>{p}</li>)}
                 </ul>
@@ -45,7 +46,7 @@ export function AnalysisPanel({ showAnalysis, analyzingMatch, analysisResult, on
             )}
             {analysisResult.areasMejora.length > 0 && (
               <div>
-                <strong style={{ color: 'var(--color-red)', fontSize: '0.8rem' }}>?? Areas de Mejora:</strong>
+                <strong style={{ color: 'var(--color-red)', fontSize: '0.8rem' }}><Icon name="close" size={14} /> Areas de Mejora:</strong>
                 <ul style={{ paddingLeft: '20px', fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>
                   {analysisResult.areasMejora.map((a, i) => <li key={i}>{a}</li>)}
                 </ul>
@@ -59,7 +60,7 @@ export function AnalysisPanel({ showAnalysis, analyzingMatch, analysisResult, on
                 borderRadius: 'var(--radius-sm)',
                 fontSize: '0.82rem'
               }}>
-                <strong style={{ color: 'var(--color-primary)' }}>?? Recomendacion Tactica:</strong>
+                <strong style={{ color: 'var(--color-primary)' }}><Icon name="bulb" size={14} /> Recomendacion Tactica:</strong>
                 <p style={{ marginTop: '4px', color: 'var(--color-text)' }}>{analysisResult.recomendacionTactica}</p>
               </div>
             )}

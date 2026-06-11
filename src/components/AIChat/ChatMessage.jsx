@@ -1,4 +1,5 @@
 import React from 'react';
+import { Icon } from './icons';
 import { sanitizeAndFormatAI } from '../../engine/contentFilter';
 import { CHAT_MODES } from '../../engine/aiConfig';
 import { PROVIDERS } from '../../engine/multiProviderCoach';
@@ -36,7 +37,7 @@ export function ChatMessage({ msg }) {
         color: '#000',
         fontWeight: 800
       }}>
-        {msg.role === 'user' ? '??' : '??'}
+        {msg.role === 'user' ? <Icon name="user" size={16} /> : <Icon name="ai" size={16} />}
       </div>
       <div style={{
         padding: '12px 15px',

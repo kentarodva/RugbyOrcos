@@ -3,6 +3,7 @@ import { supabase } from '../supabaseClient.js';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useToast } from '../context/ToastContext.jsx';
 import { formatLocalDate } from '../utils/dates.js';
+import { getRpgRole } from '../context/constants';
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB máximo
 const MAX_IMAGE_WIDTH = 1024;
@@ -39,6 +40,22 @@ function Messages() {
   const [showAnnounceForm, setShowAnnounceForm] = useState(false);
   const [announceText, setAnnounceText] = useState('');
   const [uploading, setUploading] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [messageReactions, setMessageReactions] = useState({});
+  const EMOJI_REACTIONS = ['👍', '🏉', '🔥', '😂', '💪'];
+
+  const toggleReaction = (msgId, emoji) => {
+    setMessageReactions(prev => {
+      const current = prev[msgId] || {};
+      const count = current[emoji] || 0;
+      if (count > 0) {
+        const next = { ...current };
+        delete next[emoji];
+        return { ...prev, [msgId]: next };
+      }
+      return { ...prev, [msgId]: { ...current, [emoji]: 1 } };
+    });
+  };
   const [previewFile, setPreviewFile] = useState(null);
   const fileInputRef = useRef(null);
   const messagesEndRef = useRef(null);
@@ -249,7 +266,7 @@ function Messages() {
               <div key={s.user_id} onClick={() => startNewChat(s.user_id)}
                 style={{ padding: '6px 8px', cursor: 'pointer', borderRadius: 'var(--radius-sm)', fontSize: '0.8rem', color: 'var(--color-text)' }}
                 className="hover-row">
-                {s.display_name} <span style={{ color: 'var(--color-text-muted)', fontSize: '0.65rem' }}>({s.system_role})</span>
+                {s.display_name} <span style={{ color: 'var(--color-text-muted)', fontSize: '0.65rem' }}>({getRpgRole(s.system_role).rpg} - {getRpgRole(s.system_role).original})</span>
               </div>
             ))}
           </div>
@@ -273,13 +290,20 @@ function Messages() {
           </form>
         )}
 
+        <div style={{ padding: '6px 10px', borderBottom: '1px solid var(--border-glass)' }}>
+          <input type="text" value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
+            placeholder="🔍 Buscar conversaciones..."
+            className="form-input" style={{ padding: '5px 8px', fontSize: '0.72rem', width: '100%' }} />
+        </div>
         <div style={{ flex: 1, overflowY: 'auto' }}>
           {conversations.length === 0 ? (
             <p style={{ padding: '20px', textAlign: 'center', fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
               No hay mensajes aún.
             </p>
           ) : (
-            conversations.map(c => (
+            conversations
+              .filter(c => !searchQuery || getDisplayName(c.id).toLowerCase().includes(searchQuery.toLowerCase()))
+              .map(c => (
               <div key={c.id} onClick={() => openChat(c.id)}
                 style={{
                   padding: '10px 12px', cursor: 'pointer', borderBottom: '1px solid rgba(255,255,255,0.03)',
@@ -356,6 +380,25 @@ function Messages() {
                     )}
                     <div style={{ fontSize: '0.6rem', color: 'var(--color-text-muted)', textAlign: 'right', marginTop: '3px' }}>
                       {formatTime(msg.created_at)}
+                    </div>
+                    <div style={{ display: 'flex', gap: '3px', marginTop: '4px', flexWrap: 'wrap' }}>
+                      {EMOJI_REACTIONS.map(emoji => {
+                        const reactions = messageReactions[msg.id] || {};
+                        const count = reactions[emoji] || 0;
+                        const active = count > 0;
+                        return (
+                          <button key={emoji} onClick={() => toggleReaction(msg.id, emoji)}
+                            style={{
+                              background: active ? 'rgba(0,230,118,0.1)' : 'transparent',
+                              border: `1px solid ${active ? 'var(--color-primary)' : 'var(--border-glass)'}`,
+                              borderRadius: '10px', padding: '1px 5px', cursor: 'pointer',
+                              fontSize: '0.65rem', display: 'flex', alignItems: 'center', gap: '2px',
+                              color: 'var(--color-text-muted)', lineHeight: 1.4,
+                            }}>
+                            {emoji} {count > 0 && <span style={{ fontSize: '0.6rem' }}>{count}</span>}
+                          </button>
+                        );
+                      })}
                     </div>
                   </div>
                 );

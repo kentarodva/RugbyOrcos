@@ -1,15 +1,25 @@
 import React, { useContext } from 'react';
 import { ClubContext, EQUIPOS_LABELS } from '../../context/ClubContext';
+import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { useFinanzasState } from './useFinanzasState';
 import { MAIN_SUB_TABS } from './constants';
 import { FinanceTab } from './FinanceTab';
+import { FundraisingTab } from './FundraisingTab';
 import { InventoryTab } from './InventoryTab';
 
 import FinanzasSkeleton from '../Skeletons/FinanzasSkeleton';
 
 function Finanzas() {
-  const { finances, addFinanceRecord, players, activeTeam, inventory, addInventoryItem, updateInventoryItem, recordMembershipPayment, viewMode, divisionView, makgoraTeamId, syncStatus } = useContext(ClubContext);
+  const { profile, user } = useAuth();
+  const { finances, addFinanceRecord, deleteFinanceRecord, players, activeTeam, inventory, addInventoryItem, updateInventoryItem, recordMembershipPayment, viewMode, divisionView, makgoraTeamId, syncStatus, userTier, isSuperRole, clubConfig, mensualidadBase, handleMonthlyCharge } = useContext(ClubContext);
+  const isStaff = userTier <= 3;
+  const currentPlayer = players.find(p => {
+    if (profile?.display_name && p.name.toLowerCase() === profile.display_name.toLowerCase()) return true;
+    if (user?.email && p.contacto?.email === user.email) return true;
+    return false;
+  });
+  const currentPlayerId = currentPlayer?.id;
   const { showToast } = useToast();
 
   const state = useFinanzasState({
@@ -68,9 +78,21 @@ function Finanzas() {
           handleSaveMovement={state.handleSaveMovement}
           getMembershipStatus={state.getMembershipStatus}
           handlePayMembership={state.handlePayMembership}
-          handleCustomAbono={state.handleCustomAbono}
+          onDeleteFinanceRecord={deleteFinanceRecord}
+          isStaff={isStaff}
+          isSuperRole={isSuperRole}
           activeTeam={activeTeam}
           EQUIPOS_LABELS={EQUIPOS_LABELS}
+          mensualidadBase={mensualidadBase}
+          lastMonthlyCharge={clubConfig?.last_monthly_charge}
+          onMonthlyCharge={handleMonthlyCharge}
+        />
+      )}
+
+      {state.activeSubTab === 'fundraising' && (
+        <FundraisingTab
+          isStaff={isStaff}
+          currentPlayerId={currentPlayerId}
         />
       )}
 

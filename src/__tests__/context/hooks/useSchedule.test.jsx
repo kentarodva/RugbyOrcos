@@ -234,3 +234,132 @@ describe('useSchedule — generateWhatsAppMessage', () => {
     expect(msg).toContain('#RugbyOrcos');
   });
 });
+
+describe('useSchedule — notes y endDate', () => {
+  beforeEach(() => { localStorage.clear(); });
+
+  function setup() {
+    const { result } = renderHook(() =>
+      useSchedule('masculina_mayor', vi.fn(), vi.fn(), vi.fn(), { id: 'user-1' })
+    );
+    return { result };
+  }
+
+  it('addScheduleEvent guarda notes en el evento', async () => {
+    const { result } = setup();
+    await act(async () => {
+      await result.current.addScheduleEvent({
+        title: 'Con Notas', date: '2026-06-01', time: '18:00',
+        location: 'Cancha', type: 'entrenamiento', recurrence: 'none',
+        notes: 'Traer protector bucal y agua',
+      });
+    });
+    expect(result.current.schedule[0].notes).toBe('Traer protector bucal y agua');
+  });
+
+  it('addScheduleEvent guarda endDate en el evento', async () => {
+    const { result } = setup();
+    await act(async () => {
+      await result.current.addScheduleEvent({
+        title: 'Torneo', date: '2026-06-01', time: '18:00',
+        location: 'Cancha', type: 'entrenamiento', recurrence: 'none',
+        endDate: '2026-06-03',
+      });
+    });
+    expect(result.current.schedule[0].endDate).toBe('2026-06-03');
+  });
+
+  it('notes por defecto es null', async () => {
+    const { result } = setup();
+    await act(async () => {
+      await result.current.addScheduleEvent({
+        title: 'Sin Notas', date: '2026-06-01', time: '18:00',
+        location: 'Cancha', type: 'entrenamiento', recurrence: 'none',
+      });
+    });
+    expect(result.current.schedule[0].notes).toBeNull();
+  });
+});
+
+describe('useSchedule — updateScheduleEvent', () => {
+  beforeEach(() => {
+    localStorage.clear();
+  });
+
+  function setup() {
+    const { result } = renderHook(() =>
+      useSchedule('masculina_mayor', vi.fn(), vi.fn(), vi.fn(), { id: 'user-1' })
+    );
+    return { result };
+  }
+
+  it('actualiza title, notes, location en el estado', async () => {
+    const { result } = setup();
+    await act(async () => {
+      await result.current.addScheduleEvent({
+        title: 'Original', date: '2026-06-01', time: '18:00',
+        location: 'Cancha A', type: 'entrenamiento', recurrence: 'none',
+        notes: 'Notas viejas',
+      });
+    });
+    const eventId = result.current.schedule[0].id;
+
+    await act(async () => {
+      result.current.updateScheduleEvent({
+        id: eventId, title: 'Actualizado', date: '2026-06-01', time: '19:00',
+        location: 'Cancha B', type: 'entrenamiento',
+        notes: 'Notas nuevas',
+      });
+    });
+
+    const updated = result.current.schedule.find(e => e.id === eventId);
+    expect(updated.title).toBe('Actualizado');
+    expect(updated.location).toBe('Cancha B');
+    expect(updated.notes).toBe('Notas nuevas');
+  });
+
+  it('referencia circular preserve otras props en update', async () => {
+    const { result } = setup();
+    await act(async () => {
+      await result.current.addScheduleEvent({
+        title: 'Test', date: '2026-06-01', time: '18:00',
+        location: 'X', type: 'entrenamiento', recurrence: 'none',
+      });
+    });
+    const eventId = result.current.schedule[0].id;
+    const originalGroup = result.current.schedule[0].recurrenceGroup;
+
+    await act(async () => {
+      result.current.updateScheduleEvent({
+        id: eventId, title: 'Updated', date: '2026-06-01', time: '18:00',
+        location: 'X', type: 'entrenamiento',
+      });
+    });
+
+    const updated = result.current.schedule.find(e => e.id === eventId);
+    expect(updated.title).toBe('Updated');
+    expect(updated.recurrenceGroup).toBe(originalGroup);
+  });
+
+  it('sanitiza title y location en update', async () => {
+    const { result } = setup();
+    await act(async () => {
+      await result.current.addScheduleEvent({
+        title: 'Original', date: '2026-06-01', time: '18:00',
+        location: 'Cancha', type: 'entrenamiento', recurrence: 'none',
+      });
+    });
+    const eventId = result.current.schedule[0].id;
+
+    await act(async () => {
+      result.current.updateScheduleEvent({
+        id: eventId, title: '<b>Mal</b>', date: '2026-06-01', time: '18:00',
+        location: '<script>x</script>', type: 'entrenamiento',
+      });
+    });
+
+    const updated = result.current.schedule.find(e => e.id === eventId);
+    expect(updated.title).toBe('bMal/b');
+    expect(updated.location).toBe('scriptx/script');
+  });
+});

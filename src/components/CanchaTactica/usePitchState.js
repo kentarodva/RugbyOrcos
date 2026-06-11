@@ -10,47 +10,14 @@ import {
 } from '../../data/supabaseApi';
 import { autoAssignLineup } from '../../engine/tacticAssignmentEngine';
 
-function migrateLocalStorage(activeTeam) {
-  // Migrar posiciones: de clave sin alignment a clave con alignment
-  const alignments = Object.keys(ALIGNMENTS_HORIZONTAL);
-  ['horizontal', 'vertical'].forEach(orientation => {
-    alignments.forEach(alignment => {
-      const oldKey = `orcos_positions_coords_${orientation}_${activeTeam}`;
-      const newKey = `orcos_positions_coords_${alignment}_${orientation}_${activeTeam}`;
-      const oldData = localStorage.getItem(oldKey);
-      if (oldData && !localStorage.getItem(newKey)) {
-        localStorage.setItem(newKey, oldData);
-      }
-    });
-  });
-}
-
 export function usePitchState(activeTeam) {
-  const [lineup, setLineup] = useState(() => {
-    const saved = localStorage.getItem(`orcos_lineup_${activeTeam}`);
-    return saved ? JSON.parse(saved) : {};
-  });
-
-  const [tacticalNotes, setTacticalNotes] = useState(() => {
-    return localStorage.getItem(`orcos_notes_${activeTeam}`) || '';
-  });
-
-  const [pitchOrientation, setPitchOrientation] = useState(() => {
-    return localStorage.getItem('orcos_pitch_orientation') || 'horizontal';
-  });
-
-  const [pitchSize, setPitchSize] = useState(() => {
-    return localStorage.getItem('orcos_pitch_size') || 'medium';
-  });
-
+  const [lineup, setLineup] = useState({});
+  const [tacticalNotes, setTacticalNotes] = useState('');
+  const [pitchOrientation, setPitchOrientation] = useState('horizontal');
+  const [pitchSize, setPitchSize] = useState('medium');
   const [activeAlignment, setActiveAlignment] = useState('standard');
 
-  const [fieldPositions, setFieldPositions] = useState(() => {
-    migrateLocalStorage(activeTeam);
-    const key = `orcos_positions_coords_standard_horizontal_${activeTeam}`;
-    const saved = localStorage.getItem(key);
-    return saved ? JSON.parse(saved) : ALIGNMENTS_HORIZONTAL.standard;
-  });
+  const [fieldPositions, setFieldPositions] = useState(() => ALIGNMENTS_HORIZONTAL.standard);
 
   const [draggingId, setDraggingId] = useState(null);
   const [dragStartPos, setDragStartPos] = useState(null);
@@ -60,47 +27,39 @@ export function usePitchState(activeTeam) {
   const [showSelectModal, setShowSelectModal] = useState(false);
   const [confirmState, setConfirmState] = useState(null);
 
-  // Custom tactics state
   const [customTactics, setCustomTactics] = useState([]);
   const [activeTacticId, setActiveTacticId] = useState(null);
   const [autoAssignLoading, setAutoAssignLoading] = useState(false);
   const channelRef = useRef(null);
+  const currentTacticRef = useRef(null);
 
   useEffect(() => {
-    localStorage.setItem(`orcos_lineup_${activeTeam}`, JSON.stringify(lineup));
-  }, [lineup, activeTeam]);
+    if (activeTeam) {
+      setLineup({});
+      setTacticalNotes('');
+      setActiveTacticId(null);
+      currentTacticRef.current = null;
+      const defaults = pitchOrientation === 'horizontal' ? ALIGNMENTS_HORIZONTAL[activeAlignment] : ALIGNMENTS_VERTICAL[activeAlignment];
+      setFieldPositions(defaults);
+    }
+  }, [activeTeam]);
 
   useEffect(() => {
-    localStorage.setItem(`orcos_notes_${activeTeam}`, tacticalNotes);
-  }, [tacticalNotes, activeTeam]);
-
-  useEffect(() => {
-    localStorage.setItem('orcos_pitch_orientation', pitchOrientation);
+    if (currentTacticRef.current && pitchOrientation) {
+      const tactic = currentTacticRef.current;
+      const positions = pitchOrientation === 'horizontal'
+        ? tactic.positions_horizontal
+        : tactic.positions_vertical;
+      if (positions && positions.length > 0) {
+        setFieldPositions(positions);
+      }
+    }
   }, [pitchOrientation]);
 
-  useEffect(() => {
-    localStorage.setItem('orcos_pitch_size', pitchSize);
-  }, [pitchSize]);
-
-  useEffect(() => {
-    migrateLocalStorage(activeTeam);
-    const savedLineup = localStorage.getItem(`orcos_lineup_${activeTeam}`);
-    setLineup(savedLineup ? JSON.parse(savedLineup) : {});
-
-    const key = `orcos_positions_coords_${activeAlignment}_${pitchOrientation}_${activeTeam}`;
-    const savedPositions = localStorage.getItem(key);
-    const defaults = pitchOrientation === 'horizontal' ? ALIGNMENTS_HORIZONTAL[activeAlignment] : ALIGNMENTS_VERTICAL[activeAlignment];
-    setFieldPositions(savedPositions ? JSON.parse(savedPositions) : defaults);
-
-    setTacticalNotes(localStorage.getItem(`orcos_notes_${activeTeam}`) || '');
-  }, [activeTeam, pitchOrientation, activeAlignment]);
-
-  // Load custom tactics from Supabase
   const loadCustomTactics = useCallback(async (teamCat) => {
     const tactics = await fetchCustomTactics(teamCat);
     setCustomTactics(tactics);
 
-    // Subscribe to Realtime
     if (channelRef.current) {
       channelRef.current.unsubscribe();
     }
@@ -110,7 +69,6 @@ export function usePitchState(activeTeam) {
     });
   }, []);
 
-  // Cleanup channel on unmount
   useEffect(() => {
     return () => {
       if (channelRef.current) {
@@ -119,14 +77,9 @@ export function usePitchState(activeTeam) {
     };
   }, []);
 
-  // Save current tactic to Supabase
   const saveCurrentTactic = useCallback(async (name, scope, formationType) => {
     const otherOrientation = pitchOrientation === 'horizontal' ? 'vertical' : 'horizontal';
-    const otherKey = `orcos_positions_coords_${activeAlignment}_${otherOrientation}_${activeTeam}`;
-    const savedOther = localStorage.getItem(otherKey);
-    const otherPositions = savedOther
-      ? JSON.parse(savedOther)
-      : (otherOrientation === 'horizontal' ? ALIGNMENTS_HORIZONTAL[activeAlignment] : ALIGNMENTS_VERTICAL[activeAlignment]);
+    const otherPositions = otherOrientation === 'horizontal' ? ALIGNMENTS_HORIZONTAL[activeAlignment] : ALIGNMENTS_VERTICAL[activeAlignment];
 
     const tacticData = {
       name,
@@ -141,23 +94,23 @@ export function usePitchState(activeTeam) {
     if (saved) {
       setCustomTactics(prev => [saved, ...prev]);
       setActiveTacticId(saved.id);
+      currentTacticRef.current = saved;
     }
     return saved;
-  }, [fieldPositions, lineup, tacticalNotes, activeAlignment, pitchOrientation, activeTeam]);
+  }, [fieldPositions, lineup, tacticalNotes, activeAlignment, pitchOrientation]);
 
-  // Delete tactic
   const handleDeleteTactic = useCallback(async (tacticId) => {
     const ok = await deleteCustomTactic(tacticId);
     if (ok) {
       setCustomTactics(prev => prev.filter(t => t.id !== tacticId));
       if (activeTacticId === tacticId) {
         setActiveTacticId(null);
+        currentTacticRef.current = null;
       }
     }
     return ok;
   }, [activeTacticId]);
 
-  // Update tactic
   const handleUpdateTactic = useCallback(async (tacticId, updates) => {
     const updated = await updateCustomTactic(tacticId, updates);
     if (updated) {
@@ -166,7 +119,6 @@ export function usePitchState(activeTeam) {
     return updated;
   }, []);
 
-  // Select a saved tactic
   const handleSelectTactic = useCallback((tacticId) => {
     const tactic = customTactics.find(t => t.id === tacticId);
     if (!tactic) {
@@ -174,18 +126,11 @@ export function usePitchState(activeTeam) {
       return;
     }
 
-    // Mapear formation_type al alignment correspondiente
     const alignmentMap = { union: 'standard', league: 'league_13s' };
     const targetAlignment = alignmentMap[tactic.formation_type] || tactic.formation_type || 'standard';
-    console.log('[Tactic] Loading:', tactic.name, '→ alignment:', targetAlignment);
 
-    // Guardar AMBAS orientaciones en localStorage para que persistan al cambiar vista
-    const horKey = `orcos_positions_coords_${targetAlignment}_horizontal_${activeTeam}`;
-    const verKey = `orcos_positions_coords_${targetAlignment}_vertical_${activeTeam}`;
-    localStorage.setItem(horKey, JSON.stringify(tactic.positions_horizontal));
-    localStorage.setItem(verKey, JSON.stringify(tactic.positions_vertical));
+    currentTacticRef.current = tactic;
 
-    // Mostrar la orientación actual
     const positions = pitchOrientation === 'horizontal'
       ? tactic.positions_horizontal
       : tactic.positions_vertical;
@@ -204,9 +149,8 @@ export function usePitchState(activeTeam) {
 
     setActiveAlignment(targetAlignment);
     setActiveTacticId(tactic.id);
-  }, [customTactics, pitchOrientation, activeTeam]);
+  }, [customTactics, pitchOrientation]);
 
-  // Auto-assign players using Hungarian Algorithm
   const executeAutoAssign = useCallback(async (players, filters = {}) => {
     if (!players || players.length === 0) {
       setAutoAssignLoading(false);
@@ -244,7 +188,7 @@ export function usePitchState(activeTeam) {
     } catch (err) {
       if (import.meta.env.DEV) console.warn('[AutoAssign] Error:', err?.message || err);
       if (err?.name === 'AbortError') {
-        if (import.meta.env.DEV) console.warn('[AutoAssign] Timeout — consulta a Supabase cancelada');
+        if (import.meta.env.DEV) console.warn('[AutoAssign] Timeout');
       }
     }
     clearTimeout(timeoutId);
@@ -276,13 +220,12 @@ export function usePitchState(activeTeam) {
 
   const clearField = useCallback(() => {
     setConfirmState({
-      message: '¿Deseas vaciar la alineacion completa?',
+      message: 'Deseas vaciar la alineacion completa?',
       onConfirm: () => setLineup({})
     });
   }, []);
 
   const handleAlignmentChange = useCallback((type) => {
-    // If it's a custom tactic from the dropdown (custom_{id}), select it
     if (type && type.startsWith('custom_')) {
       const tacticId = type.replace('custom_', '');
       handleSelectTactic(tacticId);
@@ -290,31 +233,30 @@ export function usePitchState(activeTeam) {
     }
 
     setConfirmState({
-      message: `¿Deseas cambiar la formacion tactica de la pizarra?`,
+      message: 'Deseas cambiar la formacion tactica de la pizarra?',
       onConfirm: () => {
         const selectedCoords = pitchOrientation === 'horizontal' ? ALIGNMENTS_HORIZONTAL[type] : ALIGNMENTS_VERTICAL[type];
         if (selectedCoords) {
           setFieldPositions(selectedCoords);
-          localStorage.setItem(`orcos_positions_coords_${type}_${pitchOrientation}_${activeTeam}`, JSON.stringify(selectedCoords));
         }
         setActiveAlignment(type);
         setActiveTacticId(null);
+        currentTacticRef.current = null;
       }
     });
-  }, [pitchOrientation, activeTeam, handleSelectTactic]);
+  }, [pitchOrientation, handleSelectTactic]);
 
   const resetToDefaultPositions = useCallback(() => {
     setConfirmState({
-      message: '¿Deseas restablecer la formacion a la tactica estandar?',
+      message: 'Deseas restablecer la formacion a la tactica estandar?',
       onConfirm: () => {
         const defaults = pitchOrientation === 'horizontal' ? ALIGNMENTS_HORIZONTAL[activeAlignment] : ALIGNMENTS_VERTICAL[activeAlignment];
         if (defaults) {
           setFieldPositions(defaults);
-          localStorage.setItem(`orcos_positions_coords_${activeAlignment}_${pitchOrientation}_${activeTeam}`, JSON.stringify(defaults));
         }
       }
     });
-  }, [pitchOrientation, activeAlignment, activeTeam]);
+  }, [pitchOrientation, activeAlignment]);
 
   const handleStartDrag = useCallback((e, posId) => {
     setDraggingId(posId);
@@ -343,12 +285,9 @@ export function usePitchState(activeTeam) {
     yPct = Math.max(3, Math.min(97, yPct));
 
     setFieldPositions(prev => {
-      const updated = prev.map(pos => pos.id === draggingId ? { ...pos, x: xPct, y: yPct } : pos);
-      const key = `orcos_positions_coords_${activeAlignment}_${pitchOrientation}_${activeTeam}`;
-      localStorage.setItem(key, JSON.stringify(updated));
-      return updated;
+      return prev.map(pos => pos.id === draggingId ? { ...pos, x: xPct, y: yPct } : pos);
     });
-  }, [draggingId, dragStartPos, pitchOrientation, activeTeam, activeAlignment]);
+  }, [draggingId, dragStartPos]);
 
   const handleEndDrag = useCallback((posId, posName) => {
     if (draggingId === null) return;

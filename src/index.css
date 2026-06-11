@@ -2,33 +2,53 @@
    Rugby Orcos Design System - index.css
    ========================================== */
 
+@keyframes ai-icon-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.ai-icon-spin {
+  animation: ai-icon-spin 1.2s linear infinite;
+}
+
+@keyframes ai-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+.ai-blink {
+  animation: ai-blink 1.2s ease-in-out infinite;
+}
+
+.ai-blink-delay-1 { animation-delay: 0.2s; }
+.ai-blink-delay-2 { animation-delay: 0.4s; }
+
 :root {
-  /* Color Tokens */
+  /* Color Tokens — Dark Theme (default) */
   --bg-dark: #07090e;
   --bg-surface: rgba(15, 22, 36, 0.7);
   --bg-surface-solid: #0f1624;
   --bg-input: #1b2438;
   
-  --color-primary: #00e676; /* Verde Esmeralda Eléctrico */
+  --color-primary: #00e676;
   --color-primary-glow: rgba(0, 230, 118, 0.25);
   --color-primary-dark: #00b359;
   
-  --color-gold: #ffb300; /* Oro Brillante */
+  --color-gold: #ffb300;
   --color-gold-glow: rgba(255, 179, 0, 0.2);
   
-  --color-red: #ff3d00; /* Rojo Eléctrico (Lesionados / Tarjetas) */
+  --color-red: #ff3d00;
   --color-red-glow: rgba(255, 61, 0, 0.25);
   
-  --color-yellow: #ffea00; /* Amarillo Advertencia (Tarjetas / Tarde) */
+  --color-yellow: #ffea00;
   --color-yellow-glow: rgba(255, 234, 0, 0.2);
   
-  --color-blue: #00b0ff; /* Azul Táctico (Justificado / Staff) */
+  --color-blue: #00b0ff;
   --color-blue-glow: rgba(0, 176, 255, 0.2);
   
   --color-text: #f5f6f9;
   --color-text-muted: #8fa0b5;
   
-  /* Glassmorphism & UI Tokens */
   --border-glass: rgba(255, 255, 255, 0.08);
   --shadow-neon: 0 0 20px var(--color-primary-glow);
   --shadow-gold: 0 0 20px var(--color-gold-glow);
@@ -38,6 +58,41 @@
   --radius-sm: 8px;
   
   --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  
+  --border-color: var(--border-glass);
+  --text-primary: var(--color-text);
+  --text-secondary: var(--color-text-muted);
+}
+
+/* Light Theme */
+[data-theme="light"] {
+  --bg-dark: #f0f2f5;
+  --bg-surface: rgba(255, 255, 255, 0.85);
+  --bg-surface-solid: #ffffff;
+  --bg-input: #e4e7ec;
+  
+  --color-primary: #00a855;
+  --color-primary-glow: rgba(0, 168, 85, 0.2);
+  --color-primary-dark: #008c47;
+  
+  --color-gold: #c49000;
+  --color-gold-glow: rgba(196, 144, 0, 0.2);
+  
+  --color-red: #d32f00;
+  --color-red-glow: rgba(211, 47, 0, 0.2);
+  
+  --color-yellow: #b38600;
+  --color-yellow-glow: rgba(179, 134, 0, 0.2);
+  
+  --color-blue: #0088cc;
+  --color-blue-glow: rgba(0, 136, 204, 0.2);
+  
+  --color-text: #1a1d23;
+  --color-text-muted: #6b7280;
+  
+  --border-glass: rgba(0, 0, 0, 0.1);
+  --shadow-neon: 0 0 16px var(--color-primary-glow);
+  --shadow-gold: 0 0 16px var(--color-gold-glow);
 }
 
 /* Base Styles */
@@ -106,11 +161,6 @@ body {
   font-family: 'Outfit', sans-serif;
 }
 
-.neon-border {
-  border: 1px solid var(--color-primary);
-  box-shadow: var(--shadow-neon);
-}
-
 /* Interactive Buttons */
 .btn-neon {
   background: linear-gradient(135deg, var(--color-primary-dark), var(--color-primary));
@@ -139,6 +189,66 @@ body {
 
 .btn-neon:active {
   transform: translateY(1px);
+}
+
+.btn-gold {
+  background: linear-gradient(135deg, var(--color-gold), #e6a000);
+  color: #000;
+  border: none;
+  padding: 10px 20px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  font-family: 'Outfit', sans-serif;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 4px 15px rgba(255, 179, 0, 0.3);
+  transition: var(--transition-smooth);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.btn-gold:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(255, 179, 0, 0.5), var(--shadow-gold);
+  filter: brightness(1.1);
+}
+
+.btn-danger {
+  background: linear-gradient(135deg, var(--color-red), #c62800);
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  font-family: 'Outfit', sans-serif;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 4px 15px rgba(255, 61, 0, 0.3);
+  transition: var(--transition-smooth);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.btn-danger:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(255, 61, 0, 0.5);
+  filter: brightness(1.1);
+}
+
+.btn-sm {
+  padding: 6px 14px;
+  font-size: 0.78rem;
+}
+
+.btn-lg {
+  padding: 12px 28px;
+  font-size: 1.05rem;
 }
 
 .btn-outline {
@@ -457,15 +567,6 @@ body {
   height: 8px;
 }
 
-.blink {
-  animation: blinkAnim 0.8s infinite;
-}
-
-@keyframes blinkAnim {
-  0%, 50% { opacity: 1; }
-  51%, 100% { opacity: 0; }
-}
-
 /* Pulse (used by Dashboard HIA alerts, SinBin timer) */
 @keyframes pulseAnim {
   0%, 100% { transform: scale(1); opacity: 1; }
@@ -485,19 +586,6 @@ body {
 @keyframes slideDown {
   from { opacity: 1; transform: translateY(0); }
   to { opacity: 0; transform: translateY(16px); }
-}
-
-@keyframes slideOutRight {
-  from { opacity: 1; transform: translateX(0); }
-  to { opacity: 0; transform: translateX(40px); }
-}
-
-.animated-fade-out {
-  animation: fadeOut 0.25s ease forwards;
-}
-
-.animated-slide-down {
-  animation: slideDown 0.25s ease forwards;
 }
 
 /* Hover row effect (Messages list, table rows) */

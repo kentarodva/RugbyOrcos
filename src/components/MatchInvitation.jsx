@@ -36,13 +36,15 @@ function MatchInvitation() {
     if (inv.status === 'expired') { if (check()) return; setError('Esta invitacion ha expirado.'); setLoading(false); return; }
     if (inv.status === 'completed') { if (check()) return; setError('Este partido ya fue jugado.'); setLoading(false); return; }
 
-    const expDate = new Date(inv.expires_at);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    if (expDate < today) {
-      try { await supabase.from('match_invitations').update({ status: 'expired' }).eq('id', inv.id); } catch { /* RLS bloquea a guests, ignorar */ }
-      if (check()) { setError('Esta invitacion ha expirado (el partido ya paso).'); setLoading(false); }
-      return;
+    if (inv.expires_at) {
+      const expDate = new Date(inv.expires_at);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      if (expDate < today) {
+        try { await supabase.from('match_invitations').update({ status: 'expired' }).eq('id', inv.id); } catch { /* RLS bloquea a guests, ignorar */ }
+        if (check()) { setError('Esta invitacion ha expirado (el partido ya paso).'); setLoading(false); }
+        return;
+      }
     }
 
     if (check()) return;

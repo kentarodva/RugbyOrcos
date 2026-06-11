@@ -25,10 +25,15 @@ export const ToastProvider = ({ children }) => {
   }, [removeToast]);
 
   useEffect(() => {
+    const handleDbError = (e) => {
+      showToast(e.detail?.message || 'Error de base de datos', 'error');
+    };
+    window.addEventListener('app:db-error', handleDbError);
     return () => {
+      window.removeEventListener('app:db-error', handleDbError);
       Object.values(timersRef.current).forEach(clearTimeout);
     };
-  }, []);
+  }, [showToast]);
 
   return (
     <ToastContext.Provider value={{ showToast }}>

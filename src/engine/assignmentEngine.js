@@ -120,7 +120,7 @@ function analyzeMatchFaults(matchStats, player) {
     }
   }
 
-  if (FAULT_EXERCISE_MAP.poorKicking && player.posicion === 'Medio Melé' || player.posicion === 'Apertura' || player.posicion === 'Zaguero') {
+  if (FAULT_EXERCISE_MAP.poorKicking && (player.posicion === 'Medio Melé' || player.posicion === 'Apertura' || player.posicion === 'Zaguero')) {
     if (totalConversions === 0 && matchCount >= (FAULT_EXERCISE_MAP.poorKicking.minMatches || 2)) {
       if (!faults.includes('lowConversions')) {
         faults.push('poorKicking');

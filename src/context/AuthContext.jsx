@@ -8,12 +8,15 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [requirePasswordChange, setRequirePasswordChange] = useState(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
       if (session?.user) {
+        const tp = session.user.user_metadata?.temp_password;
+        setRequirePasswordChange(tp === true || tp === 'true');
         fetchProfile(session.user.id);
       } else {
         setLoading(false);
@@ -24,9 +27,12 @@ export function AuthProvider({ children }) {
       setSession(session);
       setUser(session?.user ?? null);
       if (session?.user) {
+        const tp = session.user.user_metadata?.temp_password;
+        setRequirePasswordChange(tp === true || tp === 'true');
         fetchProfile(session.user.id);
       } else {
         setProfile(null);
+        setRequirePasswordChange(false);
       }
     });
 
@@ -158,16 +164,24 @@ export function AuthProvider({ children }) {
     return true;
   };
 
+  const clearPasswordChangeFlag = async () => {
+    if (!user) return;
+    await supabase.auth.updateUser({ data: { temp_password: false } });
+    setRequirePasswordChange(false);
+  };
+
   const value = {
     session,
     user,
     profile,
     loading,
+    requirePasswordChange,
     signIn,
     signUp,
     signOut,
     checkFirstRun,
     forceAdmin,
+    clearPasswordChangeFlag,
     isAuthenticated: !!user,
   };
 

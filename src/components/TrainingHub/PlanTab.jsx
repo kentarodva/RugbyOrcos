@@ -1,5 +1,6 @@
-import React from 'react';
-import { isGeminiConfigured } from '../../engine/multiProviderCoach';
+import React, { useMemo } from 'react';
+import { isAnyAIConfigured } from '../../engine/multiProviderCoach';
+import { detectOvertraining } from '../../engine/overtrainingDetector';
 import ExerciseCard from './ExerciseCard';
 
 function PlanTab({
@@ -16,6 +17,12 @@ function PlanTab({
   onToggleExercise,
   onSaveWorkout
 }) {
+  const overtrainingRisk = useMemo(() => {
+    if (!planPlayerId) return null;
+    const player = teamPlayers.find(p => p.id === planPlayerId);
+    return detectOvertraining(player);
+  }, [planPlayerId, teamPlayers]);
+
   return (
     <div className="animated-fade" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
 
@@ -48,21 +55,65 @@ function PlanTab({
         >
           {generating ? 'Generando...' : 'Generar Plan'}
         </button>
-        {isGeminiConfigured() && (
+        {isAnyAIConfigured() && (
           <span className="badge" style={{ background: 'rgba(0, 230, 118, 0.08)', color: 'var(--color-primary)', border: '1px solid rgba(0, 230, 118, 0.2)', fontSize: '0.7rem', padding: '6px 10px' }}>
             IA Activa
           </span>
         )}
       </div>
 
+      {overtrainingRisk && (
+        <div style={{
+          padding: '12px 16px', borderRadius: 'var(--radius-md)',
+          background: overtrainingRisk.maxSeverity === 'alta'
+            ? 'linear-gradient(135deg, rgba(255,61,0,0.12), rgba(255,179,0,0.08))'
+            : 'rgba(255,179,0,0.08)',
+          border: `1px solid ${overtrainingRisk.maxSeverity === 'alta' ? 'var(--color-red)' : 'var(--color-gold)'}`,
+          display: 'flex', flexDirection: 'column', gap: '6px',
+        }}>
+          <div style={{ fontWeight: 700, fontSize: '0.8rem', color: overtrainingRisk.maxSeverity === 'alta' ? 'var(--color-red)' : 'var(--color-gold)' }}>
+            ⚠️ Alerta de Carga
+          </div>
+          {overtrainingRisk.warnings.map((w, i) => (
+            <div key={i} style={{ fontSize: '0.72rem', display: 'flex', gap: '6px', alignItems: 'center' }}>
+              <span>{w.icon}</span>
+              <span>{w.text}</span>
+            </div>
+          ))}
+        </div>
+      )}
+
       {generatedPlan ? (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
           <div className="glass-panel" style={{ padding: '12px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px', fontSize: '0.75rem' }}>
             <div>
               <strong style={{ color: 'var(--color-primary)' }}>{generatedPlan.playerName}</strong>
-              {generatedPlan.enrichedByAI && <span className="badge" style={{ marginLeft: '8px', background: 'rgba(212, 175, 55, 0.15)', color: 'var(--color-gold)', border: '1px solid rgba(212, 175, 55, 0.3)', fontSize: '0.65rem', padding: '3px 8px' }}>Enriquecido con IA</span>}
+              {generatedPlan.enrichedByAI && <span className="badge" style={{ marginLeft: '8px', background: 'rgba(212, 175, 55, 0.15)', color: 'var(--color-gold)', border: '1px solid rgba(212, 175, 55, 0.3)', fontSize: '0.65rem', padding: '3px 8px' }}>IA Multi-Proveedor</span>}
               {generatedPlan.isInjured && <span className="badge badge-injured" style={{ marginLeft: '8px', fontSize: '0.65rem', padding: '3px 8px' }}>En Recuperación</span>}
             </div>
+
+            {generatedPlan.aiAnalysis && (
+              <div style={{ marginTop: '12px', padding: '15px', background: 'rgba(255,179,0,0.05)', border: '1px solid rgba(255,179,0,0.15)', borderRadius: 'var(--radius-sm)', fontSize: '0.8rem', color: 'var(--color-gold)', lineHeight: 1.5 }}>
+                <strong>Análisis IA:</strong> {generatedPlan.aiAnalysis}
+                {generatedPlan.aiRisks?.length > 0 && (
+                  <div style={{ marginTop: '8px', color: 'var(--color-red)' }}>
+                    ⚠️ Riesgos: {generatedPlan.aiRisks.join(' | ')}
+                  </div>
+                )}
+                {generatedPlan.aiGoals?.length > 0 && (
+                  <div style={{ marginTop: '6px', color: 'var(--color-primary)' }}>
+                    🎯 Metas: {generatedPlan.aiGoals.join(' | ')}
+                  </div>
+                )}
+                {generatedPlan.aiRecommendations && (
+                  <div style={{ marginTop: '8px', fontSize: '0.72rem', color: 'var(--color-blue)', display: 'flex', flexDirection: 'column', gap: '3px' }}>
+                    {generatedPlan.aiRecommendations.sueno && <span>😴 {generatedPlan.aiRecommendations.sueno}</span>}
+                    {generatedPlan.aiRecommendations.nutricion && <span>🥗 {generatedPlan.aiRecommendations.nutricion}</span>}
+                    {generatedPlan.aiRecommendations.prevencion && <span>🛡️ {generatedPlan.aiRecommendations.prevencion}</span>}
+                  </div>
+                )}
+              </div>
+            )}
             <span style={{ color: 'var(--color-text-muted)' }}>
               {generatedPlan.matchFaults.length > 0 ? `Fallos detectados: ${generatedPlan.matchFaults.join(', ')}` : 'Sin fallos críticos detectados'}
             </span>
@@ -160,7 +211,7 @@ function PlanTab({
             Selecciona un jugador y presiona <strong>Generar Plan</strong>. El motor analiza posición, fallos de partidos recientes, historial de ejercicios y estado físico para armar un plan personalizado de campo y gimnasio.
           </p>
           <p style={{ color: 'var(--color-text-muted)', fontSize: '0.75rem' }}>
-            {isGeminiConfigured() ? 'Gemini enriquecerá el plan con ejercicios extra.' : 'Configura Gemini en Ajustes para enriquecer con IA.'}
+            {isAnyAIConfigured() ? 'IA multi-proveedor enriquecerá el plan con análisis completo.' : 'Configura un proveedor IA en Ajustes para enriquecer con IA.'}
           </p>
         </div>
       )}

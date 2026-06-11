@@ -12,37 +12,46 @@ const DAYS = [
 
 const HOURS = ['18:00', '18:30', '19:00', '19:30', '20:00', '20:30', '21:00'];
 
-function QuickTrainingPanel({ onCreate, existingLocations, currentTeamCategory }) {
-  const [selectedDays, setSelectedDays] = useState(() => {
-    try {
-      const saved = localStorage.getItem('orcos_quick_days');
-      return saved ? JSON.parse(saved) : [1, 2, 3, 4, 5];
-    } catch { return [1, 2, 3, 4, 5]; }
-  });
-  const [hour, setHour] = useState(() => localStorage.getItem('orcos_quick_hour') || '19:00');
-  const [location, setLocation] = useState(() => localStorage.getItem('orcos_quick_location') || '');
+const FIXED_LOCATIONS = [
+  { name: 'San Francisco 🏟️', mapsLink: 'https://maps.app.goo.gl/9KQxbwjxTzz3z9pL7' },
+  { name: 'Morroa 🏟️', mapsLink: 'https://maps.app.goo.gl/h9cZdw3FCGetcvqU8' },
+];
+
+function QuickTrainingPanel({ onCreate, existingLocations, currentTeamCategory, makgoraTeams }) {
+  const [selectedDays, setSelectedDays] = useState([1, 2, 3, 4, 5]);
+  const [hour, setHour] = useState('19:00');
+  const [location, setLocation] = useState('');
   const [customLocation, setCustomLocation] = useState('');
-  const [weeks, setWeeks] = useState(() => Number(localStorage.getItem('orcos_quick_weeks') || 4));
+  const [weeks, setWeeks] = useState(4);
   const [creating, setCreating] = useState(false);
+  const [customLocations, setCustomLocations] = useState(() => {
+    try {
+      const saved = localStorage.getItem('qtp_custom_locations');
+      return saved ? JSON.parse(saved) : [];
+    } catch { return []; }
+  });
+  const [customTitle, setCustomTitle] = useState('');
+  const [customType, setCustomType] = useState('entrenamiento');
+  const [customNotes, setCustomNotes] = useState('');
+  const [scopeType, setScopeType] = useState('division');
+  const [scopeMakgoraTeamId, setScopeMakgoraTeamId] = useState('');
+  const [showAdvanced, setShowAdvanced] = useState(false);
 
   const toggleDay = (dayNum) => {
     setSelectedDays(prev => {
       const next = prev.includes(dayNum)
         ? prev.filter(d => d !== dayNum)
         : [...prev, dayNum].sort((a, b) => a - b);
-      localStorage.setItem('orcos_quick_days', JSON.stringify(next));
       return next;
     });
   };
 
   const setPreset = (days) => {
     setSelectedDays(days);
-    localStorage.setItem('orcos_quick_days', JSON.stringify(days));
   };
 
   const handleHourChange = (e) => {
     setHour(e.target.value);
-    localStorage.setItem('orcos_quick_hour', e.target.value);
   };
 
   const handleLocationChange = (e) => {
@@ -51,7 +60,6 @@ function QuickTrainingPanel({ onCreate, existingLocations, currentTeamCategory }
       setLocation('__custom__');
     } else {
       setLocation(val);
-      localStorage.setItem('orcos_quick_location', val);
     }
   };
 
@@ -59,15 +67,17 @@ function QuickTrainingPanel({ onCreate, existingLocations, currentTeamCategory }
     if (customLocation.trim()) {
       const trimmed = customLocation.trim();
       setLocation(trimmed);
-      localStorage.setItem('orcos_quick_location', trimmed);
+      setCustomLocations(prev => {
+        const next = [...new Set([...prev, trimmed])];
+        localStorage.setItem('qtp_custom_locations', JSON.stringify(next));
+        return next;
+      });
       setCustomLocation('');
     }
   };
 
   const handleWeeksChange = (e) => {
-    const val = Number(e.target.value);
-    setWeeks(val);
-    localStorage.setItem('orcos_quick_weeks', val);
+    setWeeks(Number(e.target.value));
   };
 
   const previewDates = useMemo(() => {
@@ -97,14 +107,22 @@ function QuickTrainingPanel({ onCreate, existingLocations, currentTeamCategory }
     return `${previewDates.length} eventos (${dayLabels}, ${weeks} sem)`;
   }, [previewDates, selectedDays, weeks]);
 
-  const locations = [...new Set(existingLocations?.filter(Boolean) || [])];
+  const fixedNames = FIXED_LOCATIONS.map(f => f.name);
+  const locations = [...fixedNames, ...new Set([...(existingLocations?.filter(Boolean) || []), ...customLocations])];
   if (location && location !== '__custom__' && !locations.includes(location)) {
     locations.push(location);
   }
   const resolvedLocation = location === '__custom__' ? customLocation : location;
 
+  const getMapsLink = (loc) => {
+    const fixed = FIXED_LOCATIONS.find(f => f.name === loc);
+    if (fixed) return fixed.mapsLink;
+    return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(loc)}`;
+  };
+
   const handleCreate = async () => {
     if (selectedDays.length === 0 || !resolvedLocation) return;
+    if (scopeType === 'makgora_team' && !scopeMakgoraTeamId) return;
     setCreating(true);
     await onCreate({
       recurrenceDays: selectedDays,
@@ -112,10 +130,13 @@ function QuickTrainingPanel({ onCreate, existingLocations, currentTeamCategory }
       date: new Date().toISOString().split('T')[0],
       time: hour,
       location: resolvedLocation,
-      title: 'Entrenamiento',
-      type: 'entrenamiento',
-      mapsLink: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(resolvedLocation)}`,
+      title: customTitle || 'Entrenamiento',
+      type: customType,
+      notes: customNotes || null,
+      mapsLink: getMapsLink(resolvedLocation),
       teamCategory: currentTeamCategory,
+      scopeType,
+      scopeValue: scopeType === 'makgora_team' ? { makgora_team_id: scopeMakgoraTeamId } : {},
     });
     setCreating(false);
   };
@@ -204,6 +225,68 @@ function QuickTrainingPanel({ onCreate, existingLocations, currentTeamCategory }
               style={{ padding: '4px 10px', fontSize: '0.72rem', color: 'var(--color-primary)', borderColor: 'var(--color-primary)' }}>
               OK
             </button>
+          </div>
+        )}
+      </div>
+
+      <div>
+        <button
+          type="button"
+          onClick={() => setShowAdvanced(!showAdvanced)}
+          className="btn-outline"
+          style={{ width: '100%', padding: '4px', fontSize: '0.65rem', color: 'var(--color-text-muted)' }}
+        >
+          {showAdvanced ? 'Ocultar opciones avanzadas ▲' : 'Opciones avanzadas ▼'}
+        </button>
+        {showAdvanced && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '10px' }}>
+            <div className="form-group" style={{ margin: 0 }}>
+              <label style={{ fontSize: '0.72rem' }}>Titulo personalizado</label>
+              <input
+                type="text"
+                value={customTitle}
+                onChange={(e) => setCustomTitle(e.target.value)}
+                placeholder="Ej. Entrenamiento Scrum (dejar vacio = 'Entrenamiento')"
+                className="form-input"
+                style={{ padding: '5px 8px', fontSize: '0.75rem' }}
+              />
+            </div>
+            <div className="form-group" style={{ margin: 0 }}>
+              <label style={{ fontSize: '0.72rem' }}>Tipo</label>
+              <select value={customType} onChange={(e) => setCustomType(e.target.value)} className="form-select" style={{ padding: '5px 8px', fontSize: '0.75rem' }}>
+                <option value="entrenamiento">Entrenamiento</option>
+                <option value="partido">Partido</option>
+                <option value="reunion">Reunion</option>
+                <option value="otro">Otro</option>
+              </select>
+            </div>
+            <div className="form-group" style={{ margin: 0 }}>
+              <label style={{ fontSize: '0.72rem' }}>👁️ Visible para</label>
+              <select value={scopeType} onChange={(e) => { setScopeType(e.target.value); setScopeMakgoraTeamId(''); }} className="form-select" style={{ padding: '5px 8px', fontSize: '0.75rem' }}>
+                <option value="division">Solo esta división</option>
+                <option value="all">Todo el club</option>
+                <option value="makgora_team">Equipo Mak'Gora específico</option>
+              </select>
+              {scopeType === 'makgora_team' && makgoraTeams && makgoraTeams.length > 0 && (
+                <select value={scopeMakgoraTeamId} onChange={(e) => setScopeMakgoraTeamId(e.target.value)} className="form-select" style={{ marginTop: '6px', padding: '5px 8px', fontSize: '0.75rem' }}>
+                  <option value="">Seleccionar equipo...</option>
+                  {makgoraTeams.map(t => (
+                    <option key={t.id} value={t.id}>{t.rpg_name || t.name}</option>
+                  ))}
+                </select>
+              )}
+            </div>
+            <div className="form-group" style={{ margin: 0 }}>
+              <label style={{ fontSize: '0.72rem' }}>Notas (opcional)</label>
+              <textarea
+                value={customNotes}
+                onChange={(e) => setCustomNotes(e.target.value)}
+                placeholder="Instrucciones para los jugadores..."
+                className="form-input"
+                rows={2}
+                style={{ padding: '5px 8px', fontSize: '0.75rem', resize: 'vertical' }}
+              />
+            </div>
           </div>
         )}
       </div>

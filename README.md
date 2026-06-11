@@ -1,10 +1,10 @@
-﻿# RUGBY ORCOS NEGROS — Reino Manager v4.0
+﻿# RUGBY ORCOS NEGROS — Reino Manager v5.0
 
 <p align="center">
   <img src="assets/orcos_logo.png" alt="Rugby Orcos Shield" width="180" />
 </p>
 
-Aplicacion Web Progresiva (PWA) para la gestion integral del club de rugby **Orcos Negros**. Tematica RPG de fantasia epica con roles, torneos, entrenamientos, finanzas y mas.
+Aplicacion Web Progresiva (PWA) para la gestion integral del club de rugby **Orcos Negros**. Arquitectura **Supabase-First** — PostgreSQL como unica fuente de verdad. Datos compartidos en tiempo real entre 80+ miembros. Tematica RPG de fantasia epica con roles, torneos, entrenamientos, finanzas y mas.
 
 ---
 
@@ -16,10 +16,25 @@ Aplicacion Web Progresiva (PWA) para la gestion integral del club de rugby **Orc
 | Backend | **Supabase** (PostgreSQL, Auth, API, RLS) |
 | Auth | Email/Password + Username para Guerreros |
 | Mobile | Capacitor (Android APK) + PWA (iOS Safari) |
-| IA | Gemini / Groq / DeepSeek (multi-provider) |
+| IA | Groq · DeepSeek · Gemini (multi-provider con fallback) |
 | Estilos | CSS puro con Custom Properties (glassmorphism + neon) |
+| PWA | vite-plugin-pwa (16 assets precacheados + runtime cache) |
 | Deploy | Vercel (frontend) + Supabase Cloud (backend) |
-| Code Analysis | **CodeGraph** (tree-sitter knowledge graph) |
+
+---
+
+## REGLA DE ORO — Arquitectura Supabase-First
+
+**PostgreSQL (Supabase) es la unica fuente de verdad.** Toda escritura va directo a la BD via `upsert()`. Toda lectura viene de `fetchAll()`. localStorage es solo cache de lectura.
+
+| Operacion | Destino |
+|---|---|
+| Crear evento/partido/finanza/jugador | `supabase.from('tabla').upsert()` |
+| Leer datos al cargar | `useSyncPull → fetchAll() → setState` |
+| Recargar pagina | `fetchAll()` — los datos vienen de Supabase |
+| Otro usuario abre la app | Ve los mismos datos (segun permisos RLS) |
+
+**Sin backup, sin merge, sin re-push.** Si Supabase no responde, `syncStatus='offline'`.
 
 ---
 
@@ -42,46 +57,90 @@ Rugby Orcos/
 │   │   ├── Roster.jsx           # CRUD jugadores, atributos RPG, insignias, credenciales
 │   │   ├── CanchaTactica.jsx    # Pizarra con 11 formaciones + drag-and-drop
 │   │   ├── Tribunal.jsx         # Asistencia, infracciones, rankings
-│   │   ├── Calendario.jsx       # Agenda, fixtures, match center, rivals
-│   │   ├── Finanzas.jsx         # Caja chica, membresias, inventario
-│   │   ├── TrainingHub.jsx      # Plan inteligente, rutinas, catalogo
+│   │   ├── Calendario.jsx       # Agenda/Fixture/Proximos/Rivales (QuickTrainingPanel)
+│   │   ├── Finanzas.jsx         # Caja chica, membresias, inventario (AddInventoryForm)
+│   │   ├── TrainingHub.jsx      # Plan inteligente + IA Personal Trainer multi-proveedor
 │   │   ├── AIChat.jsx           # Chat tactico multi-proveedor IA
 │   │   ├── AwardsHall.jsx       # Salon de la Fama (43 premios + certificados)
 │   │   ├── MakgoraHub.jsx       # Torneo Mak'Gora (equipos, fixture, standings, prestamos)
 │   │   ├── Invitaciones.jsx     # Dashboard de invitaciones a rivales
 │   │   ├── MatchInvitation.jsx  # Pagina publica de invitacion (sin login)
-│   │   ├── PlayerDashboard.jsx  # Vista personal del Guerrero
+│   │   ├── PlayerDashboard.jsx  # Vista del Guerrero (4 tabs: Perfil, Agenda, Entreno, Bienestar)
 │   │   ├── UserManagement.jsx   # Admin de usuarios, roles y reset password
-│   │   ├── Settings.jsx         # Configuracion IA
+│   │   ├── Settings.jsx         # Configuracion IA, tema claro/oscuro, cuenta
 │   │   ├── Rivales.jsx          # Gestion de equipos rivales
 │   │   ├── AuthCallback.jsx     # Callback de autenticacion
 │   │   ├── ErrorBoundary.jsx    # Captura de errores React
-│   │   ├── Messages.jsx          # Mensajeria interna con attachments
+│   │   ├── Messages.jsx          # Mensajeria interna con attachments, reacciones, busqueda
 │   │   ├── AnnouncementModal.jsx # Anuncios tipo popup
-│   │   └── Toast.jsx            # Componente toast
+│   │   ├── AvatarPicker.jsx     # 40 SVGs mitologicos + subir foto
+│   │   ├── PlayerPhoto.jsx      # Avatar/foto con fallback a iniciales
+│   │   ├── WorkoutLogger.jsx    # Logging de ejercicios completados
+│   │   ├── PlayerProgressTab.jsx# Graficas de progreso gym
+│   │   ├── PlayerCompare.jsx    # Comparativa lado a lado de 2 jugadores
+│   │   ├── Toast.jsx            # Componente toast
+│   │   ├── Dashboard/
+│   │   │   ├── ActivityFeed.jsx # Actividad reciente del club
+│   │   │   └── MiniRanking.jsx  # Top 3 asistencia/MVP/tries
+│   │   ├── Calendario/AgendaTab/
+│   │   │   ├── MonthlyView.jsx  # Calendario en vista mensual
+│   │   │   └── EventRsvp.jsx    # Confirmacion de asistencia (going/maybe/not_going)
+│   │   ├── TrainingHub/
+│   │   │   ├── TeamOverview.jsx # Vista equipo con alertas de carga
+│   │   │   └── ExerciseForm.jsx # Creacion de ejercicios personalizados
+│   │   └── MakgoraHub/
+│   │       └── ChampionsHistory.jsx # Salón de campeones historico
 │   ├── data/
 │   │   ├── supabaseApi.js       # Capa API Supabase + conversor de datos
 │   │   ├── exerciseLibrary.js   # 44 ejercicios de rugby
 │   │   └── faultExerciseMap.js  # Mapa fallos → ejercicios correctivos
+│   ├── __tests__/                # 53 archivos, 546 tests
 │   └── engine/
 │       ├── assignmentEngine.js  # Motor de reglas para planes de entrenamiento
-│       ├── aiProvider.js        # Router multi-proveedor IA
-│       └── providers/           # Gemini, Groq, DeepSeek, OpenAI Compatible
+│       ├── aiProvider.js        # Router multi-proveedor IA + generateTrainingPlan
+│       ├── promptBuilder.js     # buildAITrainingContext (14 fuentes de datos)
+│       ├── aiCache.js           # Cache LRU en localStorage
+│       ├── aiConfig.js          # Configuracion de proveedores IA
+│       ├── contentFilter.js     # Filtro de contenido rugby
+│       ├── matchAnalyzer.js     # Analisis de partidos con IA
+│       ├── attributeCalculator.js# Calculo de atributos RPG desde datos fisicos
+│       ├── overtrainingDetector.js# Deteccion temprana de sobreentrenamiento
+│       ├── planNormalizer.js    # Normalizador de planes IA → engine
+│       ├── trainingPlanService.js# Servicio de persistencia de planes
+│       └── providers/           # Groq, DeepSeek, Gemini, OpenRouter
 ├── supabase/migrations/
-│   ├── 00_reset_db.sql          # Destruye todo
-│   ├── 01_schema_v4.sql         # Schema limpio (27 tablas + RLS + funciones)
-│   ├── 02_fix_user_profiles_rls.sql  # Deshabilita RLS en user_profiles
-│   ├── 03_admin_reset_staff_password.sql  # RPC para resetear password staff
-│   ├── 04_match_invitations.sql # Tablas match_invitations + guest_players
-│   ├── 05_messages.sql          # Mensajeria interna y anuncios
-│   └── 06_enhance_invitations.sql # Mejoras: FKs, respuesta, triggers
-├── seed/seed-csv.mjs            # Importador CSV → Supabase
-├── public/
-│   ├── manifest.json            # PWA manifest
-│   └── sw.js                    # Service Worker (offline)
+│   ├── 00_reset_db.sql
+│   ├── 01_schema_v4.sql         # 27 tablas + RLS + funciones
+│   ├── 02_fix_user_profiles_rls.sql
+│   ├── 03_admin_reset_staff_password.sql
+│   ├── 04_match_invitations.sql
+│   ├── 05_messages.sql
+│   ├── 06_enhance_invitations.sql
+│   ├── 07_custom_tactics.sql
+│   ├── 08_team_members_and_normalize.sql
+│   ├── 09_fix_makgora_dupes.sql
+│   ├── 10_push_tokens.sql
+│   ├── 11_push_trigger.sql
+│   ├── 12_unique_constraint_name_birth.sql
+│   ├── 13_add_payment_date_to_player_payments.sql
+│   ├── 14_finances_rls.sql
+│   ├── 15_fundraising.sql               # Fundraising: campañas, asignaciones, tickets, pagos
+│   ├── 16_club_config.sql               # Config por equipo (mensualidad_base)
+│   ├── 17_campaign_prizes.sql           # Premios JSONB en campañas
+│   ├── 18_fundraising_rls.sql           # RLS policies + get_user_tier()
+│   ├── 19_fix_player_credentials.sql    # Fix inicial de credenciales
+│   ├── 20_player_avatars.sql            # avatar_id + photo_url + storage
+│   ├── 21-23_fix_username_generation.sql# Fixes de tipo VARCHAR vs TEXT
+│   ├── 24_final_credential_fix.sql      # IF EXISTS UPDATE ELSE INSERT
+│   ├── 25_exercise_catalog.sql          # Catálogo de 45+ ejercicios
+│   ├── 26_gym_history.sql              # Historial de fuerza (squat/bench/deadlift)
+│   ├── 29_security_audit_fixes.sql     # RLS, UNIQUE wellness, search_path
+│   ├── 30_training_plans.sql           # Planes de entrenamiento persistidos
+│   ├── 31_fix_child_table_rls.sql      # RLS en tablas hijas (wellness, HIA, etc)
+│   ├── 32_agenda_enhancements.sql      # notes, end_date, event_rsvp
+│   └── 33_event_scope.sql              # scope_type + scope_value (visibilidad)
 ├── android/                     # Proyecto Android Capacitor
 ├── vercel.json                  # Config SPA fallback para Vercel
-├── capacitor.config.json        # Config Capacitor Android
 └── .env                         # Variables de entorno (NO COMMITEAR)
 ```
 
@@ -108,8 +167,9 @@ Rugby Orcos/
 
 ### Guerrero (Jugador)
 - Ingresa su **nombre de usuario** (ej: `freyder.andres`) + contrasena
-- La app busca el username en `players`, obtiene su email interno → login
-- Accede a su **PlayerDashboard** personal (atributos, insignias, wellness)
+- La app busca el username en `players` por username, nickname, apodo o nombre completo
+- Obtiene su email interno → login → PlayerDashboard con 4 tabs
+- Si el perfil no existe, se muestra vista "Sin rango en el Reino" con instrucciones
 
 ### Fundar Reino (primer uso / staff nuevo)
 - Admin > Miembros > crear usuario con email + password + rol
@@ -139,14 +199,18 @@ Torneo interno con 6 equipos. Crear torneos, fixture round-robin, registrar resu
 ### Invitaciones
 Dashboard centralizado de invitaciones a equipos rivales. Genera links unicos por partido, los rivales registran sus jugadores sin login. Contador en vivo, respuesta aceptar/rechazar, GuestRoster visible en proximos partidos y Match Center. Badge de invitaciones activas en gestion de rivales.
 
-### Agenda
-Eventos con recurrencia. WhatsApp formatter. Fixture y resultados. Match Center. Equipos rivales.
+### Agenda (Grupo CLUB > Calendario)
+Recurrencia personalizada (dias de la semana x N semanas con vista previa). Panel de **Entreno Rapido** (crear entrenos en 2 clicks con memoria de ultima hora/lugar). Anti-duplicado (misma fecha+hora+equipo). WhatsApp formatter con mapa. Vista semanal. Editar/borrar cualquier evento. Los eventos se guardan en Supabase y son visibles para todos los miembros de la division.
+
+### PlayerDashboard (Guerrero, tier 4)
+El Guerrero accede a un dashboard con **4 tabs**: 🛡️ Mi Perfil (atributos RPG, insignias, membresia), 📅 Agenda (proximos entrenos y partidos del equipo — solo lectura), 💪 Entreno (plan generado por IA con ejercicios campo/gym/recuperacion — solo lectura), 🧘 Bienestar (wellness check-in diario con estrellas de sueno/dolor/estres). Sin acceso a crear/editar/borrar datos del club.
 
 ### Finanzas
-Caja chica, membresias con abonos parciales ($10,000 COP), inventario con custodios.
+Caja chica, membresias con abonos parciales y cobro mensual automatico, inventario con custodios.
+**Recaudacion**: campanas de rifa (boletas numeradas secuenciales, premios multiples, venta FIFO con abono tracking) y comidas, pagos unificados en `player_payments`, sincronizacion bidireccional con Caja Chica via `[pid:...]`, rentabilidad automatica (Bruto − Premios).
 
-### Entrenamientos
-Plan inteligente (motor de reglas + IA). 13 rutinas. 44 ejercicios. Calculo de cargas 1RM.
+### Entrenamientos (TrainingHub)
+**IA Personal Trainer multi-proveedor** (Groq → DeepSeek → Gemini). La IA recibe 14 fuentes de datos por jugador: atributos, tendencia historica, 1RM con ratios, partidos (tries, tackles, tarjetas), racha de entrenamiento, ejercicios saltados, wellness (sueno/dolor/estres 7d), lesiones activas y pasadas, fracturas, HIA, asistencia, penalizaciones. Genera: analisis, riesgos, metas a 30/90d, plan campo/gym/recuperacion, recomendaciones de sueno/nutricion/prevencion. **PlayersTab** auto-genera plan al seleccionar Guerrero.
 
 ### IA Coach
 Chat multi-proveedor (Gemini/Groq/DeepSeek) con failover. 3 modos. Rate limit y cache.
@@ -204,6 +268,10 @@ npm run dev   # http://localhost:3000
    - `supabase/migrations/04_match_invitations.sql`
    - `supabase/migrations/05_messages.sql`
    - `supabase/migrations/06_enhance_invitations.sql`
+    - `supabase/migrations/15_fundraising.sql`
+    - `supabase/migrations/16_club_config.sql`
+    - `supabase/migrations/17_campaign_prizes.sql`
+    - `supabase/migrations/18_fundraising_rls.sql`
 3. `node seed/seed-csv.mjs "ruta/al/archivo.csv"`
 4. Authentication > Providers > Email: habilitado
 
@@ -221,6 +289,7 @@ npm run dev   # http://localhost:3000
 | `npm run dev` | Dev server localhost:3000 |
 | `npm run build` | Build produccion en dist/ |
 | `npm run lint` | ESLint (0 warnings) |
+| `npm run test` | Vitest (546 tests, 53 files) |
 | `npm run cap:sync` | Sincronizar Android |
 | `npm run cap:open-android` | Abrir Android Studio |
 | `node seed/seed-csv.mjs ruta.csv` | Importar CSV a Supabase |
@@ -232,35 +301,29 @@ npm run dev   # http://localhost:3000
 | Fase | Tarea | Estado |
 |:----:|-------|:------:|
 | 0 | Preparacion (Supabase, Vercel, Git) | ✅ |
-| 1 | Schema SQL limpio (27 tablas + RLS + funciones) | ✅ |
-| 2 | Auth email/password + Login unificado + Fundar Reino | ✅ |
+| 1 | Schema SQL (27 tablas + RLS + funciones) | ✅ |
+| 2 | Auth email/password + Login unificado | ✅ |
 | 3 | Roles RPG + Permisos + UserManagement | ✅ |
-| 4 | Acceso Guerreros + PlayerDashboard + Forjar Credenciales | ✅ |
-| 5 | Salon de la Fama (43 premios + certificados) | ✅ |
-| 6 | Modo Mak'Gora (torneos, fixture, standings) | ✅ |
-| 7 | Restablecer contrasena staff (🔑) | ✅ |
-| 8 | Invitacion a equipos rivales (dashboard, real-time) | ✅ |
-| 9 | Prestamos de jugadores entre equipos Mak'Gora | ✅ |
-| 10 | Mensajeria interna + Anuncios | ✅ |
-| 11 | Build APK Android | ⬜ |
-| 12 | Deploy final (Vercel env vars, pruebas) | ⬜ |
-
----
-
-### Bugs conocidos
-
-| Bug | Estado |
-|-----|--------|
-| `user_profiles.user_id` no coincide con `auth.users.id` para usuarios antiguos | Arreglar con SQL manual (ver abajo) |
-
-#### Fix para perfil roto
-
-```sql
--- Si un usuario de UserManagement no puede loguear, reparar su perfil:
-UPDATE user_profiles 
-SET user_id = (SELECT id FROM auth.users WHERE email = 'el-email-del-usuario@gmail.com')
-WHERE display_name = 'Nombre del usuario';
-```
+| 4 | PlayerDashboard + Forjar Credenciales | ✅ |
+| 5 | Salon de la Fama (35 premios + certificados) | ✅ |
+| 6 | Mak'Gora (torneos, fixture, standings, prestamos) | ✅ |
+| 7 | Invitacion a rivales + QR + recordatorio + H2H stats | ✅ |
+| 8 | Segmentacion de eventos (division/makgora_team/todo el club) | ✅ |
+| 9 | Mensajeria interna + reacciones + busqueda | ✅ |
+| 10 | Arquitectura Supabase-First | ✅ |
+| 11 | IA Personal Trainer multi-proveedor + sobreentreno | ✅ |
+| 12 | Agenda: recurrencia, RSVP, vista mensual y semanal | ✅ |
+| 13 | Deploy Vercel (GitHub auto-deploy) | ✅ |
+| 14 | Build APK Android | ✅ |
+| 15 | Recaudacion (rifas FIFO, premios, comidas) | ✅ |
+| 16 | Finanzas: caja chica, membresias + categorias (hotel, prestamo, etc) | ✅ |
+| 17 | RLS Fundraising + seguridad | ✅ |
+| 18 | Avatares (40 SVGs + subir foto + Storage) | ✅ |
+| 19 | Tema claro/oscuro | ✅ |
+| 20 | Auto-deteccion sobreentrenamiento | ✅ |
+| 21 | Historial de campeones Mak'Gora | ✅ |
+| 22 | Comparativa de jugadores | ✅ |
+| 23 | CI/CD + 546 tests | ✅ |
 
 ---
 
