@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
-import { supabase } from '../../supabaseClient';
 import { useToast } from '../../context/ToastContext';
 import { useAuth } from '../../context/AuthContext';
 import ExerciseIcon, { CATEGORY_LABELS, SUBCATEGORY_LABELS } from './ExerciseIcon';
+import { createExercise } from '../../services/trainingService';
 
 function ExerciseForm({ onCreated, onClose }) {
   const { showToast } = useToast();
@@ -21,16 +21,21 @@ function ExerciseForm({ onCreated, onClose }) {
   });
 
   const SUBCATEGORY_OPTIONS = {
-    gym: ['fuerza_inferior', 'fuerza_superior', 'potencia', 'core', 'velocidad'],
+    calentamiento: ['general'],
     campo: ['tackle', 'pase', 'scrum', 'patada', 'evasion', 'defensa', 'resistencia', 'liderazgo'],
+    crossfit: ['general', 'levantamiento', 'potencia', 'cardio', 'fuerza'],
+    casa: ['general', 'pecho', 'pierna', 'core', 'brazo', 'espalda', 'hombro', 'cardio'],
+    gym: ['pecho', 'espalda', 'pierna', 'hombro', 'brazo', 'core', 'fuerza_inferior', 'fuerza_superior', 'potencia', 'velocidad'],
     recuperacion: ['movilidad'],
-    prevencion: ['hombros', 'cuello', 'rodillas', 'tobillos'],
+    prevencion: ['hombros', 'cuello', 'rodillas', 'tobillos', 'general'],
   };
 
   useEffect(() => {
     if (!user?.id) return;
-    supabase.from('players').select('id').eq('user_id', user.id).limit(1).then(({ data }) => {
-      if (data?.[0]) setPlayerId(data[0].id);
+    import('../../services/playerService').then(({ fetchPlayers }) => {
+      fetchPlayers({ userId: user.id }).then(data => {
+        if (data?.[0]) setPlayerId(data[0].id);
+      });
     });
   }, [user?.id]);
 
@@ -50,11 +55,8 @@ function ExerciseForm({ onCreated, onClose }) {
     }
     setSaving(true);
     try {
-      const code = form.name_technical.toLowerCase().replace(/[^a-záéíóúñ0-9]+/g, '_').replace(/_+/g, '_').replace(/^_|_$/g, '');
-      const uniqueCode = code || 'custom_' + Date.now();
-      const { data, error } = await supabase.from('exercise_catalog').insert({
-        code: uniqueCode,
-        name_technical: form.name_technical.trim(),
+      await createExercise({
+        name: form.name_technical.trim(),
         name_local: form.name_local.trim(),
         category: form.category,
         subcategory: form.subcategory,
@@ -62,17 +64,9 @@ function ExerciseForm({ onCreated, onClose }) {
         description: form.description.trim(),
         target_positions: form.target_positions,
         equipment: form.equipment.trim(),
-        is_system: false,
-        created_by: playerId,
-      }).select().single();
-      if (error) {
-        if (error.code === '23505') {
-          throw new Error(`Ya existe un ejercicio con el código "${uniqueCode}". Cambia el nombre técnico.`);
-        }
-        throw error;
-      }
+      });
       showToast('Ejercicio creado exitosamente.', 'success');
-      onCreated(data);
+      onCreated({ name_local: form.name_local.trim() });
     } catch (err) {
       showToast(err.message || 'Error al crear el ejercicio.', 'error');
     } finally {

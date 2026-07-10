@@ -106,6 +106,7 @@ function wrapInClubContext(ui, contextValue) {
         isSuperRole: false,
         syncStatus: 'online',
         hasPermission: function () { return true; },
+        teams: [],
         userRole: 'desarrollador',
         userTier: 0,
         activeTeam: 'orcos_masculina_mayor',

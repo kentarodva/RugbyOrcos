@@ -1,9 +1,33 @@
-import React from 'react';
+import React, { useState, useMemo } from 'react';
+import { PlayerPhoto } from '../PlayerPhoto';
 
 function FaultBookTab({ teamPlayers, penalizedPlayers, redeemPenalty, onShareBlacklist }) {
+  const [search, setSearch] = useState('');
+  const [onlyDebtors, setOnlyDebtors] = useState(false);
+
+  const filteredPlayers = useMemo(() => {
+    let list = teamPlayers;
+    if (search.trim()) {
+      const q = search.toLowerCase();
+      list = list.filter(p =>
+        p.name.toLowerCase().includes(q) || (p.apodo || '').toLowerCase().includes(q)
+      );
+    }
+    if (onlyDebtors) {
+      list = list.filter(p => p.penalties.burpees > 0 || p.penalties.cones);
+    }
+    return list;
+  }, [teamPlayers, search, onlyDebtors]);
+
   const totalBurpees = teamPlayers.reduce((sum, p) => sum + (p.penalties.burpees || 0), 0);
   const totalCones = teamPlayers.filter(p => p.penalties.cones).length;
   const totalPenalized = penalizedPlayers.length;
+
+  const handleRedeem = (player, type) => {
+    const label = type === 'burpees' ? `${player.penalties.burpees} Burpees` : 'Recoger Conos';
+    const ok = window.confirm(`Estas seguro de que ${player.name} ya pago ${label}? Esta accion no se puede deshacer.`);
+    if (ok) redeemPenalty(player.id, type);
+  };
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', width: '100%' }}>
@@ -41,22 +65,40 @@ function FaultBookTab({ teamPlayers, penalizedPlayers, redeemPenalty, onShareBla
           <h3 style={{ fontSize: '1.25rem', fontWeight: 800, fontFamily: 'Outfit', color: 'var(--color-red)', margin: 0 }}>
             Reporte de Historial de Faltas e Infracciones
           </h3>
-          {penalizedPlayers.length > 0 && (
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Buscar guerrero..."
+              className="form-input"
+              style={{ width: '180px', padding: '6px 10px', fontSize: '0.78rem' }}
+            />
             <button
-              onClick={onShareBlacklist}
-              className="btn-neon"
-              style={{
-                padding: '6px 12px',
-                fontSize: '0.8rem',
-                background: 'linear-gradient(135deg, #25d366, #128c7e)',
-                color: '#fff',
-                boxShadow: '0 4px 15px rgba(37, 211, 102, 0.2)',
-                fontWeight: 700
-              }}
+              type="button"
+              onClick={() => setOnlyDebtors(v => !v)}
+              className={onlyDebtors ? 'btn-neon' : 'btn-outline'}
+              style={{ padding: '6px 10px', fontSize: '0.7rem', whiteSpace: 'nowrap' }}
             >
-              Compartir Lista Negra (WhatsApp)
+              {onlyDebtors ? 'Ver Todos' : 'Solo con Deudas'}
             </button>
-          )}
+            {penalizedPlayers.length > 0 && (
+              <button
+                onClick={onShareBlacklist}
+                className="btn-neon"
+                style={{
+                  padding: '6px 12px',
+                  fontSize: '0.8rem',
+                  background: 'linear-gradient(135deg, #25d366, #128c7e)',
+                  color: '#fff',
+                  boxShadow: '0 4px 15px rgba(37, 211, 102, 0.2)',
+                  fontWeight: 700
+                }}
+              >
+                Compartir Lista Negra (WhatsApp)
+              </button>
+            )}
+          </div>
         </div>
 
         <div style={{ overflowX: 'auto', width: '100%' }}>
@@ -74,7 +116,7 @@ function FaultBookTab({ teamPlayers, penalizedPlayers, redeemPenalty, onShareBla
               </tr>
             </thead>
             <tbody>
-              {teamPlayers.map(p => {
+              {filteredPlayers.map(p => {
                 const totalYellows = (p.matchStats || []).reduce((sum, s) => sum + (s.yellowCards || 0), 0);
                 const totalReds = (p.matchStats || []).reduce((sum, s) => sum + (s.redCards || 0), 0);
                 const hasPenalties = p.penalties.burpees > 0 || p.penalties.cones;
@@ -88,9 +130,12 @@ function FaultBookTab({ teamPlayers, penalizedPlayers, redeemPenalty, onShareBla
                     }}
                   >
                     <td style={{ padding: '12px 5px' }}>
-                      <div style={{ display: 'flex', flexDirection: 'column' }}>
-                        <strong>{p.name}</strong>
-                        <span style={{ fontSize: '0.75rem', color: 'var(--color-primary)' }}>#{p.camiseta ?? '—'} "{p.apodo || ''}"</span>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <PlayerPhoto player={p} size={28} />
+                        <div style={{ display: 'flex', flexDirection: 'column' }}>
+                          <strong>{p.name}</strong>
+                          <span style={{ fontSize: '0.75rem', color: 'var(--color-primary)' }}>#{p.camiseta ?? '—'} "{p.apodo || ''}"</span>
+                        </div>
                       </div>
                     </td>
                     <td style={{ padding: '12px 5px', textAlign: 'center' }}>
@@ -134,18 +179,18 @@ function FaultBookTab({ teamPlayers, penalizedPlayers, redeemPenalty, onShareBla
                     <td style={{ padding: '12px 5px', textAlign: 'center' }}>
                       {hasPenalties ? (
                         <div style={{ display: 'flex', gap: '5px', justifyContent: 'center' }}>
-                          {p.penalties.burpees > 0 && (
-                            <button
-                              onClick={() => redeemPenalty(p.id, 'burpees')}
+                           {p.penalties.burpees > 0 && (
+                             <button
+                               onClick={() => handleRedeem(p, 'burpees')}
                               className="btn-neon"
                               style={{ padding: '3px 8px', fontSize: '0.65rem', textTransform: 'none' }}
                             >
                               Pagar Burpees
                             </button>
                           )}
-                          {p.penalties.cones && (
-                            <button
-                              onClick={() => redeemPenalty(p.id, 'cones')}
+                           {p.penalties.cones && (
+                             <button
+                               onClick={() => handleRedeem(p, 'cones')}
                               className="btn-outline"
                               style={{ padding: '3px 8px', fontSize: '0.65rem', color: 'var(--color-blue)', borderColor: 'rgba(0,176,255,0.2)' }}
                             >

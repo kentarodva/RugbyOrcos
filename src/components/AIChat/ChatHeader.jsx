@@ -1,7 +1,7 @@
 import React from 'react';
 import { Icon } from './icons';
 
-export function ChatHeader({ configured, activeProvInfo, teamFixtures, analyzingMatch, onAnalyze, onClear, messagesCount }) {
+export function ChatHeader({ configured, activeProvInfo, settingsReady, teamFixtures, analyzingMatch, onAnalyze, onClear, messagesCount }) {
   return (
     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
       <div>
@@ -9,7 +9,9 @@ export function ChatHeader({ configured, activeProvInfo, teamFixtures, analyzing
           <Icon name="ai" size={22} /> Chat Tactico
         </h2>
         <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
-          {configured
+          {!settingsReady
+            ? <><Icon name="loading" size={14} /> Cargando configuración IA...</>
+            : configured
             ? (activeProvInfo
               ? activeProvInfo.icon + ' ' + activeProvInfo.name + ' \u00B7 ' + activeProvInfo.desc
               : <><Icon name="ai" size={14} /> Auto &middot; Multi-proveedor con fallback</>)

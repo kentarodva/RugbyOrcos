@@ -1,5 +1,4 @@
 import React from 'react';
-import { formatLocalDate } from '../../../utils/dates.js';
 
 function EventRsvp({ eventId, myRsvp, onRsvp, players, rsvpList }) {
   const statuses = [

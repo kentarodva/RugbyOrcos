@@ -1,6 +1,6 @@
 import React, { useContext, useMemo, useState, useRef, useCallback } from 'react';
 import { ClubContext } from '../../context/ClubContext';
-import { formatLocalDate, parseLocalDate } from '../../utils/dates.js';
+import { formatLocalDate } from '../../utils/dates.js';
 import { useRegisterSearchHandler } from '../../utils/keyboardShortcuts';
 import { normalizeEPS } from '../../utils/csvImport';
 import KPI from './KPI';
@@ -13,6 +13,7 @@ import Cobertura from './Cobertura';
 import EquiposTab from './EquiposTab';
 import Atributos from './Atributos';
 import EstadisticasSkeleton from '../Skeletons/EstadisticasSkeleton';
+import { getUpcomingBirthdays } from '../../services/statsService';
 
 const TABS = [
   { id: 'demografia', label: '📊 Demografía' },
@@ -82,21 +83,7 @@ function Estadisticas() {
   const ages = filteredPlayers.map(p => p._meta?.age ?? p.age).filter(Boolean);
   const weights = filteredPlayers.map(p => p.weight).filter(Boolean);
 
-  const upcomingBirthdays = useMemo(() => {
-    const today = new Date();
-    return filteredPlayers
-      .filter(p => p.birth_date)
-      .map(p => {
-        const bd = parseLocalDate(p.birth_date);
-        const next = new Date(today.getFullYear(), bd.getMonth(), bd.getDate());
-        if (next < today) next.setFullYear(next.getFullYear() + 1);
-        const days = Math.round((next - today) / (1000 * 60 * 60 * 24));
-        const age = (p._meta?.age ?? 0) + (days === 0 ? 0 : 1);
-        return { ...p, nextBD: next, days, nextAge: age };
-      })
-      .sort((a, b) => a.days - b.days)
-      .slice(0, 5);
-  }, [filteredPlayers]);
+  const upcomingBirthdays = useMemo(() => getUpcomingBirthdays(filteredPlayers, 5), [filteredPlayers]);
 
   if (syncStatus === 'idle' || syncStatus === 'syncing') {
     return <EstadisticasSkeleton />;

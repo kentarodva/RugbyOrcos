@@ -1,5 +1,6 @@
 import { useState, useMemo, useCallback } from 'react';
 import { MENSUALIDAD_BASE } from './constants';
+import { useFilterByView } from '../../context/hooks/useFilterByView';
 
 export function useFinanzasState({ finances, players, activeTeam, viewMode, divisionView, makgoraTeamId, addFinanceRecord, recordMembershipPayment, updateInventoryItem, showToast }) {
   const [activeSubTab, setActiveSubTab] = useState('finances');
@@ -10,23 +11,7 @@ export function useFinanzasState({ finances, players, activeTeam, viewMode, divi
   const [finType, setFinType] = useState('ingreso');
   const [finCategory, setFinCategory] = useState('general');
   const [finDate, setFinDate] = useState(new Date().toISOString().split('T')[0]);
-
-  const filterByView = useCallback((items) => {
-    if (viewMode === 'general' && divisionView === 'all') {
-      return items.filter(x => x.teamCategory?.startsWith('orcos'));
-    }
-    if (viewMode === 'general') {
-      return items.filter(x => x.teamCategory === `orcos_${divisionView}`);
-    }
-    if (viewMode === 'makgora' && makgoraTeamId) {
-      let filtered = items.filter(x => x.makgora_team_id === makgoraTeamId);
-      if (divisionView !== 'all') {
-        filtered = filtered.filter(x => x.teamCategory === `orcos_${divisionView}`);
-      }
-      return filtered;
-    }
-    return items.filter(x => x.teamCategory === activeTeam);
-  }, [viewMode, divisionView, makgoraTeamId, activeTeam]);
+  const filterByView = useFilterByView();
 
   const teamFinances = useMemo(
     () => filterByView(finances),

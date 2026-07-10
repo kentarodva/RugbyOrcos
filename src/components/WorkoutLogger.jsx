@@ -1,11 +1,12 @@
 import { useState, useMemo } from 'react';
 import { useToast } from '../context/ToastContext';
 import { completePlan } from '../engine/trainingPlanService';
+import { analyzeProgress } from '../engine/progressCoach';
 
 const CATEGORY_LABELS = { campo: 'Campo', gym: 'Gimnasio', recuperacion: 'Recuperación' };
 const EMPTY_SERIES = { completed: false, sets: 3, reps: 10, weight: '' };
 
-function WorkoutLogger({ player, logWorkout, myTrainingPlan }) {
+function WorkoutLogger({ player, logWorkout, myTrainingPlan, onOpenBuilder, onGeneratePlan, generatingPlan }) {
   const { showToast } = useToast();
   const [exercises, setExercises] = useState({});
   const [saving, setSaving] = useState(false);
@@ -79,13 +80,22 @@ function WorkoutLogger({ player, logWorkout, myTrainingPlan }) {
             sets: v.sets || 0,
             reps: v.reps || 0,
             weight: v.weight ? Number(v.weight) : null,
+            rpe: v.rpe ? Number(v.rpe) : null,
           };
         });
       await logWorkout(player.id, {
         type: activeCategory,
         ejercicios: loggedExercises,
+        exerciseLogs: loggedExercises,
+        planId: myTrainingPlan?.id || null,
       });
-      showToast(`Entreno de ${CATEGORY_LABELS[activeCategory] || activeCategory} guardado (${loggedExercises.length} ejercicios).`, 'success');
+
+      const prevLogs = (player.workoutLog || []).filter(w => w.type === activeCategory).slice(-1);
+      const prevExercises = prevLogs.length > 0 ? (prevLogs[0].exerciseLogs || prevLogs[0].ejercicios || []) : [];
+      const analysis = analyzeProgress(loggedExercises, prevExercises);
+      let msg = `Entreno de ${CATEGORY_LABELS[activeCategory] || activeCategory} guardado (${loggedExercises.length} ejercicios).`;
+      if (analysis?.summary) msg += ` ${analysis.summary}`;
+      showToast(msg, 'success');
       setExercises({});
     } catch (err) {
       showToast('Error al guardar el entreno.', 'error');
@@ -113,18 +123,42 @@ function WorkoutLogger({ player, logWorkout, myTrainingPlan }) {
   if (!plan) {
     return (
       <div className="glass-panel" style={{ padding: '30px', textAlign: 'center', borderRadius: 'var(--radius-lg)' }}>
-        <p style={{ color: 'var(--color-text-muted)' }}>No hay plan de entrenamiento generado aún.</p>
-        <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginTop: '6px' }}>
-          Ve a la sección de Agenda para generar un plan según tu próxima fecha.
+        <p style={{ color: 'var(--color-text-muted)', fontSize: '1rem', fontWeight: 700, marginBottom: '6px' }}>No hay plan de entrenamiento aún</p>
+        <p style={{ fontSize: '0.72rem', color: 'var(--color-text-muted)', marginBottom: '18px' }}>
+          Elige cómo quieres crear tu rutina de entrenamiento
         </p>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxWidth: '360px', margin: '0 auto' }}>
+          <button onClick={onGeneratePlan} disabled={generatingPlan}
+            className="btn-neon"
+            style={{ padding: '14px 20px', fontSize: '0.85rem', justifyContent: 'center', display: 'flex', flexDirection: 'column', gap: '2px', opacity: generatingPlan ? 0.7 : 1 }}>
+            {generatingPlan ? (
+              <>🧠 Gemini está creando tu plan...</>
+            ) : (
+              <><span style={{ fontWeight: 800 }}>🧠 Generar Plan con IA</span>
+              <span style={{ fontSize: '0.65rem', opacity: 0.8 }}>Gemini analiza tu perfil y genera ejercicios + alimentación</span></>
+            )}
+          </button>
+
+          <button onClick={onOpenBuilder}
+            className="btn-outline"
+            style={{ padding: '14px 20px', fontSize: '0.85rem', justifyContent: 'center', display: 'flex', flexDirection: 'column', gap: '2px', borderColor: 'var(--color-primary)' }}>
+            <span style={{ fontWeight: 800 }}>🏋️ Crear Rutina Manual</span>
+            <span style={{ fontSize: '0.65rem', opacity: 0.7 }}>Tú eliges los ejercicios del catálogo por categoría</span>
+          </button>
+        </div>
       </div>
     );
   }
 
   const categoryColors = {
+    calentamiento: { color: '#ff9800', label: 'Calentamiento' },
     campo: { color: 'var(--color-primary)', label: 'Campo' },
     gym: { color: '#ff3d00', label: 'Gimnasio' },
+    crossfit: { color: '#e040fb', label: 'CrossFit' },
+    casa: { color: '#00e676', label: 'Casa' },
     recuperacion: { color: '#00b0ff', label: 'Recuperación' },
+    prevencion: { color: '#ffb300', label: 'Prevención' },
   };
 
   const recentLogs = (player?.workoutLog || []).slice(-5).reverse();
@@ -157,6 +191,11 @@ function WorkoutLogger({ player, logWorkout, myTrainingPlan }) {
             IA
           </span>
         )}
+        <button onClick={onOpenBuilder}
+          className="btn-outline"
+          style={{ padding: '4px 10px', fontSize: '0.65rem', color: 'var(--color-blue)', borderColor: 'var(--color-blue)' }}>
+          ✏️ Modificar
+        </button>
       </div>
 
       <div className="glass-panel" style={{ padding: '16px', borderRadius: 'var(--radius-lg)' }}>
@@ -242,6 +281,16 @@ function WorkoutLogger({ player, logWorkout, myTrainingPlan }) {
                             <span style={{ fontSize: '0.6rem', color: 'var(--color-text-muted)' }}>kg</span>
                           </div>
                         )}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                          <span style={{ fontSize: '0.65rem', color: 'var(--color-text-muted)' }}>RPE:</span>
+                          <select value={ex.rpe || ''} onChange={e => updateExercise(ex.key, 'rpe', e.target.value)}
+                            style={{ padding: '2px', fontSize: '0.7rem', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border-glass)', borderRadius: '4px', color: 'var(--color-text)' }}>
+                            <option value="">—</option>
+                            {[10,9,8,7,6,5,4,3,2,1].map(v => (
+                              <option key={v} value={v}>RPE {v}</option>
+                            ))}
+                          </select>
+                        </div>
                       </div>
                     )}
 

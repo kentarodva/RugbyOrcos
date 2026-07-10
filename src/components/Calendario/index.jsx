@@ -2,25 +2,34 @@ import React, { useContext, useState, useMemo, useCallback } from 'react';
 import { ClubContext } from '../../context/ClubContext';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
+import { useFilterByView } from '../../context/hooks/useFilterByView';
 import { supabase } from '../../supabaseClient';
+import { wrapCatch } from '../../utils/errorHandler';
 import Rivales from '../Rivales';
 import CalendarioTabs from './CalendarioTabs';
 import AgendaTab from './AgendaTab';
 import FixtureTab from './FixtureTab';
 import FutureTab from './FutureTab';
+import LiveMatch from './FixtureTab/LiveMatch';
+import MatchSquadModal from './FixtureTab/MatchSquadModal';
+
+const LiveMatchInline = LiveMatch;
 
 import CalendarioSkeleton from '../Skeletons/CalendarioSkeleton';
 
 function Calendario() {
   const {
     schedule, addScheduleEvent, updateScheduleEvent, deleteScheduleEvent, generateWhatsAppMessage, activeTeam,
-    fixtures, addFixture, deleteFixture, players, recordMatchStats,
+    fixtures, addFixture, updateFixture, deleteFixture, players, recordMatchStats,
     futureFixtures, addFutureFixture, deleteFutureFixture, rivals,
     viewMode, divisionView, makgoraTeamId, makgoraTeams,
     syncStatus, hasPermission,
+    liveMatch, startLiveMatch, addLiveEvent,
+    pauseLiveMatch, resumeLiveMatch, endLiveMatch, deleteLiveMatch,
   } = useContext(ClubContext);
   const { showToast } = useToast();
   const { user, profile } = useAuth();
+  const filterByView = useFilterByView();
 
   const currentPlayer = useMemo(() => {
     if (!players || players.length === 0) return null;
@@ -39,6 +48,8 @@ function Calendario() {
   const [showMonthlyView, setShowMonthlyView] = useState(false);
   const [editingEvent, setEditingEvent] = useState(null);
   const [selectedFixtureForDetail, setSelectedFixtureForDetail] = useState(null);
+  const [editingFixture, setEditingFixture] = useState(null);
+  const [squadFixture, setSquadFixture] = useState(null);
   const [detailEvent, setDetailEvent] = useState(null);
   const [rsvpList, setRsvpList] = useState([]);
 
@@ -48,22 +59,6 @@ function Calendario() {
     }
     return activeTeam;
   }, [viewMode, divisionView, activeTeam]);
-
-  const filterByView = useCallback((items) => {
-    if (viewMode === 'general' && divisionView === 'all') {
-      return items.filter(x => x.teamCategory?.startsWith('orcos'));
-    }
-    if (viewMode === 'general') {
-      return items.filter(x => x.teamCategory === `orcos_${divisionView}`);
-    }
-    if (viewMode === 'makgora' && makgoraTeamId) {
-      if (divisionView !== 'all') {
-        return items.filter(x => x.teamCategory === `orcos_${divisionView}`);
-      }
-      return items.filter(x => x.teamCategory?.startsWith('orcos'));
-    }
-    return items.filter(x => x.teamCategory === activeTeam);
-  }, [viewMode, divisionView, makgoraTeamId, activeTeam]);
 
   const activeTeamPlayers = useMemo(() => {
     return filterByView(players).filter(p => p.rol !== 'Entrenador');
@@ -75,7 +70,7 @@ function Calendario() {
       if (e.scopeType === 'makgora_team') {
         const targetTeamId = e.scopeValue?.makgora_team_id;
         if (!targetTeamId) return true;
-        const teamPlayers = players.filter(p => p.makgoraTeamId === targetTeamId);
+        const teamPlayers = players.filter(p => p.makgora_team_id === targetTeamId);
         if (teamPlayers.length === 0) return filterByView([e]).length > 0;
         const inView = teamPlayers.some(p => filterByView([p]).length > 0);
         return inView;
@@ -86,6 +81,10 @@ function Calendario() {
 
   const teamEvents = useMemo(() => {
     return scheduleInView
+      .filter(s => {
+        const eventStart = new Date(s.date + 'T' + (s.time || '00:00'));
+        return new Date(eventStart.getTime() + 3 * 60 * 60 * 1000) >= new Date();
+      })
       .sort((a, b) => new Date(a.date + 'T' + a.time) - new Date(b.date + 'T' + b.time));
   }, [scheduleInView]);
 
@@ -174,7 +173,8 @@ function Calendario() {
     try {
       const { data } = await supabase.from('event_rsvp').select('*').eq('event_id', eventId);
       if (data) setRsvpList(data);
-    } catch {
+    } catch (err) {
+      wrapCatch('Calendario.loadRsvp', { notifyUser: true })(err);
       setRsvpList([]);
     }
   }, []);
@@ -183,6 +183,49 @@ function Calendario() {
     addFixture({ ...fixtureData, teamCategory: currentTeamCategory });
     showToast('Resultado registrado con exito.', 'success');
   }, [addFixture, currentTeamCategory, showToast]);
+
+  const handleEditFixture = useCallback((fixtureData) => {
+    updateFixture({ ...fixtureData, teamCategory: currentTeamCategory });
+    setEditingFixture(null);
+    showToast('Resultado actualizado con exito.', 'success');
+  }, [updateFixture, currentTeamCategory, showToast]);
+
+  const handleStartLiveMatch = useCallback(async (fixture) => {
+    const match = await startLiveMatch({
+      fixtureId: fixture?.id || null,
+      opponentName: fixture?.opponent || '',
+      teamCategory: currentTeamCategory,
+    });
+    if (match) {
+      setActiveTab('envivo');
+      showToast('Partido iniciado!', 'success');
+    }
+  }, [startLiveMatch, currentTeamCategory, showToast]);
+
+  const handleSaveSquad = useCallback(async (fixtureId, squad) => {
+    const { error } = await supabase
+      .from('fixtures')
+      .update({ squad })
+      .eq('id', fixtureId);
+    if (error) {
+      showToast('Error al guardar el squad.', 'error');
+      return;
+    }
+    updateFixture({ id: fixtureId, squad });
+    setSquadFixture(null);
+    showToast('Squad guardado correctamente.', 'success');
+  }, [updateFixture, showToast]);
+
+  const handleDeleteLiveMatch = useCallback(async () => {
+    if (!window.confirm('Eliminar el partido en vivo? Los datos no guardados se perderan.')) return;
+    await deleteLiveMatch();
+    showToast('Partido en vivo eliminado.', 'info');
+  }, [deleteLiveMatch, showToast]);
+
+  const handleEndLiveMatch = useCallback(async () => {
+    await endLiveMatch();
+    showToast('Partido finalizado.', 'success');
+  }, [endLiveMatch, showToast]);
 
   const handleSaveFutureFixture = useCallback((futureData) => {
     addFutureFixture({ ...futureData, teamCategory: currentTeamCategory });
@@ -196,7 +239,8 @@ function Calendario() {
         const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(message)}`;
         window.open(whatsappUrl, '_blank');
       })
-      .catch(() => {
+      .catch((err) => {
+        wrapCatch('Calendario.whatsappClipboard')(err);
         const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(message)}`;
         window.open(whatsappUrl, '_blank');
       });
@@ -220,7 +264,7 @@ function Calendario() {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-      <CalendarioTabs activeTab={activeTab} onChange={setActiveTab} />
+      <CalendarioTabs activeTab={activeTab} onChange={setActiveTab} hasActiveMatch={!!liveMatch && liveMatch.status !== 'finished'} />
 
       {activeTab === 'agenda' && (
         <AgendaTab
@@ -261,6 +305,38 @@ function Calendario() {
           handleSavePlayerStats={handleSavePlayerStats}
           getMatchStats={getMatchStats}
           deleteFixture={deleteFixture}
+          editingFixture={editingFixture}
+          setEditingFixture={setEditingFixture}
+          handleEditFixture={handleEditFixture}
+          onStartMatch={handleStartLiveMatch}
+          onSquad={setSquadFixture}
+          hasActiveMatch={!!liveMatch && liveMatch.status !== 'finished'}
+        />
+      )}
+
+      {activeTab === 'envivo' && (
+        <LiveMatchInline
+          liveMatch={liveMatch}
+          players={activeTeamPlayers}
+          onAddEvent={addLiveEvent}
+          onPause={pauseLiveMatch}
+          onResume={resumeLiveMatch}
+          onEnd={handleEndLiveMatch}
+          onDelete={handleDeleteLiveMatch}
+          onClose={() => setActiveTab('fixture')}
+          onStart={handleStartLiveMatch}
+          addFixture={addFixture}
+          showToast={showToast}
+        />
+      )}
+
+      {squadFixture && (
+        <MatchSquadModal
+          fixture={squadFixture}
+          players={activeTeamPlayers}
+          onSave={handleSaveSquad}
+          onClose={() => setSquadFixture(null)}
+          showToast={showToast}
         />
       )}
 

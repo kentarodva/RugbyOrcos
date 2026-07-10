@@ -27,7 +27,7 @@ const PREVENTION_EXERCISES = ['prev_hombros', 'prev_rodillas', 'prev_tobillos'];
 
 function getPlayerCategory(player) {
   if (player.rol === 'Entrenador') return 'coach';
-  if (player.rol === 'Capitán' || player.rol === 'Subcapitán') return 'captain';
+  if (player.rol === 'Capitan' || player.rol === 'Subcapitan') return 'captain';
   if (FORWARDS.includes(player.posicion)) return 'forwards';
   return 'backs';
 }

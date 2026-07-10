@@ -112,6 +112,24 @@ export function FinanceTab({
 
       {financeSubTab === 'membresias' && (
         <div className="glass-panel" style={{ padding: '25px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          {isStaff && !hasChargeThisMonth && (
+            <div style={{
+              padding: '14px 18px', borderRadius: 'var(--radius-md)',
+              background: 'rgba(255,179,0,0.06)', border: '1px solid rgba(255,179,0,0.2)',
+              display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px'
+            }}>
+              <div>
+                <strong style={{ color: 'var(--color-gold)', fontSize: '0.9rem' }}>📅 Cobro mensual pendiente</strong>
+                <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', margin: '2px 0 0' }}>
+                  El cobro de <strong style={{ color: 'var(--color-gold)' }}>{chargeMonthLabel}</strong> aún no se ha aplicado.
+                  {lastMonthlyCharge && <> Último cobro: {new Date(lastMonthlyCharge + 'T00:00:00').toLocaleDateString('es-CO', { day: 'numeric', month: 'long', year: 'numeric' })}.</>}
+                </p>
+              </div>
+              <button onClick={() => setShowChargeModal(true)} className="btn-neon" style={{ padding: '8px 16px', fontSize: '0.85rem' }}>
+                📋 Generar Cobro
+              </button>
+            </div>
+          )}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
             <div>
               <h3 style={{ fontSize: '1.2rem', fontWeight: 800, fontFamily: 'Outfit', color: 'var(--color-gold)' }}>

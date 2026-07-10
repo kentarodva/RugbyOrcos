@@ -91,7 +91,7 @@ function PlayerDetail({
                 Dar Baja
               </button>
             </div>
-            {hasPermission('create_users') && (
+            {hasPermission('admin_panel') && (
               <div style={{ display: 'flex', gap: '5px', marginTop: '4px' }}>
                 {player.username ? (
                   <button onClick={() => onReset(player)} className="btn-outline" style={{ padding: '4px 8px', fontSize: '0.7rem', color: '#ffb300', borderColor: 'rgba(255,179,0,0.3)' }}>
@@ -142,6 +142,8 @@ function PlayerDetail({
       {showAvatarPicker && (
         <AvatarPicker
           currentAvatarId={player?.avatar_id}
+          hasPhoto={!!player?.photo_url}
+          photoUrl={player?.photo_url}
           onSelect={(id) => { setAvatar(id); setShowAvatarPicker(false); }}
           onPhoto={(file) => { setPhoto(file); setShowAvatarPicker(false); }}
           onClear={() => { clearPhoto(); setShowAvatarPicker(false); }}

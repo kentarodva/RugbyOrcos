@@ -15,9 +15,11 @@ const apisupabase = {
     futureFixtures: 'future_fixtures',
     matchInvitations: 'match_invitations',
     guestPlayers: 'guest_players',
+    liveMatches: 'live_matches',
+    liveMatchEvents: 'live_match_events',
   },
 
-  async fetchAll(userId, tier = 4, clubScope = null) {
+  async fetchAll(userId, tier = 4, clubScope = null, teamId = null) {
     if (!userId) return null;
 
     const tables = ['schedule_events', 'championships', 'finances', 'inventory', 'fixtures', 'rivals', 'future_fixtures'];
@@ -26,16 +28,28 @@ const apisupabase = {
     const SHARED_TABLES = ['schedule_events', 'championships', 'fixtures', 'future_fixtures'];
     const buildFilter = (query, table) => {
       if (tier >= 4) {
+        if (SHARED_TABLES.includes(table) && teamId) {
+          return query.eq('team_id', teamId);
+        }
         if (SHARED_TABLES.includes(table) && clubScope) {
+          return query.ilike('team_category', clubScope + '%');
+        }
+        if (SHARED_TABLES.includes(table)) {
+          return query;
+        }
+        return query.eq('user_id', userId);
+      }
+      if (tier >= 2) {
+        if (table === 'rivals') return query;
+        if (SHARED_TABLES.includes(table) && teamId) {
+          return query.eq('team_id', teamId);
+        }
+        if (clubScope) {
           return query.ilike('team_category', clubScope + '%');
         }
         return query.eq('user_id', userId);
       }
-      if (tier >= 2 && clubScope) {
-        if (table === 'rivals') return query; // rivals: global, sin filtro
-        return query.ilike('team_category', clubScope + '%');
-      }
-      return query; // tier 0-1: sin filtro
+      return query;
     };
 
     await Promise.all(tables.map(async (table) => {
@@ -111,7 +125,9 @@ const apisupabase = {
         user_id: userId,
         legacy_id: player.legacy_id,
         first_name: player.first_name,
+        middle_name: player.middle_name || null,
         last_name: player.last_name,
+        second_last_name: player.second_last_name || null,
         nickname: player.nickname || null,
         document_type: player.document_type,
         document_number: player.document_number,
@@ -124,6 +140,7 @@ const apisupabase = {
       current_category: player.current_category,
       internal_team: player.internal_team,
       team_category: player.team_category,
+        team_id: player.team_id,
         weight_kg: player.weight_kg || player.weight,
         height_m: player.height_m || player.height,
         had_fractures: player.had_fractures,
@@ -135,7 +152,7 @@ const apisupabase = {
         emergency_contact_phone: player.emergency_contact_phone,
         commitment_accepted: player.commitment_accepted ?? true,
         jersey_number: player.jersey_number ?? player.camiseta ?? null,
-        role: player.role || player.rol,
+        role: player.role,
         position: player.position || player.posicion,
         position_id: player.position_id || null,
         status: player.status || player.estado,
@@ -166,9 +183,11 @@ const apisupabase = {
   async batchUpsertPlayers(players, userId) {
     const records = players.map(p => ({
       id: p.id,
-      user_id: userId,
+      user_id: p.user_id || null,
       first_name: p.first_name,
+      middle_name: p.middle_name || null,
       last_name: p.last_name,
+      second_last_name: p.second_last_name || null,
       nickname: p.nickname || null,
       document_type: p.document_type,
       document_number: p.document_number,
@@ -176,6 +195,7 @@ const apisupabase = {
       age: p.age,
       phone: p.phone,
       team_category: p.team_category,
+      team_id: p.team_id || null,
       initial_category: p.initial_category,
       start_year: p.start_year,
       internal_team: p.internal_team,
@@ -270,6 +290,56 @@ const apisupabase = {
     const table = this.tableMap[entityType];
     if (!table) return { error: { message: `Unknown entity: ${entityType}` } };
     return this.deleteRecord(table, id);
+  },
+
+  async startLiveMatch(record, userId) {
+    const { data, error } = await supabase
+      .from('live_matches')
+      .insert({ ...record, user_id: userId })
+      .select()
+      .single();
+    return { data, error };
+  },
+
+  async updateLiveMatch(id, updates) {
+    const { data, error } = await supabase
+      .from('live_matches')
+      .update(updates)
+      .eq('id', id)
+      .select()
+      .single();
+    return { data, error };
+  },
+
+  async deleteLiveMatch(id) {
+    return this.deleteRecord('live_matches', id);
+  },
+
+  async fetchLiveMatches(status = null) {
+    let query = supabase.from('live_matches').select('*').order('started_at', { ascending: false });
+    if (status) {
+      query = query.eq('status', status);
+    }
+    const { data, error } = await query;
+    return { data: data || [], error };
+  },
+
+  async addLiveEvent(event) {
+    const { data, error } = await supabase
+      .from('live_match_events')
+      .insert(event)
+      .select()
+      .single();
+    return { data, error };
+  },
+
+  async fetchLiveEvents(matchId) {
+    const { data, error } = await supabase
+      .from('live_match_events')
+      .select('*')
+      .eq('live_match_id', matchId)
+      .order('created_at', { ascending: true });
+    return { data: data || [], error };
   },
 
   async fetchInvitations(userId, tier = 4, clubScope = null) {
@@ -375,7 +445,7 @@ export async function fetchCustomTactics(teamCategory) {
 export async function createCustomTactic(data) {
   const { data: { user }, error: userError } = await supabase.auth.getUser();
   if (userError || !user) {
-    console.warn('[Supabase] No authenticated user:', userError?.message);
+    if (import.meta.env.DEV) console.warn('[Supabase] No authenticated user:', userError?.message);
     return null;
   }
 
@@ -504,18 +574,30 @@ export function supabasePlayerToReact(p) {
     h.source === 'test' && new Date(h.recorded_date) > ninetyDaysAgo
   );
 
+  const persistedAttrs = (p.attr_force != null && p.attr_speed != null && p.attr_stamina != null && p.attr_technique != null)
+    ? { force: p.attr_force, speed: p.attr_speed, stamina: p.attr_stamina, technique: p.attr_technique }
+    : null;
+
   const computedAttrs = recentTest
     ? { force: recentTest.attr_force, speed: recentTest.attr_speed, stamina: recentTest.attr_stamina, technique: recentTest.attr_technique }
-    : calculateAttributes({
+    : persistedAttrs || calculateAttributes({
         posicion: p.position,
         weight: p.weight_kg,
         height: p.height_m,
+        age: p.age,
+        gymStats: { squat: p.gym_squat, bench: p.gym_bench, deadlift: p.gym_deadlift },
       });
 
   const player = {
     id: p.id,
     userId: p.user_id,
-    name: `${p.first_name || ''} ${p.last_name || ''}`.trim(),
+    username: p.username,
+    name: [p.first_name, p.middle_name, p.last_name, p.second_last_name]
+            .filter(Boolean).join(' '),
+    firstName: p.first_name || null,
+    middleName: p.middle_name || null,
+    lastName: p.last_name || null,
+    secondLastName: p.second_last_name || null,
     apodo: p.nickname || '',
     camiseta: p.jersey_number,
     contacto: { phone: p.phone || '', email: p.email || '' },
@@ -608,15 +690,23 @@ export function supabasePlayerToReact(p) {
       completed: w.completed || false,
     })),
     teamCategory: p.team_category || '',
+    teamId: p.team_id,
     makgora_team_id: p.makgora_team_id,
     systemRole: p.system_role || 'jugador',
     avatar_id: p.avatar_id || null,
     photo_url: p.photo_url || null,
-    memberships: { paid: 0, due: 0 },
+    memberships: {
+      paid: Number(p.memberships_paid) || 0,
+      due: Number(p.memberships_due) || 0,
+      lastPayment: p.last_payment_date || null,
+      lastAmount: Number(p.last_payment_amount) || null,
+    },
     _meta: {
       docType: p.document_type,
       docNum: p.document_number,
-      age: p.age,
+      age: p.age ?? (p.birth_date
+        ? Math.max(0, Math.floor((Date.now() - new Date(p.birth_date).getTime()) / 31557600000))
+        : null),
       startYear: p.start_year,
     },
   };

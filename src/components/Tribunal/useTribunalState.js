@@ -1,19 +1,42 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
+import { supabase } from '../../supabaseClient.js';
 
-export function useTribunalState(teamPlayers, recordAttendance, recordMatchInfractions, redeemPenalty, showToast) {
+export function useTribunalState(teamPlayers, teamEvents, recordAttendance, recordMatchInfractions, redeemPenalty, showToast) {
   const [activeSubTab, setActiveSubTab] = useState('control');
 
-  const [sessionDate, setSessionDate] = useState(new Date().toISOString().split('T')[0]);
+  const [selectedEventId, setSelectedEventId] = useState('');
   const [attendanceState, setAttendanceState] = useState({});
+  const [rsvpMap, setRsvpMap] = useState({});
 
   const [matchDate, setMatchDate] = useState(new Date().toISOString().split('T')[0]);
   const [selectedPlayerForInf, setSelectedPlayerForInf] = useState('');
   const [infPenales, setInfPenales] = useState(0);
   const [infAmarillas, setInfAmarillas] = useState(0);
   const [infRojas, setInfRojas] = useState(0);
+  const [infBurpeesExtra, setInfBurpeesExtra] = useState(0);
+  const [infCustomExercise, setInfCustomExercise] = useState('');
+  const [infCustomReps, setInfCustomReps] = useState(0);
   const [infFaultType, setInfFaultType] = useState('');
   const [infContext, setInfContext] = useState('partido');
   const [infNotes, setInfNotes] = useState('');
+
+  useEffect(() => {
+    if (!selectedEventId) { setRsvpMap({}); return; }
+    let cancelled = false;
+    supabase.from('event_rsvp').select('player_id, status').eq('event_id', selectedEventId)
+      .then(({ data }) => {
+        if (cancelled) return;
+        const map = {};
+        (data || []).forEach(r => { map[r.player_id] = r.status; });
+        setRsvpMap(map);
+      }).catch(() => {});
+    return () => { cancelled = true; };
+  }, [selectedEventId]);
+
+  const handleEventChange = useCallback((eventId) => {
+    setSelectedEventId(eventId);
+    setAttendanceState({});
+  }, []);
 
   const handleAttendanceChange = useCallback((playerId, status) => {
     setAttendanceState(prev => ({
@@ -22,7 +45,19 @@ export function useTribunalState(teamPlayers, recordAttendance, recordMatchInfra
     }));
   }, []);
 
-  const handleSaveAttendance = useCallback((e) => {
+  const onMarkConfirmedPresent = useCallback(() => {
+    setAttendanceState(prev => {
+      const next = { ...prev };
+      teamPlayers.forEach(p => {
+        if (rsvpMap[p.id] === 'going') {
+          if (!next[p.id]) next[p.id] = 'presente';
+        }
+      });
+      return next;
+    });
+  }, [teamPlayers, rsvpMap]);
+
+  const handleSaveAttendance = useCallback(async (e) => {
     e.preventDefault();
     const list = {};
     let unmarkedCount = 0;
@@ -37,45 +72,76 @@ export function useTribunalState(teamPlayers, recordAttendance, recordMatchInfra
       showToast('Selecciona al menos un jugador para registrar asistencia.', 'warning');
       return;
     }
-    recordAttendance(sessionDate, list);
+
+    if (selectedEventId) {
+      const { data: existing } = await supabase
+        .from('attendance')
+        .select('id')
+        .eq('event_id', selectedEventId)
+        .limit(1);
+      if (existing?.length > 0) {
+        const overwrite = window.confirm('Ya hay asistencia registrada para este evento. ¿Deseas sobrescribir?');
+        if (!overwrite) return;
+      }
+    }
+
+    const selectedEvent = teamEvents.find(e => e.id === selectedEventId);
+    const eventDate = selectedEvent?.date || new Date().toISOString().split('T')[0];
+    const success = await recordAttendance(eventDate, list, selectedEventId || null);
+    if (!success) return;
     if (unmarkedCount > 0) {
       showToast(`Asistencia registrada. ${unmarkedCount} jugador(es) sin marcar fueron omitidos.`, 'info');
     } else {
       showToast('Asistencia registrada con exito. Penitencias aplicadas al Tribunal.', 'success');
     }
     setAttendanceState({});
-  }, [teamPlayers, attendanceState, sessionDate, recordAttendance, showToast]);
+  }, [teamPlayers, attendanceState, selectedEventId, teamEvents, recordAttendance, showToast]);
 
-  const handleSaveInfraction = useCallback((e) => {
+  const handleSaveInfraction = useCallback(async (e) => {
     e.preventDefault();
     if (!selectedPlayerForInf) {
       showToast('Por favor selecciona un jugador.', 'warning');
       return;
     }
 
+    let notes = infNotes || '';
+    if (infCustomExercise.trim()) {
+      const customText = `${infCustomExercise.trim()} x${Number(infCustomReps) || 0}`;
+      notes = notes ? `${notes} | ${customText}` : customText;
+    }
+
+    const extraBurpees = Number(infBurpeesExtra) || 0;
+    const totalPenales = (Number(infPenales) || 0) + (extraBurpees > 0 ? Math.ceil(extraBurpees / 10) : 0);
+
     const infList = [
       {
         playerId: selectedPlayerForInf,
-        penales: Number(infPenales),
-        amarillas: Number(infAmarillas),
-        rojas: Number(infRojas),
+        penales: totalPenales,
+        amarillas: Number(infAmarillas) || 0,
+        rojas: Number(infRojas) || 0,
         faultType: infFaultType || null,
         context: infContext,
-        notes: infNotes
+        notes
       }
     ];
 
-    recordMatchInfractions(matchDate, infList);
-    showToast('Infracciones registradas en el Tribunal correctivo.', 'success');
-
-    setSelectedPlayerForInf('');
-    setInfPenales(0);
-    setInfAmarillas(0);
-    setInfRojas(0);
-    setInfFaultType('');
-    setInfContext('partido');
-    setInfNotes('');
-  }, [selectedPlayerForInf, infPenales, infAmarillas, infRojas, infFaultType, infContext, infNotes, matchDate, recordMatchInfractions, showToast]);
+    try {
+      await recordMatchInfractions(matchDate, infList);
+      showToast('Infracciones registradas en el Tribunal correctivo.', 'success');
+      setSelectedPlayerForInf('');
+      setInfPenales(0);
+      setInfAmarillas(0);
+      setInfRojas(0);
+      setInfBurpeesExtra(0);
+      setInfCustomExercise('');
+      setInfCustomReps(0);
+      setInfFaultType('');
+      setInfContext('partido');
+      setInfNotes('');
+    } catch (err) {
+      showToast('Error al registrar infracciones: ' + (err?.message || 'Intentalo de nuevo.'), 'error');
+    }
+  }, [selectedPlayerForInf, infPenales, infAmarillas, infRojas, infBurpeesExtra, infCustomExercise, infCustomReps, infFaultType, infContext, infNotes, matchDate, recordMatchInfractions, showToast]);
 
   const handleShareBlacklistWhatsApp = useCallback(() => {
     const penalizedPlayers = teamPlayers.filter(p =>
@@ -148,13 +214,16 @@ export function useTribunalState(teamPlayers, recordAttendance, recordMatchInfra
 
   return {
     activeSubTab, setActiveSubTab,
-    sessionDate, setSessionDate,
-    attendanceState, setAttendanceState,
+    selectedEventId, handleEventChange,
+    attendanceState, rsvpMap, onMarkConfirmedPresent,
     matchDate, setMatchDate,
     selectedPlayerForInf, setSelectedPlayerForInf,
     infPenales, setInfPenales,
     infAmarillas, setInfAmarillas,
     infRojas, setInfRojas,
+    infBurpeesExtra, setInfBurpeesExtra,
+    infCustomExercise, setInfCustomExercise,
+    infCustomReps, setInfCustomReps,
     infFaultType, setInfFaultType,
     infContext, setInfContext,
     infNotes, setInfNotes,

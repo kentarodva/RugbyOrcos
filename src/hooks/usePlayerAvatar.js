@@ -23,6 +23,11 @@ export function usePlayerAvatar(player, updatePlayer) {
       const ext = 'webp';
       const filePath = `${player.id}.${ext}`;
 
+      if (photoUrl) {
+        const oldPath = photoUrl.split('/').pop().split('?')[0];
+        await supabase.storage.from('player-avatars').remove([oldPath]);
+      }
+
       const { error: uploadError } = await supabase.storage
         .from('player-avatars')
         .upload(filePath, file, { upsert: true, contentType: `image/${ext}` });
@@ -32,10 +37,12 @@ export function usePlayerAvatar(player, updatePlayer) {
         .from('player-avatars')
         .getPublicUrl(filePath);
 
+      const bustedUrl = publicUrl + '?t=' + Date.now();
+
       await updatePlayer({
         ...player,
         avatar_id: null,
-        photo_url: publicUrl,
+        photo_url: bustedUrl,
       });
     } catch (err) {
       handleError(err, 'usePlayerAvatar.setPhoto', { notifyUser: true });

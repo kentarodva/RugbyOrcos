@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 const systemRoleEnum = z.enum(['desarrollador', 'presidente', 'promotor', 'entrenador', 'tesorero', 'arbitro', 'jugador']);
 const playerStatusEnum = z.enum(['activo', 'lesionado', 'suspendido', 'inactivo']);
-const playerRolEnum = z.enum(['Titular', 'Suplente', 'Entrenador', 'Capitán', 'Subcapitán']);
+const playerRolEnum = z.enum(['Titular', 'Suplente', 'Entrenador', 'Capitan', 'Subcapitan']);
 const playerPositionEnum = z.enum(['Pilar', 'Talonador', 'Segunda Línea', 'Flanker', 'Octavo', 'Medio Melé', 'Apertura', 'Centro', 'Ala', 'Zaguero', 'Wing']);
 
 const playerAttributesSchema = z.object({
@@ -88,12 +88,18 @@ const playerWorkoutLogSchema = z.object({
 
 export const playerSchema = z.object({
   id: z.string(),
+  userId: z.string().optional().nullable(),
   name: z.string(),
+  firstName: z.string().optional().nullable(),
+  middleName: z.string().optional().nullable(),
+  lastName: z.string().optional().nullable(),
+  secondLastName: z.string().optional().nullable(),
   apodo: z.string().optional().nullable(),
   camiseta: z.number().optional().nullable(),
   contacto: playerContactSchema,
   rol: playerRolEnum,
   posicion: playerPositionEnum.optional().nullable(),
+  position_id: z.number().optional().nullable(),
   estado: playerStatusEnum,
   attributes: playerAttributesSchema,
   history: z.array(playerAttributesSchema),
@@ -107,14 +113,28 @@ export const playerSchema = z.object({
   hiaAssessments: z.array(z.any()),
   workoutLog: z.array(playerWorkoutLogSchema),
   systemRole: systemRoleEnum,
-  memberships: z.object({ paid: z.number(), due: z.number(), lastPayment: z.string().optional().nullable(), lastAmount: z.number().optional().nullable() }),
+  memberships: z.object({ paid: z.number(), due: z.number(), lastPayment: z.string().optional().nullable(), lastAmount: z.number().optional().nullable() }).optional(),
   teamCategory: z.string(),
+  teamId: z.string().uuid().optional(),
   weight: z.number().optional().nullable(),
   height: z.number().optional().nullable(),
   gymStats: playerGymStatsSchema,
   _meta: playerMetaSchema.optional().nullable(),
   username: z.string().optional().nullable(),
   makgora_team_id: z.string().optional().nullable(),
+  birth_date: z.string().optional().nullable(),
+  health_insurance: z.string().optional().nullable(),
+  allergies: z.string().optional().nullable(),
+  medical_conditions: z.string().optional().nullable(),
+  had_fractures: z.boolean().optional(),
+  fracture_details: z.string().optional().nullable(),
+  emergency_contact_name: z.string().optional().nullable(),
+  emergency_contact_phone: z.string().optional().nullable(),
+  avatar_id: z.string().optional().nullable(),
+  photo_url: z.string().optional().nullable(),
+  preferences: z.record(z.any()).optional(),
+  document_type: z.string().optional().nullable(),
+  document_number: z.string().optional().nullable(),
 });
 
 export const scheduleEventSchema = z.object({
@@ -126,6 +146,7 @@ export const scheduleEventSchema = z.object({
   mapsLink: z.string().optional().nullable(),
   type: z.string(),
   teamCategory: z.string(),
+  teamId: z.string().uuid().optional(),
   linkedRoutine: z.string().optional().nullable(),
   recurrenceGroup: z.string().optional().nullable(),
 });
@@ -138,6 +159,7 @@ export const financeRecordSchema = z.object({
   date: z.string(),
   category: z.string(),
   teamCategory: z.string(),
+  teamId: z.string().uuid().optional(),
 });
 
 export const fixtureSchema = z.object({
@@ -149,6 +171,7 @@ export const fixtureSchema = z.object({
   tries: z.number(),
   mvp: z.string(),
   teamCategory: z.string(),
+  teamId: z.string().uuid().optional(),
 });
 
 export const futureFixtureSchema = z.object({
@@ -158,6 +181,7 @@ export const futureFixtureSchema = z.object({
   time: z.string().optional().nullable(),
   location: z.string().optional().nullable(),
   teamCategory: z.string(),
+  teamId: z.string().uuid().optional(),
 });
 
 export const rivalSchema = z.object({
@@ -174,6 +198,7 @@ export const championshipSchema = z.object({
   deadlineDate: z.string(),
   description: z.string().optional().nullable(),
   teamCategory: z.string(),
+  teamId: z.string().uuid().optional(),
 });
 
 export const inventoryItemSchema = z.object({
@@ -183,4 +208,5 @@ export const inventoryItemSchema = z.object({
   assignedTo: z.string().optional().nullable(),
   status: z.string(),
   teamCategory: z.string(),
+  teamId: z.string().uuid().optional(),
 });

@@ -186,7 +186,7 @@ export const CATEGORY_COLORS = {
 
 export function getPlayerCategory(player) {
   if (player.rol === 'Entrenador') return 'coach';
-  if (player.rol === 'Capitán' || player.rol === 'Subcapitán') return 'captain';
+  if (player.rol === 'Capitan' || player.rol === 'Subcapitan') return 'captain';
 
   const forwardsPositions = ['Pilar', 'Talonador', 'Segunda Línea', 'Flanker', 'Octavo'];
   if (forwardsPositions.includes(player.posicion)) {

@@ -1,18 +1,19 @@
 const PROVIDERS = {
   openrouter: {
     id: 'openrouter',
-    name: 'OpenRouter (gratis)',
+    name: 'OpenRouter',
     icon: '🌐',
-    desc: '26+ modelos gratuitos vía Edge Function',
-    priority: 0,
-    apiKeyStorage: 'server',
-    endpoint: '',
+    desc: '26+ modelos vía HTTP directo',
+    priority: 1,
+    apiKeyStorage: 'orcos_openrouter_key',
+    endpoint: 'https://openrouter.ai/api/v1',
+    defaultModel: 'free',
     models: {
       free: {
-        id: 'openrouter/free',
-        label: 'Router Automático (gratis)',
+        id: 'openrouter/auto',
+        label: 'Router Automático',
         icon: '🎲',
-        desc: 'Selecciona el mejor modelo gratuito disponible',
+        desc: 'Selecciona el mejor modelo disponible',
         maxTokens: 4096,
         timeout: 30000,
         dailyLimit: 999999,
@@ -80,7 +81,7 @@ const PROVIDERS = {
     name: 'Gemini',
     icon: '🧠',
     desc: '1,500 req/día gratis',
-    priority: 3,
+    priority: 0,
     apiKeyStorage: 'orcos_gemini_key',
     endpoint: 'https://generativelanguage.googleapis.com/v1beta/models',
     models: {
@@ -90,7 +91,7 @@ const PROVIDERS = {
         icon: '💎',
         desc: 'Rápido, ideal para chat y planes de entrenamiento',
         maxTokens: 1500,
-        timeout: 15000,
+        timeout: 25000,
         dailyLimit: 1500,
         temperature: { chat: 0.5, training: 0.7, analysis: 0.3 }
       }
@@ -130,6 +131,12 @@ const CHAT_MODES = {
     label: 'Reglas',
     icon: '📖',
     placeholder: 'Pregunta sobre el reglamento de World Rugby...'
+  },
+  personal: {
+    id: 'personal',
+    label: 'Coach Personal',
+    icon: '🦾',
+    placeholder: 'Pregúntame sobre tu plan, lesiones, nutrición...'
   }
 };
 
@@ -196,7 +203,7 @@ const RUGBY_KEYWORDS_WEIGHTED = [
   { word: 'atributos', weight: 1 }, { word: 'attributes', weight: 1 }
 ];
 
-const DEFAULT_PROVIDER_ORDER = ['openrouter', 'groq', 'deepseek', 'gemini'];
+const DEFAULT_PROVIDER_ORDER = ['gemini', 'openrouter'];
 
 export {
   PROVIDERS,

@@ -45,21 +45,18 @@ function PlanTab({
           disabled={generating || !planPlayerId}
           className="btn-neon"
           style={{
-            padding: '10px 24px',
-            justifyContent: 'center',
-            fontSize: '0.9rem',
-            opacity: planPlayerId ? 1 : 0.5,
-            whiteSpace: 'nowrap',
-            background: 'linear-gradient(135deg, var(--color-primary), #00b359)'
+            padding: '10px 24px', justifyContent: 'center', fontSize: '0.9rem',
+            opacity: planPlayerId ? 1 : 0.5, whiteSpace: 'nowrap',
+            background: 'linear-gradient(135deg, var(--color-primary), #00b359)',
+            flexDirection: 'column', gap: '2px', display: 'flex',
           }}
         >
-          {generating ? 'Generando...' : 'Generar Plan'}
+          {generating ? (
+            <span>🧠 Gemini está creando el plan...</span>
+          ) : (
+            <span>🧠 Generar Plan con IA</span>
+          )}
         </button>
-        {isAnyAIConfigured() && (
-          <span className="badge" style={{ background: 'rgba(0, 230, 118, 0.08)', color: 'var(--color-primary)', border: '1px solid rgba(0, 230, 118, 0.2)', fontSize: '0.7rem', padding: '6px 10px' }}>
-            IA Activa
-          </span>
-        )}
       </div>
 
       {overtrainingRisk && (
@@ -208,7 +205,7 @@ function PlanTab({
           <span style={{ fontSize: '3rem' }}>🤖</span>
           <h3 style={{ fontSize: '1.2rem', fontWeight: 800 }}>Plan de Entrenamiento Inteligente</h3>
           <p style={{ color: 'var(--color-text-muted)', fontSize: '0.85rem', maxWidth: '500px', lineHeight: 1.6 }}>
-            Selecciona un jugador y presiona <strong>Generar Plan</strong>. El motor analiza posición, fallos de partidos recientes, historial de ejercicios y estado físico para armar un plan personalizado de campo y gimnasio.
+            Selecciona un jugador y presiona Generar Plan con IA. Gemini analiza posicion, fallos, historial y genera plan con ejercicios + alimentacion.
           </p>
           <p style={{ color: 'var(--color-text-muted)', fontSize: '0.75rem' }}>
             {isAnyAIConfigured() ? 'IA multi-proveedor enriquecerá el plan con análisis completo.' : 'Configura un proveedor IA en Ajustes para enriquecer con IA.'}

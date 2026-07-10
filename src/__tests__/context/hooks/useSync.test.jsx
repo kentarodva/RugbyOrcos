@@ -52,7 +52,7 @@ describe('useSyncPush — pushPlayerToSupabase', () => {
     expect(mockUpsertPlayer).toHaveBeenCalledTimes(1);
     expect(mockUpsertPlayer).toHaveBeenCalledWith(
       {
-        id: 'p1', first_name: 'Juan', last_name: 'Pérez',
+        id: 'p1', first_name: 'Juan', middle_name: null, last_name: 'Pérez', second_last_name: null,
         nickname: 'Juancho', jersey_number: 10,
         phone: '555-1234', email: null,
         role: 'Titular', position: 'Apertura', position_id: null, status: 'activo',
@@ -67,6 +67,7 @@ describe('useSyncPush — pushPlayerToSupabase', () => {
         allergies: null, medical_conditions: null, health_insurance: null,
         emergency_contact_name: null, emergency_contact_phone: null,
         avatar_id: null, photo_url: null,
+        memberships_paid: 0, memberships_due: 0, last_payment_date: null, last_payment_amount: null,
         source: 'manual',
       },
       'user-1'

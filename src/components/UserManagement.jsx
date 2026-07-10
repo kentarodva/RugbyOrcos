@@ -8,6 +8,7 @@ function UserManagement() {
   const [loading, setLoading] = useState(true);
   const [showCreate, setShowCreate] = useState(false);
   const [form, setForm] = useState({ email: '', password: '', displayName: '', systemRole: 'jugador', clubScope: '' });
+  const [searchQuery, setSearchQuery] = useState('');
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
   const [resetModal, setResetModal] = useState({ open: false, userId: null, userName: '', newPass: '' });
@@ -154,7 +155,13 @@ function UserManagement() {
       {loading ? (
         <p style={{ color: 'var(--color-text-muted)', textAlign: 'center', padding: '30px' }}>Cargando miembros...</p>
       ) : (
-        <div style={{ overflowX: 'auto' }}>
+        <div>
+          <div style={{ marginBottom: '12px' }}>
+            <input type="text" value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
+              placeholder="🔍 Buscar miembro por nombre, rol o club..."
+              className="form-input" style={{ padding: '8px 12px', fontSize: '0.8rem', width: '100%', boxSizing: 'border-box' }} />
+          </div>
+          <div style={{ overflowX: 'auto' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
             <thead>
               <tr style={{ borderBottom: '1px solid var(--border-glass)', textAlign: 'left' }}>
@@ -166,7 +173,7 @@ function UserManagement() {
               </tr>
             </thead>
             <tbody>
-              {users.map(u => (
+              {users.filter(u => !searchQuery || u.display_name?.toLowerCase().includes(searchQuery.toLowerCase()) || u.system_role?.toLowerCase().includes(searchQuery.toLowerCase()) || u.club_scope?.toLowerCase().includes(searchQuery.toLowerCase())).map(u => (
                 <tr key={u.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', opacity: u.is_active ? 1 : 0.5 }}>
                   <td style={tdS}>
                     <span style={{ color: u.rpg.color, marginRight: '6px' }}>{u.rpg.icon}</span>
@@ -208,6 +215,7 @@ function UserManagement() {
               ))}
             </tbody>
           </table>
+        </div>
         </div>
       )}
 

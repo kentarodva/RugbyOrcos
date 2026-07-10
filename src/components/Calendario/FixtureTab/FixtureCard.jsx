@@ -1,9 +1,15 @@
 import React from 'react';
 import { formatLocalDate } from '../../../utils/dates.js';
 
-function FixtureCard({ fixture, onDelete, onDetail }) {
+function FixtureCard({ fixture, onDelete, onDetail, onEdit, onStartMatch, onSquad, hasActiveMatch }) {
   const isWinner = fixture.orcosScore > fixture.opponentScore;
   const isDraw = fixture.orcosScore === fixture.opponentScore;
+
+  const handleDelete = () => {
+    if (window.confirm(`Eliminar el resultado vs ${fixture.opponent}? Esta accion no se puede deshacer.`)) {
+      onDelete(fixture.id);
+    }
+  };
 
   return (
     <div
@@ -14,31 +20,96 @@ function FixtureCard({ fixture, onDelete, onDetail }) {
         position: 'relative'
       }}
     >
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-        <span className="badge" style={{
-          background: isWinner ? 'rgba(0, 230, 118, 0.1)' : isDraw ? 'rgba(255, 234, 0, 0.1)' : 'rgba(255, 61, 0, 0.1)',
-          color: isWinner ? 'var(--color-primary)' : isDraw ? 'var(--color-gold)' : 'var(--color-red)',
-          border: `1px solid ${isWinner ? 'var(--color-primary)' : isDraw ? 'var(--color-gold)' : 'var(--color-red)'}`,
-          fontSize: '0.65rem',
-          fontWeight: 700
-        }}>
-          {isWinner ? 'VICTORIA' : isDraw ? 'EMPATE' : 'DERROTA'}
-        </span>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+        <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+          <span className="badge" style={{
+            background: isWinner ? 'rgba(0, 230, 118, 0.1)' : isDraw ? 'rgba(255, 234, 0, 0.1)' : 'rgba(255, 61, 0, 0.1)',
+            color: isWinner ? 'var(--color-primary)' : isDraw ? 'var(--color-gold)' : 'var(--color-red)',
+            border: `1px solid ${isWinner ? 'var(--color-primary)' : isDraw ? 'var(--color-gold)' : 'var(--color-red)'}`,
+            fontSize: '0.65rem',
+            fontWeight: 700
+          }}>
+            {isWinner ? 'VICTORIA' : isDraw ? 'EMPATE' : 'DERROTA'}
+          </span>
+          {fixture.squad?.startingXV?.length > 0 && (
+            <span className="badge" style={{
+              background: 'rgba(0, 230, 118, 0.08)',
+              color: 'var(--color-primary)',
+              border: '1px solid rgba(0, 230, 118, 0.2)',
+              fontSize: '0.6rem',
+              fontWeight: 600
+            }}>
+              Squad {fixture.squad.startingXV.length + (fixture.squad.substitutes?.length || 0)}/23
+            </span>
+          )}
+        </div>
 
-        <button
-          onClick={() => onDelete(fixture.id)}
-          style={{
-            background: 'transparent',
-            border: 'none',
-            color: 'var(--color-red)',
-            cursor: 'pointer',
-            fontSize: '0.8rem',
-            opacity: 0.6
-          }}
-          title="Eliminar registro"
-        >
-          X
-        </button>
+        <div style={{ display: 'flex', gap: '8px' }}>
+          {onStartMatch && !hasActiveMatch && (
+            <button
+              onClick={() => onStartMatch(fixture)}
+              style={{
+                background: 'rgba(255, 61, 0, 0.1)',
+                border: '1px solid rgba(255, 61, 0, 0.3)',
+                color: 'var(--color-red)',
+                cursor: 'pointer',
+                borderRadius: 'var(--radius-sm)',
+                padding: '4px 8px',
+                fontSize: '0.7rem',
+                fontWeight: 700,
+              }}
+              title="Iniciar partido en vivo"
+            >
+              ▶ En Vivo
+            </button>
+          )}
+          {onSquad && (
+            <button
+              onClick={() => onSquad(fixture)}
+              style={{
+                background: 'rgba(0, 230, 118, 0.1)',
+                border: '1px solid rgba(0, 230, 118, 0.3)',
+                color: 'var(--color-primary)',
+                cursor: 'pointer',
+                borderRadius: 'var(--radius-sm)',
+                padding: '4px 8px',
+                fontSize: '0.7rem',
+                fontWeight: 700,
+              }}
+              title="Seleccionar XV titular"
+            >
+              Squad
+            </button>
+          )}
+          <button
+            onClick={() => onEdit(fixture)}
+            style={{
+              background: 'transparent',
+              border: 'none',
+              color: 'var(--color-gold)',
+              cursor: 'pointer',
+              fontSize: '0.8rem',
+              opacity: 0.6
+            }}
+            title="Editar resultado"
+          >
+            ✎
+          </button>
+          <button
+            onClick={handleDelete}
+            style={{
+              background: 'transparent',
+              border: 'none',
+              color: 'var(--color-red)',
+              cursor: 'pointer',
+              fontSize: '0.8rem',
+              opacity: 0.6
+            }}
+            title="Eliminar registro"
+          >
+            X
+          </button>
+        </div>
       </div>
 
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: '15px 0' }}>

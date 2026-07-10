@@ -1,22 +1,7 @@
 import { useState, useCallback } from 'react';
 import apisupabase from '../../data/supabaseApi.js';
 import { wrapCatch } from '../../utils/errorHandler';
-
-const generateId = (prefix = '') => {
-  if (typeof crypto !== 'undefined' && crypto.randomUUID) {
-    return prefix + crypto.randomUUID();
-  }
-  return prefix + 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
-    const r = (Math.random() * 16) | 0;
-    const v = c === 'x' ? r : (r & 0x3) | 0x8;
-    return v.toString(16);
-  });
-};
-
-const sanitize = (value) => {
-  if (typeof value !== 'string') return value;
-  return value.replace(/[<>]/g, '');
-};
+import { generateId, sanitize } from '../../utils/ids.js';
 
 export function useFixtures(activeTeam, sendLocalNotification, pushEntityToSupabase, user) {
   const [fixtures, setFixtures] = useState(() => []);
@@ -37,7 +22,15 @@ export function useFixtures(activeTeam, sendLocalNotification, pushEntityToSupab
     }
   }, [user?.id]);
 
-  return { fixtures, setFixtures, addFixture, deleteFixture };
+  const updateFixture = useCallback((fixture) => {
+    const safe = {
+      ...fixture, opponent: sanitize(fixture.opponent), mvp: sanitize(fixture.mvp || ''),
+    };
+    setFixtures(prev => prev.map(f => f.id === fixture.id ? safe : f));
+    pushEntityToSupabase('fixtures', safe);
+  }, [pushEntityToSupabase]);
+
+  return { fixtures, setFixtures, addFixture, updateFixture, deleteFixture };
 }
 
 export function useRivals(pushEntityToSupabase, user) {
@@ -94,4 +87,113 @@ export function useFutureFixtures(activeTeam, sendLocalNotification, pushEntityT
   }, [user?.id]);
 
   return { futureFixtures, setFutureFixtures, addFutureFixture, deleteFutureFixture };
+}
+
+const SCORING = { try: 5, conversion: 2, penalty: 3, drop_goal: 3 };
+
+function calcScore(events) {
+  let orcos = 0, opponent = 0;
+  for (const ev of events) {
+    const pts = SCORING[ev.event_type] || 0;
+    if (ev.team === 'orcos') orcos += pts;
+    else if (ev.team === 'opponent') opponent += pts;
+  }
+  return { orcos, opponent };
+}
+
+export function useLiveMatch(user) {
+  const [liveMatch, setLiveMatch] = useState(null);
+  const [liveEvents, setLiveEvents] = useState([]);
+
+  const startLiveMatch = useCallback(async (opts = {}) => {
+    const match = {
+      fixture_id: opts.fixtureId || null,
+      opponent_name: sanitize(opts.opponentName || ''),
+      team_category: opts.teamCategory || null,
+      status: 'live',
+      orcos_score: 0,
+      opponent_score: 0,
+    };
+    const { data, error } = await apisupabase.startLiveMatch(match, user?.id);
+    if (error) {
+      wrapCatch('useLiveMatch.start', { notifyUser: true })(error);
+      return null;
+    }
+    setLiveMatch(data);
+    setLiveEvents([]);
+    return data;
+  }, [user?.id]);
+
+  const addLiveEvent = useCallback(async (event) => {
+    if (!liveMatch) return null;
+    const ev = {
+      live_match_id: liveMatch.id,
+      player_id: event.playerId || null,
+      event_type: event.eventType,
+      minute: event.minute ?? 0,
+      team: event.team || 'orcos',
+      details: event.details || {},
+    };
+    const { data, error } = await apisupabase.addLiveEvent(ev);
+    if (error) {
+      wrapCatch('useLiveMatch.addEvent', { notifyUser: true })(error);
+      return null;
+    }
+    setLiveEvents(prev => [...prev, data]);
+    return data;
+  }, [liveMatch]);
+
+  const updateLiveMatch = useCallback(async (updates) => {
+    if (!liveMatch) return;
+    const { data, error } = await apisupabase.updateLiveMatch(liveMatch.id, updates);
+    if (error) {
+      wrapCatch('useLiveMatch.update', { notifyUser: true })(error);
+      return;
+    }
+    if (data) setLiveMatch(data);
+  }, [liveMatch]);
+
+  const pauseLiveMatch = useCallback(async () => {
+    if (!liveMatch) return;
+    const now = Date.now();
+    const start = new Date(liveMatch.started_at).getTime();
+    const additionalSeconds = Math.max(0, Math.floor((now - start) / 1000));
+    const totalElapsed = (liveMatch.elapsed_seconds || 0) + additionalSeconds;
+    await updateLiveMatch({ status: 'paused', elapsed_seconds: totalElapsed });
+  }, [updateLiveMatch, liveMatch]);
+
+  const resumeLiveMatch = useCallback(async () => {
+    await updateLiveMatch({ status: 'live', started_at: new Date().toISOString() });
+  }, [updateLiveMatch]);
+
+  const endLiveMatch = useCallback(async () => {
+    if (!liveMatch) return;
+    const now = Date.now();
+    const start = new Date(liveMatch.started_at).getTime();
+    const additionalSeconds = liveMatch.status === 'live'
+      ? Math.max(0, Math.floor((now - start) / 1000)) : 0;
+    const totalElapsed = (liveMatch.elapsed_seconds || 0) + additionalSeconds;
+    const score = liveEvents.length > 0 ? calcScore(liveEvents) : liveMatch;
+    await updateLiveMatch({
+      status: 'finished',
+      elapsed_seconds: totalElapsed,
+      orcos_score: score.orcos,
+      opponent_score: score.opponent,
+    });
+  }, [updateLiveMatch, liveEvents, liveMatch]);
+
+  const deleteLiveMatch = useCallback(async () => {
+    if (!liveMatch) return;
+    await apisupabase.deleteLiveMatch(liveMatch.id);
+    setLiveMatch(null);
+    setLiveEvents([]);
+  }, [liveMatch]);
+
+  return {
+    liveMatch, setLiveMatch,
+    liveEvents, setLiveEvents,
+    startLiveMatch, addLiveEvent, updateLiveMatch,
+    pauseLiveMatch, resumeLiveMatch, endLiveMatch, deleteLiveMatch,
+    calcScore: () => calcScore(liveEvents),
+  };
 }

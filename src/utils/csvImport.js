@@ -1,3 +1,5 @@
+import { parseFullName } from './nameParser.js';
+
 const CATEGORY_MAP = {
   'masculino mayores': 'orcos_masculina_mayor',
   'femenino mayores': 'orcos_femenina_mayor',
@@ -124,6 +126,8 @@ export function parseCSVRow(row, makgoraTeams) {
   const documentNumber = docNum ? docNum.trim().replace(/["'.\s]/g, '') : null;
   if (!documentNumber || !firstName || !lastName) return { _skip: 'datos_incompletos', _name: `${(firstName || '').trim()} ${(lastName || '').trim()}`.trim() || 'Desconocido' };
 
+  const nameParsed = parseFullName(`${firstName.trim()} ${lastName.trim()}`);
+
   const teamCategory = normalizeCategory(currentCat);
   if (!teamCategory) return { _skip: 'sin_categoria', _name: `${(firstName || '').trim()} ${(lastName || '').trim()}`.trim() };
 
@@ -148,8 +152,10 @@ export function parseCSVRow(row, makgoraTeams) {
 
   return {
     id: crypto.randomUUID(),
-    first_name: firstName.trim(),
-    last_name: lastName.trim(),
+    first_name: nameParsed.firstName,
+    middle_name: nameParsed.middleName,
+    last_name: nameParsed.lastName,
+    second_last_name: nameParsed.secondLastName,
     nickname: nickname ? nickname.trim() : null,
     document_type: normalizeDocType(docType),
     document_number: documentNumber,

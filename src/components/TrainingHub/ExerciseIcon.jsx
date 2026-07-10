@@ -1,11 +1,15 @@
 const CATEGORY_ICONS_MAP = {
+  calentamiento: '🔥',
   campo: '🏉',
+  crossfit: '💀',
+  casa: '🏠',
   gym: '🏋️',
   recuperacion: '🩹',
   prevencion: '🛡️',
 };
 
 const SUBCATEGORY_ICONS = {
+  general: '🏋️',
   tackle: '🤼',
   pase: '🤲',
   scrum: '🏉',
@@ -14,16 +18,23 @@ const SUBCATEGORY_ICONS = {
   defensa: '🛡️',
   resistencia: '💨',
   liderazgo: '👑',
+  pecho: '🦾',
+  espalda: '🔙',
+  pierna: '🦵',
+  hombro: '💪',
+  brazo: '💪',
   fuerza_inferior: '🦵',
   fuerza_superior: '💪',
   potencia: '⚡',
   core: '🌀',
   velocidad: '🏃‍♂️',
+  cardio: '❤️',
+  levantamiento: '🏋️',
   movilidad: '🩹',
-  hombros: '🛡️',
-  cuello: '🧣',
   rodillas: '🦵',
   tobillos: '🦶',
+  cuello: '🧣',
+  hombros: '🛡️',
 };
 
 function ExerciseIcon({ category, subcategory, size = 20 }) {
@@ -32,13 +43,17 @@ function ExerciseIcon({ category, subcategory, size = 20 }) {
 }
 
 export const CATEGORY_LABELS = {
+  calentamiento: 'Calentamiento',
   campo: 'Campo',
+  crossfit: 'CrossFit',
+  casa: 'Casa',
   gym: 'Gimnasio',
   recuperacion: 'Recuperación',
   prevencion: 'Prevención',
 };
 
 export const SUBCATEGORY_LABELS = {
+  general: 'General',
   tackle: 'Tackle',
   pase: 'Pase',
   scrum: 'Scrum',
@@ -47,16 +62,23 @@ export const SUBCATEGORY_LABELS = {
   defensa: 'Defensa',
   resistencia: 'Resistencia',
   liderazgo: 'Liderazgo',
+  pecho: 'Pecho',
+  espalda: 'Espalda',
+  pierna: 'Pierna',
+  hombro: 'Hombro',
+  brazo: 'Brazo',
   fuerza_inferior: 'Fuerza Inferior',
   fuerza_superior: 'Fuerza Superior',
   potencia: 'Potencia',
   core: 'Core',
   velocidad: 'Velocidad',
+  cardio: 'Cardio',
+  levantamiento: 'Levantamiento',
   movilidad: 'Movilidad',
-  hombros: 'Hombros',
-  cuello: 'Cuello',
   rodillas: 'Rodillas',
   tobillos: 'Tobillos',
+  cuello: 'Cuello',
+  hombros: 'Hombros',
 };
 
 export const CATEGORY_COLORS = {

@@ -45,7 +45,7 @@ describe('generatePlan — selection logic', () => {
   });
 
   it('asigna liderazgo a Capitán', () => {
-    const result = generatePlan(makePlayer({ id: 3, posicion: 'Segunda Línea', rol: 'Capitán' }));
+    const result = generatePlan(makePlayer({ id: 3, posicion: 'Segunda Línea', rol: 'Capitan' }));
     expect(result.category).toBe('captain');
   });
 

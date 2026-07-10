@@ -10,10 +10,24 @@ function FixtureTab({
   selectedFixtureForDetail,
   setSelectedFixtureForDetail,
   handleSaveFixture,
+  handleEditFixture,
   handleSavePlayerStats,
   getMatchStats,
-  deleteFixture
+  deleteFixture,
+  editingFixture,
+  setEditingFixture,
+  onStartMatch,
+  onSquad,
+  hasActiveMatch
 }) {
+  const handleSave = (fixtureData) => {
+    if (editingFixture) {
+      handleEditFixture(fixtureData);
+    } else {
+      handleSaveFixture(fixtureData);
+    }
+  };
+
   return (
     <div className="animated-fade" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '20px', width: '100%' }}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
@@ -26,13 +40,19 @@ function FixtureTab({
           fixtures={fixtures}
           onDelete={deleteFixture}
           onDetail={setSelectedFixtureForDetail}
+          onEdit={setEditingFixture}
+          onStartMatch={onStartMatch}
+          onSquad={onSquad}
+          hasActiveMatch={hasActiveMatch}
         />
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
         <FixtureForm
           players={activeTeamPlayers}
-          onSave={handleSaveFixture}
+          onSave={handleSave}
+          initialData={editingFixture}
+          onCancel={() => setEditingFixture(null)}
         />
 
         <SeasonRecords

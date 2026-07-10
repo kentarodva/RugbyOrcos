@@ -33,7 +33,7 @@ function AddPlayerModal({ onClose, onSubmit, makgoraTeams, SYSTEM_ROLES, SYSTEM_
       makgora_team_id: form.makgoraTeamId || null,
       weight: form.weight ? Number(form.weight) : null,
       height: form.height ? Number(form.height) : null,
-      age: form.age ? Number(form.age) : null,
+      _meta: { age: form.age ? Number(form.age) : undefined },
     });
   };
 

@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import { FAULT_TYPES } from './constants';
+import { PlayerPhoto } from '../PlayerPhoto';
 
 function InfractionForm({
   matchDate,
@@ -12,6 +13,12 @@ function InfractionForm({
   setInfAmarillas,
   infRojas,
   setInfRojas,
+  infBurpeesExtra,
+  setInfBurpeesExtra,
+  infCustomExercise,
+  setInfCustomExercise,
+  infCustomReps,
+  setInfCustomReps,
   infFaultType,
   setInfFaultType,
   infContext,
@@ -21,6 +28,26 @@ function InfractionForm({
   teamPlayers,
   onSave
 }) {
+  const [playerSearch, setPlayerSearch] = useState('');
+  const [showDropdown, setShowDropdown] = useState(false);
+
+  const filteredPlayers = useMemo(() => {
+    if (!playerSearch.trim()) return teamPlayers;
+    const q = playerSearch.toLowerCase();
+    return teamPlayers.filter(p =>
+      p.name.toLowerCase().includes(q) || (p.apodo || '').toLowerCase().includes(q)
+    );
+  }, [teamPlayers, playerSearch]);
+
+  const burpeesTotal = (Number(infPenales) || 0) * 10 + (Number(infAmarillas) || 0) * 50 + (Number(infRojas) || 0) * 100 + (Number(infBurpeesExtra) || 0);
+  const customReps = Number(infCustomReps) || 0;
+
+  const handleSelectPlayer = (playerId) => {
+    setSelectedPlayerForInf(playerId);
+    setPlayerSearch('');
+    setShowDropdown(false);
+  };
+
   return (
     <div className="glass-panel" style={{ padding: '25px' }}>
       <h3 style={{ fontSize: '1.1rem', fontWeight: 800, fontFamily: 'Outfit', color: 'var(--color-red)', marginBottom: '15px' }}>
@@ -42,14 +69,68 @@ function InfractionForm({
           </div>
         </div>
 
-        <div className="form-group">
+        <div className="form-group" style={{ position: 'relative' }}>
           <label>Seleccionar al Acusado</label>
-          <select value={selectedPlayerForInf} onChange={(e) => setSelectedPlayerForInf(e.target.value)} className="form-select" required>
-            <option value="">-- Seleccionar --</option>
-            {teamPlayers.map(p => (
-              <option key={p.id} value={p.id}>#{p.camiseta ?? '—'} {p.name}</option>
-            ))}
-          </select>
+          {selectedPlayerForInf ? (
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 12px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border-glass)', borderRadius: 'var(--radius-sm)' }}>
+              <span style={{ fontSize: '0.85rem' }}>
+                <strong>#{teamPlayers.find(p => p.id === selectedPlayerForInf)?.camiseta ?? '—'}</strong>{' '}
+                {teamPlayers.find(p => p.id === selectedPlayerForInf)?.name}
+              </span>
+              <button type="button" onClick={() => setSelectedPlayerForInf('')} style={{ background: 'none', border: 'none', color: 'var(--color-text-muted)', cursor: 'pointer', fontSize: '0.8rem' }}>
+                ✕
+              </button>
+            </div>
+          ) : (
+            <>
+              <input
+                type="text"
+                value={playerSearch}
+                onChange={(e) => { setPlayerSearch(e.target.value); setShowDropdown(true); }}
+                onFocus={() => setShowDropdown(true)}
+                onBlur={() => setTimeout(() => setShowDropdown(false), 150)}
+                placeholder="Buscar por nombre o apodo..."
+                className="form-input"
+                style={{ fontSize: '0.85rem' }}
+              />
+              {showDropdown && playerSearch.trim() && (
+                <div style={{
+                  position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 50,
+                  maxHeight: '200px', overflowY: 'auto',
+                  background: 'var(--bg-dark)', border: '1px solid var(--border-glass)',
+                  borderRadius: 'var(--radius-sm)', boxShadow: '0 8px 24px rgba(0,0,0,0.4)'
+                }}>
+                  {filteredPlayers.length > 0 ? (
+                    filteredPlayers.map(p => (
+                      <div
+                        key={p.id}
+                        onMouseDown={() => handleSelectPlayer(p.id)}
+                        style={{
+                          display: 'flex', alignItems: 'center', gap: '8px',
+                          padding: '8px 12px', cursor: 'pointer', fontSize: '0.82rem',
+                          borderBottom: '1px solid rgba(255,255,255,0.03)',
+                          background: 'transparent',
+                          transition: 'background 0.15s'
+                        }}
+                        onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
+                        onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                      >
+                        <PlayerPhoto player={p} size={24} />
+                        <span>
+                          <strong>#{p.camiseta ?? '—'}</strong> {p.name}{' '}
+                          <span style={{ color: 'var(--color-primary)', fontSize: '0.7rem' }}>"{p.apodo || ''}"</span>
+                        </span>
+                      </div>
+                    ))
+                  ) : (
+                    <div style={{ padding: '12px', textAlign: 'center', color: 'var(--color-text-muted)', fontSize: '0.8rem' }}>
+                      Sin resultados para "{playerSearch}"
+                    </div>
+                  )}
+                </div>
+              )}
+            </>
+          )}
         </div>
 
         <div className="form-group">
@@ -79,6 +160,32 @@ function InfractionForm({
             <span style={{ fontSize: '0.55rem', color: 'var(--color-text-muted)' }}>+100 Burpees + Susp.</span>
           </div>
         </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '10px', textAlign: 'center' }}>
+          <div className="form-group">
+            <label style={{ fontSize: '0.7rem' }}>Burpees Directos</label>
+            <input type="number" min="0" value={infBurpeesExtra} onChange={(e) => setInfBurpeesExtra(e.target.value)} className="form-input" />
+            <span style={{ fontSize: '0.55rem', color: 'var(--color-text-muted)' }}>Cantidad exacta</span>
+          </div>
+          <div className="form-group" style={{ textAlign: 'left' }}>
+            <label style={{ fontSize: '0.7rem' }}>Ejercicio Extra (opcional)</label>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <input type="text" value={infCustomExercise} onChange={(e) => setInfCustomExercise(e.target.value)} placeholder="Ej. Sentadillas, Planchas..." className="form-input" style={{ flex: 1, fontSize: '0.78rem' }} />
+              <input type="number" min="0" value={infCustomReps} onChange={(e) => setInfCustomReps(e.target.value)} placeholder="Reps" className="form-input" style={{ width: '70px', fontSize: '0.78rem', textAlign: 'center' }} />
+            </div>
+            <span style={{ fontSize: '0.55rem', color: 'var(--color-text-muted)' }}>Ejercicio + repeticiones como multa</span>
+          </div>
+        </div>
+
+        {(burpeesTotal > 0 || (customReps > 0 && infCustomExercise.trim())) && (
+          <div style={{ padding: '8px 12px', background: 'rgba(255, 61, 0, 0.08)', border: '1px solid rgba(255, 61, 0, 0.2)', borderRadius: 'var(--radius-sm)', textAlign: 'center' }}>
+            <span style={{ fontSize: '0.8rem', color: 'var(--color-red)', fontWeight: 700 }}>
+              Total: {burpeesTotal > 0 ? `${burpeesTotal} Burpees` : ''}
+              {burpeesTotal > 0 && customReps > 0 && infCustomExercise.trim() ? ' + ' : ''}
+              {customReps > 0 && infCustomExercise.trim() ? `${infCustomExercise.trim()} x${customReps}` : ''}
+            </span>
+          </div>
+        )}
 
         <div className="form-group">
           <label>Notas / Observaciones</label>

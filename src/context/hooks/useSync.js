@@ -3,14 +3,24 @@ import { supabase } from '../../supabaseClient.js';
 import apisupabase, { supabasePlayerToReact } from '../../data/supabaseApi.js';
 import { handleError } from '../../utils/errorHandler';
 import { playerSchema } from '../../schemas/player.js';
+import { parseFullName } from '../../utils/nameParser.js';
 
 export function useSyncPush(user) {
   const convertPlayerToSupabase = useCallback((player) => {
-    const nameParts = (player.name || '').split(' ');
+    const parsed = (player.firstName || player.middleName || player.lastName || player.secondLastName)
+      ? {
+          firstName: player.firstName,
+          middleName: player.middleName,
+          lastName: player.lastName,
+          secondLastName: player.secondLastName
+        }
+      : parseFullName(player.name || '');
     return {
       id: player.id,
-      first_name: nameParts[0] || '',
-      last_name: nameParts.slice(1).join(' ') || '',
+      first_name: parsed.firstName || '',
+      middle_name: parsed.middleName || null,
+      last_name: parsed.lastName || '',
+      second_last_name: parsed.secondLastName || null,
       nickname: player.apodo || null,
       jersey_number: player.camiseta ?? null,
       phone: player.contacto?.phone || null,
@@ -24,6 +34,7 @@ export function useSyncPush(user) {
       attr_stamina: player.attributes?.stamina ?? 50,
       attr_technique: player.attributes?.technique ?? 50,
       team_category: player.teamCategory,
+      team_id: player.teamId,
       system_role: player.systemRole || 'jugador',
       makgora_team_id: player.makgora_team_id || null,
       weight_kg: player.weight || null,
@@ -34,10 +45,10 @@ export function useSyncPush(user) {
       gym_squat: player.gymStats?.squat || 0,
       gym_bench: player.gymStats?.bench || 0,
       gym_deadlift: player.gymStats?.deadlift || 0,
-      document_type: player._meta?.docType || null,
-      document_number: player._meta?.docNum || null,
-      age: player._meta?.age || null,
-      start_year: player._meta?.startYear || null,
+      document_type: player._meta?.docType || player.document_type || null,
+      document_number: player._meta?.docNum || player.document_number || null,
+      age: player._meta?.age ?? player.age ?? null,
+      start_year: player._meta?.startYear ?? player.start_year ?? null,
       birth_date: player.birth_date || null,
       had_fractures: player.had_fractures || false,
       fracture_details: player.fracture_details || null,
@@ -48,6 +59,10 @@ export function useSyncPush(user) {
       emergency_contact_phone: player.emergency_contact_phone || null,
       avatar_id: player.avatar_id || null,
       photo_url: player.photo_url || null,
+      memberships_paid: player.memberships?.paid ?? 0,
+      memberships_due: player.memberships?.due ?? 0,
+      last_payment_date: player.memberships?.lastPayment || null,
+      last_payment_amount: player.memberships?.lastAmount || null,
       source: 'manual',
     };
   }, []);
@@ -77,26 +92,26 @@ export function useSyncPush(user) {
         schedule: (r) => ({
           id: r.id, title: r.title, date: r.date, time: r.time, location: r.location,
           maps_link: r.mapsLink, type: r.type || 'entrenamiento', team_category: r.teamCategory,
-          linked_routine: r.linkedRoutine, recurrence_group: r.recurrenceGroup,
+          team_id: r.teamId, linked_routine: r.linkedRoutine, recurrence_group: r.recurrenceGroup,
           notes: r.notes || null, end_date: r.endDate || null,
           scope_type: r.scopeType || 'division', scope_value: r.scopeValue || {}
         }),
         championships: (r) => ({
           id: r.id, name: r.name, deadline_date: r.deadlineDate,
-          description: r.description, team_category: r.teamCategory
+          description: r.description, team_category: r.teamCategory, team_id: r.teamId
         }),
         finances: (r) => ({
           id: r.id, type: r.type, descripcion: r.desc, amount: r.amount,
-          date: r.date, category: r.category, team_category: r.teamCategory
+          date: r.date, category: r.category, team_category: r.teamCategory, team_id: r.teamId
         }),
         inventory: (r) => ({
           id: r.id, name: r.name, total: r.total,
-          assigned_to: r.assignedTo, status: r.status, team_category: r.teamCategory
+          assigned_to: r.assignedTo, status: r.status, team_category: r.teamCategory, team_id: r.teamId
         }),
         fixtures: (r) => ({
           id: r.id, date: r.date, opponent: r.opponent,
           orcos_score: r.orcosScore, opponent_score: r.opponentScore,
-          tries: r.tries, mvp: r.mvp, team_category: r.teamCategory,
+          tries: r.tries, mvp: r.mvp, team_category: r.teamCategory, team_id: r.teamId,
           rival_id: r.rivalId || null
         }),
         rivals: (r) => ({
@@ -104,7 +119,7 @@ export function useSyncPush(user) {
         }),
         futureFixtures: (r) => ({
           id: r.id, opponent: r.opponent, date: r.date,
-          time: r.time, location: r.location, team_category: r.teamCategory,
+          time: r.time, location: r.location, team_category: r.teamCategory, team_id: r.teamId,
           rival_id: r.rivalId || null
         }),
       };
@@ -155,8 +170,14 @@ export function useSyncPull(
         const playerQuery = supabase.from('players').select('*');
         if (userTier >= 4) {
           playerQuery.eq('user_id', user.id);
-        } else if (userTier >= 2 && profile?.club_scope) {
-          playerQuery.ilike('team_category', profile.club_scope + '%');
+        } else if (userTier >= 2) {
+          if (profile?.team_id) {
+            playerQuery.eq('team_id', profile.team_id);
+          } else if (profile?.club_scope) {
+            playerQuery.ilike('team_category', profile.club_scope + '%');
+          } else {
+            playerQuery.eq('user_id', user.id);
+          }
         }
         const { data: dbPlayers, error: playerError } = await playerQuery;
         if (import.meta.env.DEV) console.log('[Sync] Resultado players:', { count: dbPlayers?.length, error: playerError?.message });
@@ -179,7 +200,44 @@ export function useSyncPull(
             });
             normalized.forEach(player => {
               const paid = paymentTotals[player.id] || 0;
-              player.memberships = { paid, due: mensualidadBase };
+              if (paid > 0) player.memberships.paid = paid;
+              if (!player.memberships.due || player.memberships.due <= 0) {
+                player.memberships.due = mensualidadBase;
+              }
+            });
+          }
+
+          const { data: attendanceSummaries } = await supabase
+            .from('player_attendance_summary')
+            .select('*');
+          if (attendanceSummaries?.length > 0) {
+            if (import.meta.env.DEV) console.log('[Sync] Attendance summaries cargados:', attendanceSummaries.length);
+            const summaryMap = {};
+            attendanceSummaries.forEach(s => { summaryMap[s.player_id] = s; });
+            normalized.forEach(player => {
+              const s = summaryMap[player.id];
+              if (s) {
+                player.attendance = {
+                  total: s.total || 0, present: s.present || 0,
+                  late: s.late || 0, absentUnjustified: s.absent_unjustified || 0,
+                  absentJustified: s.absent_justified || 0,
+                };
+              }
+            });
+          }
+
+          const { data: penaltyRecords } = await supabase
+            .from('penalties')
+            .select('*');
+          if (penaltyRecords?.length > 0) {
+            if (import.meta.env.DEV) console.log('[Sync] Penalties cargados:', penaltyRecords.length);
+            const penaltyMap = {};
+            penaltyRecords.forEach(p => { penaltyMap[p.player_id] = p; });
+            normalized.forEach(player => {
+              const p = penaltyMap[player.id];
+              if (p) {
+                player.penalties = { burpees: p.burpees || 0, cones: p.cones || false };
+              }
             });
           }
 
@@ -188,14 +246,14 @@ export function useSyncPull(
           setPlayers([]);
         }
 
-        const appData = await apisupabase.fetchAll(user.id, userTier, profile?.club_scope);
+        const appData = await apisupabase.fetchAll(user.id, userTier, profile?.club_scope, profile?.team_id);
         if (!appData) throw new Error('No se pudieron cargar los datos');
 
         if (appData.schedule) {
           const mapped = appData.schedule.map(e => ({
             id: e.id, title: e.title, date: e.date, time: e.time,
             location: e.location, mapsLink: e.maps_link, type: e.type,
-            teamCategory: e.team_category, linkedRoutine: e.linked_routine,
+            teamCategory: e.team_category, teamId: e.team_id, linkedRoutine: e.linked_routine,
             recurrenceGroup: e.recurrence_group,
             notes: e.notes || null, endDate: e.end_date || null,
             scopeType: e.scope_type || 'division', scopeValue: e.scope_value || {},
@@ -206,7 +264,7 @@ export function useSyncPull(
         if (appData.championships) {
           const mapped = appData.championships.map(c => ({
             id: c.id, name: c.name, deadlineDate: c.deadline_date,
-            description: c.description, teamCategory: c.team_category
+            description: c.description, teamCategory: c.team_category, teamId: c.team_id
           }));
           setChampionships(mapped);
         } else { setChampionships([]); }
@@ -214,7 +272,7 @@ export function useSyncPull(
         if (appData.finances) {
           const mapped = appData.finances.map(f => ({
             id: f.id, type: f.type, desc: f.descripcion, amount: f.amount,
-            date: f.date, category: f.category, teamCategory: f.team_category
+            date: f.date, category: f.category, teamCategory: f.team_category, teamId: f.team_id
           }));
           setFinances(mapped);
         } else { setFinances([]); }
@@ -222,7 +280,7 @@ export function useSyncPull(
         if (appData.inventory) {
           const mapped = appData.inventory.map(i => ({
             id: i.id, name: i.name, total: i.total,
-            assignedTo: i.assigned_to, status: i.status, teamCategory: i.team_category
+            assignedTo: i.assigned_to, status: i.status, teamCategory: i.team_category, teamId: i.team_id
           }));
           setInventory(mapped);
         } else { setInventory([]); }
@@ -231,7 +289,7 @@ export function useSyncPull(
           const mapped = appData.fixtures.map(f => ({
             id: f.id, date: f.date, opponent: f.opponent,
             orcosScore: f.orcos_score, opponentScore: f.opponent_score,
-            tries: f.tries, mvp: f.mvp, teamCategory: f.team_category,
+            tries: f.tries, mvp: f.mvp, teamCategory: f.team_category, teamId: f.team_id,
             rivalId: f.rival_id
           }));
           setFixtures(mapped);
@@ -248,7 +306,7 @@ export function useSyncPull(
         if (appData.futureFixtures) {
           const mapped = appData.futureFixtures.map(f => ({
             id: f.id, opponent: f.opponent, date: f.date,
-            time: f.time, location: f.location, teamCategory: f.team_category,
+            time: f.time, location: f.location, teamCategory: f.team_category, teamId: f.team_id,
             rivalId: f.rival_id
           }));
           setFutureFixtures(mapped);
@@ -284,13 +342,13 @@ export function useSyncPull(
         setSyncStatus('online');
         if (import.meta.env.DEV) console.log('[Supabase] Sincronizados', dbPlayers?.length || 0, 'jugadores');
       } catch (err) {
-        handleError(err, 'useSync.pullFromSupabase', { silent: true });
+        handleError(err, 'useSync.pullFromSupabase', { notifyUser: true });
         setSyncStatus('offline');
       }
     };
 
     syncFromSupabase();
-  }, [user?.id, profile?.system_role, mensualidadBase]);
+  }, [user?.id, userTier, profile?.system_role, profile?.club_scope, profile?.team_id, mensualidadBase]);
 
   return { syncStatus };
 }

@@ -26,7 +26,7 @@ function Roster() {
     recordPhysicalTest, recordInjury, updateInjuryPhase, activeTeam,
     runHiaProtocol, updateClothingSizes, updateGymStats,
     createPlayerCredentials, resetPlayerPassword, hasPermission,
-    viewMode, divisionView, makgoraTeamId, makgoraTeams,
+    viewMode, divisionView, setDivisionView, makgoraTeamId, makgoraTeams, teams,
     syncStatus, bulkUpdatePosition,
   } = useContext(ClubContext);
   const { showToast } = useToast();
@@ -206,15 +206,11 @@ function Roster() {
     setBulkPositionId(position_id);
   };
 
-  const handleApplyBulkPosition = async () => {
+  const handleApplyBulkPosition = () => {
     if (selectedPlayerIds.size === 0 || !bulkPositionId) return;
     setBulkApplying(true);
-    try {
-      bulkUpdatePosition([...selectedPlayerIds], bulkPositionId, '');
-      showToast(`Posicion asignada a ${selectedPlayerIds.size} guerreros.`, 'success');
-    } catch (err) {
-      showToast('Error al asignar posiciones.', 'error');
-    }
+    bulkUpdatePosition([...selectedPlayerIds], bulkPositionId, '');
+    showToast(`Posicion asignada a ${selectedPlayerIds.size} guerreros.`, 'success');
     setBulkApplying(false);
     setBulkMode(false);
     setSelectedPlayerIds(new Set());
@@ -232,6 +228,9 @@ function Roster() {
         <RosterControls
           search={search}
           onSearchChange={setSearch}
+          divisionView={divisionView}
+          onDivisionViewChange={setDivisionView}
+          teams={teams}
           makgoraFilter={makgoraFilter}
           onMakgoraFilterChange={setMakgoraFilter}
           onAdd={() => setShowAddModal(true)}

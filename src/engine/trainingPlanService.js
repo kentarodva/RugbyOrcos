@@ -66,6 +66,8 @@ export async function getOrGeneratePlan(player) {
   let source = 'engine';
   let planData = { ...normalized.plan, matchFaults, isInjured };
   let aiAnalysis = null;
+  let aiProvider = 'engine';
+  let aiModel = null;
 
   try {
     const aiPlan = await generateTrainingPlan(playerCtx);
@@ -79,10 +81,19 @@ export async function getOrGeneratePlan(player) {
         recomendaciones: aiPlan.recomendaciones || {},
       };
       source = 'ai';
+      aiProvider = aiPlan.provider || 'gemini';
+      aiModel = aiPlan.model || null;
     }
   } catch {
     /* fallback a engine */
   }
+
+  try {
+    await supabase.from('training_plans')
+      .update({ status: 'archived' })
+      .eq('player_id', player.id)
+      .eq('status', 'active');
+  } catch { /* silencioso */ }
 
   const { data: inserted } = await supabase
     .from('training_plans')
@@ -92,6 +103,8 @@ export async function getOrGeneratePlan(player) {
       source,
       plan: planData,
       ai_analysis: aiAnalysis,
+      provider: aiProvider,
+      model: aiModel,
       status: 'active',
     }, { onConflict: 'player_id, week_start' })
     .select()
@@ -102,6 +115,8 @@ export async function getOrGeneratePlan(player) {
     playerId: player.id,
     weekStart: getWeekStart(),
     source,
+    provider: aiProvider,
+    model: aiModel,
     plan: planData,
     aiAnalysis: aiAnalysis?.analisis,
     aiRisks: aiAnalysis?.riesgos,

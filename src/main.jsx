@@ -11,11 +11,11 @@ ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <ErrorBoundary>
       <AuthProvider>
-        <ClubProvider>
-          <ToastProvider>
+        <ToastProvider>
+          <ClubProvider>
             <App />
-          </ToastProvider>
-        </ClubProvider>
+          </ClubProvider>
+        </ToastProvider>
       </AuthProvider>
     </ErrorBoundary>
   </React.StrictMode>

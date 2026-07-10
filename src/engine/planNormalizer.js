@@ -2,6 +2,7 @@ export function normalizeAIOutput(aiPlan, player) {
   if (!aiPlan?.plan) return null;
 
   const categories = {
+    calentamiento: normalizeExercises(aiPlan.plan.calentamiento || aiPlan.plan.calentamiento, 'calentamiento', player),
     campo: normalizeExercises(aiPlan.plan.campo, 'campo', player),
     gym: normalizeExercises(aiPlan.plan.gimnasio || aiPlan.plan.gym, 'gym', player),
     recuperacion: normalizeExercises(aiPlan.plan.recuperacion, 'recuperacion', player),

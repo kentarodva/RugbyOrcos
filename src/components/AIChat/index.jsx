@@ -15,6 +15,7 @@ function AIChat() {
     <div className="animated-fade" style={{ display: 'flex', flexDirection: 'column', gap: '15px', height: '100%' }}>
       <ChatHeader
         configured={state.configured}
+        settingsReady={state.settingsReady}
         activeProvInfo={state.activeProvInfo}
         teamFixtures={state.teamFixtures}
         analyzingMatch={state.analyzingMatch}

@@ -1,3 +1,11 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Outfit:wght@500;600;700;800;900&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: 'Inter', ui-sans-serif, system-ui;
+  --font-display: 'Outfit', ui-sans-serif, system-ui;
+}
+
 /* ==========================================
    Rugby Orcos Design System - index.css
    ========================================== */
@@ -134,6 +142,7 @@ body {
 
 /* Glassmorphic Panels */
 .glass-panel {
+  position: relative;
   background: var(--bg-surface);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
@@ -143,9 +152,21 @@ body {
   transition: var(--transition-smooth);
 }
 
+.glass-panel::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 20px; right: 20px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent);
+  pointer-events: none;
+}
+
 .glass-panel:hover {
   border-color: rgba(0, 230, 118, 0.15);
   box-shadow: 0 12px 35px rgba(0, 0, 0, 0.6), 0 0 15px rgba(0, 230, 118, 0.05);
+}
+.glass-panel:hover::before {
+  background: linear-gradient(90deg, transparent, rgba(0,230,118,0.12), transparent);
 }
 
 /* Glowing Neon Elements */
@@ -621,4 +642,671 @@ body {
 
 .toast-container > * {
   pointer-events: auto;
+}
+
+/* ── Playoff Bracket 5-Column ── */
+.bracket-root {
+  position: relative;
+  width: 100%;
+  min-height: 500px;
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(79, 195, 247, 0.1);
+  background: linear-gradient(180deg, #070d1a 0%, #0a1628 30%, #0d2240 60%, #0f2a4a 100%);
+}
+
+.bracket-texture {
+  position: absolute;
+  inset: 0;
+  background-image:
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 1px,
+      rgba(79, 195, 247, 0.015) 1px,
+      rgba(79, 195, 247, 0.015) 2px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 2px,
+      rgba(255, 255, 255, 0.008) 2px,
+      rgba(255, 255, 255, 0.008) 3px
+    );
+  pointer-events: none;
+  z-index: 0;
+}
+
+.bracket-overlay {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 50% 50%, rgba(79, 195, 247, 0.03) 0%, transparent 60%),
+    radial-gradient(ellipse at 20% 30%, rgba(0, 230, 118, 0.02) 0%, transparent 40%),
+    radial-gradient(ellipse at 80% 70%, rgba(255, 179, 0, 0.015) 0%, transparent 40%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Bracket scrollbar */
+.bracket-root ::-webkit-scrollbar { height: 6px; }
+.bracket-root ::-webkit-scrollbar-track { background: rgba(255,255,255,0.03); border-radius: 3px; }
+.bracket-root ::-webkit-scrollbar-thumb { background: rgba(79, 195, 247, 0.2); border-radius: 3px; }
+.bracket-root ::-webkit-scrollbar-thumb:hover { background: rgba(79, 195, 247, 0.4); }
+
+/* Match card glass style */
+.bracket-card {
+  position: relative;
+  width: 185px;
+  background: rgba(10, 22, 40, 0.85);
+  border: 1px solid rgba(79, 195, 247, 0.15);
+  border-radius: 6px;
+  overflow: hidden;
+  transition: all 0.2s ease;
+}
+.bracket-card:hover {
+  border-color: rgba(79, 195, 247, 0.4);
+  box-shadow: 0 0 12px rgba(79, 195, 247, 0.08);
+}
+
+/* Connector horizontal from match cards */
+.bracket-card.is-left::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: -16px;
+  width: 16px;
+  height: 1px;
+  background: rgba(79, 195, 247, 0.35);
+}
+.bracket-card.is-center::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: -16px;
+  width: 16px;
+  height: 1px;
+  background: rgba(79, 195, 247, 0.35);
+}
+.bracket-card.is-center::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: -16px;
+  width: 16px;
+  height: 1px;
+  background: rgba(79, 195, 247, 0.35);
+}
+
+/* Connector column layout */
+.bracket-connector-col {
+  position: relative;
+  width: 24px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+}
+
+.connector-pair {
+  position: relative;
+  flex: 1;
+  width: 24px;
+}
+
+/* TOP horizontal line (from connector to first match in pair) */
+.connector-pair::before {
+  content: '';
+  position: absolute;
+  top: 25%;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: rgba(79, 195, 247, 0.35);
+}
+
+/* BOTTOM horizontal line (from connector to second match in pair) */
+.connector-pair::after {
+  content: '';
+  position: absolute;
+  bottom: 25%;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: rgba(79, 195, 247, 0.35);
+}
+
+/* Vertical line inside connector */
+.connector-v {
+  position: absolute;
+  top: 25%;
+  bottom: 25%;
+  left: 50%;
+  width: 1px;
+  background: rgba(79, 195, 247, 0.35);
+}
+
+/* Middle horizontal line to next round */
+.connector-v::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 50%;
+  height: 1px;
+  background: rgba(79, 195, 247, 0.35);
+}
+
+/* Right-side connector mirror */
+.connector-v.is-right-side::after {
+  left: auto;
+  right: 0;
+}
+
+/* Bracket column */
+.bracket-col {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  position: relative;
+  width: 195px;
+  flex-shrink: 0;
+}
+
+/* Column round label */
+.bracket-round-label {
+  text-align: center;
+  font-family: Outfit;
+  font-size: 0.6rem;
+  font-weight: 700;
+  color: rgba(79, 195, 247, 0.5);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+}
+
+/* Score input inside card */
+.bracket-score-input {
+  width: 24px;
+  text-align: center;
+  background: rgba(0,0,0,0.3);
+  border: 1px solid rgba(79,195,247,0.12);
+  border-radius: 3px;
+  color: #fff;
+  padding: 2px;
+  font-family: Outfit;
+  font-size: 0.7rem;
+  font-weight: 700;
+  outline: none;
+}
+
+/* Status badge */
+.bracket-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-family: Outfit;
+  font-size: 0.55rem;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+/* Team dot */
+.bracket-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* ── Tournament Showcase ── */
+.showcase-root {
+  position: relative;
+  width: 100%;
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(255,255,255,0.06);
+  background: #111827;
+  margin-bottom: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  animation: showFadeUp 0.4s ease;
+}
+
+.showcase-header {
+  text-align: center;
+  padding: 24px 20px 0;
+}
+
+.showcase-title {
+  font-family: Outfit;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #c9a520;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  margin: 0 0 4px;
+}
+
+.showcase-subtitle {
+  font-family: Outfit;
+  font-size: 0.6rem;
+  color: #64748b;
+  margin: 0;
+  letter-spacing: 0.5px;
+}
+
+.showcase-body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 24px;
+  padding: 20px 20px 24px;
+  width: 100%;
+}
+
+.showcase-teams-col {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  max-width: 260px;
+}
+
+.showcase-team-card {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: 4px;
+  transition: background 0.15s ease;
+  cursor: default;
+}
+
+.showcase-team-card:hover {
+  background: rgba(255,255,255,0.03);
+}
+
+.showcase-team-card-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.showcase-team-crest {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255,255,255,0.06);
+  flex-shrink: 0;
+  font-size: 0.5rem;
+  color: #94a3b8;
+  font-weight: 600;
+  font-family: Outfit;
+}
+
+.showcase-team-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.showcase-team-name {
+  font-size: 0.65rem;
+  font-weight: 500;
+  color: #e2e8f0;
+  font-family: Outfit;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.showcase-team-record {
+  font-size: 0.5rem;
+  font-weight: 500;
+  color: #64748b;
+  font-family: Outfit;
+}
+
+.showcase-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.showcase-trophy-wrap {
+  width: 72px;
+  height: 86px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.showcase-stats {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.showcase-stat-label {
+  font-family: Outfit;
+  font-size: 0.55rem;
+  font-weight: 500;
+  color: #64748b;
+  letter-spacing: 0.3px;
+}
+
+.showcase-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: Outfit;
+  font-size: 0.55rem;
+  font-weight: 500;
+  padding: 3px 10px;
+  border-radius: 4px;
+  border: 1px solid;
+  letter-spacing: 0.3px;
+}
+
+.showcase-status-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* ── Fixture Rounds Grid ── */
+.fixture-round {
+  margin-bottom: 28px;
+  animation: showFadeUp 0.3s ease backwards;
+}
+.fixture-round:nth-child(1) { animation-delay: 0.03s; }
+.fixture-round:nth-child(2) { animation-delay: 0.06s; }
+.fixture-round:nth-child(3) { animation-delay: 0.09s; }
+.fixture-round:nth-child(4) { animation-delay: 0.12s; }
+.fixture-round:nth-child(5) { animation-delay: 0.15s; }
+
+.fixture-round-title-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.fixture-round-line {
+  flex: 1;
+  height: 1px;
+  background: rgba(255,255,255,0.06);
+}
+
+.fixture-round-label {
+  font-family: Outfit;
+  font-size: 0.6rem;
+  font-weight: 600;
+  color: #c9a520;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  white-space: nowrap;
+}
+
+.fixture-round-count {
+  font-family: Outfit;
+  font-size: 0.5rem;
+  font-weight: 500;
+  color: #64748b;
+  white-space: nowrap;
+}
+
+.fixture-round-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+  gap: 8px;
+}
+
+/* ── VS Card ── */
+.vs-card {
+  position: relative;
+  border-radius: 6px;
+  border: 1px solid rgba(255,255,255,0.06);
+  background: rgba(17,24,39,0.6);
+  overflow: hidden;
+  transition: border-color 0.2s ease;
+}
+
+.vs-card:hover {
+  border-color: rgba(255,255,255,0.12);
+}
+
+.vs-card-body {
+  display: flex;
+  align-items: center;
+  padding: 10px 10px 4px;
+  gap: 6px;
+}
+
+.vs-card-team {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+  min-width: 0;
+}
+
+.vs-card-team.home {
+  justify-content: flex-start;
+}
+
+.vs-card-team.away {
+  justify-content: flex-end;
+}
+
+.vs-card-crest {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid;
+  flex-shrink: 0;
+  font-size: 0.5rem;
+  color: #94a3b8;
+  font-weight: 600;
+  font-family: Outfit;
+}
+
+.vs-card-team-name {
+  font-size: 0.7rem;
+  font-weight: 400;
+  color: #e2e8f0;
+  font-family: Outfit;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 110px;
+  transition: color 0.2s;
+}
+
+.vs-card-team-name.is-winner {
+  font-weight: 600;
+  color: #c9a520;
+}
+
+.is-played .vs-card-team-name {
+  font-weight: 300;
+  color: #64748b;
+}
+
+.is-played .vs-card-team-name.is-winner {
+  font-weight: 600;
+  color: #c9a520;
+}
+
+.vs-card-badge {
+  font-size: 0.45rem;
+  padding: 0 4px;
+  border-radius: 2px;
+  background: rgba(201,165,32,0.12);
+  color: #c9a520;
+  font-family: Outfit;
+  font-weight: 600;
+  flex-shrink: 0;
+  line-height: 1.4;
+}
+
+.vs-card-divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.vs-card-score-area {
+  display: flex;
+  align-items: center;
+}
+
+.vs-card-score-display {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(0,0,0,0.3);
+  padding: 3px 14px;
+  border-radius: 4px;
+}
+
+.vs-card-score {
+  font-size: 0.85rem;
+  font-weight: 700;
+  font-family: Outfit;
+  color: #94a3b8;
+  min-width: 14px;
+  text-align: center;
+}
+
+.vs-card-score.is-winner {
+  color: #c9a520;
+}
+
+.vs-card-colon {
+  color: #475569;
+  font-size: 0.65rem;
+  font-weight: 300;
+}
+
+.vs-card-score-inputs {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.vs-card-input {
+  width: 30px;
+  text-align: center;
+  background: rgba(0,0,0,0.3);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 3px;
+  color: #e2e8f0;
+  padding: 3px 2px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  font-family: Outfit;
+  outline: none;
+  transition: border-color 0.15s;
+  -moz-appearance: textfield;
+}
+
+.vs-card-input::-webkit-outer-spin-button,
+.vs-card-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.vs-card-input:focus {
+  border-color: #c9a520;
+}
+
+.vs-card-save-btn {
+  padding: 3px 8px;
+  background: #c9a520;
+  border: none;
+  border-radius: 3px;
+  color: #000;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 0.55rem;
+  font-family: Outfit;
+  transition: opacity 0.15s;
+  line-height: 1;
+}
+
+.vs-card-save-btn:hover {
+  opacity: 0.85;
+}
+
+.vs-card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 2px 10px 8px;
+}
+
+.vs-card-team-dots {
+  display: flex;
+  gap: 4px;
+}
+
+.vs-card-dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.vs-card-status {
+  font-size: 0.5rem;
+  font-weight: 500;
+  font-family: Outfit;
+  color: #64748b;
+}
+
+.vs-card-status.is-played {
+  color: #22c55e;
+}
+
+.vs-card-status.is-pending {
+  color: #c9a520;
+}
+
+.vs-card-stats-btn {
+  padding: 1px 8px;
+  background: transparent;
+  border: 1px solid rgba(201,165,32,0.3);
+  border-radius: 3px;
+  color: #c9a520;
+  cursor: pointer;
+  font-size: 0.5rem;
+  font-weight: 500;
+  font-family: Outfit;
+  transition: border-color 0.15s;
+}
+
+.vs-card-stats-btn:hover {
+  border-color: #c9a520;
+}
+
+@keyframes showFadeUp {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
 }

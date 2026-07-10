@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { getAvatarPath } from '../data/mythicalAvatars';
 
 function getInitials(name) {
@@ -11,6 +11,9 @@ function getInitials(name) {
 export function PlayerPhoto({ player, size = 60, editable = false, onClick }) {
   const avatarId = player?.avatar_id;
   const photoUrl = player?.photo_url;
+  const [photoError, setPhotoError] = useState(false);
+
+  useEffect(() => { setPhotoError(false); }, [photoUrl]);
 
   const containerStyle = {
     width: size,
@@ -27,10 +30,11 @@ export function PlayerPhoto({ player, size = 60, editable = false, onClick }) {
     cursor: editable ? 'pointer' : 'default',
   };
 
-  const content = photoUrl ? (
+  const content = (photoUrl && !photoError) ? (
     <img
       src={photoUrl}
       alt=""
+      onError={() => setPhotoError(true)}
       style={{ width: '100%', height: '100%', objectFit: 'cover' }}
     />
   ) : avatarId ? (

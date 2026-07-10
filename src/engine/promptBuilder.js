@@ -127,7 +127,22 @@ Reglas:
 3. Explica la sanción correspondiente (penal, free kick, scrum)
 4. Menciona la señal del árbitro cuando aplique
 5. Si la regla cambió recientemente, menciona el año de actualización
-6. Máximo 4 párrafos precisos y técnicos`
+6. Máximo 4 párrafos precisos y técnicos`,
+
+    personal: `${base}
+
+Modo: COACH PERSONAL DEL JUGADOR
+
+Eres el entrenador personal de este jugador de rugby. Tienes acceso a su perfil completo: atributos, historial de lesiones, plan de entrenamiento, datos de gimnasio, rendimiento en partidos, asistencia y bienestar.
+
+Reglas:
+1. Responde de forma personalizada usando sus datos concretos (fuerza, velocidad, lesiones)
+2. Sugiere ejercicios específicos basados en sus debilidades y tendencias
+3. Recuerda su plan activo y no sugieras ejercicios que ya está haciendo
+4. Sé motivacional y cercano, como un coach que conoce a su jugador
+5. Si preguntan sobre nutrición, usa los datos de peso y recomienda productos de supermercados colombianos
+6. Si preguntan sobre progreso, consulta su historial de gym y atributos
+7. Máximo 4 párrafos concisos y personalizados`
   };
 
   let prompt = modePrompts[mode] || modePrompts.general;
@@ -185,7 +200,7 @@ function buildAITrainingContext(player) {
   const parts = [];
 
   parts.push(`PERFIL: ${player.name}, ${player.posicion || '—'}, ${player._meta?.age || '?'} años, ${player._meta?.startYear ? new Date().getFullYear() - player._meta.startYear + ' años en el club' : ''}`);
-  parts.push(`ESTADO: ${player.estado}${player.rol === 'Capitán' ? ' (Capitán)' : player.rol === 'Subcapitán' ? ' (Subcapitán)' : ''}`);
+  parts.push(`ESTADO: ${player.estado}${player.rol === 'Capitan' ? ' (Capitan)' : player.rol === 'Subcapitan' ? ' (Subcapitan)' : ''}`);
 
   // Atributos + tendencia
   parts.push(`ATRIBUTOS: Fuerza ${a.force || 50}/100, Velocidad ${a.speed || 50}/100, Resistencia ${a.stamina || 50}/100, Técnica ${a.technique || 50}/100`);
@@ -299,39 +314,104 @@ function buildAITrainingContext(player) {
     if (fb.length > 0) parts.push(`SEMANA ANTERIOR: ${fb.join(' · ')}`);
   }
 
+  // Modalidad y preferencias del jugador
+  if (player.preferences?.goal) {
+    parts.push(`OBJETIVO: ${player.preferences.goal}`);
+  }
+  if (player.preferences?.modality?.length) {
+    parts.push(`MODALIDAD PREFERIDA: ${player.preferences.modality.join(', ')}`);
+  }
+  if (player.preferences?.dislikes?.length) {
+    parts.push(`ALIMENTOS QUE NO LE GUSTAN: ${player.preferences.dislikes.join(', ')}`);
+  }
+  if (player.matchFaults?.length) {
+    parts.push(`FALLOS DETECTADOS EN PARTIDOS: ${player.matchFaults.join(', ')}`);
+  }
+
   return parts.join('\n');
 }
 
 function buildAITrainingPlanPrompt(player) {
   const ctx = buildAITrainingContext(player);
-  return `Eres un coach de rugby personal de élite. Tienes acceso COMPLETO al historial de este jugador. Basado en esta información, genera un plan de entrenamiento completo:
+  const modality = player.preferences?.modality?.join(', ') || 'gym, campo';
+  const goal = player.preferences?.goal || 'fuerza';
+  const stores = player.preferences?.stores?.length ? player.preferences.stores.join(', ') : 'D1, Ara, Éxito';
+  const dislikes = player.preferences?.dislikes?.length ? player.preferences.dislikes.join(', ') : 'ninguno';
+  const matchFaults = (player.matchFaults || []).length ? player.matchFaults.join(', ') : 'ninguno detectado';
 
+  return `Eres un coach de rugby personal de élite colombiano. Tienes acceso COMPLETO al historial de este jugador. Basado en esta información, genera un plan de entrenamiento completo y un plan de alimentación con productos disponibles en supermercados colombianos (${stores}).
+
+Datos del jugador:
 ${ctx}
 
-Genera un plan con esta estructura JSON:
+MODALIDAD DE ENTRENAMIENTO: ${modality}
+OBJETIVO PRINCIPAL: ${goal}
+FALLOS EN PARTIDOS RECIENTES: ${matchFaults}
+ALIMENTOS QUE NO LE GUSTAN: ${dislikes}
+TIENDAS DONDE COMPRA: ${stores}
+
+Genera un plan con esta estructura JSON EXACTA:
 {
   "analisis": "Un párrafo resumiendo la condición actual del jugador y qué necesita trabajar",
   "riesgos": ["Riesgo 1", "Riesgo 2"],
   "metas": ["Meta realista a 30 días", "Meta realista a 90 días"],
   "plan": {
+    "calentamiento": [
+      { "nombre": "Ejercicio de calentamiento", "duracion": "5 min", "descripcion": "Cómo hacerlo" }
+    ],
     "campo": [
       { "nombre": "Ejercicio campo", "sets": "4x8", "descripcion": "Cómo hacerlo", "razon": "Por qué" }
     ],
     "gimnasio": [
       { "nombre": "Ejercicio gym", "sets": "3x10", "carga": "65% 1RM", "descripcion": "Cómo hacerlo", "razon": "Por qué" }
     ],
+    "crossfit": [
+      { "nombre": "WOD o ejercicio funcional", "sets": "AMRAP 15", "descripcion": "Cómo hacerlo", "razon": "Por qué" }
+    ],
+    "casa": [
+      { "nombre": "Ejercicio en casa", "sets": "3x15", "descripcion": "Cómo hacerlo", "razon": "Por qué" }
+    ],
     "recuperacion": [
       { "nombre": "Recuperación", "duracion": "10 min", "descripcion": "Cómo hacerlo" }
     ]
   },
   "recomendaciones": {
-    "sueno": "Recomendación sobre descanso",
-    "nutricion": "Sugerencia nutricional breve",
-    "prevencion": "Ejercicio preventivo extra"
+    "sueno": "Recomendación sobre descanso (horas, rutina)",
+    "nutricion": {
+      "preEntreno": {
+        "comida": "Descripción de la comida",
+        "ingredientes": [
+          { "producto": "Nombre", "cantidad": "150g", "dondeComprar": "D1" }
+        ],
+        "preparacion": "Instrucciones paso a paso",
+        "tiempo": "15 min",
+        "macros": { "proteinas": "30g", "carbohidratos": "45g", "grasas": "12g", "calorias": "400kcal" }
+      },
+      "postEntreno": {
+        "comida": "Descripción",
+        "ingredientes": [{"producto": "...", "cantidad": "100g", "dondeComprar": "Éxito"}],
+        "preparacion": "Instrucciones",
+        "tiempo": "10 min",
+        "macros": { "proteinas": "25g", "carbohidratos": "35g", "grasas": "8g", "calorias": "310kcal" }
+      },
+      "snacks": [
+        { "comida": "Yogurt griego + banano (D1)", "cuando": "10:00 AM", "macros": { "proteinas": "12g", "carbohidratos": "30g", "grasas": "5g", "calorias": "210kcal" } }
+      ],
+      "hidratacion": "3-4L de agua/día. Agregar panela con limón post-entreno.",
+      "suplementos": "Proteína Whey, Creatina 5g/día"
+    },
+    "prevencion": "Ejercicio preventivo extra según lesiones previas"
   }
 }
 
-Responde SOLO el JSON, sin markdown.`}
+IMPORTANTE:
+- SOLO incluye las categorías de plan que apliquen (ej: si la modalidad es gym, no incluyas campo)
+- Los ingredientes de nutrición DEBEN ser productos disponibles en ${stores}
+- Usa nombres locales colombianos para los alimentos (ej: 'arepa', 'posta', 'panela', 'bocadillo')
+- Indica en qué tienda comprar cada ingrediente (${stores})
+- Incluye gramos exactos y macros en cada comida
+- Responde SOLO el JSON, sin markdown, sin explicaciones adicionales.`}
+
 
 function buildMatchAnalysisPrompt(fixture, players, teamLabel) {
   const playerStats = players

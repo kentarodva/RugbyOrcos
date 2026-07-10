@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react';
+import { Trophy, CircleCheck, Crown, CircleDot, Medal } from 'lucide-react';
 
 function MiniRanking({ teamPlayers }) {
   const rankings = useMemo(() => {
@@ -48,7 +49,9 @@ function MiniRanking({ teamPlayers }) {
               fontSize: '0.72rem'
             }}>
               <span>
-                <span style={{ fontWeight: 700, marginRight: '4px' }}>{['🥇','🥈','🥉'][i]}</span>
+                <span style={{ fontWeight: 700, marginRight: '4px', display: 'inline-flex', alignItems: 'center' }}>
+                  {i === 0 ? <Medal size={14} color="#FFD700" /> : i === 1 ? <Medal size={14} color="#C0C0C0" /> : <Medal size={14} color="#CD7F32" />}
+                </span>
                 {p.name}
               </span>
               <span style={{ color: 'var(--color-text-muted)', fontSize: '0.65rem' }}>{statFn(p)}</span>
@@ -61,15 +64,15 @@ function MiniRanking({ teamPlayers }) {
 
   return (
     <div className="glass-panel" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-      <h3 style={{ fontSize: '1rem', fontWeight: 700, fontFamily: 'Outfit' }}>🏆 Ranking del Clan</h3>
+      <h3 style={{ fontSize: '1rem', fontWeight: 700, fontFamily: 'Outfit' }}><Trophy size={20} style={{ verticalAlign: 'middle', marginRight: 4 }} /> Ranking del Clan</h3>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px' }}>
-        {renderTop3(rankings.byAttendance, 'Asistencia', '✅', p =>
+        {renderTop3(rankings.byAttendance, 'Asistencia', <CircleCheck size={16} />, p =>
           `${p.attendance?.present || 0}/${p.attendance?.total || 0}`
         )}
-        {renderTop3(rankings.byMvp, 'MVPs', '👑', p =>
+        {renderTop3(rankings.byMvp, 'MVPs', <Crown size={16} />, p =>
           `${(p.matchStats || []).filter(s => s.mvp).length} MVP`
         )}
-        {renderTop3(rankings.byTries, 'Tries', '🏉', p =>
+        {renderTop3(rankings.byTries, 'Tries', <CircleDot size={16} />, p =>
           `${(p.matchStats || []).reduce((s, m) => s + (m.tries || 0), 0)} tries`
         )}
       </div>

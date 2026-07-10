@@ -17,7 +17,8 @@ export const LOAN_STATUS_LABELS = {
 export const TOURNAMENT_STATUS_MAP = {
   proximo: { label: 'Proximo', color: '#9e9e9e' },
   en_curso: { label: 'En Curso', color: '#ffb300' },
-  finalizado: { label: 'Finalizado', color: '#00e676' }
+  finalizado: { label: 'Finalizado', color: '#00e676' },
+  cancelado: { label: 'Cancelado', color: '#ff3d00' }
 };
 
 export const STYLE = {

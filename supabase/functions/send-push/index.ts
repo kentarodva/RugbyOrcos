@@ -1,5 +1,5 @@
-import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import "jsr:@supabase/functions-js/edge-runtime.d.ts";
+import { createClient } from "jsr:@supabase/supabase-js@2";
 
 interface FilterInput {
   team_category?: string | null;
@@ -14,6 +14,12 @@ interface PushPayload {
   data?: Record<string, string>;
   filters?: FilterInput;
 }
+
+const CORS_HEADERS = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type, Authorization",
+};
 
 function base64UrlEncode(str: string): string {
   const base64 = btoa(str);
@@ -138,31 +144,68 @@ async function sendSingleMessage(
   return { ok: true };
 }
 
-serve(async (req) => {
-  if (req.method !== 'POST') {
-    return new Response(JSON.stringify({ error: 'Method not allowed' }), {
-      status: 405,
-      headers: { 'Content-Type': 'application/json' },
-    });
+function errorJson(msg: string, status: number): Response {
+  return new Response(JSON.stringify({ error: msg }), {
+    status,
+    headers: { ...CORS_HEADERS, "Content-Type": "application/json" },
+  });
+}
+
+async function verifyStaffUser(authHeader: string): Promise<{ userId?: string; error?: Response }> {
+  if (!authHeader.startsWith("Bearer ")) {
+    return { error: errorJson("Missing or malformed Authorization header", 401) };
   }
+  const supabaseUrl = Deno.env.get("SUPABASE_URL") || "";
+  const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY") || "";
+  const authClient = createClient(supabaseUrl, supabaseAnonKey, {
+    global: { headers: { Authorization: authHeader } },
+    auth: { persistSession: false },
+  });
+  const { data: { user }, error: authError } = await authClient.auth.getUser();
+  if (authError || !user) {
+    return { error: errorJson("Unauthorized: invalid or expired token", 401) };
+  }
+
+  const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+  const adminClient = createClient(supabaseUrl, supabaseKey);
+  const { data: profile } = await adminClient
+    .from("user_profiles")
+    .select("system_role")
+    .eq("user_id", user.id)
+    .single();
+
+  const isStaff = profile && !["jugador"].includes(profile.system_role);
+  if (!isStaff) {
+    return { error: errorJson("Forbidden: staff role required", 403) };
+  }
+
+  return { userId: user.id };
+}
+
+Deno.serve(async (req) => {
+  if (req.method === "OPTIONS") {
+    return new Response(null, { status: 204, headers: CORS_HEADERS });
+  }
+  if (req.method !== "POST") {
+    return errorJson("Method not allowed", 405);
+  }
+
+  // Verificar JWT + staff role
+  const authHeader = req.headers.get("Authorization") || "";
+  const { error: authError } = await verifyStaffUser(authHeader);
+  if (authError) return authError;
 
   try {
     const { title, body, data, filters } = (await req.json()) as PushPayload;
 
     if (!title || !body) {
-      return new Response(
-        JSON.stringify({ error: 'Missing required fields: title, body' }),
-        { status: 400, headers: { 'Content-Type': 'application/json' } },
-      );
+      return errorJson("Missing required fields: title, body", 400);
     }
 
     // Read service account
     const saRaw = Deno.env.get('FCM_SERVICE_ACCOUNT');
     if (!saRaw) {
-      return new Response(
-        JSON.stringify({ error: 'FCM_SERVICE_ACCOUNT not configured' }),
-        { status: 500, headers: { 'Content-Type': 'application/json' } },
-      );
+      return errorJson('FCM_SERVICE_ACCOUNT not configured', 500);
     }
     const serviceAccount = JSON.parse(saRaw);
 
@@ -189,16 +232,13 @@ serve(async (req) => {
     const { data: tokens, error: queryError } = await query;
 
     if (queryError) {
-      return new Response(
-        JSON.stringify({ error: 'Database query failed', details: queryError.message }),
-        { status: 500, headers: { 'Content-Type': 'application/json' } },
-      );
+      return errorJson('Database query failed', 500);
     }
 
     if (!tokens || tokens.length === 0) {
       return new Response(
         JSON.stringify({ success: true, sent: 0, message: 'No tokens matched the filters' }),
-        { status: 200, headers: { 'Content-Type': 'application/json' } },
+        { status: 200, headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' } },
       );
     }
 
@@ -228,12 +268,10 @@ serve(async (req) => {
 
     return new Response(
       JSON.stringify({ success: true, sent, invalidCleaned: tokensToDelete.length }),
-      { status: 200, headers: { 'Content-Type': 'application/json' } },
+      { status: 200, headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' } },
     );
   } catch (err) {
-    return new Response(JSON.stringify({ error: err.message }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    console.error('[send-push] Error:', err);
+    return errorJson('Internal server error', 500);
   }
 });

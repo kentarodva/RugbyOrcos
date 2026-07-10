@@ -1,7 +1,7 @@
 import React from 'react';
 import FixtureCard from './FixtureCard';
 
-function FixtureList({ fixtures, onDelete, onDetail }) {
+function FixtureList({ fixtures, onDelete, onDetail, onEdit, onStartMatch, onSquad, hasActiveMatch }) {
   const sorted = [...fixtures].sort((a, b) => new Date(b.date) - new Date(a.date));
 
   if (sorted.length === 0) {
@@ -20,6 +20,10 @@ function FixtureList({ fixtures, onDelete, onDetail }) {
           fixture={f}
           onDelete={onDelete}
           onDetail={onDetail}
+          onEdit={onEdit}
+          onStartMatch={onStartMatch}
+          onSquad={onSquad}
+          hasActiveMatch={hasActiveMatch}
         />
       ))}
     </div>

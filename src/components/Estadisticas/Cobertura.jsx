@@ -1,17 +1,13 @@
 import React, { useMemo } from 'react';
 import { SmallDonut, HorizontalBar, COLORS } from './charts.jsx';
 import { normalizeEPS } from '../../utils/csvImport';
+import { getEPSDistribution, getDataCoverage } from '../../services/statsService';
 
 export default function Cobertura({ players }) {
   const epsData = useMemo(() => {
-    const m = {};
-    for (const p of players) {
-      const eps = normalizeEPS(p.health_insurance) || 'Sin EPS';
-      m[eps] = (m[eps] || 0) + 1;
-    }
-    return Object.entries(m).sort((a, b) => b[1] - a[1]).map(([label, value]) => ({
-      label, value,
-      color: label === 'Sin EPS' ? '#ff5252' : COLORS[Math.abs(label.split('').reduce((s, c) => s + c.charCodeAt(0), 0)) % COLORS.length],
+    return getEPSDistribution(players).map((d, i) => ({
+      ...d,
+      color: d.label === 'Sin EPS' ? '#ff5252' : COLORS[i % COLORS.length],
     }));
   }, [players]);
 
@@ -29,18 +25,7 @@ export default function Cobertura({ players }) {
   ];
 
   const coberturaData = useMemo(() => {
-    const t = players.length;
-    const fields = [
-      { label: 'Teléfono', check: p => !!p.contacto?.phone },
-      { label: 'Contacto emergencia', check: p => !!p.emergency_contact_name || !!p.emergency_contact_phone },
-      { label: 'Peso', check: p => !!p.weight },
-      { label: 'Altura', check: p => !!p.height },
-      { label: 'EPS', check: p => !!p.health_insurance },
-    ];
-    return fields.map(f => {
-      const count = players.filter(f.check).length;
-      return { label: f.label, value: count, pct: Math.round((count / t) * 100), total: t, color: '#00e676' };
-    });
+    return getDataCoverage(players).map(d => ({ ...d, pct: Math.round((d.count / d.total) * 100), color: '#00e676' }));
   }, [players]);
 
   return (

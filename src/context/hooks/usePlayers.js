@@ -5,22 +5,8 @@ import apisupabase from '../../data/supabaseApi.js';
 import { SYSTEM_ROLES, EQUIPOS_LABELS } from '../constants';
 import { calculateAttributes } from '../../engine/attributeCalculator.js';
 import { playerSchema } from '../../schemas/player.js';
-
-const generateId = (prefix = '') => {
-  if (typeof crypto !== 'undefined' && crypto.randomUUID) {
-    return prefix + crypto.randomUUID();
-  }
-  return prefix + 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
-    const r = (Math.random() * 16) | 0;
-    const v = c === 'x' ? r : (r & 0x3) | 0x8;
-    return v.toString(16);
-  });
-};
-
-const sanitize = (value) => {
-  if (typeof value !== 'string') return value;
-  return value.replace(/[<>]/g, '');
-};
+import { parseFullName } from '../../utils/nameParser.js';
+import { generateId, sanitize } from '../../utils/ids.js';
 
 const normalizePlayer = (p) => ({
   ...p,
@@ -51,10 +37,21 @@ export function usePlayers(activeTeam, sendLocalNotification, pushPlayerToSupaba
     }
     const computedAttrs = player.attributes || calculateAttributes(player);
     const today = new Date().toISOString().split('T')[0];
+
+    const parsed = player.name ? parseFullName(player.name) : null;
+    const firstName = player.firstName ?? parsed?.firstName ?? '';
+    const middleName = player.middleName ?? parsed?.middleName ?? null;
+    const lastName = player.lastName ?? parsed?.lastName ?? '';
+    const secondLastName = player.secondLastName ?? parsed?.secondLastName ?? null;
+
     const newPlayer = {
       ...player,
       id: generateId(),
-      name: sanitize(player.name),
+      name: sanitize(player.name || [firstName, middleName, lastName, secondLastName].filter(Boolean).join(' ')),
+      firstName: sanitize(firstName) || null,
+      middleName: sanitize(middleName) || null,
+      lastName: sanitize(lastName) || null,
+      secondLastName: sanitize(secondLastName) || null,
       apodo: sanitize(player.apodo),
       estado: player.estado || 'activo',
       attributes: computedAttrs,
@@ -79,9 +76,17 @@ export function usePlayers(activeTeam, sendLocalNotification, pushPlayerToSupaba
   }, [activeTeam, sendLocalNotification, pushPlayerToSupabase]);
 
   const updatePlayer = useCallback(async (updatedPlayer) => {
+    let parsed = null;
+    if (updatedPlayer.name && !updatedPlayer.firstName) {
+      parsed = parseFullName(updatedPlayer.name);
+    }
     const safePlayer = {
       ...updatedPlayer,
       name: sanitize(updatedPlayer.name),
+      firstName: sanitize(updatedPlayer.firstName ?? parsed?.firstName) || null,
+      middleName: sanitize(updatedPlayer.middleName ?? parsed?.middleName) || null,
+      lastName: sanitize(updatedPlayer.lastName ?? parsed?.lastName) || null,
+      secondLastName: sanitize(updatedPlayer.secondLastName ?? parsed?.secondLastName) || null,
       apodo: sanitize(updatedPlayer.apodo),
       contacto: {
         phone: sanitize(updatedPlayer.contacto?.phone || ''),
@@ -119,33 +124,74 @@ export function usePlayers(activeTeam, sendLocalNotification, pushPlayerToSupaba
     }
   }, [players, sendLocalNotification, user?.id]);
 
-  const recordAttendance = useCallback((sessionDate, attendanceList) => {
-    const records = [];
+  const recordAttendance = useCallback(async (sessionDate, attendanceList, eventId) => {
     const statusMap = { presente: 'present', tarde: 'late', falta_injustificada: 'absent_unjustified', falta_justificada: 'absent_justified' };
+    const penaltyByStatus = { present: 0, late: 15, absent_unjustified: 50, absent_justified: 0 };
+    const reverseStatusMap = Object.fromEntries(Object.entries(statusMap).map(([k, v]) => [v, k]));
+
+    let existingByPlayer = {};
+    if (eventId) {
+      const { data: existing } = await supabase
+        .from('attendance')
+        .select('player_id, status')
+        .eq('event_id', eventId);
+      if (existing) {
+        existing.forEach(r => { existingByPlayer[r.player_id] = r.status; });
+      }
+    }
+
+    const records = Object.entries(attendanceList).map(([playerId, status]) => ({
+      player_id: playerId,
+      event_date: sessionDate,
+      status: statusMap[status] || status,
+      event_id: eventId || null
+    }));
+
+    if (records.length > 0) {
+      const { error } = await supabase.from('attendance').upsert(records, { onConflict: 'player_id,event_id' });
+      if (error) {
+        handleError(error, 'usePlayers.recordAttendance', { notifyUser: true });
+        return false;
+      }
+    }
+
     setPlayers(prev => prev.map(player => {
       if (player.teamCategory !== activeTeam) return player;
-      const status = attendanceList[player.id];
-      if (!status) return player;
+      const uiStatus = attendanceList[player.id];
+      if (!uiStatus) return player;
+
+      const existingDbStatus = existingByPlayer[player.id];
+      const existingUiStatus = existingDbStatus ? reverseStatusMap[existingDbStatus] : null;
+
       const newAttendance = { ...player.attendance };
-      newAttendance.total += 1;
-      const newPenalties = { ...player.penalties };
-      if (status === 'presente') {
-        newAttendance.present += 1;
-      } else if (status === 'tarde') {
-        newAttendance.late += 1;
-        newPenalties.burpees += 15;
-      } else if (status === 'falta_injustificada') {
-        newAttendance.absentUnjustified += 1;
-        newPenalties.burpees += 50;
-        newPenalties.cones = true;
-      } else if (status === 'falta_justificada') {
-        newAttendance.absentJustified += 1;
+      if (!existingUiStatus) {
+        newAttendance.total += 1;
+        if (uiStatus === 'presente') newAttendance.present += 1;
+        else if (uiStatus === 'tarde') newAttendance.late += 1;
+        else if (uiStatus === 'falta_injustificada') newAttendance.absentUnjustified += 1;
+        else if (uiStatus === 'falta_justificada') newAttendance.absentJustified += 1;
+      } else {
+        if (existingUiStatus === 'presente') newAttendance.present -= 1;
+        else if (existingUiStatus === 'tarde') newAttendance.late -= 1;
+        else if (existingUiStatus === 'falta_injustificada') newAttendance.absentUnjustified -= 1;
+        else if (existingUiStatus === 'falta_justificada') newAttendance.absentJustified -= 1;
+        if (uiStatus === 'presente') newAttendance.present += 1;
+        else if (uiStatus === 'tarde') newAttendance.late += 1;
+        else if (uiStatus === 'falta_injustificada') newAttendance.absentUnjustified += 1;
+        else if (uiStatus === 'falta_justificada') newAttendance.absentJustified += 1;
       }
-      records.push({ player_id: player.id, event_date: sessionDate, status: statusMap[status] || status });
+
+      const newPenalties = { ...player.penalties };
+      const oldBurpees = penaltyByStatus[existingDbStatus] || 0;
+      const newBurpees = penaltyByStatus[statusMap[uiStatus]] || 0;
+      newPenalties.burpees = Math.max(0, newPenalties.burpees - oldBurpees + newBurpees);
+      if (uiStatus === 'falta_injustificada') newPenalties.cones = true;
+
       return { ...player, attendance: newAttendance, penalties: newPenalties };
     }));
-    records.forEach(r => supabase.from('attendance').upsert(r).then(() => {}, () => {}));
-    sendLocalNotification('Asistencia Guardada', `Se registro la asistencia del entrenamiento del ${sessionDate}.`);
+
+    sendLocalNotification('Asistencia Guardada', `Se registró la asistencia del evento del ${sessionDate}.`);
+    return true;
   }, [activeTeam, sendLocalNotification]);
 
   const recordMatchInfractions = useCallback((matchDate, infractionsList) => {
@@ -260,8 +306,16 @@ export function usePlayers(activeTeam, sendLocalNotification, pushPlayerToSupaba
     setPlayers(prev => prev.map(p => {
       if (p.id !== playerId) return p;
       const today = new Date().toISOString().split('T')[0];
-      supabase.from('workout_logs').upsert({ player_id: playerId, workout_date: today, type: workoutData.type || 'general', exercises: workoutData.ejercicios || [], completed: true }).then(() => {}).catch(err => handleError(err, 'usePlayers', { notifyUser: true }));
-      const newLog = { id: generateId('wl_'), date: today, ejercicios: workoutData.ejercicios || [], type: workoutData.type || 'general' };
+      supabase.from('workout_logs').upsert({
+        player_id: playerId, workout_date: today,
+        routine_name: workoutData.routineName || workoutData.routine || null,
+        category: workoutData.type || 'general',
+        exercises: workoutData.ejercicios || [],
+        exercise_logs: workoutData.exerciseLogs || [],
+        plan_id: workoutData.planId || null,
+        completed: true,
+      }).then(() => {}).catch(err => handleError(err, 'usePlayers', { notifyUser: true }));
+      const newLog = { id: generateId('wl_'), date: today, ejercicios: workoutData.ejercicios || [], exerciseLogs: workoutData.exerciseLogs || [], routine: workoutData.routineName || workoutData.routine || null, category: workoutData.type || 'general', completed: true };
       return { ...p, workoutLog: [...(p.workoutLog || []), newLog] };
     }));
   }, []);
@@ -312,7 +366,7 @@ export function usePlayers(activeTeam, sendLocalNotification, pushPlayerToSupaba
       playerName = p.name;
       const current = p.memberships || { paid: 0, due: 0 };
       const newPaid = (current.paid || 0) + amount;
-      updatedPlayer = { ...p, memberships: { paid: newPaid, due: mensualidadBase, lastPayment: today, lastAmount: amount } };
+      updatedPlayer = { ...p, memberships: { paid: newPaid, due: current.due || mensualidadBase, lastPayment: today, lastAmount: amount } };
       return updatedPlayer;
     }));
     if (updatedPlayer) pushPlayerToSupabase(updatedPlayer);

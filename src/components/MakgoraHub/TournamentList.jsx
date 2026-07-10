@@ -2,7 +2,7 @@ import React from 'react';
 import { TournamentCard } from './TournamentCard';
 import { CreateTournamentForm } from './CreateTournamentForm';
 
-export function TournamentList({ tournaments, showCreate, teamName, onCreateToggle, onCreate, onSelect }) {
+export function TournamentList({ tournaments, showCreate, teamName, onCreateToggle, onCreate, onSelect, onEdit, teams, onTeamCreated }) {
   return (
     <div>
       <div style={{ marginBottom: '15px' }}>
@@ -11,14 +11,15 @@ export function TournamentList({ tournaments, showCreate, teamName, onCreateTogg
         </button>
       </div>
 
-      {showCreate && <CreateTournamentForm onCreate={onCreate} />}
+      {showCreate && <CreateTournamentForm teams={teams || []} onCreate={onCreate} onCancel={onCreateToggle} />}
 
       {tournaments.map(t => (
-        <TournamentCard
+          <TournamentCard
           key={t.id}
           tournament={t}
           teamName={teamName}
           onSelect={onSelect}
+          onEdit={onEdit}
         />
       ))}
     </div>

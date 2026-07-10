@@ -205,6 +205,7 @@ function MatchInvitation() {
           </div>
         )}
 
+        {invitation.response !== 'declined' && (
         <div className="glass-panel" style={{ padding: '20px', borderRadius: 'var(--radius-md)' }}>
           <h3 style={{ color: 'var(--color-primary)', fontSize: '0.9rem', fontWeight: 700, marginBottom: '15px', fontFamily: 'Outfit' }}>
             Registra tus Guerreros
@@ -286,6 +287,7 @@ function MatchInvitation() {
             </div>
           )}
         </div>
+        )}
 
         <footer style={{ textAlign: 'center', padding: '15px', fontSize: '0.7rem', color: 'var(--color-text-muted)' }}>
           Rugby Orcos Negros 2026. Fuerza, Honor y Tercer Tiempo.

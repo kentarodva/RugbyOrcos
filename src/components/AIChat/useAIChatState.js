@@ -3,6 +3,7 @@ import { ClubContext } from '../../context/ClubContext';
 import { useAuth } from '../../context/AuthContext';
 import { supabase } from '../../supabaseClient.js';
 import { isAnyAIConfigured, getModelConfig, streamChatWithAI, chatWithAI } from '../../engine/multiProviderCoach';
+import { isLoaded } from '../../data/clubSettings';
 import { analyzeMatch } from '../../engine/matchAnalyzer';
 import { getActivePlan } from '../../engine/trainingPlanService';
 import { useToast } from '../../context/ToastContext';
@@ -61,8 +62,17 @@ export function useAIChatState() {
     getActivePlan(player.id).then(setActivePlan).catch(() => {});
   }, [player?.id]);
 
-  const configured = isAnyAIConfigured();
-  const modelConfig = getModelConfig();
+  const [settingsReady, setSettingsReady] = useState(isLoaded());
+  useEffect(() => {
+    if (settingsReady) return;
+    const check = setInterval(() => {
+      if (isLoaded()) { setSettingsReady(true); clearInterval(check); }
+    }, 500);
+    return () => clearInterval(check);
+  }, [settingsReady]);
+
+  const configured = settingsReady ? isAnyAIConfigured() : false;
+  const modelConfig = settingsReady ? getModelConfig() : { activeProviderId: 'auto', available: [] };
   const activeProvId = modelConfig.activeProviderId;
   const activeProvInfo = configured
     ? (activeProvId !== 'auto' ? modelConfig.current : modelConfig.available[0])
@@ -293,6 +303,7 @@ export function useAIChatState() {
     analyzingMatch, setAnalyzingMatch,
     messagesEndRef,
     configured,
+    settingsReady,
     activeProvInfo,
     teamFixtures,
     teamSchedule: schedule,

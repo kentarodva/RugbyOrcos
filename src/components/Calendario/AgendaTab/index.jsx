@@ -22,7 +22,7 @@ function AgendaTab({
   deleteScheduleEvent,
   onQuickCreate,
   currentTeamCategory,
-  onDetailEvent,
+  onDetailEvent: _onDetailEvent,
   detailEvent,
   setDetailEvent,
   players,
@@ -51,6 +51,7 @@ function AgendaTab({
   return (
     <div className="animated-fade" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '20px', width: '100%' }}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+        {!showWeeklyView && !showMonthlyView && (
         <AgendaList
           events={teamEvents}
           onDelete={deleteScheduleEvent}
@@ -63,8 +64,25 @@ function AgendaTab({
           showMonthly={showMonthlyView}
           onDetail={handleOpenDetail}
         />
-        {showWeeklyView && <WeeklyView teamEvents={teamEvents} />}
-        {showMonthlyView && <MonthlyView teamEvents={teamEvents} />}
+        )}
+        {showWeeklyView && (
+          <>
+            <button onClick={() => setShowWeeklyView(false)} className="btn-outline"
+              style={{ padding: '6px 14px', fontSize: '0.8rem', borderColor: 'var(--color-blue)', color: 'var(--color-blue)' }}>
+              ← Volver a Lista
+            </button>
+            <WeeklyView teamEvents={teamEvents} />
+          </>
+        )}
+        {showMonthlyView && (
+          <>
+            <button onClick={() => setShowMonthlyView(false)} className="btn-outline"
+              style={{ padding: '6px 14px', fontSize: '0.8rem', borderColor: 'var(--color-gold)', color: 'var(--color-gold)' }}>
+              ← Volver a Lista
+            </button>
+            <MonthlyView teamEvents={teamEvents} />
+          </>
+        )}
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>

@@ -1,48 +1,30 @@
 import React, { useRef, useState } from 'react';
 import AVATARS, { getAvatarPath } from '../data/mythicalAvatars';
+import { PhotoEditor } from './PhotoEditor';
 
-const COMPRESS_WIDTH = 512;
-const COMPRESS_QUALITY = 0.8;
-
-function compressToWebP(file) {
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    img.onload = () => {
-      const canvas = document.createElement('canvas');
-      const ratio = COMPRESS_WIDTH / img.width;
-      canvas.width = COMPRESS_WIDTH;
-      canvas.height = img.height * ratio;
-      const ctx = canvas.getContext('2d');
-      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-      canvas.toBlob(blob => {
-        if (blob) resolve(blob);
-        else reject(new Error('Compression failed'));
-      }, 'image/webp', COMPRESS_QUALITY);
-    };
-    img.onerror = () => reject(new Error('Image load failed'));
-    img.src = URL.createObjectURL(file);
-  });
-}
-
-export function AvatarPicker({ currentAvatarId, onSelect, onPhoto, onClear, onClose }) {
+export function AvatarPicker({ currentAvatarId, hasPhoto, photoUrl, onSelect, onPhoto, onClear, onClose }) {
   const fileInputRef = useRef(null);
-  const [photoPreview, setPhotoPreview] = useState(null);
+  const [editingFile, setEditingFile] = useState(null);
+  const [reEditing, setReEditing] = useState(false);
 
-  const handleFileChange = async (e) => {
+  const handleFileChange = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    try {
-      const compressed = await compressToWebP(file);
-      onPhoto(compressed);
-      onClose();
-    } catch {
-      // fallback: upload original
-      onPhoto(file);
-      onClose();
-    }
+    setEditingFile(file);
+    e.target.value = '';
   };
 
+  const handlePhotoSave = (blob) => {
+    setEditingFile(null);
+    setReEditing(false);
+    onPhoto(blob);
+    onClose();
+  };
+
+  const handleReEdit = () => setReEditing(true);
+
   return (
+    <>
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content animated-slide" style={{ maxWidth: '600px' }} onClick={e => e.stopPropagation()}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
@@ -50,7 +32,7 @@ export function AvatarPicker({ currentAvatarId, onSelect, onPhoto, onClear, onCl
           <button onClick={onClose} className="btn-outline" style={{ padding: '4px 10px', fontSize: '0.75rem' }}>✕</button>
         </div>
 
-        <div style={{ display: 'flex', gap: '10px', marginBottom: '16px' }}>
+        <div style={{ display: 'flex', gap: '10px', marginBottom: '16px', flexWrap: 'wrap' }}>
           <input
             ref={fileInputRef}
             type="file"
@@ -58,12 +40,21 @@ export function AvatarPicker({ currentAvatarId, onSelect, onPhoto, onClear, onCl
             style={{ display: 'none' }}
             onChange={handleFileChange}
           />
-          <button onClick={() => fileInputRef.current.click()} className="btn-neon" style={{ flex: 1, padding: '10px', fontSize: '0.85rem' }}>
-            📷 Subir Foto
+          <button onClick={() => fileInputRef.current.click()} className="btn-neon" style={{ flex: 1, padding: '10px', fontSize: '0.85rem', minWidth: '120px' }}>
+            📷 {hasPhoto ? 'Nueva Foto' : 'Subir Foto'}
           </button>
-          {currentAvatarId && (
-            <button onClick={() => { onClear(); onClose(); }} className="btn-outline" style={{ padding: '10px', fontSize: '0.8rem', color: 'var(--color-red)' }}>
-              Quitar Avatar
+          {hasPhoto && (
+            <button onClick={handleReEdit} className="btn-outline" style={{ padding: '10px', fontSize: '0.82rem', minWidth: '120px' }}>
+              ✂️ Re-editar Foto
+            </button>
+          )}
+          {(currentAvatarId || hasPhoto) && (
+            <button onClick={() => {
+              if (currentAvatarId) onSelect(null);
+              if (hasPhoto) onClear();
+              onClose();
+            }} className="btn-outline" style={{ padding: '10px', fontSize: '0.8rem', color: 'var(--color-red)' }}>
+              {currentAvatarId ? 'Quitar Avatar' : 'Quitar Foto'}
             </button>
           )}
         </div>
@@ -97,5 +88,20 @@ export function AvatarPicker({ currentAvatarId, onSelect, onPhoto, onClear, onCl
         </div>
       </div>
     </div>
+    {editingFile && (
+      <PhotoEditor
+        file={editingFile}
+        onSave={handlePhotoSave}
+        onClose={() => setEditingFile(null)}
+      />
+    )}
+    {reEditing && photoUrl && (
+      <PhotoEditor
+        photoUrl={photoUrl}
+        onSave={handlePhotoSave}
+        onClose={() => setReEditing(false)}
+      />
+    )}
+    </>
   );
 }

@@ -2,6 +2,7 @@ import { supabase } from '../supabaseClient.js';
 
 const cache = new Map();
 let loaded = false;
+let loadPromise = null;
 
 const DEFAULTS = {
   ai_provider: 'auto',
@@ -12,6 +13,9 @@ const DEFAULTS = {
 };
 
 export function getSetting(key) {
+  if (!loaded && !loadPromise) {
+    loadPromise = loadSettings().catch(() => { loadPromise = null; loaded = false; });
+  }
   const val = cache.get(key);
   return val !== undefined ? val : DEFAULTS[key] ?? null;
 }

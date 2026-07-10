@@ -4,22 +4,7 @@ import apisupabase from '../../data/supabaseApi.js';
 import { wrapCatch, handleError } from '../../utils/errorHandler';
 import { formatLocalDate } from '../../utils/dates.js';
 import { EQUIPOS_LABELS } from '../constants';
-
-const generateId = (prefix = '') => {
-  if (typeof crypto !== 'undefined' && crypto.randomUUID) {
-    return prefix + crypto.randomUUID();
-  }
-  return prefix + 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
-    const r = (Math.random() * 16) | 0;
-    const v = c === 'x' ? r : (r & 0x3) | 0x8;
-    return v.toString(16);
-  });
-};
-
-const sanitize = (value) => {
-  if (typeof value !== 'string') return value;
-  return value.replace(/[<>]/g, '');
-};
+import { generateId, sanitize } from '../../utils/ids.js';
 
 export function useSchedule(activeTeam, sendLocalNotification, scheduleReminder, pushEntityToSupabase, user) {
   const [schedule, setSchedule] = useState(() => []);

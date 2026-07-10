@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import { supabase } from '../../supabaseClient';
 import ExerciseIcon, { CATEGORY_LABELS, SUBCATEGORY_LABELS } from './ExerciseIcon';
 import ExerciseForm from './ExerciseForm';
+import { getExerciseCatalog } from '../../services/trainingService';
 
 const DIFFICULTY_LABELS = { 1: 'Muy Fácil', 2: 'Fácil', 3: 'Media', 4: 'Difícil', 5: 'Extrema' };
 
@@ -15,10 +15,10 @@ function ExercisePicker({ onSelect, onClose, allowCreate }) {
 
   useEffect(() => {
     setLoading(true);
-    supabase.from('exercise_catalog').select('*').order('name_technical').then(({ data, error }) => {
-      if (!error && data) setExercises(data);
+    getExerciseCatalog().then(data => {
+      setExercises(data);
       setLoading(false);
-    });
+    }).catch(() => setLoading(false));
   }, []);
 
   const categories = ['all', ...new Set(exercises.map(e => e.category))];

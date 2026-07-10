@@ -9,7 +9,18 @@ if ((!supabaseUrl || !supabaseAnonKey) && import.meta.env.DEV) {
   );
 }
 
+const customFetch = (url, opts) => {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 15000);
+  return fetch(url, { ...opts, signal: controller.signal })
+    .finally(() => clearTimeout(timeout));
+};
+
 export const supabase = createClient(
   supabaseUrl || 'https://placeholder.supabase.co',
-  supabaseAnonKey || 'placeholder-key'
+  supabaseAnonKey || 'placeholder-key',
+  {
+    auth: { flowType: 'pkce' },
+    global: { fetch: customFetch },
+  }
 );

@@ -28,11 +28,8 @@ function AgendaForm({ initialData, onClose, onSave, existingEvents, currentTeamC
     scopeValue: initialData?.scopeValue || {},
   });
 
-  const [conflicts, setConflicts] = useState([]);
-
   const isEditing = !!initialData;
   const isCustom = form.recurrence === 'custom';
-  const isMultiDay = form.endDate && form.endDate > form.date;
 
   const set = (key) => (e) => setForm(prev => ({ ...prev, [key]: e.target.value }));
 

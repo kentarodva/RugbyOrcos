@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext.jsx';
 import { supabase } from '../supabaseClient.js';
+import { parseSupabaseError } from '../utils/errorHandler.js';
 
 function Login() {
   const { signIn, signUp, checkFirstRun } = useAuth();
@@ -10,6 +11,8 @@ function Login() {
   const [isFirstRun, setIsFirstRun] = useState(false);
   const [showRegister, setShowRegister] = useState(false);
   const [error, setError] = useState('');
+  const [errorType, setErrorType] = useState('');
+  const [retryable, setRetryable] = useState(false);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -18,7 +21,7 @@ function Login() {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    setError('');
+    setError(''); setErrorType(''); setRetryable(false);
     if (!credential.trim() || !password.trim()) { setError('Completa todos los campos.'); return; }
 
     setLoading(true);
@@ -26,20 +29,54 @@ function Login() {
 
     if (!email.includes('@')) {
       const userQuery = email.toLowerCase().trim();
-      const { data: players } = await supabase
-        .from('players')
-        .select('first_name, last_name, username, nickname, email, apodo')
-        .or(`username.ilike.%${userQuery}%,username.eq.${userQuery},nickname.ilike.%${userQuery}%,nickname.eq.${userQuery}`)
-        .limit(5);
+      let players;
+      try {
+        const { data } = await supabase
+          .from('players')
+          .select('first_name, middle_name, last_name, second_last_name, username, nickname, email')
+          .or(`username.ilike.%${userQuery}%,username.eq.${userQuery},nickname.ilike.%${userQuery}%,nickname.eq.${userQuery},email.ilike.%${userQuery}%`)
+          .not('username', 'is', null)
+          .limit(10);
+        players = data;
+      } catch (fetchErr) {
+        const parsed = parseSupabaseError(fetchErr);
+        setError(parsed.message);
+        setErrorType(parsed.type);
+        setRetryable(parsed.retryable);
+        setLoading(false);
+        return;
+      }
 
       let player = null;
+      let suggestion = null;
       if (players?.length > 0) {
         player = players.find(p =>
           p.username === userQuery ||
           p.nickname === userQuery ||
-          p.apodo === userQuery ||
-          `${p.first_name} ${p.last_name}`.toLowerCase() === userQuery
+          p.email === `${userQuery}@orcos.club`
         );
+        if (!player) {
+          const lev = (a, b) => {
+            const m = a.length, n = b.length;
+            if (Math.abs(m - n) > 1) return 99;
+            const dp = Array.from({ length: m + 1 }, () => new Array(n + 1).fill(0));
+            for (let i = 0; i <= m; i++) dp[i][0] = i;
+            for (let j = 0; j <= n; j++) dp[0][j] = j;
+            for (let i = 1; i <= m; i++) {
+              for (let j = 1; j <= n; j++) {
+                dp[i][j] = a[i-1] === b[j-1]
+                  ? dp[i-1][j-1]
+                  : 1 + Math.min(dp[i-1][j], dp[i][j-1], dp[i-1][j-1]);
+              }
+            }
+            return dp[m][n];
+          };
+          const fuzzy = players.find(p => p.username && lev(p.username, userQuery) <= 1);
+          if (fuzzy) {
+            player = fuzzy;
+            suggestion = fuzzy.username;
+          }
+        }
         if (!player && players.length === 1) player = players[0];
       }
 
@@ -55,6 +92,12 @@ function Login() {
         return;
       }
 
+      if (suggestion) {
+        setError(`¿Quisiste decir "${suggestion}"?`);
+        setLoading(false);
+        return;
+      }
+
       email = player.email;
     }
 
@@ -62,15 +105,16 @@ function Login() {
     setLoading(false);
 
     if (err) {
-      setError(err.message === 'Invalid login credentials'
-        ? 'Usuario o contrasena incorrectos.'
-        : err.message);
+      const parsed = parseSupabaseError(err);
+      setError(parsed.message);
+      setErrorType(parsed.type);
+      setRetryable(parsed.retryable);
     }
   };
 
   const handleRegister = async (e) => {
     e.preventDefault();
-    setError('');
+    setError(''); setErrorType(''); setRetryable(false);
     if (!credential.trim() || !password.trim() || !displayName.trim()) { setError('Completa todos los campos.'); return; }
     if (password.length < 6) { setError('La contrasena debe tener al menos 6 caracteres.'); return; }
     if (!credential.includes('@')) { setError('Para fundar el Reino necesitas un email valido.'); return; }
@@ -80,8 +124,10 @@ function Login() {
     setLoading(false);
 
     if (err) {
-      if (err.message.includes('already registered')) setError('Este email ya esta registrado.');
-      else setError(err.message);
+      const parsed = parseSupabaseError(err);
+      setError(parsed.message);
+      setErrorType(parsed.type);
+      setRetryable(parsed.retryable);
     } else {
       setShowRegister(false);
       setIsFirstRun(false);
@@ -155,9 +201,27 @@ function Login() {
           </div>
 
           {error && (
-            <p style={{ color: 'var(--color-red)', fontSize: '0.8rem', textAlign: 'center', fontWeight: 600 }}>
-              {error}
-            </p>
+            <div style={{ textAlign: 'center' }}>
+              <p style={{ color: 'var(--color-red)', fontSize: '0.8rem', fontWeight: 600, marginBottom: errorType === 'server_offline' ? '4px' : 0 }}>
+                {error}
+              </p>
+              {errorType === 'server_offline' && (
+                <p style={{ fontSize: '0.65rem', color: 'var(--color-text-muted)', marginTop: '4px' }}>
+                  Supabase hiberna proyectos inactivos en free tier. Revisa{' '}
+                  <a href="https://supabase.com/dashboard" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--color-gold)' }}>supabase.com/dashboard</a>
+                  {' '}y haz clic en "Resume project".
+                </p>
+              )}
+              {retryable && (
+                <button onClick={showRegister ? handleRegister : handleLogin} style={{
+                  marginTop: '8px', padding: '6px 14px', fontSize: '0.78rem',
+                  background: 'none', border: '1px solid var(--color-gold)', borderRadius: '6px',
+                  color: 'var(--color-gold)', cursor: 'pointer', fontWeight: 700
+                }}>
+                  🔄 Reintentar
+                </button>
+              )}
+            </div>
           )}
 
           <button type="submit" className="btn-neon" disabled={loading} style={{
@@ -171,6 +235,7 @@ function Login() {
         </form>
 
         {!showRegister && (
+          <>
           <button onClick={() => setShowRegister(true)}
             className="btn-outline" style={{
               width: '100%', justifyContent: 'center', padding: '12px',
@@ -178,6 +243,23 @@ function Login() {
             }}>
             Fundar un Nuevo Reino
           </button>
+          <button onClick={async () => {
+            const email = prompt('Ingresa tu email para recuperar tu contrasena:');
+            if (!email || !email.includes('@')) return;
+            try {
+              const { error } = await supabase.auth.resetPasswordForEmail(email, {
+                redirectTo: window.location.origin,
+              });
+              if (error) throw error;
+              alert('Si el email esta registrado, recibiras un link para restablecer tu contrasena.');
+            } catch (err) {
+              alert('Error: ' + err.message);
+            }
+          }}
+            style={{ background: 'none', border: 'none', color: 'var(--color-text-muted)', cursor: 'pointer', fontSize: '0.75rem', textDecoration: 'underline', marginTop: '8px' }}>
+            ¿Olvidaste tu contrasena?
+          </button>
+          </>
         )}
 
         {showRegister && (

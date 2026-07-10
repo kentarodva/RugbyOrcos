@@ -16,8 +16,4 @@ export const CHAT_EXAMPLES = {
   ]
 };
 
-export const MODE_PLACEHOLDERS = {
-  general: 'Pregunta sobre rugby, táctica o reglas...',
-  tactico: 'Consulta táctica específica...',
-  reglas: 'Pregunta sobre el reglamento...'
-};
+

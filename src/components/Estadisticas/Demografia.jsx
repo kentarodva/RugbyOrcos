@@ -1,91 +1,35 @@
 import React, { useMemo } from 'react';
 import { DonutChart, HorizontalBar, AGE_COLORS, CAT_COLORS, STATUS_COLORS, COLORS } from './charts.jsx';
+import {
+  getAgeDistribution, getCategoryDistribution, getStatusDistribution,
+  getExperienceDistribution, getPositionDistribution, getAgeByPositionMatrix,
+} from '../../services/statsService';
 
 export default function Demografia({ players }) {
   const ageBuckets = useMemo(() => {
-    const b = { '14-17': 0, '18-22': 0, '23-27': 0, '28-32': 0, '33-40': 0, '40+': 0 };
-    for (const p of players) {
-      const a = p._meta?.age ?? p.age;
-      if (!a) continue;
-      if (a < 18) b['14-17']++;
-      else if (a < 23) b['18-22']++;
-      else if (a < 28) b['23-27']++;
-      else if (a < 33) b['28-32']++;
-      else if (a < 40) b['33-40']++;
-      else b['40+']++;
-    }
-    return Object.entries(b).map(([label, value], i) => ({ label, value, color: AGE_COLORS[i] }));
+    return getAgeDistribution(players).map((d, i) => ({ ...d, color: AGE_COLORS[i] }));
   }, [players]);
 
   const cats = useMemo(() => {
-    const m = {};
-    for (const p of players) {
-      const c = (p.teamCategory || 'sin_categoria').replace('orcos_', '');
-      m[c] = (m[c] || 0) + 1;
-    }
-    return Object.entries(m).map(([label, value]) => ({ label, value, color: CAT_COLORS[label] || '#888' })).sort((a, b) => b.value - a.value);
+    return getCategoryDistribution(players).map(d => ({ ...d, color: CAT_COLORS[d.label] || '#888' }));
   }, [players]);
 
   const statuses = useMemo(() => {
-    const m = {};
-    for (const p of players) {
-      const s = p.estado || 'activo';
-      m[s] = (m[s] || 0) + 1;
-    }
-    return Object.entries(m).map(([label, value]) => ({ label, value, color: STATUS_COLORS[label] || '#888' }));
+    return getStatusDistribution(players).map(d => ({ ...d, color: STATUS_COLORS[d.label] || '#888' }));
   }, [players]);
 
   const years = useMemo(() => {
-    const buckets = { '0-1 año': 0, '2-3 años': 0, '4-5 años': 0, '6-10 años': 0, '10+ años': 0 };
-    const currentYear = 2026;
-    for (const p of players) {
-      const sy = p._meta?.startYear;
-      if (!sy) continue;
-      const exp = currentYear - sy;
-      if (exp <= 1) buckets['0-1 año']++;
-      else if (exp <= 3) buckets['2-3 años']++;
-      else if (exp <= 5) buckets['4-5 años']++;
-      else if (exp <= 10) buckets['6-10 años']++;
-      else buckets['10+ años']++;
-    }
-    return Object.entries(buckets).map(([label, value]) => ({ label, value, color: COLORS[Math.abs(label.split('').reduce((s, c) => s + c.charCodeAt(0), 0)) % COLORS.length] }));
-  }, [players]);
-
-  const posiciones = useMemo(() => {
-    const m = {};
-    for (const p of players) {
-      const pos = p.posicion || 'Sin posición';
-      m[pos] = (m[pos] || 0) + 1;
-    }
-    return Object.entries(m).sort((a, b) => b[1] - a[1]).map(([label, value], i) => ({
-      label, value, color: COLORS[i % COLORS.length],
+    return getExperienceDistribution(players).map(d => ({
+      ...d,
+      color: COLORS[Math.abs(d.label.split('').reduce((s, c) => s + c.charCodeAt(0), 0)) % COLORS.length],
     }));
   }, [players]);
 
-  const edadPosTable = useMemo(() => {
-    const ageKeys = ['14-17', '18-22', '23-27', '28-32', '33-40', '40+'];
-    const m = {};
-    for (const p of players) {
-      const pos = p.posicion || 'Sin posición';
-      const a = p._meta?.age ?? p.age;
-      if (!a) continue;
-      let range;
-      if (a < 18) range = '14-17';
-      else if (a < 23) range = '18-22';
-      else if (a < 28) range = '23-27';
-      else if (a < 33) range = '28-32';
-      else if (a < 40) range = '33-40';
-      else range = '40+';
-      if (!m[pos]) m[pos] = {};
-      m[pos][range] = (m[pos][range] || 0) + 1;
-    }
-    const positions = Object.keys(m).sort((a, b) => {
-      const sumA = ageKeys.reduce((s, k) => s + (m[a][k] || 0), 0);
-      const sumB = ageKeys.reduce((s, k) => s + (m[b][k] || 0), 0);
-      return sumB - sumA;
-    });
-    return { rows: m, keys: ageKeys, positions };
+  const posiciones = useMemo(() => {
+    return getPositionDistribution(players).map((d, i) => ({ ...d, color: COLORS[i % COLORS.length] }));
   }, [players]);
+
+  const edadPosTable = useMemo(() => getAgeByPositionMatrix(players), [players]);
 
   return (
     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '14px' }}>

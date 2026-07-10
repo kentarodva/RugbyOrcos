@@ -22,10 +22,6 @@ function clamp(v) {
   return Math.max(10, Math.min(100, Math.round(v)));
 }
 
-function randomVariation() {
-  return (Math.random() - 0.5) * 6;
-}
-
 export function calculateAttributes(player) {
   const pos = player.posicion || player.position || '';
   const profile = getProfile(pos);
@@ -43,22 +39,18 @@ export function calculateAttributes(player) {
 
   let force = profile.force
     + weightDelta * 40
-    + heightDelta * 15
-    + randomVariation();
+    + heightDelta * 15;
 
   let speed = profile.speed
     - weightDelta * 40
-    - heightDelta * 10
-    + randomVariation();
+    - heightDelta * 10;
 
   let stamina = profile.stamina
     - weightDelta * 20
-    - heightDelta * 8
-    + randomVariation();
+    - heightDelta * 8;
 
   let technique = profile.technique
-    + (age > 28 ? (age - 28) * 1 : 0)
-    + randomVariation();
+    + (age > 28 ? (age - 28) * 1 : 0);
 
   if (gym.squat && weight > 0) {
     const ratio = gym.squat / weight;

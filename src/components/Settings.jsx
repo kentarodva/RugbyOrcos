@@ -3,8 +3,11 @@ import { clearCache, getCacheStats } from '../engine/aiCache';
 import { useToast } from '../context/ToastContext';
 import { supabase } from '../supabaseClient';
 import { registerWebPush, unregisterWebPush, getWebPushStatus } from '../utils/pushNotifications';
+import { getSetting, loadSettings } from '../data/clubSettings';
+import { setProviderKey, isAnyAIConfigured } from '../engine/multiProviderCoach';
 
 function Settings({ onClose, theme, setTheme }) {
+  const { showToast } = useToast();
   const [pushStatus, setPushStatus] = useState({ supported: false, subscribed: false });
 
   useEffect(() => {
@@ -26,11 +29,21 @@ function Settings({ onClose, theme, setTheme }) {
     showToast('Dispositivo desregistrado.', 'info');
     setPushStatus(prev => ({ ...prev, subscribed: false }));
   };
-  const { showToast } = useToast();
   const cacheStats = getCacheStats();
 
   const [passwordForm, setPasswordForm] = useState({ current: '', newPass: '', confirm: '' });
   const [changingPassword, setChangingPassword] = useState(false);
+  const [apiKeys, setApiKeys] = useState({ gemini: '', openrouter: '', deepseek: '' });
+
+  useEffect(() => {
+    loadSettings().then(() => {
+      setApiKeys({
+        gemini: getSetting('gemini_key') || '',
+        openrouter: getSetting('openrouter_key') || '',
+        deepseek: getSetting('deepseek_key') || '',
+      });
+    });
+  }, []);
 
   const handleClearCache = () => {
     clearCache();
@@ -187,6 +200,82 @@ function Settings({ onClose, theme, setTheme }) {
               <strong style={{ color: 'var(--color-text)' }}>Router:</strong> openrouter/free
               {' | '}
               <strong style={{ color: 'var(--color-text)' }}>Modelos:</strong> 26+ gratuitos
+            </div>
+          </div>
+
+          {/* API Keys — Gemini, Groq, DeepSeek */}
+          <div style={{
+            background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border-glass)',
+            padding: '15px', borderRadius: 'var(--radius-md)',
+            display: 'flex', flexDirection: 'column', gap: '12px'
+          }}>
+            <h4 style={{ fontSize: '0.9rem', fontWeight: 800 }}>🧠 Proveedores IA</h4>
+            <p style={{ fontSize: '0.68rem', color: 'var(--color-text-muted)' }}>
+              Las API keys se guardan en la base de datos del club. Todos los miembros usan la misma key.
+            </p>
+
+            {/* Gemini */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ fontSize: '0.78rem', fontWeight: 700 }}>🤖 Gemini 2.5 Flash</span>
+                <span style={{ fontSize: '0.6rem', color: 'var(--color-text-muted)' }}>1,500 req/día · Gratis</span>
+              </div>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <input type="password" value={apiKeys.gemini}
+                  onChange={e => setApiKeys(p => ({ ...p, gemini: e.target.value }))}
+                  placeholder="AIzaSy..." className="form-input"
+                  style={{ flex: 1, padding: '6px 8px', fontSize: '0.72rem' }} />
+                <button onClick={() => { setProviderKey('gemini', apiKeys.gemini); showToast('Key de Gemini guardada.', 'success'); }}
+                  className="btn-neon" style={{ padding: '5px 12px', fontSize: '0.7rem' }}>
+                  {apiKeys.gemini ? 'Actualizar' : 'Guardar'}
+                </button>
+              </div>
+              <a href="https://aistudio.google.com/apikey" target="_blank" rel="noreferrer"
+                style={{ fontSize: '0.6rem', color: 'var(--color-blue)' }}>👉 Conseguir API key gratuita</a>
+            </div>
+
+            <hr style={{ border: 'none', borderTop: '1px solid rgba(255,255,255,0.06)', margin: '2px 0' }} />
+
+            {/* OpenRouter */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ fontSize: '0.78rem', fontWeight: 700 }}>🌐 OpenRouter</span>
+                <span style={{ fontSize: '0.6rem', color: 'var(--color-text-muted)' }}>26+ modelos · HTTP directo</span>
+              </div>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <input type="password" value={apiKeys.openrouter}
+                  onChange={e => setApiKeys(p => ({ ...p, openrouter: e.target.value }))}
+                  placeholder="sk-or-v1-..." className="form-input"
+                  style={{ flex: 1, padding: '6px 8px', fontSize: '0.72rem' }} />
+                <button onClick={() => { setProviderKey('openrouter', apiKeys.openrouter); showToast('Key de OpenRouter guardada.', 'success'); }}
+                  className="btn-neon" style={{ padding: '5px 12px', fontSize: '0.7rem' }}>
+                  {apiKeys.openrouter ? 'Actualizar' : 'Guardar'}
+                </button>
+              </div>
+              <a href="https://openrouter.ai/keys" target="_blank" rel="noreferrer"
+                style={{ fontSize: '0.6rem', color: 'var(--color-blue)' }}>👉 Conseguir API key</a>
+            </div>
+
+            <hr style={{ border: 'none', borderTop: '1px solid rgba(255,255,255,0.06)', margin: '2px 0' }} />
+
+            {/* DeepSeek */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ fontSize: '0.78rem', fontWeight: 700 }}>🐋 DeepSeek V3</span>
+                <span style={{ fontSize: '0.6rem', color: 'var(--color-text-muted)' }}>500 req/día</span>
+              </div>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <input type="password" value={apiKeys.deepseek}
+                  onChange={e => setApiKeys(p => ({ ...p, deepseek: e.target.value }))}
+                  placeholder="sk-..." className="form-input"
+                  style={{ flex: 1, padding: '6px 8px', fontSize: '0.72rem' }} />
+                <button onClick={() => { setProviderKey('deepseek', apiKeys.deepseek); showToast('Key de DeepSeek guardada.', 'success'); }}
+                  className="btn-neon" style={{ padding: '5px 12px', fontSize: '0.7rem' }}>
+                  {apiKeys.deepseek ? 'Actualizar' : 'Guardar'}
+                </button>
+              </div>
+              <a href="https://platform.deepseek.com/api_keys" target="_blank" rel="noreferrer"
+                style={{ fontSize: '0.6rem', color: 'var(--color-blue)' }}>👉 Conseguir API key</a>
             </div>
           </div>
 

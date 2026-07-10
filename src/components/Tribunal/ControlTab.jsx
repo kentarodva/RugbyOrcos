@@ -5,9 +5,12 @@ import PenaltyCard from './PenaltyCard';
 
 function ControlTab({
   teamPlayers,
-  sessionDate,
-  setSessionDate,
+  teamEvents,
   attendanceState,
+  rsvpMap,
+  onMarkConfirmedPresent,
+  selectedEventId,
+  setSelectedEventId,
   handleAttendanceChange,
   handleSaveAttendance,
   matchDate,
@@ -20,6 +23,12 @@ function ControlTab({
   setInfAmarillas,
   infRojas,
   setInfRojas,
+  infBurpeesExtra,
+  setInfBurpeesExtra,
+  infCustomExercise,
+  setInfCustomExercise,
+  infCustomReps,
+  setInfCustomReps,
   infFaultType,
   setInfFaultType,
   infContext,
@@ -35,9 +44,12 @@ function ControlTab({
       <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
 
         <AttendanceForm
-          sessionDate={sessionDate}
-          setSessionDate={setSessionDate}
+          selectedEventId={selectedEventId}
+          onEventChange={setSelectedEventId}
+          teamEvents={teamEvents}
           attendanceState={attendanceState}
+          rsvpMap={rsvpMap}
+          onMarkConfirmedPresent={onMarkConfirmedPresent}
           teamPlayers={teamPlayers}
           onAttendanceChange={handleAttendanceChange}
           onSave={handleSaveAttendance}
@@ -54,6 +66,12 @@ function ControlTab({
           setInfAmarillas={setInfAmarillas}
           infRojas={infRojas}
           setInfRojas={setInfRojas}
+          infBurpeesExtra={infBurpeesExtra}
+          setInfBurpeesExtra={setInfBurpeesExtra}
+          infCustomExercise={infCustomExercise}
+          setInfCustomExercise={setInfCustomExercise}
+          infCustomReps={infCustomReps}
+          setInfCustomReps={setInfCustomReps}
           infFaultType={infFaultType}
           setInfFaultType={setInfFaultType}
           infContext={infContext}
@@ -66,27 +84,21 @@ function ControlTab({
 
       </div>
 
-      <div className="glass-panel" style={{ padding: '25px' }}>
-        <h2 className="neon-text-gold" style={{ fontSize: '1.3rem', fontWeight: 800, fontFamily: 'Outfit', marginBottom: '10px' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+        <h3 style={{ fontSize: '1.1rem', fontWeight: 800, fontFamily: 'Outfit', color: 'var(--color-red)', margin: 0 }}>
           La Redencion del Orco (Deudas Correctivas)
-        </h2>
-        <p style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', marginBottom: '15px' }}>
+        </h3>
+        <p style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)', margin: '0 0 10px 0' }}>
           Los jugadores deben saldar su penitencia fisica ante el clan para poder alinearse en el XV tactico.
         </p>
-
-        {penalizedPlayers.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '40px 0' }}>
-            <span style={{ fontSize: '3rem' }}>🟢</span>
-            <h4 style={{ marginTop: '15px', fontWeight: 700 }}>Tribunal en Paz!</h4>
-            <p style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', marginTop: '5px' }}>
-              No hay deudas de burpees ni de recoger conos pendientes en esta categoria.
-            </p>
-          </div>
+        {penalizedPlayers.length > 0 ? (
+          penalizedPlayers.map(p => (
+            <PenaltyCard key={p.id} player={p} onRedeem={redeemPenalty} />
+          ))
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            {penalizedPlayers.map(p => (
-              <PenaltyCard key={p.id} player={p} onRedeem={redeemPenalty} />
-            ))}
+          <div style={{ textAlign: 'center', padding: '30px', color: 'var(--color-primary)', fontSize: '0.85rem' }}>
+            🟢<br />Tribunal en Paz!<br />
+            <span style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)' }}>No hay deudas de burpees ni de recoger conos pendientes.</span>
           </div>
         )}
       </div>

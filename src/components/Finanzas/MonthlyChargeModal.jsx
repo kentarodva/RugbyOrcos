@@ -3,6 +3,8 @@ import React, { useState, useMemo } from 'react';
 const MONTHS = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
 
 export function MonthlyChargeModal({ players, mensualidadBase, lastMonthlyCharge, onConfirm, onClose }) {
+  const [playerSearch, setPlayerSearch] = useState('');
+
   const [selected, setSelected] = useState(() => {
     const map = {};
     players.forEach(p => {
@@ -17,6 +19,14 @@ export function MonthlyChargeModal({ players, mensualidadBase, lastMonthlyCharge
 
   const selectedCount = useMemo(() => Object.values(selected).filter(Boolean).length, [selected]);
   const totalAmount = selectedCount * mensualidadBase;
+
+  const filteredPlayers = useMemo(() => {
+    if (!playerSearch.trim()) return players;
+    const q = playerSearch.toLowerCase();
+    return players.filter(p =>
+      p.name.toLowerCase().includes(q) || (p.apodo || '').toLowerCase().includes(q)
+    );
+  }, [players, playerSearch]);
 
   const toggleAll = (value) => {
     setSelected(prev => {
@@ -58,12 +68,22 @@ export function MonthlyChargeModal({ players, mensualidadBase, lastMonthlyCharge
           </button>
         </div>
 
+        <input
+          type="text"
+          value={playerSearch}
+          onChange={(e) => setPlayerSearch(e.target.value)}
+          placeholder="Buscar guerrero..."
+          className="form-input"
+          style={{ marginBottom: '8px', padding: '6px 10px', fontSize: '0.78rem' }}
+        />
+
         <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginBottom: '8px' }}>
           {selectedCount} de {players.length} jugadores seleccionados
+          {playerSearch.trim() && <span> · Mostrando {filteredPlayers.length} de {players.length}</span>}
         </div>
 
         <div style={{ maxHeight: '40vh', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '3px', marginBottom: '16px' }}>
-          {players.map(p => {
+          {filteredPlayers.map(p => {
             const isSelected = selected[p.id];
             const isNew = lastMonthlyCharge && p.created_at && new Date(p.created_at) > new Date(lastMonthlyCharge);
             return (

@@ -19,6 +19,7 @@ import {
   useFixtures,
   useRivals,
   useFutureFixtures,
+  useLiveMatch,
   useInvitations,
   useLoans,
   useDataIO,
@@ -47,6 +48,23 @@ export const ClubProvider = ({ children }) => {
     }
   }, [user?.id, profile?.system_role]);
 
+  // Limpiar estado cuando el usuario cierra sesión
+  React.useEffect(() => {
+    if (!user?.id) {
+      setPlayers?.([]);
+      setSchedule?.([]);
+      setChampionships([]);
+      setFinances?.([]);
+      setInventory?.([]);
+      setFixtures([]);
+      setRivals([]);
+      setFutureFixtures([]);
+      setMatchInvitations([]);
+      setLoans([]);
+      setMakgoraTeams([]);
+    }
+  }, [user?.id]);
+
   const { currentUser, userRole, userTier, hasPermission, isSuperRole } = usePermissions(user, profile);
   const { dynamicClubs, getAllClubs, getAllClubsLabels, addClub, deleteClub } = useClubs(isSuperRole, user);
   const { sendLocalNotification, scheduleReminder } = useNotifications();
@@ -64,9 +82,10 @@ export const ClubProvider = ({ children }) => {
     return prefs.view_mode || 'general';
   });
   const [makgoraTeamId, setMakgoraTeamId] = React.useState(() => {
-    return prefs.makgora_team_id || null;
+    return prefs.makgora_team_id ? String(prefs.makgora_team_id) : null;
   });
   const [makgoraTeams, setMakgoraTeams] = React.useState([]);
+  const [teams, setTeams] = React.useState([]);
 
   // Division view: 'all' | specific division string (e.g. 'masculina_mayor')
   const [divisionView, setDivisionView] = React.useState(() => {
@@ -93,7 +112,22 @@ export const ClubProvider = ({ children }) => {
     savePreferences({ makgora_team_id: makgoraTeamId || null });
   }, [makgoraTeamId]);
 
-  const { activeTeam, setActiveTeam } = useActiveTeam(prefs.active_team, savePreferences);
+  const { activeTeam, setActiveTeam } = useActiveTeam(prefs.active_team || profile?.club_scope || 'orcos_masculina_mayor', savePreferences);
+
+  // Sincronizar activeTeam cuando cambia el usuario o el club_scope del perfil
+  React.useEffect(() => {
+    if (user?.id) {
+      const team = prefs.active_team || profile?.club_scope || 'orcos_masculina_mayor';
+      if (team !== activeTeam) {
+        setActiveTeam(team);
+      }
+    }
+  }, [user?.id, profile?.club_scope]);
+
+  const activeTeamId = React.useMemo(() => {
+    if (!activeTeam || !teams?.length) return null;
+    return teams.find(t => t.category === activeTeam)?.id || null;
+  }, [activeTeam, teams]);
 
   const [clubConfig, setClubConfig] = React.useState({ mensualidad_base: 10000 });
 
@@ -101,7 +135,7 @@ export const ClubProvider = ({ children }) => {
     supabase
       .from('club_config')
       .select('key, value')
-      .eq('team_category', activeTeam)
+      .eq(activeTeamId ? 'team_id' : 'team_category', activeTeamId || activeTeam)
       .then(({ data }) => {
         if (data && data.length > 0) {
           const cfg = {};
@@ -110,7 +144,7 @@ export const ClubProvider = ({ children }) => {
         }
       })
       .catch(wrapCatch('ClubContext.loadClubConfig', { silent: true }));
-  }, [activeTeam]);
+  }, [activeTeam, activeTeamId]);
 
   const mensualidadBase = Number(clubConfig.mensualidad_base) || 10000;
 
@@ -124,11 +158,25 @@ export const ClubProvider = ({ children }) => {
         if (data && data.length > 0) {
           setMakgoraTeams(data);
           if (!makgoraTeamId) {
-            setMakgoraTeamId(data[0].id);
+            setMakgoraTeamId(String(data[0].id));
           }
         }
       })
-      .catch(wrapCatch('ClubContext.fetchMakgoraTeams', { silent: true }));
+      .catch(wrapCatch('ClubContext.fetchMakgoraTeams', { notifyUser: true }));
+  }, []);
+
+  // Fetch teams from Supabase
+  React.useEffect(() => {
+    supabase
+      .from('teams')
+      .select('*')
+      .order('division')
+      .then(({ data }) => {
+        if (data && data.length > 0) {
+          setTeams(data);
+        }
+      })
+      .catch(wrapCatch('ClubContext.fetchTeams', { notifyUser: true }));
   }, []);
 
   const { pushPlayerToSupabase } = useSyncPush(user);
@@ -158,11 +206,16 @@ export const ClubProvider = ({ children }) => {
   const fixtureHooks = useFixtures(activeTeam, sendLocalNotification, pushEntityToSupabase, user);
   const rivalHooks = useRivals(pushEntityToSupabase, user);
   const futureFixtureHooks = useFutureFixtures(activeTeam, sendLocalNotification, pushEntityToSupabase, user);
+  const liveMatchHooks = useLiveMatch(user);
 
   const invitationHooks = useInvitations(user, userTier, profile);
   const loanHooks = useLoans(user);
 
   const fundraisingHooks = useFundraising(activeTeam, user);
+
+  React.useEffect(() => {
+    fundraisingHooks.loadAllPayments();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const dataIOHooks = useDataIO(
     players, schedule, championships, finances, inventory, fixtures, rivals, futureFixtures,
@@ -225,7 +278,7 @@ export const ClubProvider = ({ children }) => {
 
   return (
     <ClubContext.Provider value={{
-      activeTeam, setActiveTeam,
+      activeTeam, setActiveTeam, activeTeamId,
       players, addPlayer: playerHooks.addPlayer, updatePlayer: playerHooks.updatePlayer, deletePlayer: playerHooks.deletePlayer,
       recordAttendance: playerHooks.recordAttendance, recordMatchInfractions: playerHooks.recordMatchInfractions, redeemPenalty: playerHooks.redeemPenalty,
       recordPhysicalTest: playerHooks.recordPhysicalTest, recordInjury: playerHooks.recordInjury, updateInjuryPhase: playerHooks.updateInjuryPhase,
@@ -235,18 +288,24 @@ export const ClubProvider = ({ children }) => {
       championships, addChampionship: championshipHooks.addChampionship,
       finances, addFinanceRecord: financeHooks.addFinanceRecord, deleteFinanceRecord: handleDeleteFinanceRecord,
       exportData: dataIOHooks.exportData, importData: dataIOHooks.importData,
-      fixtures, addFixture: fixtureHooks.addFixture, deleteFixture: fixtureHooks.deleteFixture,
+      fixtures, addFixture: fixtureHooks.addFixture, updateFixture: fixtureHooks.updateFixture, deleteFixture: fixtureHooks.deleteFixture,
       updateGymStats: playerHooks.updateGymStats, logWorkout: playerHooks.logWorkout,
       currentUser, isSuperRole, syncStatus, hasPermission, userRole, userTier,
       dynamicClubs, getAllClubs, getAllClubsLabels, addClub, deleteClub,
       recordMembershipPayment: handleMembershipPayment,
       rivals, addRival: rivalHooks.addRival, updateRival: rivalHooks.updateRival, deleteRival: rivalHooks.deleteRival,
       futureFixtures, addFutureFixture: futureFixtureHooks.addFutureFixture, deleteFutureFixture: futureFixtureHooks.deleteFutureFixture,
+      liveMatch: liveMatchHooks.liveMatch, setLiveMatch: liveMatchHooks.setLiveMatch,
+      liveEvents: liveMatchHooks.liveEvents, setLiveEvents: liveMatchHooks.setLiveEvents,
+      startLiveMatch: liveMatchHooks.startLiveMatch,
+      addLiveEvent: liveMatchHooks.addLiveEvent, updateLiveMatch: liveMatchHooks.updateLiveMatch,
+      pauseLiveMatch: liveMatchHooks.pauseLiveMatch, resumeLiveMatch: liveMatchHooks.resumeLiveMatch,
+      endLiveMatch: liveMatchHooks.endLiveMatch, deleteLiveMatch: liveMatchHooks.deleteLiveMatch,
       matchInvitations, createInvitation: invitationHooks.createInvitation, cancelInvitation: invitationHooks.cancelInvitation, deleteInvitation: invitationHooks.deleteInvitation, updateInvitationResponse: invitationHooks.updateInvitationResponse,
       loans, requestLoan: loanHooks.requestLoan, updateLoanStatus: loanHooks.updateLoanStatus,
       createPlayerCredentials: playerHooks.createPlayerCredentials, resetPlayerPassword: playerHooks.resetPlayerPassword, resetStaffPassword, bulkUpdatePosition: playerHooks.bulkUpdatePosition,
       viewMode, setViewMode, divisionView, setDivisionView,
-      makgoraTeamId, setMakgoraTeamId, makgoraTeams,
+      makgoraTeamId, setMakgoraTeamId, makgoraTeams, teams,
       clubConfig, mensualidadBase,
       campaigns: fundraisingHooks.campaigns,
       allPayments: fundraisingHooks.allPayments,

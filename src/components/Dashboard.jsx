@@ -1,6 +1,8 @@
-import React, { useContext, useState, useEffect, useCallback } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
+import { TriangleAlert } from 'lucide-react';
 import { ClubContext, EQUIPOS_LABELS } from '../context/ClubContext';
 import { useToast } from '../context/ToastContext';
+import { useFilterByView } from '../context/hooks/useFilterByView';
 import {
   MetricsCards,
   ChampionshipCountdown,
@@ -13,25 +15,9 @@ import ActivityFeed from './Dashboard/ActivityFeed';
 import MiniRanking from './Dashboard/MiniRanking';
 
 function Dashboard() {
-  const { players, championships, fixtures, addChampionship, activeTeam, viewMode, divisionView, makgoraTeamId, finances, schedule } = useContext(ClubContext);
+  const { players, championships, fixtures, addChampionship, activeTeam, divisionView, teams, viewMode, makgoraTeams, makgoraTeamId, finances, schedule } = useContext(ClubContext);
   const { showToast } = useToast();
-
-  const filterByView = useCallback((items) => {
-    if (viewMode === 'general' && divisionView === 'all') {
-      return items.filter(x => x.teamCategory?.startsWith('orcos'));
-    }
-    if (viewMode === 'general') {
-      return items.filter(x => x.teamCategory === `orcos_${divisionView}`);
-    }
-    if (viewMode === 'makgora' && makgoraTeamId) {
-      let filtered = items.filter(x => x.makgora_team_id === makgoraTeamId);
-      if (divisionView !== 'all') {
-        filtered = filtered.filter(x => x.teamCategory === `orcos_${divisionView}`);
-      }
-      return filtered;
-    }
-    return items.filter(x => x.teamCategory === activeTeam);
-  }, [viewMode, divisionView, makgoraTeamId, activeTeam]);
+  const filterByView = useFilterByView();
 
   const [showAddChamp, setShowAddChamp] = useState(false);
   const [time, setTime] = useState(new Date());
@@ -43,6 +29,12 @@ function Dashboard() {
 
   const teamPlayers = filterByView(players);
   const teamChamps = filterByView(championships);
+
+  const panelTitle = viewMode === 'makgora'
+    ? makgoraTeams.find(t => t.id === makgoraTeamId)?.rpg_name || 'Mak\'Gora'
+    : divisionView === 'all'
+      ? 'Todas las Divisiones'
+      : teams.find(t => t.division === divisionView)?.label || activeTeam;
 
   const hiaSuspendedPlayers = teamPlayers.filter(p =>
     p.estado === 'lesionado' &&
@@ -68,7 +60,7 @@ function Dashboard() {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '15px' }}>
           <div>
             <h2 style={{ fontSize: '1.5rem', fontWeight: 700, fontFamily: 'Outfit, sans-serif' }}>
-              Panel General: <span style={{ color: 'var(--color-primary)' }}>{EQUIPOS_LABELS[activeTeam]}</span>
+              Panel General: <span style={{ color: 'var(--color-primary)' }}>{panelTitle}</span>
             </h2>
             <p style={{ color: 'var(--color-text-muted)', fontSize: '0.85rem' }}>
               Resumen en tiempo real del estado de tus guerreros y torneos.
@@ -90,7 +82,7 @@ function Dashboard() {
               boxShadow: '0 0 15px rgba(255, 61, 0, 0.2)'
             }}
           >
-            <div style={{ fontSize: '2.2rem' }}>⚠️</div>
+            <TriangleAlert size={35} color="var(--color-red)" />
             <div>
               <h4 style={{ color: 'var(--color-red)', fontWeight: 800, fontFamily: 'Outfit', fontSize: '1rem', textTransform: 'uppercase' }}>
                 Alerta Medica: Suspension Preventiva HIA

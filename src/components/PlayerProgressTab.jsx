@@ -14,14 +14,14 @@ const DEMO_DATA = [
   { date: 'Sem 6', squat: 80, bench: 57, deadlift: 105 },
 ];
 
-function ChartContent({ data, visibleLines }) {
+function ChartContent({ data, visibleLines, onToggleLine }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
       <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap', marginBottom: '8px' }}>
         {Object.entries(CHART_COLORS).map(([key, color]) => (
           <label key={key} style={{ display: 'flex', alignItems: 'center', gap: '4px', cursor: 'pointer', fontSize: '0.75rem' }}>
             <input type="checkbox" checked={visibleLines[key]}
-              onChange={() => {}} style={{ accentColor: color }} />
+              onChange={() => onToggleLine(key)} style={{ accentColor: color }} />
             <span style={{ color }}>{METRIC_LABELS[key]}</span>
           </label>
         ))}
@@ -48,6 +48,10 @@ function PlayerProgressTab({ playerId }) {
   const [visibleLines, setVisibleLines] = useState({ squat: true, bench: true, deadlift: true });
   const [view, setView] = useState('chart');
   const [showDemo, setShowDemo] = useState(false);
+
+  const toggleLine = (key) => {
+    setVisibleLines(prev => ({ ...prev, [key]: !prev[key] }));
+  };
 
   useEffect(() => {
     if (!playerId) return;
@@ -87,6 +91,8 @@ function PlayerProgressTab({ playerId }) {
           className={`tab-btn ${view === 'chart' ? 'active' : ''}`}>Evolución Gym</button>
         <button onClick={() => setView('progress')}
           className={`tab-btn ${view === 'progress' ? 'active' : ''}`}>Progreso</button>
+        <button onClick={() => setView('workout')}
+          className={`tab-btn ${view === 'workout' ? 'active' : ''}`}>Rendimiento</button>
       </div>
 
       {view === 'chart' && (
@@ -113,7 +119,7 @@ function PlayerProgressTab({ playerId }) {
                       🎯 Preview — registra tu primer entreno para ver datos reales
                     </div>
                     <div style={{ filter: 'blur(1px)', pointerEvents: 'none', opacity: 0.6 }}>
-                      <ChartContent data={DEMO_DATA} visibleLines={visibleLines} />
+                      <ChartContent data={DEMO_DATA} visibleLines={visibleLines} onToggleLine={toggleLine} />
                     </div>
                     <button onClick={() => setShowDemo(false)} className="btn-outline" style={{ marginTop: '8px', padding: '4px 10px', fontSize: '0.7rem' }}>
                       Ocultar preview
@@ -122,7 +128,7 @@ function PlayerProgressTab({ playerId }) {
                 )}
               </div>
             ) : (
-              <ChartContent data={chartData} visibleLines={visibleLines} />
+              <ChartContent data={chartData} visibleLines={visibleLines} onToggleLine={toggleLine} />
             )}
           </div>
         </>
@@ -165,6 +171,66 @@ function PlayerProgressTab({ playerId }) {
               {latest.weight && <span> · Peso: <strong>{latest.weight} kg</strong></span>}
             </div>
           )}
+        </div>
+      )}
+
+      {view === 'workout' && (
+        <WorkoutStats playerId={playerId} />
+      )}
+    </div>
+  );
+}
+
+function WorkoutStats({ playerId }) {
+  const [stats, setStats] = useState({ workouts: 0, streak: 0, lastWeight: null, planCount: 0 });
+
+  useEffect(() => {
+    if (!playerId) return;
+    supabase.from('workout_logs')
+      .select('workout_date, exercise_logs')
+      .eq('player_id', playerId)
+      .order('workout_date', { ascending: false })
+      .limit(30)
+      .then(({ data }) => {
+        if (!data || !data.length) return;
+        const dates = [...new Set(data.map(d => d.workout_date))].sort().reverse();
+        let streak = 0;
+        const today = new Date().toISOString().split('T')[0];
+        for (let i = 0; i < dates.length; i++) {
+          const d = new Date(); d.setDate(d.getDate() - i);
+          if (dates[i] === d.toISOString().split('T')[0] || (i === 0 && dates[0] === today)) streak++;
+          else break;
+        }
+        const lastLog = data[0].exercise_logs || [];
+        const lastW = lastLog.find(e => e.weight)?.weight || null;
+        setStats({ workouts: data.length, streak, lastWeight: lastW, planCount: 0 });
+      });
+    supabase.from('training_plans').select('id', { count: 'exact' }).eq('player_id', playerId)
+      .then(({ count }) => { if (count != null) setStats(s => ({ ...s, planCount: count })); });
+  }, [playerId]);
+
+  return (
+    <div className="glass-panel" style={{ padding: '20px', borderRadius: 'var(--radius-lg)' }}>
+      <h3 style={{ color: 'var(--color-gold)', fontSize: '1rem', fontWeight: 700, marginBottom: '12px', fontFamily: 'Outfit' }}>
+        Rendimiento de Entreno
+      </h3>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
+        <div style={{ textAlign: 'center', padding: '10px', background: 'rgba(255,255,255,0.02)', borderRadius: 'var(--radius-sm)' }}>
+          <div style={{ fontSize: '1.3rem', fontWeight: 800, color: 'var(--color-primary)' }}>{stats.workouts}</div>
+          <div style={{ fontSize: '0.65rem', color: 'var(--color-text-muted)', textTransform: 'uppercase' }}>Sesiones (30d)</div>
+        </div>
+        <div style={{ textAlign: 'center', padding: '10px', background: 'rgba(255,255,255,0.02)', borderRadius: 'var(--radius-sm)' }}>
+          <div style={{ fontSize: '1.3rem', fontWeight: 800, color: '#00e676' }}>{stats.streak}</div>
+          <div style={{ fontSize: '0.65rem', color: 'var(--color-text-muted)', textTransform: 'uppercase' }}>Días seguidos</div>
+        </div>
+        <div style={{ textAlign: 'center', padding: '10px', background: 'rgba(255,255,255,0.02)', borderRadius: 'var(--radius-sm)' }}>
+          <div style={{ fontSize: '1.3rem', fontWeight: 800, color: 'var(--color-gold)' }}>{stats.planCount}</div>
+          <div style={{ fontSize: '0.65rem', color: 'var(--color-text-muted)', textTransform: 'uppercase' }}>Planes creados</div>
+        </div>
+      </div>
+      {stats.lastWeight && (
+        <div style={{ marginTop: '12px', padding: '8px', background: 'rgba(255,255,255,0.02)', borderRadius: 'var(--radius-sm)', fontSize: '0.75rem', color: 'var(--color-text-muted)', textAlign: 'center' }}>
+          Último peso registrado: <strong style={{ color: 'var(--color-blue)' }}>{stats.lastWeight}kg</strong>
         </div>
       )}
     </div>

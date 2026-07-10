@@ -7,7 +7,7 @@ export function LoanList({ loans, players, teams, showLoanForm, loanForm, setLoa
     <div className="animated-fade" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <h3 style={{ color: 'var(--color-gold)', fontSize: '1rem', fontWeight: 700, fontFamily: 'Outfit' }}>
-          ?? Prestamos de Guerreros
+          Préstamos de Guerreros
         </h3>
         <button onClick={onToggleForm} className="btn-neon" style={{ padding: '8px 14px', fontSize: '0.8rem' }}>
           {showLoanForm ? 'Cancelar' : '+ Solicitar Prestamo'}

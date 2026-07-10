@@ -41,21 +41,47 @@ function Messages() {
   const [announceText, setAnnounceText] = useState('');
   const [uploading, setUploading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [announcements, setAnnouncements] = useState([]);
   const [messageReactions, setMessageReactions] = useState({});
   const EMOJI_REACTIONS = ['👍', '🏉', '🔥', '😂', '💪'];
 
-  const toggleReaction = (msgId, emoji) => {
-    setMessageReactions(prev => {
-      const current = prev[msgId] || {};
-      const count = current[emoji] || 0;
-      if (count > 0) {
-        const next = { ...current };
+  const toggleReaction = async (msgId, emoji) => {
+    const current = messageReactions[msgId] || {};
+    const hasReaction = !!current[emoji];
+
+    if (hasReaction) {
+      const { error } = await supabase.from('message_reactions').delete()
+        .eq('message_id', msgId).eq('user_id', user.id).eq('emoji', emoji);
+      if (error) return;
+      setMessageReactions(prev => {
+        const next = { ...prev[msgId] };
         delete next[emoji];
         return { ...prev, [msgId]: next };
-      }
-      return { ...prev, [msgId]: { ...current, [emoji]: 1 } };
-    });
+      });
+    } else {
+      const { error } = await supabase.from('message_reactions').insert({
+        message_id: msgId, user_id: user.id, emoji,
+      });
+      if (error) return;
+      setMessageReactions(prev => ({
+        ...prev, [msgId]: { ...prev[msgId], [emoji]: 1 }
+      }));
+    }
   };
+
+  const loadReactions = async () => {
+    if (!user?.id) return;
+    const { data } = await supabase.from('message_reactions').select('message_id, emoji').eq('user_id', user.id);
+    if (data) {
+      const grouped = {};
+      data.forEach(r => {
+        if (!grouped[r.message_id]) grouped[r.message_id] = {};
+        grouped[r.message_id][r.emoji] = 1;
+      });
+      setMessageReactions(grouped);
+    }
+  };
+
   const [previewFile, setPreviewFile] = useState(null);
   const fileInputRef = useRef(null);
   const messagesEndRef = useRef(null);
@@ -64,6 +90,8 @@ function Messages() {
     if (!user?.id) return;
     loadConversations();
     loadStaffUsers();
+    loadAnnouncements();
+    loadReactions();
 
     const channel = supabase
       .channel('messages_channel')
@@ -115,8 +143,28 @@ function Messages() {
     if (data) setStaffUsers(data);
   };
 
+  const loadAnnouncements = async () => {
+    const { data } = await supabase.from('messages').select('*, sender:user_profiles!sender_id(display_name)').eq('channel', 'announcement').order('created_at', { ascending: false }).limit(50);
+    if (data) {
+      setAnnouncements(data);
+      const annTime = data[0]?.created_at;
+      const hasAnnouncements = data.length > 0;
+      if (hasAnnouncements) {
+        setConversations(prev => {
+          const exists = prev.some(c => c.id === 'announcement');
+          if (exists) return prev;
+          return [{ id: 'announcement', lastMsg: { text: data[0].text, sender_id: 'announcement' }, lastTime: annTime, unread: 0 }, ...prev];
+        });
+      }
+    }
+  };
+
   const openChat = async (partnerId) => {
     setActiveChat({ id: partnerId });
+    if (partnerId === 'announcement') {
+      setMessages(announcements);
+      return;
+    }
     const { data } = await supabase
       .from('messages')
       .select('*')

@@ -1,10 +1,25 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
-function FixtureForm({ players, onSave }) {
+function FixtureForm({ players, onSave, initialData, onCancel }) {
   const [form, setForm] = useState({
     rivalName: '', scoreOrcos: 0, scoreRival: 0,
     matchDate: '', tries: 0, mvp: ''
   });
+
+  useEffect(() => {
+    if (initialData) {
+      setForm({
+        rivalName: initialData.opponent || '',
+        scoreOrcos: initialData.orcosScore ?? 0,
+        scoreRival: initialData.opponentScore ?? 0,
+        matchDate: initialData.date || '',
+        tries: initialData.tries ?? 0,
+        mvp: initialData.mvp || ''
+      });
+    } else {
+      setForm({ rivalName: '', scoreOrcos: 0, scoreRival: 0, matchDate: '', tries: 0, mvp: '' });
+    }
+  }, [initialData]);
 
   const set = (key) => (e) => setForm(prev => ({ ...prev, [key]: e.target.value }));
 
@@ -13,6 +28,7 @@ function FixtureForm({ players, onSave }) {
     if (!form.rivalName || !form.matchDate) return;
 
     onSave({
+      ...(initialData ? { id: initialData.id } : {}),
       opponent: form.rivalName,
       orcosScore: Number(form.scoreOrcos),
       opponentScore: Number(form.scoreRival),
@@ -25,10 +41,13 @@ function FixtureForm({ players, onSave }) {
   };
 
   const playersForSelect = players.filter(p => p.rol !== 'Entrenador');
+  const isEditing = !!initialData;
 
   return (
     <div className="glass-panel animated-slide" style={{ padding: '25px' }}>
-      <h3 className="neon-text-gold" style={{ marginBottom: '20px', fontFamily: 'Outfit' }}>Registrar Resultado</h3>
+      <h3 className="neon-text-gold" style={{ marginBottom: '20px', fontFamily: 'Outfit' }}>
+        {isEditing ? 'Editar Resultado' : 'Registrar Resultado'}
+      </h3>
 
       <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
         <div className="form-group">
@@ -107,9 +126,16 @@ function FixtureForm({ players, onSave }) {
           </select>
         </div>
 
-        <button type="submit" className="btn-gold" style={{ justifyContent: 'center', marginTop: '10px' }}>
-          Publicar Hazana de Partido
-        </button>
+        <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
+          <button type="submit" className="btn-gold" style={{ justifyContent: 'center', flex: 1 }}>
+            {isEditing ? 'Guardar Cambios' : 'Publicar Hazana de Partido'}
+          </button>
+          {isEditing && (
+            <button type="button" onClick={onCancel} className="btn-outline" style={{ justifyContent: 'center' }}>
+              Cancelar
+            </button>
+          )}
+        </div>
       </form>
     </div>
   );

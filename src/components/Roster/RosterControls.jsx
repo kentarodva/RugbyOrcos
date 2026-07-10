@@ -1,9 +1,9 @@
 import React from 'react';
 
-function RosterControls({ search, onSearchChange, makgoraFilter, onMakgoraFilterChange, onAdd, onPrint, onToggleBulk, bulkMode, searchInputRef, onCompare }) {
+function RosterControls({ search, onSearchChange, divisionView, onDivisionViewChange, teams, makgoraFilter, onMakgoraFilterChange, onAdd, onPrint, onToggleBulk, bulkMode, searchInputRef, onCompare }) {
   return (
     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '15px' }}>
-      <div style={{ display: 'flex', gap: '10px', flex: 1, maxWidth: '600px' }}>
+      <div style={{ display: 'flex', gap: '10px', flex: 1, maxWidth: '700px', flexWrap: 'wrap' }}>
         <input
           ref={searchInputRef}
           type="text"
@@ -11,8 +11,33 @@ function RosterControls({ search, onSearchChange, makgoraFilter, onMakgoraFilter
           value={search}
           onChange={(e) => onSearchChange(e.target.value)}
           className="form-input"
-          style={{ width: '100%', paddingLeft: '15px' }}
+          style={{ width: '100%', minWidth: '200px', paddingLeft: '15px', flex: 1 }}
         />
+        {teams && teams.length > 0 && (
+          <select
+            value={divisionView || 'all'}
+            onChange={(e) => onDivisionViewChange(e.target.value)}
+            className="form-select"
+            style={{
+              background: 'var(--bg-input)',
+              border: '1px solid var(--border-glass)',
+              color: 'var(--color-text)',
+              fontWeight: '600',
+              padding: '8px 12px',
+              borderRadius: 'var(--radius-sm)',
+              cursor: 'pointer',
+              fontSize: '0.8rem',
+              minWidth: '130px'
+            }}
+          >
+            <option value="all">🌐 Todas las divisiones</option>
+            {teams.map((team) => (
+              <option key={team.id} value={team.division}>
+                {team.label || team.category}
+              </option>
+            ))}
+          </select>
+        )}
         <select
           value={makgoraFilter}
           onChange={(e) => onMakgoraFilterChange(e.target.value)}

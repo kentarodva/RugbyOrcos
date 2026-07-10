@@ -1,5 +1,5 @@
-import React from 'react';
-import { DIVISIONES, DIVISIONES_LABELS } from '../context/ClubContext';
+import React, { useContext } from 'react';
+import { ClubContext } from '../context/ClubContext';
 import { getRpgRole } from '../context/constants';
 import { isAnyAIConfigured } from '../engine/multiProviderCoach';
 import { useAuth } from '../context/AuthContext';
@@ -21,6 +21,7 @@ export default function Header({
   exportData,
 }) {
   const { forceAdmin } = useAuth();
+  const { teams } = useContext(ClubContext);
   return (
     <header className="glass-panel" style={{
       margin: '15px',
@@ -122,9 +123,9 @@ export default function Header({
             }}
           >
             <option value="all">🌐 Todas las divisiones</option>
-            {Object.keys(DIVISIONES).map((key) => (
-              <option key={key} value={DIVISIONES[key]}>
-                {DIVISIONES_LABELS[DIVISIONES[key]]}
+            {teams.map((team) => (
+              <option key={team.id} value={team.division}>
+                {team.label || team.category}
               </option>
             ))}
           </select>
@@ -138,7 +139,7 @@ export default function Header({
             </label>
             <select
               value={makgoraTeamId || ''}
-              onChange={(e) => setMakgoraTeamId(e.target.value)}
+              onChange={(e) => setMakgoraTeamId(e.target.value ? String(e.target.value) : null)}
               className="form-select"
               style={{
                 background: 'var(--bg-input)',

@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 
 const validRoles = [
-  'Jugador', 'Capitán', 'Subcapitán', 'Entrenador', 'Asistente',
+  'Jugador', 'Capitan', 'Subcapitan', 'Entrenador', 'Asistente',
   'Presidente', 'Tesorero', 'Delegado', 'Fisioterapeuta',
 ];
 
@@ -15,7 +15,7 @@ const validStatuses = ['activo', 'lesionado', 'suspendido', 'inactivo'];
 describe('player schema — valid values', () => {
   it('roles válidos incluyen Jugador, Capitán, Entrenador', () => {
     expect(validRoles).toContain('Jugador');
-    expect(validRoles).toContain('Capitán');
+    expect(validRoles).toContain('Capitan');
     expect(validRoles).toContain('Entrenador');
   });
 

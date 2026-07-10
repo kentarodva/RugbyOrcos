@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { PROVIDERS, CHAT_MODES, PROHIBITED_TOPICS, RUGBY_KEYWORDS_WEIGHTED, RETRY_CONFIG, CACHE_CONFIG, RATE_LIMIT_STORAGE_PREFIX, DEFAULT_PROVIDER_ORDER } from '../../engine/aiConfig';
 
 describe('aiConfig — provider definitions', () => {
@@ -33,8 +33,8 @@ describe('aiConfig — provider definitions', () => {
     });
   });
 
-  it('openrouter tiene apiKeyStorage server', () => {
-    expect(PROVIDERS.openrouter.apiKeyStorage).toBe('server');
+  it('openrouter tiene apiKeyStorage orcos_openrouter_key', () => {
+    expect(PROVIDERS.openrouter.apiKeyStorage).toBe('orcos_openrouter_key');
   });
 });
 
@@ -103,7 +103,7 @@ describe('aiConfig — constants', () => {
   });
 
   it('DEFAULT_PROVIDER_ORDER tiene 4 providers', () => {
-    expect(DEFAULT_PROVIDER_ORDER).toHaveLength(4);
-    expect(DEFAULT_PROVIDER_ORDER[0]).toBe('openrouter');
+    expect(DEFAULT_PROVIDER_ORDER).toHaveLength(2);
+    expect(DEFAULT_PROVIDER_ORDER[0]).toBe('gemini');
   });
 });

@@ -1,28 +1,28 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 
-const GROUPS = [
+const ALL_GROUPS = [
   {
     label: 'JUGADORES',
     tabs: [
       { id: 'dashboard', label: 'Dashboard' },
-      { id: 'roster', label: 'Guerreros' },
+      { id: 'roster', label: 'Guerreros', perm: 'manage_players' },
       { id: 'estadisticas', label: 'Estadísticas' },
     ],
   },
   {
     label: 'CLUB',
     tabs: [
-      { id: 'calendario', label: 'Agenda' },
-      { id: 'finanzas', label: 'Finanzas' },
-      { id: 'entrenamientos', label: 'Entrenamientos' },
-      { id: 'tribunal', label: 'Tribunal' },
+      { id: 'calendario', label: 'Agenda', perm: 'manage_schedule' },
+      { id: 'finanzas', label: 'Finanzas', perm: 'manage_finances' },
+      { id: 'entrenamientos', label: 'Entrenamientos', perm: 'manage_training' },
+      { id: 'tribunal', label: 'Tribunal', perm: 'manage_discipline' },
     ],
   },
   {
     label: 'COMPETICIÓN',
     tabs: [
       { id: 'makgora', label: "Mak'Gora" },
-      { id: 'cancha', label: 'Pizarra Táctica' },
+      { id: 'cancha', label: 'Pizarra Táctica', perm: 'manage_tactics' },
       { id: 'awards', label: 'Salón de la Fama' },
     ],
   },
@@ -31,13 +31,30 @@ const GROUPS = [
     tabs: [
       { id: 'invitaciones', label: '📨 Invitaciones' },
       { id: 'messages', label: '💬 Mensajes' },
-      { id: 'ia', label: 'IA' },
+      { id: 'ia', label: 'IA', perm: 'config_ai' },
     ],
   },
 ];
 
-export default function Sidebar({ open, onClose, activeTab, setActiveTab }) {
-  const [expandedGroups, setExpandedGroups] = useState(() => new Set(GROUPS.map((_, i) => i)));
+export default function Sidebar({ open, onClose, activeTab, setActiveTab, hasPermission, profile }) {
+  const isStaff = profile?.system_role !== 'jugador' && profile?.system_role != null;
+
+  const GROUPS = useMemo(() => {
+    if (!isStaff) return [];
+    return ALL_GROUPS.filter(group => {
+      const required = group.requiredPermission;
+      if (!required) return true;
+      return hasPermission ? hasPermission(required) : true;
+    }).map(group => {
+      const filtered = group.tabs.filter(tab => {
+        if (!tab.perm) return true;
+        return hasPermission ? hasPermission(tab.perm) : true;
+      });
+      return { ...group, tabs: filtered };
+    }).filter(group => group.tabs.length > 0);
+  }, [isStaff, hasPermission]);
+
+  const [expandedGroups, setExpandedGroups] = useState(() => new Set(ALL_GROUPS.map((_, i) => i)));
 
   const toggleGroup = (idx) => {
     setExpandedGroups((prev) => {

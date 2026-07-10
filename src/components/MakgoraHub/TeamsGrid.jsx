@@ -15,16 +15,17 @@ function getCrest(team) {
   return TEAM_CRESTS.find(c => c.keys.some(k => name.includes(k))) || TEAM_CRESTS[0];
 }
 
-export function TeamsGrid({ teams }) {
+export function TeamsGrid({ teams, onTeamClick }) {
+  const internalTeams = teams.filter(t => !t.is_external);
   return (
     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '15px' }}>
-      {teams.map(t => {
+      {internalTeams.map(t => {
         const crest = getCrest(t);
         const color = t.emblem_color || '#00e676';
         return (
-          <div key={t.id} className="glass-panel" style={{
+          <div key={t.id} className="glass-panel" onClick={() => onTeamClick?.(t)} style={{
             padding: '24px', textAlign: 'center', borderRadius: 'var(--radius-md)',
-            borderTop: '3px solid ' + color, position: 'relative', overflow: 'hidden',
+            borderTop: '3px solid ' + color, position: 'relative', overflow: 'hidden', cursor: onTeamClick ? 'pointer' : undefined,
           }}>
             <div style={{
               width: '80px', height: '80px', borderRadius: '50%',

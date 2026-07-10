@@ -1,13 +1,18 @@
 import React, { useState, useContext, useMemo } from 'react';
+import { Dumbbell, CircleDot, ClipboardList, MapPin, Calendar, CalendarDays } from 'lucide-react';
 import { ClubContext } from '../../context/ClubContext';
+import { useFilterByView } from '../../context/hooks/useFilterByView';
 import { formatLocalDate } from '../../utils/dates.js';
 
 const DIAS = ['Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab', 'Dom'];
-const ICON_MAP = {
-  entrenamiento: '🏃‍♂️',
-  partido: '🏉',
-  reunion: '📋',
-  otro: '📌',
+
+const EventIcon = ({ type, size = 14 }) => {
+  switch (type) {
+    case 'entrenamiento': return <Dumbbell size={size} />;
+    case 'partido': return <CircleDot size={size} />;
+    case 'reunion': return <ClipboardList size={size} />;
+    default: return <MapPin size={size} />;
+  }
 };
 
 function getWeekRange(date) {
@@ -29,34 +34,24 @@ function sameDay(d1, d2) {
 }
 
 function AgendaSemanal() {
-  const { schedule, futureFixtures, viewMode, divisionView, makgoraTeamId, activeTeam } = useContext(ClubContext);
+  const { schedule, futureFixtures, activeTeam } = useContext(ClubContext);
   const [viewMode_, setViewMode_] = useState('weekly');
-
-  const filterByView = (items) => {
-    if (!items) return [];
-    if (viewMode === 'general' && divisionView === 'all') {
-      return items.filter(x => x.teamCategory?.startsWith('orcos'));
-    }
-    if (viewMode === 'general') {
-      return items.filter(x => x.teamCategory === `orcos_${divisionView}`);
-    }
-    if (viewMode === 'makgora' && makgoraTeamId) {
-      return items.filter(x => x.makgora_team_id === makgoraTeamId);
-    }
-    return items.filter(x => x.teamCategory === activeTeam);
-  };
+  const filterByView = useFilterByView();
 
   const filteredSchedule = useMemo(() => {
     return filterByView(schedule || [])
-      .filter(s => new Date(s.date + 'T23:59:59') >= new Date())
+      .filter(s => {
+        const eventStart = new Date(s.date + 'T' + (s.time || '00:00'));
+        return new Date(eventStart.getTime() + 3 * 60 * 60 * 1000) >= new Date();
+      })
       .sort((a, b) => new Date(a.date + 'T' + (a.time || '00:00')) - new Date(b.date + 'T' + (b.time || '00:00')));
-  }, [schedule, viewMode, divisionView, makgoraTeamId, activeTeam]);
+  }, [schedule, filterByView]);
 
   const filteredFuture = useMemo(() => {
     return filterByView(futureFixtures || [])
       .filter(f => new Date(f.date + 'T23:59:59') >= new Date())
       .sort((a, b) => new Date(a.date) - new Date(b.date));
-  }, [futureFixtures, viewMode, divisionView, makgoraTeamId, activeTeam]);
+  }, [futureFixtures, filterByView]);
 
   const { monday } = getWeekRange(new Date());
   const today = new Date();
@@ -105,7 +100,7 @@ function AgendaSemanal() {
     <div className="glass-panel" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '15px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
         <h3 style={{ fontSize: '1.1rem', fontWeight: 700, fontFamily: 'Outfit', color: 'var(--color-primary)' }}>
-          📅 Agenda de la Semana
+          <Calendar size={20} style={{ verticalAlign: 'middle', marginRight: 4 }} /> Agenda de la Semana
         </h3>
         <div style={{ display: 'flex', gap: '4px', background: 'rgba(255,255,255,0.04)', borderRadius: '8px', padding: '3px' }}>
           <button
@@ -118,7 +113,7 @@ function AgendaSemanal() {
               fontSize: '0.78rem', transition: 'all 0.2s',
             }}
           >
-            📆 Semana
+            <CalendarDays size={16} style={{ verticalAlign: 'middle', marginRight: 4 }} /> Semana
           </button>
           <button
             onClick={() => setViewMode_('list')}
@@ -130,7 +125,7 @@ function AgendaSemanal() {
               fontSize: '0.78rem', transition: 'all 0.2s',
             }}
           >
-            📋 Lista ({totalEvents})
+            <ClipboardList size={16} style={{ verticalAlign: 'middle', marginRight: 4 }} /> Lista ({totalEvents})
           </button>
         </div>
       </div>
@@ -191,7 +186,7 @@ function AgendaSemanal() {
                         textOverflow: 'ellipsis',
                         color: e.type === 'partido' ? '#ffd740' : 'var(--color-primary)',
                       }}>
-                        {ICON_MAP[e.type] || '📌'} {e.time ? e.time + ' ' : ''}{e.title}
+                        <EventIcon type={e.type} size={12} /> {e.time ? e.time + ' ' : ''}{e.title}
                       </div>
                     ))
                   )}
@@ -243,7 +238,7 @@ function AgendaSemanal() {
                           display: 'flex', justifyContent: 'center', alignItems: 'center',
                           fontSize: '1rem', flexShrink: 0,
                         }}>
-                          {ICON_MAP[e.type] || '📌'}
+                          <EventIcon type={e.type} size={18} />
                         </div>
                         <div style={{ flex: 1, minWidth: 0 }}>
                           <h4 style={{ fontSize: '0.85rem', fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>

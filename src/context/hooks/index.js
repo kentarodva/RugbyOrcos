@@ -6,7 +6,7 @@ export { useSync, useSyncPush } from './useSync';
 export { usePlayers } from './usePlayers';
 export { useSchedule } from './useSchedule';
 export { useChampionships, useFinances, useInventory } from './useEntities';
-export { useFixtures, useRivals, useFutureFixtures } from './useMatches';
+export { useFixtures, useRivals, useFutureFixtures, useLiveMatch } from './useMatches';
 export { useInvitations } from './useInvitations';
 export { useLoans } from './useLoans';
 export { useDataIO } from './useDataIO';

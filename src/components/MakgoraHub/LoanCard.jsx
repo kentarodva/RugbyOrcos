@@ -5,8 +5,12 @@ export function LoanCard({ loan, teams, onApprove, onReject, onReturn }) {
   const p = loan.players;
   const statusColor = LOAN_STATUS_COLORS[loan.status] || '#9e9e9e';
   const statusLabel = LOAN_STATUS_LABELS[loan.status] || loan.status;
-  const fromName = teams.find(t => t.id === loan.from_team_id)?.rpg_name || '�';
-  const toName = teams.find(t => t.id === loan.to_team_id)?.rpg_name || '�';
+  const fromTeam = teams.find(t => t.id === loan.from_team_id);
+  const toTeam = teams.find(t => t.id === loan.to_team_id);
+  const fromName = fromTeam?.rpg_name || fromTeam?.name || '—';
+  const toName = toTeam?.rpg_name || toTeam?.name || '—';
+  const fromIsExternal = fromTeam?.is_external;
+  const toIsExternal = toTeam?.is_external;
 
   return (
     <div className="glass-panel" style={{
@@ -27,27 +31,27 @@ export function LoanCard({ loan, teams, onApprove, onReject, onReturn }) {
           </span>
         </div>
         <div style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)' }}>
-          {fromName} ? {toName}
-          {' � '}{loan.start_date} ? {loan.end_date}
-          {loan.reason && <span> � {loan.reason}</span>}
+          {fromName}{fromIsExternal ? <span style={{ fontSize: '0.55rem', color: '#ffb300', marginLeft: '3px' }}>ⓘ</span> : ''} → {toName}{toIsExternal ? <span style={{ fontSize: '0.55rem', color: '#ffb300', marginLeft: '3px' }}>ⓘ</span> : ''}
+          {' • '}{loan.start_date} → {loan.end_date}
+          {loan.reason && <span> • {loan.reason}</span>}
         </div>
       </div>
       {loan.status === 'pending' && (
         <div style={{ display: 'flex', gap: '6px' }}>
           <button onClick={() => onApprove(loan.id)}
             className="btn-outline" style={{ padding: '4px 10px', fontSize: '0.7rem', borderColor: 'var(--color-primary)', color: 'var(--color-primary)' }}>
-            ? Aprobar
+            ✓ Aprobar
           </button>
           <button onClick={() => onReject(loan.id)}
             className="btn-outline" style={{ padding: '4px 10px', fontSize: '0.7rem', borderColor: 'var(--color-red)', color: 'var(--color-red)' }}>
-            ? Rechazar
+            ✗ Rechazar
           </button>
         </div>
       )}
       {loan.status === 'approved' && (
         <button onClick={() => onReturn(loan.id)}
           className="btn-outline" style={{ padding: '4px 10px', fontSize: '0.7rem' }}>
-          ?? Devolver
+          ↩ Devolver
         </button>
       )}
     </div>

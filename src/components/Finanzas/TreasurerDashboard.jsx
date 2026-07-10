@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '../../supabaseClient';
 import { useToast } from '../../context/ToastContext';
 import { formatLocalDate, parseLocalDate } from '../../utils/dates';
+import { getCampaigns, getTreasurerDeliveries } from '../../services/financeService';
 
 function TreasurerDashboard({ onClose }) {
   const { showToast } = useToast();
@@ -12,15 +13,15 @@ function TreasurerDashboard({ onClose }) {
 
   const loadAll = async () => {
     setLoading(true);
-    const [pendingRes, campaignsRes, deliveriesRes] = await Promise.all([
+    const [pendingRes, campaigns, deliveries] = await Promise.all([
       supabase.rpc('get_pending_treasurer_approvals'),
-      supabase.from('fundraising_campaigns').select('id, name, type, status, ticket_price, total_tickets').order('name'),
-      supabase.from('treasurer_deliveries').select('*, player:player_id(id, nombre, apodo), campaign:campaign_id(id, name)').order('created_at', { ascending: false }).limit(50),
+      getCampaigns(),
+      getTreasurerDeliveries(),
     ]);
     setData({
       pending: pendingRes.data || [],
-      campaigns: campaignsRes.data || [],
-      deliveries: deliveriesRes.data || [],
+      campaigns,
+      deliveries,
     });
     setLoading(false);
   };

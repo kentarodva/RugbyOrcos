@@ -3,7 +3,7 @@
 // ── RPG Roles ──
 type SystemRole = 'desarrollador' | 'presidente' | 'promotor' | 'entrenador' | 'tesorero' | 'arbitro' | 'jugador';
 type PlayerStatus = 'activo' | 'lesionado' | 'suspendido' | 'inactivo';
-type PlayerRol = 'Titular' | 'Suplente' | 'Entrenador' | 'Capitán' | 'Subcapitán';
+type PlayerRol = 'Titular' | 'Suplente' | 'Entrenador' | 'Capitan' | 'Subcapitan';
 type PlayerPosition = 'Pilar' | 'Talonador' | 'Segunda Línea' | 'Flanker' | 'Octavo' | 'Medio Melé' | 'Apertura' | 'Centro' | 'Ala' | 'Zaguero' | 'Wing';
 type Division = 'masculina_mayor' | 'femenina_mayor' | 'juveniles_masculina' | 'juveniles_femenina';
 type SyncStatus = 'idle' | 'syncing' | 'online' | 'offline';
@@ -80,8 +80,10 @@ interface PlayerWellnessLog {
 interface PlayerWorkoutLog {
   id: string;
   date: string;
-  ejercicios: Array<{ exerciseId: string }>;
-  type: string;
+  routine?: string;
+  category?: string;
+  exercises: Array<{ exerciseId: string }>;
+  completed: boolean;
 }
 
 interface PlayerMembership {
@@ -100,12 +102,18 @@ interface PlayerMeta {
 
 interface Player {
   id: string;
+  userId?: string;
   name: string;
+  firstName?: string;
+  middleName?: string;
+  lastName?: string;
+  secondLastName?: string;
   apodo?: string;
   camiseta?: number;
   contacto: PlayerContact;
   rol: PlayerRol;
   posicion?: PlayerPosition;
+  position_id?: number;
   estado: PlayerStatus;
   attributes: PlayerAttributes;
   history: PlayerAttributes[];
@@ -119,14 +127,28 @@ interface Player {
   hiaAssessments: any[];
   workoutLog: PlayerWorkoutLog[];
   systemRole: SystemRole;
-  memberships: PlayerMembership;
+  memberships?: PlayerMembership;
   teamCategory: string;
+  teamId?: string;
   weight?: number;
   height?: number;
   gymStats: PlayerGymStats;
   _meta?: PlayerMeta;
   username?: string;
   makgora_team_id?: string;
+  birth_date?: string;
+  health_insurance?: string;
+  allergies?: string;
+  medical_conditions?: string;
+  had_fractures?: boolean;
+  fracture_details?: string;
+  emergency_contact_name?: string;
+  emergency_contact_phone?: string;
+  avatar_id?: string;
+  photo_url?: string;
+  preferences?: Record<string, any>;
+  document_type?: string;
+  document_number?: string;
 }
 
 // ── Schedule ──
@@ -139,6 +161,7 @@ interface ScheduleEvent {
   mapsLink?: string;
   type: string;
   teamCategory: string;
+  teamId?: string;
   linkedRoutine?: string;
   recurrenceGroup?: string;
 }
@@ -152,6 +175,7 @@ interface FinanceRecord {
   date: string;
   category: string;
   teamCategory: string;
+  teamId?: string;
 }
 
 // ── Fixture ──
@@ -164,6 +188,7 @@ interface Fixture {
   tries: number;
   mvp: string;
   teamCategory: string;
+  teamId?: string;
 }
 
 // ── Future Fixture ──
@@ -174,6 +199,7 @@ interface FutureFixture {
   time?: string;
   location?: string;
   teamCategory: string;
+  teamId?: string;
 }
 
 // ── Rival ──
@@ -192,6 +218,7 @@ interface Championship {
   deadlineDate: string;
   description?: string;
   teamCategory: string;
+  teamId?: string;
 }
 
 // ── Inventory ──
@@ -202,6 +229,7 @@ interface InventoryItem {
   assignedTo?: string;
   status: string;
   teamCategory: string;
+  teamId?: string;
 }
 
 // ── User Profile ──

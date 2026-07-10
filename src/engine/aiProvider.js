@@ -40,10 +40,9 @@ function isAnyProviderConfigured() {
 }
 
 function getConfiguredProviders() {
-  // OpenRouter siempre disponible
-  const configured = ['openrouter'];
+  const configured = [];
   DEFAULT_PROVIDER_ORDER.forEach(id => {
-    if (id !== 'openrouter' && !!getSetting(`${id}_key`)) {
+    if (id === 'openrouter' ? !!getSetting('openrouter_key') : !!getSetting(`${id}_key`)) {
       configured.push(id);
     }
   });
@@ -244,11 +243,27 @@ export async function generateTrainingPlan(player) {
       const result = await mod.call(prompt, { temperature: 0.7, maxTokens: 1500, retryOnFailure: false });
       if (result.error || !result.text) continue;
       mod.incrementRateLimit();
-      const trimmed = result.text.replace(/```json|```/g, '').trim();
-      const parsed = JSON.parse(trimmed);
-      if (parsed.plan) {
-        return { ...parsed, provider: providerId, fromAI: true };
+
+      let parsed = null;
+      try {
+        parsed = JSON.parse(result.text);
+      } catch {
+        let text = result.text.replace(/```(?:json)?\s*/gi, '').replace(/```\s*/g, '').trim();
+        try {
+          parsed = JSON.parse(text);
+        } catch {
+          const match = text.match(/\{[\s\S]*\}/);
+          if (match) {
+            try { parsed = JSON.parse(match[0]); } catch { continue; }
+          }
+        }
       }
+      if (!parsed?.plan) continue;
+
+      const providerConfig = PROVIDERS[providerId];
+      const defaultModelId = providerConfig?.defaultModel;
+      const modelId = providerConfig?.models?.[defaultModelId]?.id || providerId;
+      return { ...parsed, provider: providerId, model: modelId, fromAI: true };
     } catch { continue; }
   }
   return null;

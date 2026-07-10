@@ -18,7 +18,8 @@
   "plugins": ["react"],
   "settings": {
     "react": {
-      "version": "detect"
+      "version": "detect",
+      "runtime": "automatic"
     }
   },
   "globals": {
@@ -35,6 +36,7 @@
   "rules": {
     "no-unused-vars": ["warn", { "argsIgnorePattern": "^_", "varsIgnorePattern": "^_" }],
     "no-console": "off",
+    "react/react-in-jsx-scope": "off",
     "react/prop-types": "off",
     "react/no-unknown-property": "warn",
     "react/no-unescaped-entities": "off"

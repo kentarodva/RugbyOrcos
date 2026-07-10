@@ -1,14 +1,5 @@
-export { default as RadarChart } from './RadarChart';
-export { default as AttendanceTimeline } from './AttendanceTimeline';
-export { default as DivisionComparison } from './DivisionComparison';
 export { default as MetricsCards } from './MetricsCards';
-export { default as ForwardsBacksBalance } from './ForwardsBacksBalance';
 export { default as ChampionshipCountdown } from './ChampionshipCountdown';
 export { default as SinBinConsole } from './SinBinConsole';
-export { default as WellnessForm } from './WellnessForm';
-export { default as InjuryReport } from './InjuryReport';
-export { default as UpcomingEvents } from './UpcomingEvents';
 export { default as RecentMatches } from './RecentMatches';
 export { default as AddChampionshipModal } from './AddChampionshipModal';
-export { default as ActivityFeed } from './ActivityFeed';
-export { default as MiniRanking } from './MiniRanking';

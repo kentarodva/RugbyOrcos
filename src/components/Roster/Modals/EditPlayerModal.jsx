@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import PositionSelect from '../PositionSelect';
+import { PlayerPhoto } from '../../PlayerPhoto';
 
 const ROLES_CLUB = ['Entrenador', 'Capitan', 'Subcapitan', 'Titular', 'Suplente'];
 
@@ -26,7 +27,7 @@ function EditPlayerModal({ player, onClose, onSubmit, makgoraTeams, SYSTEM_ROLES
         makgoraTeamId: player.makgora_team_id || '',
         weight: player.weight ?? '',
         height: player.height ?? '',
-        age: player._meta?.age ?? player.age ?? '',
+        age: player._meta?.age ?? '',
       });
     }
   }, [player]);
@@ -64,6 +65,10 @@ function EditPlayerModal({ player, onClose, onSubmit, makgoraTeams, SYSTEM_ROLES
         exit={{ opacity: 0, y: -16, scale: 0.97 }}
         transition={{ duration: 0.25, ease: [0.2, 0.8, 0.2, 1] }}>
         <h3 className="neon-text-gold" style={{ marginBottom: '20px', fontFamily: 'Outfit' }}>Editar Datos de Guerrero</h3>
+
+        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '15px' }}>
+          <PlayerPhoto player={player} size={64} />
+        </div>
 
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>

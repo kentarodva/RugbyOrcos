@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useState } from 'react';
 import ExerciseCard from './ExerciseCard';
 
 function PlayersTab({
@@ -7,13 +7,7 @@ function PlayersTab({
   linkToDate, setLinkToDate, scheduledEvents,
   onGeneratePlan, onToggleExercise, onSaveWorkout
 }) {
-  const activePlayerId = selectedPlayerId || (teamPlayers.length > 0 ? teamPlayers[0].id : null);
-
-  useEffect(() => {
-    if (activePlayerId && (!generatedPlan || generatedPlan.playerId !== activePlayerId)) {
-      onGeneratePlan(activePlayerId);
-    }
-  }, [activePlayerId]);
+  const activePlayerId = selectedPlayerId || null;
 
   return (
     <div style={{ display: 'grid', gridTemplateColumns: '320px 1fr', gap: '20px', minHeight: '500px' }} className="animated-fade">
@@ -31,7 +25,7 @@ function PlayersTab({
           teamPlayers.map((player) => {
             const a = player.attributes || {};
             const avg = Object.values(a).length > 0 ? Math.round(Object.values(a).reduce((s, v) => s + v, 0) / Object.values(a).length) : 0;
-            const color = player.rol === 'Capitán' ? 'var(--color-gold)' : player.rol === 'Entrenador' ? '#a855f7' : player.estado === 'lesionado' ? 'var(--color-red)' : 'var(--color-primary)';
+            const color = player.rol === 'Capitan' ? 'var(--color-gold)' : player.rol === 'Entrenador' ? '#a855f7' : player.estado === 'lesionado' ? 'var(--color-red)' : 'var(--color-primary)';
             const isSelected = player.id === activePlayerId;
 
             return (
@@ -77,13 +71,31 @@ function PlayersTab({
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-        {generating ? (
+        {!activePlayerId ? (
+          <div className="glass-panel" style={{ padding: '50px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '15px' }}>
+            <span style={{ fontSize: '3rem' }}>👆</span>
+            <h3 style={{ fontSize: '1.1rem', fontWeight: 800 }}>Selecciona un Guerrero</h3>
+            <p style={{ color: 'var(--color-text-muted)', fontSize: '0.8rem', maxWidth: '400px' }}>Elige un jugador de la lista para generar su plan de entrenamiento.</p>
+          </div>
+        ) : generating ? (
           <div className="glass-panel" style={{ padding: '50px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '15px' }}>
             <span style={{ fontSize: '3rem' }}>🤖</span>
             <h3 style={{ fontSize: '1.1rem', fontWeight: 800 }}>Generando plan personalizado...</h3>
             <p style={{ color: 'var(--color-text-muted)', fontSize: '0.8rem' }}>La IA está analizando el historial completo del jugador.</p>
           </div>
-        ) : generatedPlan ? (
+        ) : !generatedPlan ? (
+          <div className="glass-panel" style={{ padding: '50px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '15px' }}>
+            <span style={{ fontSize: '3rem' }}>🧠</span>
+            <h3 style={{ fontSize: '1.1rem', fontWeight: 800 }}>Sin plan de entrenamiento</h3>
+            <p style={{ color: 'var(--color-text-muted)', fontSize: '0.8rem', maxWidth: '400px' }}>
+              Genera un plan con IA para este guerrero.
+            </p>
+            <button onClick={() => activePlayerId && onGeneratePlan(activePlayerId)}
+              className="btn-neon" style={{ padding: '12px 28px', fontSize: '0.85rem', justifyContent: 'center' }}>
+              🧠 Generar Plan con IA
+            </button>
+          </div>
+        ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
             <div className="glass-panel" style={{ padding: '12px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px', fontSize: '0.75rem' }}>
               <div>
@@ -148,14 +160,6 @@ function PlayersTab({
             <div style={{ display: 'flex', justifyContent: 'center' }}>
               <button onClick={onSaveWorkout} className="btn-neon" style={{ padding: '12px 32px', fontSize: '0.9rem', justifyContent: 'center' }}>Guardar Rutina Completada</button>
             </div>
-          </div>
-        ) : (
-          <div className="glass-panel" style={{ padding: '40px', textAlign: 'center', display: 'flex', flexDirection: 'column', justifyContent: 'center', height: '100%' }}>
-            <span style={{ fontSize: '2.5rem', marginBottom: '15px' }}>👥</span>
-            <h3 style={{ fontSize: '1.1rem', fontWeight: 800 }}>Selecciona un Jugador</h3>
-            <p style={{ color: 'var(--color-text-muted)', fontSize: '0.8rem', marginTop: '4px' }}>
-              Elige un miembro del clan del menú lateral para generar su plan de entrenamiento personalizado.
-            </p>
           </div>
         )}
       </div>

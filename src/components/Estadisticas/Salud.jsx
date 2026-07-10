@@ -3,27 +3,13 @@ import { HorizontalBar } from './charts.jsx';
 import AttendanceTimeline from '../Dashboard/AttendanceTimeline';
 import InjuryReport from '../Dashboard/InjuryReport';
 import WellnessForm from '../Dashboard/WellnessForm';
+import { getHealthSummary, getFracturesByCategory } from '../../services/statsService';
 
 export default function Salud({ players, recordWellness }) {
-  const stats = useMemo(() => {
-    const total = players.length;
-    const withF = players.filter(p => p.had_fractures).length;
-    const withA = players.filter(p => p.allergies).length;
-    const withC = players.filter(p => p.medical_conditions).length;
-    return { total, withF, withA, withC };
-  }, [players]);
+  const stats = useMemo(() => getHealthSummary(players), [players]);
 
   const byCat = useMemo(() => {
-    const m = {};
-    for (const p of players) {
-      const c = (p.teamCategory || 'otros').replace('orcos_', '');
-      if (!m[c]) m[c] = { total: 0, fractures: 0 };
-      m[c].total++;
-      if (p.had_fractures) m[c].fractures++;
-    }
-    return Object.entries(m)
-      .filter(([, d]) => d.total > 0)
-      .map(([label, d]) => ({ label, value: d.fractures, pct: Math.round((d.fractures / d.total) * 100), total: d.total, color: '#ff5252' }));
+    return getFracturesByCategory(players).map(d => ({ ...d, color: '#ff5252' }));
   }, [players]);
 
   const detailPlayers = useMemo(() =>

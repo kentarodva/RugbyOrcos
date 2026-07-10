@@ -1,4 +1,4 @@
-﻿# RUGBY ORCOS NEGROS — Reino Manager v5.0
+﻿# RUGBY ORCOS NEGROS — Reino Manager v5.1
 
 <p align="center">
   <img src="assets/orcos_logo.png" alt="Rugby Orcos Shield" width="180" />
@@ -94,7 +94,7 @@ Rugby Orcos/
 │   │   ├── supabaseApi.js       # Capa API Supabase + conversor de datos
 │   │   ├── exerciseLibrary.js   # 44 ejercicios de rugby
 │   │   └── faultExerciseMap.js  # Mapa fallos → ejercicios correctivos
-│   ├── __tests__/                # 53 archivos, 546 tests
+│   ├── __tests__/                # 59 archivos, 594 tests
 │   └── engine/
 │       ├── assignmentEngine.js  # Motor de reglas para planes de entrenamiento
 │       ├── aiProvider.js        # Router multi-proveedor IA + generateTrainingPlan
@@ -138,11 +138,59 @@ Rugby Orcos/
 │   ├── 30_training_plans.sql           # Planes de entrenamiento persistidos
 │   ├── 31_fix_child_table_rls.sql      # RLS en tablas hijas (wellness, HIA, etc)
 │   ├── 32_agenda_enhancements.sql      # notes, end_date, event_rsvp
-│   └── 33_event_scope.sql              # scope_type + scope_value (visibilidad)
+│   ├── 33_event_scope.sql              # scope_type + scope_value (visibilidad)
+│   ├── 34-40_security_rls_performance.sql # Fixes RLS, índices, revoke anon
+│   ├── 41-42_live_matches.sql          # Live match tracking + eventos
+│   ├── 43-52_fixes_and_enhancements.sql # UNIQUE, salud, credenciales, nombres
+│   ├── 53_smart_username_and_name_fields.sql # Username + nombres compuestos
+│   ├── 54-57_stats_health_attributes.sql # Estadísticas, salud, atributos RPG
+│   ├── 58_sync_user_profile.sql         # Trigger auto-creación user_profiles
+│   ├── 59_add_missing_foreign_keys.sql  # 33 FKs (user_id, team_category, UUIDs)
+│   ├── 60_security_checks_and_timestamps.sql # 9 CHECKs + updated_at financiero
+│   ├── 61_performance_indexes.sql       # 40+ índices FK + WHERE
+│   ├── 62_data_quality.sql              # TIME nativo, UNIQUE workouts, CHECKs
+│   ├── 63_add_team_id_fk_columns.sql    # team_id UUID FK 12 tablas + triggers
+│   └── 64_complete_user_team_links.sql  # user_profiles ↔ teams ↔ clubs
 ├── android/                     # Proyecto Android Capacitor
 ├── vercel.json                  # Config SPA fallback para Vercel
 └── .env                         # Variables de entorno (NO COMMITEAR)
 ```
+
+---
+
+## Integridad Referencial (DB Normalizada)
+
+La base de datos está completamente normalizada con integridad referencial estricta:
+
+| Métrica | Valor |
+|---------|-------|
+| Foreign Keys | 133 |
+| CHECK constraints | 94 |
+| Índices | 164 |
+| Tablas con RLS | 53/53 (100%) |
+| Tablas totales | 53 |
+
+### Jerarquía de relaciones
+
+```
+clubs (id, name, code)
+  └── teams (id, category, division, club_id FK→clubs)
+        ├── players (team_id FK, team_category FK)
+        ├── schedule_events (team_id FK, team_category FK)
+        ├── finances (team_id FK, team_category FK)
+        ├── championships (team_id FK, team_category FK)
+        ├── fixtures (team_id FK, team_category FK)
+        ├── future_fixtures (team_id FK, team_category FK)
+        ├── inventory (team_id FK, team_category FK)
+        ├── lineups (team_id FK, team_category FK)
+        ├── team_members (team_id FK, team_category FK)
+        ├── push_tokens (team_id FK, team_category FK)
+        ├── fundraising_campaigns (team_id FK, team_category FK)
+        ├── club_config (team_id FK, team_category FK)
+        └── user_profiles (team_id FK, club_scope FK)
+```
+
+Triggers bidireccionales mantienen sincronizadas `team_category` (VARCHAR) y `team_id` (UUID). El frontend lee ambos y puede migrar gradualmente a UUID. Todos los `user_id` tienen FK a `auth.users(id)`.
 
 ---
 
@@ -166,10 +214,11 @@ Rugby Orcos/
 - Ingresa su **email** + contrasena → Supabase Auth → accede al panel completo segun permisos
 
 ### Guerrero (Jugador)
-- Ingresa su **nombre de usuario** (ej: `freyder.andres`) + contrasena
-- La app busca el username en `players` por username, nickname, apodo o nombre completo
-- Obtiene su email interno → login → PlayerDashboard con 4 tabs
-- Si el perfil no existe, se muestra vista "Sin rango en el Reino" con instrucciones
+- Ingresa su **nombre de usuario** (ej: `kennent.vergara`) o **email** + contrasena
+- La app busca el jugador por `players.user_id` UUID (FK a `auth.users`) → match directo
+- Fallback: busca por nombre (`display_name`) o email del perfil
+- Accede al PlayerDashboard con 7 tabs
+- Si el perfil no tiene `birth_date`, se muestra wizard de bienvenida
 
 ### Fundar Reino (primer uso / staff nuevo)
 - Admin > Miembros > crear usuario con email + password + rol
@@ -203,7 +252,7 @@ Dashboard centralizado de invitaciones a equipos rivales. Genera links unicos po
 Recurrencia personalizada (dias de la semana x N semanas con vista previa). Panel de **Entreno Rapido** (crear entrenos en 2 clicks con memoria de ultima hora/lugar). Anti-duplicado (misma fecha+hora+equipo). WhatsApp formatter con mapa. Vista semanal. Editar/borrar cualquier evento. Los eventos se guardan en Supabase y son visibles para todos los miembros de la division.
 
 ### PlayerDashboard (Guerrero, tier 4)
-El Guerrero accede a un dashboard con **4 tabs**: 🛡️ Mi Perfil (atributos RPG, insignias, membresia), 📅 Agenda (proximos entrenos y partidos del equipo — solo lectura), 💪 Entreno (plan generado por IA con ejercicios campo/gym/recuperacion — solo lectura), 🧘 Bienestar (wellness check-in diario con estrellas de sueno/dolor/estres). Sin acceso a crear/editar/borrar datos del club.
+El Guerrero accede a un dashboard con **7 tabs**: 🛡️ Mi Perfil (atributos RPG, insignias, membresia, editar perfil completo), 📅 Agenda (proximos entrenos y partidos del equipo con RSVP), 💪 Entreno (plan IA + logging de ejercicios), 🧘 Bienestar (wellness check-in diario), 📈 Progreso (gym history graficas), 💰 Finanzas (historial de pagos, tickets, campanas), 🤖 IA (chat tactico). El perfil es completamente editable por el jugador (peso, altura, EPS, salud, experiencia). Primer login muestra wizard de bienvenida para completar datos requeridos.
 
 ### Finanzas
 Caja chica, membresias con abonos parciales y cobro mensual automatico, inventario con custodios.
@@ -222,6 +271,8 @@ Chat multi-proveedor (Gemini/Groq/DeepSeek) con failover. 3 modos. Rate limit y 
 | Rol | Usuario | Contrasena |
 |-----|---------|-----------|
 | Arquitecto del Reino | admin@orcosnegros.com | OrcosAdmin2026! |
+| Señor de la Guerra | kennentdva@gmail.com | ******** |
+| Guerrero | kennent.vergara@orcos.club | ******** |
 
 ---
 
@@ -296,11 +347,12 @@ Cada push a `main` dispara auto-deploy.
 | `npm run dev` | Dev server localhost:3000 |
 | `npm run build` | Build produccion en dist/ |
 | `npm run lint` | ESLint (0 warnings) |
-| `npm run test` | Vitest (546 tests, 53 files) |
+| `npm run test` | Vitest (594 tests, 59 files) |
 | `npm run cap:sync` | Sincronizar Android |
 | `npm run cap:open-android` | Abrir Android Studio |
 | `node seed/seed-csv.mjs ruta.csv` | Importar CSV a Supabase |
 | `git push origin main` | Auto-deploy a Vercel |
+| `node src/__tests__/validate_db_integrity.sql` | Validar integridad BD en Supabase |
 
 ---
 
@@ -332,6 +384,10 @@ Cada push a `main` dispara auto-deploy.
 | 21 | Historial de campeones Mak'Gora | ✅ |
 | 22 | Comparativa de jugadores | ✅ |
 | 23 | CI/CD + 546 tests | ✅ |
+| 24 | Normalizacion BD: 133 FKs, 94 CHECKs, team_id UUID | ✅ |
+| 25 | PlayerDashboard 7 tabs + wizard bienvenida | ✅ |
+| 26 | Auto-creacion user_profiles (trigger + codigo) | ✅ |
+| 27 | Tests: 594 tests, 59 archivos | ✅ |
 
 ---
 

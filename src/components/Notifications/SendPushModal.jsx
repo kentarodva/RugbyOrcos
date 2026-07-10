@@ -1,4 +1,4 @@
-import React, { useContext, useState, useMemo } from 'react';
+import React, { useContext, useState, useEffect, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { ClubContext } from '../../context/ClubContext';
 import { supabase } from '../../supabaseClient';
@@ -37,6 +37,42 @@ export default function SendPushModal({ onClose }) {
   const [positionFilter, setPositionFilter] = useState('');
   const [selectedIds, setSelectedIds] = useState(new Set());
   const [sending, setSending] = useState(false);
+  const [templates, setTemplates] = useState([]);
+  const [showHistory, setShowHistory] = useState(false);
+  const [history, setHistory] = useState([]);
+  const [historyTab, setHistoryTab] = useState('send'); // 'send', 'history', 'templates'
+
+  useEffect(() => {
+    loadTemplates();
+  }, []);
+
+  const loadTemplates = async () => {
+    const { data } = await supabase.from('notification_templates').select('*').order('created_at', { ascending: false });
+    if (data) setTemplates(data);
+  };
+
+  const loadHistory = async () => {
+    const { data } = await supabase.from('notification_history').select('*').order('created_at', { ascending: false }).limit(20);
+    if (data) setHistory(data);
+  };
+
+  const applyTemplate = (t) => {
+    setTitle(t.title);
+    setBody(t.body);
+  };
+
+  const handleSaveTemplate = async () => {
+    if (!title.trim() || !body.trim()) return;
+    const name = prompt('Nombre para la plantilla:');
+    if (!name) return;
+    const { error } = await supabase.from('notification_templates').insert({
+      name, title: title.trim(), body: body.trim(),
+      created_by: (await supabase.auth.getUser()).data.user?.id,
+    });
+    if (error) { showToast('Error al guardar: ' + error.message, 'error'); return; }
+    showToast('Plantilla guardada.', 'success');
+    loadTemplates();
+  };
 
   const filteredPlayers = useMemo(() => {
     let p = players;
@@ -85,6 +121,12 @@ export default function SendPushModal({ onClose }) {
         body: payload,
       });
       if (webError) throw webError;
+      await supabase.from('notification_history').insert({
+        title: title.trim(), body: body.trim(),
+        sender_id: (await supabase.auth.getUser()).data.user?.id,
+        recipient_count: selectedIds.size,
+        filters: { categories: categoryFilter || null, makgora: makgoraFilter || null, positions: positionFilter || null },
+      });
       showToast(`Notificación enviada a ${selectedIds.size} jugadores.`, 'success');
       onClose();
     } catch (err) {
@@ -170,6 +212,54 @@ export default function SendPushModal({ onClose }) {
             )}
           </div>
         </div>
+
+        <div style={{ display: 'flex', gap: '8px', marginTop: '12px', justifyContent: 'center' }}>
+          <button onClick={handleSaveTemplate} disabled={!title.trim() || !body.trim()}
+            className="btn-outline" style={{ padding: '6px 12px', fontSize: '0.7rem' }}>
+            💾 Guardar Plantilla
+          </button>
+          <button onClick={() => { setHistoryTab(historyTab === 'templates' ? 'send' : 'templates'); if (historyTab !== 'templates') loadTemplates(); }}
+            className="btn-outline" style={{ padding: '6px 12px', fontSize: '0.7rem' }}>
+            {historyTab === 'templates' ? '✕ Cerrar' : '📋 Plantillas'}
+          </button>
+          <button onClick={() => { setShowHistory(!showHistory); if (!showHistory) loadHistory(); }}
+            className="btn-outline" style={{ padding: '6px 12px', fontSize: '0.7rem' }}>
+            {showHistory ? '✕ Cerrar' : '📜 Historial'}
+          </button>
+        </div>
+
+        {historyTab === 'templates' && templates.length > 0 && (
+          <div style={{ marginTop: '10px', padding: '10px', background: 'rgba(255,255,255,0.02)', borderRadius: 'var(--radius-sm)' }}>
+            <label style={{ fontSize: '0.75rem', color: 'var(--color-gold)', fontWeight: 700, marginBottom: '6px', display: 'block' }}>Plantillas Guardadas</label>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', maxHeight: '120px', overflowY: 'auto' }}>
+              {templates.map(t => (
+                <div key={t.id} onClick={() => applyTemplate(t)}
+                  style={{ padding: '6px 10px', cursor: 'pointer', borderRadius: 'var(--radius-sm)', background: 'rgba(0,230,118,0.03)', border: '1px solid var(--border-glass)', fontSize: '0.75rem' }}
+                  className="hover-row">
+                  <strong style={{ color: 'var(--color-primary)' }}>{t.name}</strong>: {t.title}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {showHistory && (
+          <div style={{ marginTop: '10px', padding: '10px', background: 'rgba(255,255,255,0.02)', borderRadius: 'var(--radius-sm)', maxHeight: '150px', overflowY: 'auto' }}>
+            <label style={{ fontSize: '0.75rem', color: 'var(--color-gold)', fontWeight: 700, marginBottom: '6px', display: 'block' }}>Historial de Envíos</label>
+            {history.length === 0 ? (
+              <p style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)', textAlign: 'center' }}>Sin envios registrados.</p>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                {history.map(h => (
+                  <div key={h.id} style={{ padding: '6px 10px', borderRadius: 'var(--radius-sm)', background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border-glass)', fontSize: '0.7rem' }}>
+                    <div style={{ color: 'var(--color-text)', fontWeight: 600 }}>{h.title}</div>
+                    <div style={{ color: 'var(--color-text-muted)', fontSize: '0.65rem' }}>{h.body?.slice(0, 60)}... · {h.recipient_count} jugador(es) · {new Date(h.created_at).toLocaleDateString('es')}</div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
 
         <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
           <button onClick={onClose} className="btn-outline" style={{ flex: 1, justifyContent: 'center' }}>
