@@ -32,7 +32,7 @@ function ExerciseForm({ onCreated, onClose }) {
 
   useEffect(() => {
     if (!user?.id) return;
-    import('../../services/playerService').then(({ fetchPlayers }) => {
+    import('../../services/dataService').then(({ fetchPlayers }) => {
       fetchPlayers({ userId: user.id }).then(data => {
         if (data?.[0]) setPlayerId(data[0].id);
       });

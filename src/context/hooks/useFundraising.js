@@ -2,6 +2,12 @@ import { useState, useCallback } from 'react';
 import { supabase } from '../../supabaseClient.js';
 import { generateId } from '../../utils/ids.js';
 
+const emit = (table, action, payload = {}) => {
+  window.dispatchEvent(new CustomEvent('data:changed', {
+    detail: { table, action, payload, timestamp: Date.now() }
+  }));
+};
+
 export function useFundraising(activeTeam, user) {
   const [campaigns, setCampaigns] = useState(() => []);
   const [allPayments, setAllPayments] = useState(() => []);
@@ -43,6 +49,7 @@ export function useFundraising(activeTeam, user) {
     setCampaigns(prev => [newCampaign, ...prev]);
     const { error } = await supabase.from('fundraising_campaigns').upsert(newCampaign);
     if (error) throw error;
+    emit('fundraising_campaigns', 'create', { campaignId: newCampaign.id });
     return newCampaign;
   }, [activeTeam]);
 

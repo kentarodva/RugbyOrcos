@@ -3,6 +3,13 @@ import { supabase } from '../../supabaseClient.js';
 import { wrapCatch } from '../../utils/errorHandler';
 import { ClubContext } from '../../context/ClubContext.jsx';
 import { useToast } from '../../context/ToastContext.jsx';
+import { useDataListener } from '../../context/hooks/useDataListener.js';
+
+const emitChange = (table, action, payload = {}) => {
+  window.dispatchEvent(new CustomEvent('data:changed', {
+    detail: { table, action, payload, timestamp: Date.now() }
+  }));
+};
 
 export function useMakgoraState() {
   const { showToast } = useToast();
@@ -19,6 +26,8 @@ export function useMakgoraState() {
   const [loanForm, setLoanForm] = useState({ playerId: '', toTeamId: '', reason: '', days: 7 });
   const matchesRef = useRef(matches);
   useEffect(() => { matchesRef.current = matches; }, [matches]);
+  const activeTournamentRef = useRef(activeTournament);
+  useEffect(() => { activeTournamentRef.current = activeTournament; }, [activeTournament]);
 
   const checkExpiredLoans = useCallback(async () => {
     const today = new Date().toISOString().split('T')[0];
@@ -50,6 +59,12 @@ export function useMakgoraState() {
     loadTournaments();
     checkExpiredLoans();
   }, [loadTeams, loadTournaments, checkExpiredLoans]);
+
+  useDataListener('tournaments', () => loadTournaments());
+  useDataListener('tournament_matches', () => {
+    if (activeTournamentRef.current?.id) loadMatches(activeTournamentRef.current.id);
+  });
+  useDataListener('player_loans', () => { loadTeams(); loadTournaments(); });
 
   const loadStandings = useCallback(async (tournamentId) => {
     const { data } = await supabase.from('tournament_standings').select('*, makgora_teams!inner(name, rpg_name, is_external)').eq('tournament_id', tournamentId).order('total_points', { ascending: false });
@@ -106,6 +121,7 @@ export function useMakgoraState() {
     setShowCreate(false);
     setForm({ name: '', startDate: '', endDate: '', status: 'proximo' });
     loadTournaments();
+    emitChange('tournaments', 'create', { tournamentId: data.id, name: data.name });
   }, [form, teams, showToast, loadTournaments]);
 
   const generateFixture = useCallback(async () => {
@@ -150,6 +166,7 @@ export function useMakgoraState() {
 
     showToast('Fixture generado: ' + newMatches.length + ' partidos en ' + totalRounds + ' rondas', 'success');
     loadMatches(activeTournament.id);
+    emitChange('tournament_matches', 'create', { tournamentId: activeTournament.id, count: newMatches.length });
   }, [activeTournament, showToast, loadMatches]);
 
   const generatePlayoffs = useCallback(async () => {
@@ -362,6 +379,7 @@ export function useMakgoraState() {
     showToast('Torneo eliminado', 'success');
     if (activeTournament?.id === tournamentId) setActiveTournament(null);
     loadTournaments();
+    emitChange('tournaments', 'delete', { tournamentId });
   }, [showToast, loadTournaments, activeTournament]);
 
   const teamName = useCallback((id) => {

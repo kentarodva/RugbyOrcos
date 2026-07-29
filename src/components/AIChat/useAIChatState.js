@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useCallback, useContext } from 'react';
 import { ClubContext } from '../../context/ClubContext';
+import { useViewFilter } from '../../context/hooks/useFilterByView';
 import { useAuth } from '../../context/AuthContext';
 import { supabase } from '../../supabaseClient.js';
 import { isAnyAIConfigured, getModelConfig, streamChatWithAI, chatWithAI } from '../../engine/multiProviderCoach';
@@ -13,6 +14,7 @@ export function useAIChatState() {
   const { user, profile } = useAuth();
   const { showToast } = useToast();
   const messagesEndRef = useRef(null);
+  const filterByView = useViewFilter();
 
   const [input, setInput] = useState('');
   const [messages, setMessages] = useState([]);
@@ -78,12 +80,10 @@ export function useAIChatState() {
     ? (activeProvId !== 'auto' ? modelConfig.current : modelConfig.available[0])
     : null;
 
-  const teamFixtures = fixtures
-    .filter(f => f.teamCategory === activeTeam)
+  const teamFixtures = filterByView(fixtures)
     .sort((a, b) => new Date(b.date) - new Date(a.date));
   const lastFixture = teamFixtures[0];
-  const nextUpcoming = (futureFixtures || [])
-    .filter(f => f.teamCategory === activeTeam)
+  const nextUpcoming = filterByView(futureFixtures || [])
     .sort((a, b) => new Date(a.date) - new Date(b.date));
   const opponent = nextUpcoming[0]?.opponent || lastFixture?.opponent || '';
 

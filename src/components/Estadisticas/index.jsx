@@ -1,5 +1,6 @@
 import React, { useContext, useMemo, useState, useRef, useCallback } from 'react';
 import { ClubContext } from '../../context/ClubContext';
+import { useTeamPlayers } from '../../context/hooks/useFilterByView';
 import { formatLocalDate } from '../../utils/dates.js';
 import { useRegisterSearchHandler } from '../../utils/keyboardShortcuts';
 import { normalizeEPS } from '../../utils/csvImport';
@@ -25,7 +26,8 @@ const TABS = [
 ];
 
 function Estadisticas() {
-  const { players, viewMode, divisionView, makgoraTeamId, makgoraTeams, activeTeam, syncStatus, recordWellness } = useContext(ClubContext);
+  const { players, makgoraTeams, syncStatus, recordWellness } = useContext(ClubContext);
+  const teamPlayers = useTeamPlayers();
   const searchInputRef = useRef(null);
   const [activeTab, setActiveTab] = useState('demografia');
 
@@ -48,14 +50,7 @@ function Estadisticas() {
   [players]);
 
   const filteredPlayers = useMemo(() => {
-    let p;
-    if (viewMode === 'general' && divisionView === 'all') p = players.filter(x => x.teamCategory?.startsWith('orcos'));
-    else if (viewMode === 'general') p = players.filter(x => x.teamCategory === `orcos_${divisionView}`);
-    else if (viewMode === 'makgora' && makgoraTeamId) {
-      p = players.filter(x => x.makgora_team_id === makgoraTeamId);
-      if (divisionView !== 'all') p = p.filter(x => x.teamCategory === `orcos_${divisionView}`);
-    }
-    else p = players.filter(x => x.teamCategory?.startsWith('orcos'));
+    let p = teamPlayers;
     if (filters.estado !== 'todos') p = p.filter(x => x.estado === filters.estado);
     if (filters.edadMin) p = p.filter(x => (x._meta?.age ?? x.age) >= parseInt(filters.edadMin));
     if (filters.edadMax) p = p.filter(x => (x._meta?.age ?? x.age) <= parseInt(filters.edadMax));
@@ -76,7 +71,7 @@ function Estadisticas() {
       p = p.filter(x => (x.name || '').toLowerCase().includes(q));
     }
     return p;
-  }, [players, viewMode, divisionView, makgoraTeamId, activeTeam, filters]);
+  }, [teamPlayers, filters]);
 
   const activePlayers = useMemo(() => filteredPlayers.filter(p => p.estado !== 'inactivo'), [filteredPlayers]);
   const avg = (arr) => arr.length > 0 ? (arr.reduce((s, v) => s + v, 0) / arr.length).toFixed(1) : '-';

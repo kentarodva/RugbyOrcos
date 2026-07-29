@@ -1,10 +1,12 @@
-import React, { Suspense, useState, useEffect, useContext, useMemo, useCallback } from 'react';
+import React, { Suspense, useState, useEffect, useContext, useMemo, useCallback, useRef } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ClubContext, getRpgRole } from '../context/ClubContext.jsx';
 import { supabase } from '../supabaseClient';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useToast } from '../context/ToastContext.jsx';
 import { getOrGeneratePlan, getActivePlan } from '../engine/trainingPlanService';
+import { fetchEventRsvps, upsertRsvp, fetchPlayerRsvps } from '../services/dataService';
+import { useDataListener } from '../context/hooks/useDataListener';
 import { usePlayerAvatar } from '../hooks/usePlayerAvatar';
 import { AvatarPicker } from './AvatarPicker';
 import PlayerSaleTicketModal from './PlayerSaleTicketModal';
@@ -131,7 +133,7 @@ function PlayerDashboard() {
   const handleOpenDetail = async (event) => {
     setSelectedEvent(event);
     try {
-      const { data } = await supabase.from('event_rsvp').select('*').eq('event_id', event.id);
+      const data = await fetchEventRsvps(event.id);
       if (data) setRsvpList(data);
     } catch { setRsvpList([]); }
   };
@@ -139,11 +141,8 @@ function PlayerDashboard() {
   const handleRsvp = async (eventId, status) => {
     if (!player?.id) return;
     try {
-      await supabase.from('event_rsvp').upsert(
-        { event_id: eventId, player_id: player.id, status },
-        { onConflict: 'event_id, player_id' }
-      );
-      const { data } = await supabase.from('event_rsvp').select('*').eq('event_id', eventId);
+      await upsertRsvp(player.id, eventId, status);
+      const data = await fetchEventRsvps(eventId);
       if (data) setRsvpList(data);
       showToast('Asistencia confirmada.', 'success');
     } catch { showToast('Error al confirmar asistencia.', 'error'); }
@@ -168,7 +167,7 @@ function PlayerDashboard() {
 
   useEffect(() => {
     if (!player?.id) return;
-    supabase.from('event_rsvp').select('event_id, status').eq('player_id', player.id).then(({ data }) => {
+    fetchPlayerRsvps(player.id).then((data) => {
       if (data) {
         const map = {};
         data.forEach(r => { map[r.event_id] = r.status; });
@@ -195,6 +194,29 @@ function PlayerDashboard() {
       }
     }).catch(() => {});
   }, [player, planVersion]);
+
+  const playerRef = useRef(player);
+  playerRef.current = player;
+  useDataListener('event_rsvp', () => {
+    if (playerRef.current?.id) {
+      fetchPlayerRsvps(playerRef.current.id).then((data) => {
+        if (data) {
+          const map = {};
+          data.forEach(r => { map[r.event_id] = r.status; });
+          setMyRsvpMap(map);
+        }
+      }).catch(() => {});
+    }
+  });
+  useDataListener('training_plans', () => {
+    if (playerRef.current?.id) setPlanVersion(v => v + 1);
+  });
+  useDataListener('attendance', () => {
+    if (playerRef.current?.id) setPlanVersion(v => v + 1);
+  });
+  useDataListener('player_payments', () => {
+    if (playerRef.current?.id) setPlanVersion(v => v + 1);
+  });
 
   const handleGeneratePlan = () => {
     if (!player) return;

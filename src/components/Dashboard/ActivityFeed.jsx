@@ -1,9 +1,28 @@
-import React, { useMemo } from 'react';
-import { Trophy, TrendingDown, Shield, Coins, Wallet, Swords, Dumbbell, ScrollText } from 'lucide-react';
+import React, { useMemo, useState, useEffect } from 'react';
+import { Trophy, TrendingDown, Shield, Coins, Wallet, Swords, Dumbbell, ScrollText, Megaphone } from 'lucide-react';
+import { supabase } from '../../supabaseClient';
+import { useDataListener } from '../../context/hooks/useDataListener';
 
 function ActivityFeed({ players, fixtures, finances, schedule }) {
+  const [latestAnnouncement, setLatestAnnouncement] = useState(null);
+
+  const fetchLatestAnnouncement = () => {
+    supabase.from('messages').select('text, created_at').eq('channel', 'announcement').order('created_at', { ascending: false }).limit(1).single().then(({ data }) => setLatestAnnouncement(data)).catch(() => {});
+  };
+
+  useEffect(() => { fetchLatestAnnouncement(); }, []);
+  useDataListener('messages', () => fetchLatestAnnouncement());
+
   const activities = useMemo(() => {
     const items = [];
+
+    if (latestAnnouncement) {
+      items.push({
+        date: latestAnnouncement.created_at, type: 'announcement',
+        icon: <Megaphone size={14} />,
+        text: `📢 ${latestAnnouncement.text?.substring(0, 100)}${(latestAnnouncement.text?.length > 100) ? '...' : ''}`,
+      });
+    }
 
     (fixtures || []).forEach(f => {
       if (f.orcosScore !== undefined) {

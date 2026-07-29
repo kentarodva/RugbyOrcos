@@ -1,11 +1,13 @@
-import React, { useContext, useState, useMemo } from 'react';
+import React, { useContext, useState } from 'react';
 import { ClubContext } from '../context/ClubContext';
+import { useTeamPlayers } from '../context/hooks/useFilterByView';
 import { useToast } from '../context/ToastContext';
 import { formatLocalDate } from '../utils/dates.js';
 
 function Rivales() {
-  const { rivals, addRival, updateRival, deleteRival, activeTeam, players, viewMode, divisionView, makgoraTeamId } = useContext(ClubContext);
+  const { rivals, addRival, updateRival, deleteRival, activeTeam } = useContext(ClubContext);
   const { showToast } = useToast();
+  const teamPlayers = useTeamPlayers();
 
   const [showForm, setShowForm] = useState(false);
   const [editingRival, setEditingRival] = useState(null);
@@ -13,23 +15,6 @@ function Rivales() {
   const [colors, setColors] = useState('');
   const [contact, setContact] = useState('');
   const [notes, setNotes] = useState('');
-
-  const teamPlayers = useMemo(() => {
-    if (viewMode === 'general' && divisionView === 'all') {
-      return players.filter(p => p.teamCategory?.startsWith('orcos'));
-    }
-    if (viewMode === 'general') {
-      return players.filter(p => p.teamCategory === `orcos_${divisionView}`);
-    }
-    if (viewMode === 'makgora' && makgoraTeamId) {
-      let filtered = players.filter(p => p.makgora_team_id === makgoraTeamId);
-      if (divisionView !== 'all') {
-        filtered = filtered.filter(p => p.teamCategory === `orcos_${divisionView}`);
-      }
-      return filtered;
-    }
-    return players.filter(p => p.teamCategory === activeTeam);
-  }, [players, viewMode, divisionView, makgoraTeamId, activeTeam]);
 
   const resetForm = () => {
     setName('');

@@ -146,7 +146,6 @@ interface Player {
   emergency_contact_phone?: string;
   avatar_id?: string;
   photo_url?: string;
-  preferences?: Record<string, any>;
   document_type?: string;
   document_number?: string;
 }

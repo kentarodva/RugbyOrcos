@@ -132,7 +132,6 @@ export const playerSchema = z.object({
   emergency_contact_phone: z.string().optional().nullable(),
   avatar_id: z.string().optional().nullable(),
   photo_url: z.string().optional().nullable(),
-  preferences: z.record(z.any()).optional(),
   document_type: z.string().optional().nullable(),
   document_number: z.string().optional().nullable(),
 });

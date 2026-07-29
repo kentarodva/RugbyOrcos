@@ -253,7 +253,7 @@ function Login() {
               if (error) throw error;
               alert('Si el email esta registrado, recibiras un link para restablecer tu contrasena.');
             } catch (err) {
-              alert('Error: ' + err.message);
+              alert('Error al enviar el correo de recuperacion. Verifica tu conexion e intenta de nuevo.');
             }
           }}
             style={{ background: 'none', border: 'none', color: 'var(--color-text-muted)', cursor: 'pointer', fontSize: '0.75rem', textDecoration: 'underline', marginTop: '8px' }}>

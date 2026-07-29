@@ -1,7 +1,12 @@
-import { supabase } from '../supabaseClient';
 import { generatePlan } from './assignmentEngine';
 import { generateTrainingPlan } from './aiProvider';
 import { normalizeAIOutput, normalizeEngineOutput } from './planNormalizer';
+import {
+  getPlayerActivePlan,
+  fetchTrainingPlans,
+  persistTrainingPlan,
+  completeTrainingPlan,
+} from '../services/dataService';
 
 export function getWeekStart(date = new Date()) {
   const d = new Date(date);
@@ -13,15 +18,7 @@ export function getWeekStart(date = new Date()) {
 }
 
 export async function getActivePlan(playerId) {
-  const weekStart = getWeekStart();
-  const { data } = await supabase
-    .from('training_plans')
-    .select('*')
-    .eq('player_id', playerId)
-    .eq('week_start', weekStart)
-    .eq('status', 'active')
-    .maybeSingle();
-  return data;
+  return getPlayerActivePlan(playerId);
 }
 
 export async function getOrGeneratePlan(player) {
@@ -54,7 +51,6 @@ export async function getOrGeneratePlan(player) {
   const matchFaults = enginePlan.matchFaults || [];
   const isInjured = player.estado === 'lesionado';
 
-  // Adjuntar datos de feedback de la semana anterior para el prompt de IA
   const prevFeedback = await getPreviousPlanFeedback(player.id);
 
   const playerCtx = {
@@ -88,27 +84,12 @@ export async function getOrGeneratePlan(player) {
     /* fallback a engine */
   }
 
-  try {
-    await supabase.from('training_plans')
-      .update({ status: 'archived' })
-      .eq('player_id', player.id)
-      .eq('status', 'active');
-  } catch { /* silencioso */ }
-
-  const { data: inserted } = await supabase
-    .from('training_plans')
-    .upsert({
-      player_id: player.id,
-      week_start: getWeekStart(),
-      source,
-      plan: planData,
-      ai_analysis: aiAnalysis,
-      provider: aiProvider,
-      model: aiModel,
-      status: 'active',
-    }, { onConflict: 'player_id, week_start' })
-    .select()
-    .maybeSingle();
+  const inserted = await persistTrainingPlan(player.id, {
+    plan: planData,
+    aiAnalysis,
+    provider: aiProvider,
+    model: aiModel,
+  }, source);
 
   return {
     id: inserted?.id,
@@ -131,68 +112,28 @@ export async function getOrGeneratePlan(player) {
 }
 
 export async function listPlans(playerId) {
-  const { data } = await supabase
-    .from('training_plans')
-    .select('*')
-    .eq('player_id', playerId)
-    .order('week_start', { ascending: false })
-    .limit(12);
-  return data || [];
+  return fetchTrainingPlans(playerId);
 }
 
 export async function completePlan(planId, feedback = {}) {
-  const { data } = await supabase
-    .from('training_plans')
-    .update({
-      status: 'completed',
-      completion_rate: feedback.completionRate ?? 0,
-      feedback,
-      updated_at: new Date().toISOString()
-    })
-    .eq('id', planId)
-    .select()
-    .maybeSingle();
-  return data;
+  return completeTrainingPlan(planId, {
+    completion_rate: feedback.completionRate ?? 0,
+    feedback,
+  });
 }
 
 export async function persistPlan(playerId, plan, source = 'engine') {
-  const { data } = await supabase
-    .from('training_plans')
-    .upsert({
-      player_id: playerId,
-      week_start: getWeekStart(),
-      source,
-      plan: plan.plan || plan,
-      ai_analysis: plan.aiAnalysis ? {
-        analisis: plan.aiAnalysis,
-        riesgos: plan.aiRisks || [],
-        metas: plan.aiGoals || [],
-        recomendaciones: plan.aiRecommendations || {},
-      } : plan.ai_analysis || null,
-      status: 'active',
-    }, { onConflict: 'player_id, week_start' })
-    .select()
-    .maybeSingle();
-  return data;
+  return persistTrainingPlan(playerId, plan, source);
 }
 
 export async function getPreviousPlanFeedback(playerId) {
-  const { data } = await supabase
-    .from('training_plans')
-    .select('feedback, completion_rate')
-    .eq('player_id', playerId)
-    .eq('status', 'completed')
-    .order('week_start', { ascending: false })
-    .limit(1);
-  return data?.[0] || null;
+  const plans = await fetchTrainingPlans(playerId);
+  if (plans.length === 0) return null;
+  const completed = plans.filter(p => p.status === 'completed');
+  completed.sort((a, b) => new Date(b.week_start) - new Date(a.week_start));
+  return completed[0] || null;
 }
 
 export async function saveFeedback(planId, feedback) {
-  const { data } = await supabase
-    .from('training_plans')
-    .update({ feedback, updated_at: new Date().toISOString() })
-    .eq('id', planId)
-    .select()
-    .maybeSingle();
-  return data;
+  return completeTrainingPlan(planId, { feedback });
 }

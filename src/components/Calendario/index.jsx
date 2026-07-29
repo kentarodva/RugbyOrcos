@@ -1,10 +1,12 @@
-import React, { useContext, useState, useMemo, useCallback } from 'react';
+import React, { useContext, useState, useMemo, useCallback, useRef, useEffect } from 'react';
 import { ClubContext } from '../../context/ClubContext';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { useFilterByView } from '../../context/hooks/useFilterByView';
 import { supabase } from '../../supabaseClient';
 import { wrapCatch } from '../../utils/errorHandler';
+import { fetchEventRsvps, upsertRsvp } from '../../services/dataService';
+import { useDataListener } from '../../context/hooks/useDataListener';
 import Rivales from '../Rivales';
 import CalendarioTabs from './CalendarioTabs';
 import AgendaTab from './AgendaTab';
@@ -52,6 +54,16 @@ function Calendario() {
   const [squadFixture, setSquadFixture] = useState(null);
   const [detailEvent, setDetailEvent] = useState(null);
   const [rsvpList, setRsvpList] = useState([]);
+  const detailEventRef = useRef(detailEvent);
+  detailEventRef.current = detailEvent;
+
+  useDataListener('event_rsvp', () => {
+    if (detailEventRef.current?.id) {
+      fetchEventRsvps(detailEventRef.current.id).then(data => {
+        if (data) setRsvpList(data);
+      }).catch(() => {});
+    }
+  });
 
   const currentTeamCategory = useMemo(() => {
     if (viewMode === 'general' && divisionView !== 'all') {
@@ -156,12 +168,8 @@ function Calendario() {
     const playerId = currentPlayer?.id;
     if (!playerId) return;
     try {
-      const { error } = await supabase.from('event_rsvp').upsert(
-        { event_id: eventId, player_id: playerId, status },
-        { onConflict: 'event_id, player_id' }
-      );
-      if (error) throw error;
-      const { data } = await supabase.from('event_rsvp').select('*').eq('event_id', eventId);
+      await upsertRsvp(playerId, eventId, status);
+      const data = await fetchEventRsvps(eventId);
       if (data) setRsvpList(data);
       showToast('Asistencia confirmada.', 'success');
     } catch (err) {
@@ -171,7 +179,7 @@ function Calendario() {
 
   const loadRsvp = useCallback(async (eventId) => {
     try {
-      const { data } = await supabase.from('event_rsvp').select('*').eq('event_id', eventId);
+      const data = await fetchEventRsvps(eventId);
       if (data) setRsvpList(data);
     } catch (err) {
       wrapCatch('Calendario.loadRsvp', { notifyUser: true })(err);

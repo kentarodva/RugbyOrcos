@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '../../supabaseClient';
 import { useToast } from '../../context/ToastContext';
 import { formatLocalDate, parseLocalDate } from '../../utils/dates';
-import { getCampaigns, getTreasurerDeliveries } from '../../services/financeService';
+import { getCampaigns, getTreasurerDeliveries } from '../../services/dataService';
 
 function TreasurerDashboard({ onClose }) {
   const { showToast } = useToast();

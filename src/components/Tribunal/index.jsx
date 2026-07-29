@@ -1,55 +1,24 @@
 import React, { useContext, useMemo } from 'react';
 import { ClubContext } from '../../context/ClubContext';
 import { useToast } from '../../context/ToastContext';
+import { useTeamPlayers, useViewFilter } from '../../context/hooks/useFilterByView';
 import { useTribunalState } from './useTribunalState';
 import ControlTab from './ControlTab';
 import FaultBookTab from './FaultBookTab';
 import RankingsTab from './RankingsTab';
 
 function Tribunal() {
-  const { players, schedule, recordAttendance, recordMatchInfractions, redeemPenalty, activeTeam, viewMode, divisionView, makgoraTeamId } = useContext(ClubContext);
+  const { players, schedule, recordAttendance, recordMatchInfractions, redeemPenalty } = useContext(ClubContext);
   const { showToast } = useToast();
 
-  const teamPlayers = useMemo(() => {
-    if (viewMode === 'general' && divisionView === 'all') {
-      return players.filter(p => p.teamCategory?.startsWith('orcos') && p.rol !== 'Entrenador');
-    }
-    if (viewMode === 'general') {
-      return players.filter(p => p.teamCategory === `orcos_${divisionView}` && p.rol !== 'Entrenador');
-    }
-    if (viewMode === 'makgora' && makgoraTeamId) {
-      let filtered = players.filter(p => p.makgora_team_id === makgoraTeamId && p.rol !== 'Entrenador');
-      if (divisionView !== 'all') {
-        filtered = filtered.filter(p => p.teamCategory === `orcos_${divisionView}`);
-      }
-      return filtered;
-    }
-    return players.filter(p => p.teamCategory === activeTeam && p.rol !== 'Entrenador');
-  }, [players, viewMode, divisionView, makgoraTeamId, activeTeam]);
+  const allTeamPlayers = useTeamPlayers();
+  const teamPlayers = useMemo(() => allTeamPlayers.filter(p => p.rol !== 'Entrenador'), [allTeamPlayers]);
 
+  const filterItems = useViewFilter();
   const teamEvents = useMemo(() => {
     const items = schedule || [];
-    let filtered = items;
-    if (viewMode === 'general' && divisionView === 'all') {
-      filtered = items.filter(x => x.teamCategory?.startsWith('orcos'));
-    } else if (viewMode === 'general') {
-      filtered = items.filter(x => x.teamCategory === `orcos_${divisionView}`);
-    } else if (viewMode === 'makgora' && makgoraTeamId) {
-      if (divisionView !== 'all') {
-        filtered = items.filter(x => x.teamCategory === `orcos_${divisionView}`);
-      } else {
-        filtered = items.filter(x => x.teamCategory?.startsWith('orcos'));
-      }
-    } else {
-      filtered = items.filter(x => x.teamCategory === activeTeam);
-    }
-    return filtered
-      .filter(e => {
-        const eventStart = new Date(e.date + 'T' + (e.time || '00:00'));
-        return new Date(eventStart.getTime() + 3 * 60 * 60 * 1000) >= new Date();
-      })
-      .sort((a, b) => new Date(a.date + 'T' + (a.time || '00:00')) - new Date(b.date + 'T' + (b.time || '00:00')));
-  }, [schedule, viewMode, divisionView, makgoraTeamId, activeTeam]);
+    return filterItems(items);
+  }, [schedule, filterItems]);
 
   const {
     activeSubTab, setActiveSubTab,

@@ -1,5 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { ClubContext } from '../../context/ClubContext';
+import { useDataListener } from '../../context/hooks/useDataListener';
 import { FundraisingCampaignCard } from './FundraisingCampaignCard';
 import { NewCampaignModal } from './NewCampaignModal';
 import { PaymentHistoryModal } from './PaymentHistoryModal';
@@ -14,6 +15,8 @@ export function FundraisingTab({ isStaff, currentPlayerId }) {
   useEffect(() => {
     loadCampaigns();
   }, [activeTeam, loadCampaigns]);
+
+  useDataListener('fundraising_campaigns', () => loadCampaigns());
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>

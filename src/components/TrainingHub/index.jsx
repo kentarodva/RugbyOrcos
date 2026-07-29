@@ -1,32 +1,18 @@
-import React, { useContext, useMemo } from 'react';
+import React, { useContext } from 'react';
 import { ClubContext } from '../../context/ClubContext';
 import { useToast } from '../../context/ToastContext';
+import { useTeamPlayers } from '../../context/hooks/useFilterByView';
 import { useTrainingState } from './useTrainingState';
 import PlanTab from './PlanTab';
 import PlayersTab from './PlayersTab';
 import CatalogTab from './CatalogTab';
+import BuilderTab from './BuilderTab';
 import TeamOverview from './TeamOverview';
 
 function TrainingHub() {
-  const { players, activeTeam, logWorkout, schedule, viewMode, divisionView, makgoraTeamId } = useContext(ClubContext);
+  const { logWorkout, schedule, activeTeam } = useContext(ClubContext);
   const { showToast } = useToast();
-
-  const teamPlayers = useMemo(() => {
-    if (viewMode === 'general' && divisionView === 'all') {
-      return players.filter(p => p.teamCategory?.startsWith('orcos'));
-    }
-    if (viewMode === 'general') {
-      return players.filter(p => p.teamCategory === `orcos_${divisionView}`);
-    }
-    if (viewMode === 'makgora' && makgoraTeamId) {
-      let filtered = players.filter(p => p.makgora_team_id === makgoraTeamId);
-      if (divisionView !== 'all') {
-        filtered = filtered.filter(p => p.teamCategory === `orcos_${divisionView}`);
-      }
-      return filtered;
-    }
-    return players.filter(p => p.teamCategory === activeTeam);
-  }, [players, viewMode, divisionView, makgoraTeamId, activeTeam]);
+  const teamPlayers = useTeamPlayers();
 
   const {
     activeTab, setActiveTab,
@@ -78,6 +64,13 @@ function TrainingHub() {
           Rutinas por Jugador
         </button>
         <button
+          onClick={() => setActiveTab('builder')}
+          className={`tab-btn ${activeTab === 'builder' ? 'active' : ''}`}
+          style={{ fontSize: '0.9rem', padding: '10px 20px' }}
+        >
+          🛠️ Constructor
+        </button>
+        <button
           onClick={() => setActiveTab('catalog')}
           className={`tab-btn ${activeTab === 'catalog' ? 'active' : ''}`}
           style={{ fontSize: '0.9rem', padding: '10px 20px' }}
@@ -124,6 +117,13 @@ function TrainingHub() {
           onGeneratePlan={handleGeneratePlan}
           onToggleExercise={handleToggleExercise}
           onSaveWorkout={handleSaveWorkout}
+        />
+      )}
+
+      {activeTab === 'builder' && (
+        <BuilderTab
+          teamPlayers={teamPlayers}
+          onBuilderPlanSaved={() => showToast('Plan guardado exitosamente.', 'success')}
         />
       )}
 

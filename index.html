@@ -22,8 +22,17 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;700;800&display=swap" media="print" onload="this.media='all'">
     <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;700;800&display=swap"></noscript>
     
-    <!-- PWA Web Manifest -->
-    <link rel="manifest" href="/manifest.json" />
+    <!-- Prevent white flash before React renders -->
+    <script>
+      (function() {
+        var t = localStorage.getItem('orcos_theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', t);
+        if (t === 'dark' || !t) {
+          document.documentElement.style.backgroundColor = '#0a0c10';
+          document.documentElement.style.color = '#e0e0e0';
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

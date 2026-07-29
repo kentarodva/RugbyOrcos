@@ -1,5 +1,6 @@
-import React, { useRef } from 'react';
+import React, { useRef, useMemo } from 'react';
 import { ClubContext } from '../../context/ClubContext';
+import { useTeamPlayers } from '../../context/hooks/useFilterByView';
 import { usePitchState } from './usePitchState';
 import PitchField from './PitchField';
 import PitchControls from './PitchControls';
@@ -11,7 +12,7 @@ import SaveTacticModal from './SaveTacticModal';
 import TacticFiltersModal from './TacticFiltersModal';
 
 function CanchaTactica() {
-  const { players, activeTeam, viewMode, divisionView, makgoraTeamId } = React.useContext(ClubContext);
+  const { players, activeTeam } = React.useContext(ClubContext);
   const pitchRef = useRef(null);
 
   const {
@@ -27,14 +28,9 @@ function CanchaTactica() {
     handleAlignmentChange, resetToDefaultPositions,
     handleStartDrag, handleDragMove, handleEndDrag,
     isPlayerAligned,
-
-    customTactics,
-    activeTacticId,
-    autoAssignLoading,
-    loadCustomTactics,
-    saveCurrentTactic,
-    handleDeleteTactic,
-    handleUpdateTactic,
+    customTactics, activeTacticId, autoAssignLoading,
+    loadCustomTactics, saveCurrentTactic,
+    handleDeleteTactic, handleUpdateTactic,
     executeAutoAssign,
   } = usePitchState(activeTeam);
 
@@ -42,32 +38,8 @@ function CanchaTactica() {
   const [showSaveModal, setShowSaveModal] = React.useState(false);
   const [showFilterModal, setShowFilterModal] = React.useState(false);
 
-  const prevPitchSize = React.useRef(pitchSize);
-  React.useEffect(() => {
-    if (pitchSize === 'large' && prevPitchSize.current !== 'large') {
-      setShowSidebar(false);
-    }
-    prevPitchSize.current = pitchSize;
-  }, [pitchSize]);
-
-  const isLargeFullscreen = pitchSize === 'large' && !showSidebar;
-
-  const teamPlayers = React.useMemo(() => {
-    if (viewMode === 'general' && divisionView === 'all') {
-      return players.filter(p => p.teamCategory?.startsWith('orcos') && p.rol !== 'Entrenador');
-    }
-    if (viewMode === 'general') {
-      return players.filter(p => p.teamCategory === `orcos_${divisionView}` && p.rol !== 'Entrenador');
-    }
-    if (viewMode === 'makgora' && makgoraTeamId) {
-      let filtered = players.filter(p => p.makgora_team_id === makgoraTeamId && p.rol !== 'Entrenador');
-      if (divisionView !== 'all') {
-        filtered = filtered.filter(p => p.teamCategory === `orcos_${divisionView}`);
-      }
-      return filtered;
-    }
-    return players.filter(p => p.teamCategory === activeTeam && p.rol !== 'Entrenador');
-  }, [players, viewMode, divisionView, makgoraTeamId, activeTeam]);
+  const allTeamPlayers = useTeamPlayers();
+  const teamPlayers = useMemo(() => allTeamPlayers.filter(p => p.rol !== 'Entrenador'), [allTeamPlayers]);
 
   // Get available team categories from the context for the scope selector
   const teamCategories = React.useMemo(() => {

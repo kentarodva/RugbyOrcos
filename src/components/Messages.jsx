@@ -4,6 +4,13 @@ import { useAuth } from '../context/AuthContext.jsx';
 import { useToast } from '../context/ToastContext.jsx';
 import { formatLocalDate } from '../utils/dates.js';
 import { getRpgRole } from '../context/constants';
+import { parseSupabaseError } from '../utils/errorHandler';
+
+const emitMsg = (action, payload = {}) => {
+  window.dispatchEvent(new CustomEvent('data:changed', {
+    detail: { table: 'messages', action, payload, timestamp: Date.now() }
+  }));
+};
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB máximo
 const MAX_IMAGE_WIDTH = 1024;
@@ -229,7 +236,8 @@ function Messages() {
     });
 
     setUploading(false);
-    if (error) { showToast('Error al enviar: ' + error.message, 'error'); return; }
+    if (error) { showToast('Error al enviar: ' + parseSupabaseError(error).message, 'error'); return; }
+    emitMsg('send', { receiverId: activeChat.id });
     setNewText('');
     setPreviewFile(null);
     if (fileInputRef.current) fileInputRef.current.value = '';
@@ -263,7 +271,8 @@ function Messages() {
       channel: 'announcement',
     });
 
-    if (error) { showToast('Error: ' + error.message, 'error'); return; }
+    if (error) { showToast('Error: ' + parseSupabaseError(error).message, 'error'); return; }
+    emitMsg('announce', {});
     showToast('Anuncio publicado para todo el Reino.', 'success');
     setAnnounceText('');
     setShowAnnounceForm(false);

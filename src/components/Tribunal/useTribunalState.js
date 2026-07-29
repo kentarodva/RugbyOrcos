@@ -1,5 +1,7 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { supabase } from '../../supabaseClient.js';
+import { fetchEventRsvps } from '../../services/dataService.js';
+import { useDataListener } from '../../context/hooks/useDataListener.js';
 
 export function useTribunalState(teamPlayers, teamEvents, recordAttendance, recordMatchInfractions, redeemPenalty, showToast) {
   const [activeSubTab, setActiveSubTab] = useState('control');
@@ -23,15 +25,26 @@ export function useTribunalState(teamPlayers, teamEvents, recordAttendance, reco
   useEffect(() => {
     if (!selectedEventId) { setRsvpMap({}); return; }
     let cancelled = false;
-    supabase.from('event_rsvp').select('player_id, status').eq('event_id', selectedEventId)
-      .then(({ data }) => {
-        if (cancelled) return;
-        const map = {};
-        (data || []).forEach(r => { map[r.player_id] = r.status; });
-        setRsvpMap(map);
-      }).catch(() => {});
+    fetchEventRsvps(selectedEventId).then((data) => {
+      if (cancelled) return;
+      const map = {};
+      (data || []).forEach(r => { map[r.player_id] = r.status; });
+      setRsvpMap(map);
+    }).catch(() => {});
     return () => { cancelled = true; };
   }, [selectedEventId]);
+
+  const selectedEventRef = useRef(selectedEventId);
+  selectedEventRef.current = selectedEventId;
+  useDataListener('event_rsvp', () => {
+    const eventId = selectedEventRef.current;
+    if (!eventId) return;
+    fetchEventRsvps(eventId).then((data) => {
+      const map = {};
+      (data || []).forEach(r => { map[r.player_id] = r.status; });
+      setRsvpMap(map);
+    }).catch(() => {});
+  });
 
   const handleEventChange = useCallback((eventId) => {
     setSelectedEventId(eventId);

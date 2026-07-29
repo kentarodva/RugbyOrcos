@@ -1,5 +1,4 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { removeBackground } from '@imgly/background-removal';
 import { handleError } from '../utils/errorHandler';
 
 const CROP_SIZE = 300;
@@ -152,6 +151,7 @@ export function PhotoEditor({ file, photoUrl, onSave, onClose }) {
     setProcessing(true);
     setProgress(0);
     try {
+      const { removeBackground } = await import('@imgly/background-removal');
       const resultBlob = await removeBackground(src, {
         model: 'medium',
         output: { format: 'image/png' },

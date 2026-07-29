@@ -247,7 +247,7 @@ const apisupabase = {
   async deleteAllPlayers(userId) {
     const { error } = await supabase
       .from('players')
-      .delete()
+      .update({ status: 'inactivo', deleted_at: new Date().toISOString() })
       .eq('user_id', userId);
     if (error) throw error;
   },
@@ -255,7 +255,7 @@ const apisupabase = {
   async deletePlayer(playerId) {
     const { error } = await supabase
       .from('players')
-      .delete()
+      .update({ status: 'inactivo', deleted_at: new Date().toISOString() })
       .eq('id', playerId);
     return { error };
   },

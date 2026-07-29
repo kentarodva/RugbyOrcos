@@ -5,20 +5,10 @@ import { useAuth } from './context/AuthContext';
 import { useToast } from './context/ToastContext';
 import Login from './components/Login';
 import Dashboard from './components/Dashboard';
-import Roster from './components/Roster';
-import Tribunal from './components/Tribunal';
-import Calendario from './components/Calendario';
-import Finanzas from './components/Finanzas';
 import Settings from './components/Settings';
-import PlayerDashboard from './components/PlayerDashboard';
 import Header from './components/Header';
 import AdminPanel from './components/Admin/AdminPanel';
 import Footer from './components/Footer';
-import AwardsHall from './components/AwardsHall';
-import MakgoraHub from './components/MakgoraHub';
-import MatchInvitation from './components/MatchInvitation';
-import Invitaciones from './components/Invitaciones';
-import Messages from './components/Messages';
 import AnnouncementModal from './components/AnnouncementModal';
 import BirthdayCelebration from './components/BirthdayCelebration';
 import ImportCSVModal from './components/Admin/ImportCSVModal';
@@ -28,7 +18,18 @@ import apisupabase from './data/supabaseApi';
 
 import { useGlobalShortcuts } from './utils/keyboardShortcuts';
 import { addPushNavigateListener } from './utils/pushNotifications';
+import ErrorBoundary from './components/ErrorBoundary';
 
+const Roster = lazy(() => import('./components/Roster'));
+const Tribunal = lazy(() => import('./components/Tribunal'));
+const Calendario = lazy(() => import('./components/Calendario'));
+const Finanzas = lazy(() => import('./components/Finanzas'));
+const PlayerDashboard = lazy(() => import('./components/PlayerDashboard'));
+const AwardsHall = lazy(() => import('./components/AwardsHall'));
+const MakgoraHub = lazy(() => import('./components/MakgoraHub'));
+const MatchInvitation = lazy(() => import('./components/MatchInvitation'));
+const Invitaciones = lazy(() => import('./components/Invitaciones'));
+const Messages = lazy(() => import('./components/Messages'));
 const CanchaTactica = lazy(() => import('./components/CanchaTactica'));
 const TrainingHub = lazy(() => import('./components/TrainingHub'));
 const AIChat = lazy(() => import('./components/AIChat'));
@@ -227,6 +228,7 @@ function App() {
 
       <main style={{ flex: 1, padding: '15px 15px 40px 15px' }}>
         <AnimatePresence mode="wait">
+        <ErrorBoundary>
         <Suspense fallback={<motion.div key="suspense" className="glass-panel" style={{ padding: '40px', textAlign: 'center', color: 'var(--color-text-muted)' }}
           initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
         >Cargando modulo...</motion.div>}>
@@ -244,6 +246,7 @@ function App() {
         {activeTab === 'messages' && <motion.div key="messages" variants={tabVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.25, ease: 'easeOut' }}><Messages /></motion.div>}
         {activeTab === 'ia' && hasPermission('config_ai') && <motion.div key="ia" variants={tabVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.25, ease: 'easeOut' }}><AIChat /></motion.div>}
         </Suspense>
+        </ErrorBoundary>
         </AnimatePresence>
       </main>
 

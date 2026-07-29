@@ -24,3 +24,14 @@ export const supabase = createClient(
     global: { fetch: customFetch },
   }
 );
+
+if (import.meta.env.DEV) {
+  const _from = supabase.from.bind(supabase);
+  supabase.from = function (...args) {
+    const stack = new Error().stack || '';
+    if (!stack.includes('dataService') && !stack.includes('useSync') && !stack.includes('supabaseApi') && !stack.includes('clubSettings') && !stack.includes('pushNotifications') && !stack.includes('AuthContext') && !stack.includes('Login')) {
+      console.warn(`[dataService] ⚠️ Acceso directo a Supabase: supabase.from('${args[0]}'). Usá dataService en vez.`, stack.split('\n')[2]?.trim());
+    }
+    return _from(...args);
+  };
+}
