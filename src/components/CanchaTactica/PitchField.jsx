@@ -1,14 +1,26 @@
 import React from 'react';
 import PositionNode from './PositionNode';
+import BroadcastOverlay from './BroadcastOverlay';
 
 function PitchField({
   fieldPositions,
+  prevFieldPositions = [],
   lineup,
   teamPlayers,
   draggingId,
   pitchOrientation,
   pitchSize,
   pitchRef,
+  showRivals = false,
+  rivalPositions = [],
+  prevRivalPositions = [],
+  showBall = true,
+  ballPosition = { x: 46, y: 45 },
+  passFrom = null,
+  gainLineX = null,
+  highlightZone = null,
+  activePhaseInfo = null,
+  isAnimating = false,
   onStartDrag,
   onDragMove,
   onEndDrag
@@ -94,6 +106,25 @@ function PitchField({
         </>
       )}
 
+      <BroadcastOverlay
+        pitchOrientation={pitchOrientation}
+        showRivals={showRivals}
+        rivalPositions={rivalPositions}
+        prevRivalPositions={prevRivalPositions}
+        fieldPositions={fieldPositions}
+        prevFieldPositions={prevFieldPositions}
+        showBall={showBall}
+        ballPosition={ballPosition}
+        passFrom={passFrom}
+        gainLineX={gainLineX}
+        highlightZone={highlightZone}
+        activePhaseInfo={activePhaseInfo}
+        isAnimating={isAnimating}
+        draggingId={draggingId}
+        onStartDrag={onStartDrag}
+        onEndDrag={onEndDrag}
+      />
+
       {fieldPositions.map(pos => {
         const assignedPlayerId = lineup[pos.id];
         const player = teamPlayers.find(p => p.id === assignedPlayerId);
@@ -105,6 +136,7 @@ function PitchField({
             pos={pos}
             player={player}
             isDraggingThis={isDraggingThis}
+            isAnimating={isAnimating}
             onStartDrag={onStartDrag}
             onEndDrag={onEndDrag}
           />

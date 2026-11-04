@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { ALIGNMENTS_HORIZONTAL, ALIGNMENTS_VERTICAL } from './constants';
+import { DEFAULT_RIVALS_HORIZONTAL, PRESET_TV_PLAYS, mirrorToVertical } from './presetPlays';
 import {
   fetchCustomTactics,
   createCustomTactic,
@@ -18,6 +19,22 @@ export function usePitchState(activeTeam) {
   const [activeAlignment, setActiveAlignment] = useState('standard');
 
   const [fieldPositions, setFieldPositions] = useState(() => ALIGNMENTS_HORIZONTAL.standard);
+  const [prevFieldPositions, setPrevFieldPositions] = useState([]);
+
+  // Broadcast TV Mode state (Rivals, Ball, Phases, Telestrator vectors)
+  const [showRivals, setShowRivals] = useState(false);
+  const [rivalPositions, setRivalPositions] = useState(() => DEFAULT_RIVALS_HORIZONTAL);
+  const [prevRivalPositions, setPrevRivalPositions] = useState([]);
+  const [showBall, setShowBall] = useState(true);
+  const [ballPosition, setBallPosition] = useState({ x: 46, y: 45 });
+  const [passFrom, setPassFrom] = useState(null);
+  const [gainLineX, setGainLineX] = useState(null);
+  const [highlightZone, setHighlightZone] = useState(null);
+  const [activePlayId, setActivePlayId] = useState('');
+  const [phases, setPhases] = useState([]);
+  const [activePhaseIndex, setActivePhaseIndex] = useState(0);
+  const [isPlayingPlay, setIsPlayingPlay] = useState(false);
+  const [isAnimating, setIsAnimating] = useState(false);
 
   const [draggingId, setDraggingId] = useState(null);
   const [dragStartPos, setDragStartPos] = useState(null);
@@ -284,13 +301,129 @@ export function usePitchState(activeTeam) {
     });
   }, [pitchOrientation, activeAlignment]);
 
+  const applyPhaseData = useCallback((phaseList, idx, orientation = pitchOrientation) => {
+    if (!phaseList || !phaseList[idx]) return;
+    const target = phaseList[idx];
+    const prev = idx > 0 ? phaseList[idx - 1] : null;
+    const isVert = orientation === 'vertical';
+    const orientPt = (pt) => (pt && isVert ? { ...pt, x: pt.y, y: pt.x } : pt);
+
+    const baseTemplate = isVert
+      ? (ALIGNMENTS_VERTICAL[activeAlignment] || ALIGNMENTS_VERTICAL.standard)
+      : (ALIGNMENTS_HORIZONTAL[activeAlignment] || ALIGNMENTS_HORIZONTAL.standard);
+
+    const mergeAllies = (allyCoords) => {
+      if (!allyCoords) return baseTemplate;
+      return baseTemplate.map(slot => {
+        const found = allyCoords.find(a => a.id === slot.id);
+        if (!found) return slot;
+        const pt = orientPt(found);
+        return { ...slot, x: pt.x, y: pt.y };
+      });
+    };
+
+    const mergeRivals = (rivalCoords) => {
+      const baseRivals = isVert ? mirrorToVertical(DEFAULT_RIVALS_HORIZONTAL) : DEFAULT_RIVALS_HORIZONTAL;
+      if (!rivalCoords) return baseRivals;
+      return baseRivals.map(r => {
+        const found = rivalCoords.find(rc => rc.id === r.id);
+        if (!found) return r;
+        const pt = orientPt(found);
+        return { ...r, x: pt.x, y: pt.y };
+      });
+    };
+
+    setIsAnimating(true);
+    setPrevFieldPositions(prev ? mergeAllies(prev.allies) : []);
+    setFieldPositions(mergeAllies(target.allies));
+    setPrevRivalPositions(prev ? mergeRivals(prev.rivals) : []);
+    setRivalPositions(mergeRivals(target.rivals));
+
+    if (target.ball) {
+      setBallPosition(orientPt(target.ball));
+    }
+    setPassFrom(target.passFrom ? orientPt(target.passFrom) : (prev?.ball ? orientPt(prev.ball) : null));
+    setGainLineX(target.gainLineX ?? null);
+    setHighlightZone(target.highlightZone ? orientPt(target.highlightZone) : null);
+    setActivePhaseIndex(idx);
+  }, [pitchOrientation, activeAlignment]);
+
+  const handleSelectPresetPlay = useCallback((playId) => {
+    const found = PRESET_TV_PLAYS.find(p => p.id === playId);
+    if (!found) return;
+    setActivePlayId(found.id);
+    setPhases(found.phases);
+    setShowRivals(true);
+    setShowBall(true);
+    setIsPlayingPlay(true);
+    applyPhaseData(found.phases, 0, pitchOrientation);
+  }, [applyPhaseData, pitchOrientation]);
+
+  const handleSelectPhase = useCallback((idx) => {
+    setIsPlayingPlay(false);
+    applyPhaseData(phases, idx, pitchOrientation);
+  }, [phases, applyPhaseData, pitchOrientation]);
+
+  const handleCaptureCustomPhase = useCallback(() => {
+    const isVert = pitchOrientation === 'vertical';
+    const toCanonical = (pt) => (pt && isVert ? { ...pt, x: pt.y, y: pt.x } : pt);
+
+    const newPhase = {
+      title: `Fase ${phases.length + 1}: Movimiento Táctico Personalizado`,
+      description: tacticalNotes || 'Arrastra jugadores, rivales o el balón para explicar la siguiente fase de juego.',
+      ball: toCanonical(ballPosition),
+      allies: fieldPositions.map(p => toCanonical({ id: p.id, x: p.x, y: p.y })),
+      rivals: rivalPositions.map(r => toCanonical({ id: r.id, num: r.num, x: r.x, y: r.y })),
+      gainLineX: gainLineX,
+      highlightZone: highlightZone ? toCanonical(highlightZone) : null,
+    };
+
+    const nextPhases = [...phases, newPhase];
+    setPhases(nextPhases);
+    if (!activePlayId) setActivePlayId('custom_play');
+    applyPhaseData(nextPhases, nextPhases.length - 1, pitchOrientation);
+  }, [pitchOrientation, phases, tacticalNotes, ballPosition, fieldPositions, rivalPositions, gainLineX, highlightZone, activePlayId, applyPhaseData]);
+
+  const handleExitPlaybook = useCallback(() => {
+    setIsPlayingPlay(false);
+    setIsAnimating(false);
+    setActivePlayId('');
+    setPhases([]);
+    setActivePhaseIndex(0);
+    setPrevFieldPositions([]);
+    setPrevRivalPositions([]);
+    setPassFrom(null);
+    setGainLineX(null);
+    setHighlightZone(null);
+  }, []);
+
+  useEffect(() => {
+    if (!isPlayingPlay || phases.length <= 1) return undefined;
+    const timer = setTimeout(() => {
+      const nextIdx = (activePhaseIndex + 1) % phases.length;
+      applyPhaseData(phases, nextIdx, pitchOrientation);
+    }, 2800);
+    return () => clearTimeout(timer);
+  }, [isPlayingPlay, phases, activePhaseIndex, applyPhaseData, pitchOrientation]);
+
   const handleStartDrag = useCallback((e, posId) => {
+    if (!e || posId === null) {
+      setDraggingId(null);
+      setDragStartPos(null);
+      setHasDragged(false);
+      return;
+    }
+    setIsPlayingPlay(false);
+    setIsAnimating(false);
     setDraggingId(posId);
     const clientX = e.touches ? e.touches[0].clientX : e.clientX;
     const clientY = e.touches ? e.touches[0].clientY : e.clientY;
     setDragStartPos({ x: clientX, y: clientY });
     setHasDragged(false);
-  }, []);
+    if (posId === 'BALL') {
+      setPassFrom({ ...ballPosition });
+    }
+  }, [ballPosition]);
 
   const handleDragMove = useCallback((e, pitchRef) => {
     if (draggingId === null || !dragStartPos || !pitchRef.current) return;
@@ -307,8 +440,18 @@ export function usePitchState(activeTeam) {
     let xPct = ((clientX - rect.left) / rect.width) * 100;
     let yPct = ((clientY - rect.top) / rect.height) * 100;
 
-    xPct = Math.max(5, Math.min(95, xPct));
+    xPct = Math.max(3, Math.min(97, xPct));
     yPct = Math.max(3, Math.min(97, yPct));
+
+    if (draggingId === 'BALL') {
+      setBallPosition({ x: xPct, y: yPct });
+      return;
+    }
+
+    if (String(draggingId).startsWith('R')) {
+      setRivalPositions(prev => prev.map(r => r.id === draggingId ? { ...r, x: xPct, y: yPct } : r));
+      return;
+    }
 
     setFieldPositions(prev => {
       return prev.map(pos => pos.id === draggingId ? { ...pos, x: xPct, y: yPct } : pos);
@@ -317,7 +460,8 @@ export function usePitchState(activeTeam) {
 
   const handleEndDrag = useCallback((posId, posName) => {
     if (draggingId === null) return;
-    if (!hasDragged) {
+    const isAlliedSlot = typeof posId === 'number' || (!String(posId).startsWith('R') && posId !== 'BALL');
+    if (!hasDragged && isAlliedSlot) {
       handleSlotClick(posId, posName);
     }
     setDraggingId(null);
@@ -335,6 +479,15 @@ export function usePitchState(activeTeam) {
     return Array.from(categories);
   }, [customTactics]);
 
+  const activePhaseInfo = phases.length > 0 && phases[activePhaseIndex]
+    ? {
+        index: activePhaseIndex,
+        total: phases.length,
+        title: phases[activePhaseIndex].title,
+        description: phases[activePhaseIndex].description,
+      }
+    : null;
+
   return {
     lineup, setLineup,
     tacticalNotes, setTacticalNotes,
@@ -342,6 +495,25 @@ export function usePitchState(activeTeam) {
     pitchSize, setPitchSize,
     activeAlignment, setActiveAlignment,
     fieldPositions, setFieldPositions,
+    prevFieldPositions,
+    showRivals, setShowRivals,
+    rivalPositions, setRivalPositions,
+    prevRivalPositions,
+    showBall, setShowBall,
+    ballPosition, setBallPosition,
+    passFrom, setPassFrom,
+    gainLineX,
+    highlightZone,
+    activePlayId,
+    phases,
+    activePhaseIndex,
+    activePhaseInfo,
+    isPlayingPlay, setIsPlayingPlay,
+    isAnimating,
+    handleSelectPresetPlay,
+    handleSelectPhase,
+    handleCaptureCustomPhase,
+    handleExitPlaybook,
     draggingId, dragStartPos, hasDragged,
     selectedSlot, showSelectModal, setShowSelectModal,
     confirmState, setConfirmState,

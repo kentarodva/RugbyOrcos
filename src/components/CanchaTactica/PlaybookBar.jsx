@@ -1,0 +1,277 @@
+import React, { useState } from 'react';
+import { PRESET_TV_PLAYS } from './presetPlays';
+
+function PlaybookBar({
+  activePlayId,
+  onSelectPresetPlay,
+  onExitPlaybook,
+  phases = [],
+  activePhaseIndex = 0,
+  onSelectPhase,
+  isPlayingPlay = false,
+  onTogglePlay,
+  onCaptureCustomPhase,
+  onClearCustomPhases,
+  showRivals = false,
+  onToggleRivals,
+  showBall = true,
+  onToggleBall,
+  onExportImage,
+  onCopyWhatsAppText,
+}) {
+  const [exportStatus, setExportStatus] = useState('');
+  const [copyStatus, setCopyStatus] = useState('');
+
+  const handleImageClick = async () => {
+    setExportStatus('Generando TV HD...');
+    try {
+      const res = await onExportImage?.();
+      if (res?.copied) {
+        setExportStatus('✅ Copiada al portapapeles (Pégala en WhatsApp) + PNG');
+      } else {
+        setExportStatus('✅ Imagen PNG descargada');
+      }
+    } catch {
+      setExportStatus('⚠️ Error al exportar');
+    }
+    setTimeout(() => setExportStatus(''), 4000);
+  };
+
+  const handleTextClick = async () => {
+    await onCopyWhatsAppText?.();
+    setCopyStatus('✅ XV copiado para WhatsApp');
+    setTimeout(() => setCopyStatus(''), 3000);
+  };
+
+  return (
+    <div
+      className="glass-panel"
+      style={{
+        padding: '12px 14px',
+        border: '1px solid rgba(0, 230, 118, 0.28)',
+        background: 'linear-gradient(135deg, rgba(10, 20, 32, 0.92) 0%, rgba(7, 15, 24, 0.95) 100%)',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '10px',
+      }}
+    >
+      {/* Top Row: TV Playbook Selector + Rivals/Ball Toggles + WhatsApp Exports */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', flex: '1 1 320px' }}>
+          <span
+            style={{
+              background: 'rgba(0, 230, 118, 0.14)',
+              border: '1px solid rgba(0, 230, 118, 0.4)',
+              color: 'var(--color-primary)',
+              fontSize: '0.68rem',
+              fontWeight: 900,
+              padding: '4px 8px',
+              borderRadius: '6px',
+              letterSpacing: '0.05em',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            📺 PIZARRA TV
+          </span>
+
+          <select
+            value={activePlayId || ''}
+            onChange={(e) => {
+              const val = e.target.value;
+              if (!val) onExitPlaybook?.();
+              else onSelectPresetPlay?.(val);
+            }}
+            className="form-select"
+            style={{
+              padding: '6px 10px',
+              fontSize: '0.78rem',
+              fontWeight: 700,
+              minWidth: '250px',
+              flex: '1 1 240px',
+              borderColor: activePlayId ? 'var(--color-primary)' : 'rgba(255,255,255,0.14)',
+            }}
+          >
+            <option value="">🎯 Modo Libre (Alineación XV / Crear jugada propia)</option>
+            <optgroup label="Jugadas Animadas de Televisión (Explicación Paso a Paso)">
+              {PRESET_TV_PLAYS.map(play => (
+                <option key={play.id} value={play.id}>
+                  {play.name} ({play.phases.length} fases)
+                </option>
+              ))}
+            </optgroup>
+          </select>
+        </div>
+
+        {/* Interactive Elements Toggles */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+          <button
+            type="button"
+            onClick={onToggleRivals}
+            className="btn-outline"
+            style={{
+              padding: '6px 10px',
+              fontSize: '0.75rem',
+              fontWeight: 800,
+              background: showRivals ? 'rgba(239, 68, 68, 0.2)' : 'rgba(255,255,255,0.03)',
+              borderColor: showRivals ? '#ef4444' : 'rgba(255,255,255,0.15)',
+              color: showRivals ? '#fca5a5' : 'var(--color-text-muted)',
+            }}
+            title="Mostrar u ocultar los 15 jugadores rivales en la cancha"
+          >
+            🔴 {showRivals ? 'Rivales: ON' : 'Rivales: OFF'}
+          </button>
+
+          <button
+            type="button"
+            onClick={onToggleBall}
+            className="btn-outline"
+            style={{
+              padding: '6px 10px',
+              fontSize: '0.75rem',
+              fontWeight: 800,
+              background: showBall ? 'rgba(255, 215, 64, 0.18)' : 'rgba(255,255,255,0.03)',
+              borderColor: showBall ? '#ffd740' : 'rgba(255,255,255,0.15)',
+              color: showBall ? '#ffd740' : 'var(--color-text-muted)',
+            }}
+            title="Mostrar u ocultar el balón interactivo (arrástralo para trazar pases)"
+          >
+            🏉 {showBall ? 'Balón: ON' : 'Balón: OFF'}
+          </button>
+
+          <button
+            type="button"
+            onClick={handleImageClick}
+            className="btn-primary"
+            style={{
+              padding: '6px 12px',
+              fontSize: '0.75rem',
+              fontWeight: 800,
+              display: 'flex',
+              alignItems: 'center',
+              gap: '5px',
+            }}
+            title="Genera una imagen HD estilo TV con cancha, flechas y alineación XV (se copia para pegar en WhatsApp y se descarga)"
+          >
+            📸 {exportStatus || 'Imagen TV para WhatsApp'}
+          </button>
+
+          <button
+            type="button"
+            onClick={handleTextClick}
+            className="btn-outline"
+            style={{
+              padding: '6px 10px',
+              fontSize: '0.75rem',
+              fontWeight: 800,
+              borderColor: 'rgba(0, 230, 118, 0.35)',
+              color: 'var(--color-primary)',
+            }}
+            title="Copia la lista del XV titular y suplentes formateada para pegar en el grupo de WhatsApp"
+          >
+            📋 {copyStatus || 'Copiar XV WA'}
+          </button>
+        </div>
+      </div>
+
+      {/* Bottom Row: Phase Timeline & Animation Controls */}
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          flexWrap: 'wrap',
+          gap: '8px',
+          paddingTop: '8px',
+          borderTop: '1px solid rgba(255,255,255,0.08)',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+          {phases.length > 0 && (
+            <button
+              type="button"
+              onClick={onTogglePlay}
+              style={{
+                padding: '6px 14px',
+                borderRadius: '8px',
+                border: 'none',
+                background: isPlayingPlay ? '#ffb300' : 'var(--color-primary)',
+                color: '#04080e',
+                fontWeight: 900,
+                fontSize: '0.76rem',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                boxShadow: isPlayingPlay
+                  ? '0 0 14px rgba(255, 179, 0, 0.45)'
+                  : '0 0 14px rgba(0, 230, 118, 0.35)',
+              }}
+            >
+              {isPlayingPlay ? '⏸️ Pausar Animación TV' : '▶️ Reproducir Jugada TV'}
+            </button>
+          )}
+
+          {phases.map((ph, idx) => {
+            const isCurrent = idx === activePhaseIndex;
+            return (
+              <button
+                key={idx}
+                type="button"
+                onClick={() => onSelectPhase?.(idx)}
+                style={{
+                  padding: '5px 10px',
+                  borderRadius: '6px',
+                  fontSize: '0.72rem',
+                  fontWeight: 800,
+                  cursor: 'pointer',
+                  background: isCurrent ? 'rgba(0, 230, 118, 0.22)' : 'rgba(255,255,255,0.05)',
+                  border: isCurrent ? '1.5px solid var(--color-primary)' : '1px solid rgba(255,255,255,0.12)',
+                  color: isCurrent ? '#fff' : 'var(--color-text-muted)',
+                }}
+              >
+                Fase {idx + 1}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Custom Phase Recording Controls */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+          <button
+            type="button"
+            onClick={onCaptureCustomPhase}
+            className="btn-outline"
+            style={{
+              padding: '5px 10px',
+              fontSize: '0.72rem',
+              fontWeight: 700,
+              borderColor: 'rgba(255, 179, 0, 0.35)',
+              color: 'var(--color-gold)',
+            }}
+            title="Mueve jugadores, rivales o el balón y guarda la posición como una nueva fase animada"
+          >
+            ➕ Capturar Fase ({phases.length + 1})
+          </button>
+
+          {phases.length > 0 && (
+            <button
+              type="button"
+              onClick={onClearCustomPhases}
+              className="btn-outline"
+              style={{
+                padding: '5px 9px',
+                fontSize: '0.72rem',
+                color: 'var(--color-text-muted)',
+                borderColor: 'rgba(255,255,255,0.12)',
+              }}
+            >
+              ✕ Salir de Fases
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default PlaybookBar;

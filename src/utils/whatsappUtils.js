@@ -246,3 +246,31 @@ export function exportUniformOrderCSV({ campaign, assignments = [], playerMap = 
   document.body.removeChild(link);
   URL.revokeObjectURL(url);
 }
+
+/**
+ * Copies text to the clipboard with a fallback for older mobile browsers.
+ */
+export async function copyToClipboard(text) {
+  if (!text) return false;
+  try {
+    if (navigator?.clipboard?.writeText) {
+      await navigator.clipboard.writeText(text);
+      return true;
+    }
+  } catch {
+    // Fallback below
+  }
+  try {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    return true;
+  } catch {
+    return false;
+  }
+}

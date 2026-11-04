@@ -4,12 +4,15 @@ import { useTeamPlayers } from '../../context/hooks/useFilterByView';
 import { usePitchState } from './usePitchState';
 import PitchField from './PitchField';
 import PitchControls from './PitchControls';
+import PlaybookBar from './PlaybookBar';
 import BenchPanel from './BenchPanel';
 import StrategyNotes from './StrategyNotes';
 import PlayerSelectModal from './PlayerSelectModal';
 import ConfirmModal from './ConfirmModal';
 import SaveTacticModal from './SaveTacticModal';
 import TacticFiltersModal from './TacticFiltersModal';
+import { copyOrDownloadTacticalImage, buildLineupWhatsAppText } from '../../utils/exportPitchImage';
+import { copyToClipboard } from '../../utils/whatsappUtils';
 
 function CanchaTactica() {
   const { players, activeTeam, futureFixtures, makgoraTeams = [], viewMode, makgoraTeamId } = React.useContext(ClubContext);
@@ -56,6 +59,25 @@ function CanchaTactica() {
     pitchSize, setPitchSize,
     activeAlignment,
     fieldPositions,
+    prevFieldPositions,
+    showRivals, setShowRivals,
+    rivalPositions,
+    prevRivalPositions,
+    showBall, setShowBall,
+    ballPosition,
+    passFrom,
+    gainLineX,
+    highlightZone,
+    activePlayId,
+    phases,
+    activePhaseIndex,
+    activePhaseInfo,
+    isPlayingPlay, setIsPlayingPlay,
+    isAnimating,
+    handleSelectPresetPlay,
+    handleSelectPhase,
+    handleCaptureCustomPhase,
+    handleExitPlaybook,
     draggingId,
     selectedSlot, showSelectModal, setShowSelectModal,
     confirmState, setConfirmState,
@@ -118,6 +140,52 @@ function CanchaTactica() {
 
   const handleAutoAssignWithFilters = async (filters) => {
     await executeAutoAssign(teamPlayers, filters);
+  };
+
+  const boardTitle = useMemo(() => {
+    if (nextMatch && selectedMatchId) {
+      return `Partido: vs ${nextMatch.opponent} (${nextMatch.date})`;
+    }
+    if (boardScope.startsWith('makgora_')) {
+      const mId = boardScope.replace('makgora_', '');
+      const mt = makgoraTeams.find(x => String(x.id) === String(mId));
+      return `Clan Mak'Gora: ${mt?.rpg_name || mt?.name || mId}`;
+    }
+    return `División: ${boardScope}`;
+  }, [nextMatch, selectedMatchId, boardScope, makgoraTeams]);
+
+  const handleExportBroadcastImage = async () => {
+    const isVert = pitchOrientation === 'vertical';
+    const toH = (pt) => (pt && isVert ? { ...pt, x: pt.y, y: pt.x } : pt);
+    return copyOrDownloadTacticalImage({
+      title: boardTitle,
+      subtitle: nextMatch ? `Próximo Partido: ${nextMatch.date} vs ${nextMatch.opponent}` : 'Rugby Orcos Club Manager',
+      fieldPositions: fieldPositions.map(toH),
+      prevFieldPositions: prevFieldPositions.map(toH),
+      lineup,
+      teamPlayers,
+      showRivals,
+      rivalPositions: rivalPositions.map(toH),
+      prevRivalPositions: prevRivalPositions.map(toH),
+      showBall,
+      ballPosition: toH(ballPosition),
+      passFrom: toH(passFrom),
+      gainLineX,
+      highlightZone: toH(highlightZone),
+      activePhaseInfo,
+      tacticalNotes,
+    });
+  };
+
+  const handleCopyLineupWhatsApp = async () => {
+    const text = buildLineupWhatsAppText({
+      title: boardTitle,
+      lineup,
+      teamPlayers,
+      tacticalNotes,
+      activePhaseInfo,
+    });
+    await copyToClipboard(text);
   };
 
   return (
@@ -207,14 +275,44 @@ function CanchaTactica() {
             onRenameTactic={handleUpdateTactic}
           />
 
+          <PlaybookBar
+            activePlayId={activePlayId}
+            onSelectPresetPlay={handleSelectPresetPlay}
+            onExitPlaybook={handleExitPlaybook}
+            phases={phases}
+            activePhaseIndex={activePhaseIndex}
+            onSelectPhase={handleSelectPhase}
+            isPlayingPlay={isPlayingPlay}
+            onTogglePlay={() => setIsPlayingPlay(prev => !prev)}
+            onCaptureCustomPhase={handleCaptureCustomPhase}
+            onClearCustomPhases={handleExitPlaybook}
+            showRivals={showRivals}
+            onToggleRivals={() => setShowRivals(prev => !prev)}
+            showBall={showBall}
+            onToggleBall={() => setShowBall(prev => !prev)}
+            onExportImage={handleExportBroadcastImage}
+            onCopyWhatsAppText={handleCopyLineupWhatsApp}
+          />
+
           <PitchField
             fieldPositions={fieldPositions}
+            prevFieldPositions={prevFieldPositions}
             lineup={lineup}
             teamPlayers={teamPlayers}
             draggingId={draggingId}
             pitchOrientation={pitchOrientation}
             pitchSize={pitchSize}
             pitchRef={pitchRef}
+            showRivals={showRivals}
+            rivalPositions={rivalPositions}
+            prevRivalPositions={prevRivalPositions}
+            showBall={showBall}
+            ballPosition={ballPosition}
+            passFrom={passFrom}
+            gainLineX={gainLineX}
+            highlightZone={highlightZone}
+            activePhaseInfo={activePhaseInfo}
+            isAnimating={isAnimating}
             onStartDrag={handleStartDrag}
             onDragMove={boundDragMove}
             onEndDrag={handleEndDrag}
