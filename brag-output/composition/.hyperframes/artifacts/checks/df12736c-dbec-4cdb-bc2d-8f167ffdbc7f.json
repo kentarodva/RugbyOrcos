@@ -1,0 +1,792 @@
+{
+  "ok": true,
+  "strict": false,
+  "browserSkipped": false,
+  "lint": {
+    "ok": true,
+    "errorCount": 0,
+    "warningCount": 7,
+    "infoCount": 0,
+    "findings": [
+      {
+        "code": "duplicate_media_discovery_risk",
+        "severity": "warning",
+        "message": "Detected 3 matching img entries with the same source/start/duration.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {},
+        "sourceFile": "C:\\Users\\KennentDVA\\Documents\\Proyectos_Code\\Rugby Orcos\\brag-output\\composition\\index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Avoid duplicated media nodes that can be discovered twice during compilation."
+      },
+      {
+        "code": "composition_file_too_large",
+        "severity": "warning",
+        "message": "This HTML composition file has 409 lines. Smaller sub-compositions are easier to read, iterate on, and diff.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {},
+        "sourceFile": "C:\\Users\\KennentDVA\\Documents\\Proyectos_Code\\Rugby Orcos\\brag-output\\composition\\index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Split coherent scenes or layers into separate .html files under compositions/, then mount them from the parent with data-composition-src so each file stays small enough to inspect, revise, and validate independently."
+      },
+      {
+        "code": "nested_structure_needs_subcomposition",
+        "severity": "warning",
+        "message": "<div id=\"scene-hook\"> is a timeline element that contains nested <div id=\"s1-wrap\">. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+        "selector": "#scene-hook",
+        "dataAttributes": {},
+        "sourceFile": "C:\\Users\\KennentDVA\\Documents\\Proyectos_Code\\Rugby Orcos\\brag-output\\composition\\index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Move <div id=\"scene-hook\"> and its contents into a sub-composition file and mount it with data-composition-src."
+      },
+      {
+        "code": "nested_structure_needs_subcomposition",
+        "severity": "warning",
+        "message": "<div id=\"scene-command\"> is a timeline element that contains nested <div id=\"s2-header\">. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+        "selector": "#scene-command",
+        "dataAttributes": {},
+        "sourceFile": "C:\\Users\\KennentDVA\\Documents\\Proyectos_Code\\Rugby Orcos\\brag-output\\composition\\index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Move <div id=\"scene-command\"> and its contents into a sub-composition file and mount it with data-composition-src."
+      },
+      {
+        "code": "nested_structure_needs_subcomposition",
+        "severity": "warning",
+        "message": "<div id=\"scene-rpg\"> is a timeline element that contains nested <div id=\"s3-top\">. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+        "selector": "#scene-rpg",
+        "dataAttributes": {},
+        "sourceFile": "C:\\Users\\KennentDVA\\Documents\\Proyectos_Code\\Rugby Orcos\\brag-output\\composition\\index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Move <div id=\"scene-rpg\"> and its contents into a sub-composition file and mount it with data-composition-src."
+      },
+      {
+        "code": "nested_structure_needs_subcomposition",
+        "severity": "warning",
+        "message": "<div id=\"scene-ai\"> is a timeline element that contains nested <div id=\"s4-panel\">. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+        "selector": "#scene-ai",
+        "dataAttributes": {},
+        "sourceFile": "C:\\Users\\KennentDVA\\Documents\\Proyectos_Code\\Rugby Orcos\\brag-output\\composition\\index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Move <div id=\"scene-ai\"> and its contents into a sub-composition file and mount it with data-composition-src."
+      },
+      {
+        "code": "nested_structure_needs_subcomposition",
+        "severity": "warning",
+        "message": "<div id=\"scene-outro\"> is a timeline element that contains nested <div id=\"s5-wrap\">. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+        "selector": "#scene-outro",
+        "dataAttributes": {},
+        "sourceFile": "C:\\Users\\KennentDVA\\Documents\\Proyectos_Code\\Rugby Orcos\\brag-output\\composition\\index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Move <div id=\"scene-outro\"> and its contents into a sub-composition file and mount it with data-composition-src."
+      }
+    ],
+    "filesScanned": 1
+  },
+  "runtime": {
+    "ok": true,
+    "errorCount": 0,
+    "warningCount": 6,
+    "infoCount": 0,
+    "findings": [
+      {
+        "code": "clip_media_fit",
+        "severity": "warning",
+        "message": "Audio \"sfx-hook\" is 0.19s but its slot (data-duration) is 0.40s — the slot is shortened to the media length when rendered. Set data-duration to ~0.19s if that isn't intended.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {
+          "data-composition-id": "main",
+          "data-start": "0",
+          "data-duration": "20",
+          "data-width": "1920",
+          "data-height": "1080"
+        },
+        "sourceFile": "index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 1920,
+          "height": 1080
+        },
+        "time": 0
+      },
+      {
+        "code": "clip_media_fit",
+        "severity": "warning",
+        "message": "Audio \"sfx-card-2\" is 0.01s but its slot (data-duration) is 0.20s — the slot is shortened to the media length when rendered. Set data-duration to ~0.01s if that isn't intended.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {
+          "data-composition-id": "main",
+          "data-start": "0",
+          "data-duration": "20",
+          "data-width": "1920",
+          "data-height": "1080"
+        },
+        "sourceFile": "index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 1920,
+          "height": 1080
+        },
+        "time": 0
+      },
+      {
+        "code": "clip_media_fit",
+        "severity": "warning",
+        "message": "Audio \"sfx-rpg-cut\" is 0.15s but its slot (data-duration) is 0.40s — the slot is shortened to the media length when rendered. Set data-duration to ~0.15s if that isn't intended.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {
+          "data-composition-id": "main",
+          "data-start": "0",
+          "data-duration": "20",
+          "data-width": "1920",
+          "data-height": "1080"
+        },
+        "sourceFile": "index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 1920,
+          "height": 1080
+        },
+        "time": 0
+      },
+      {
+        "code": "clip_media_fit",
+        "severity": "warning",
+        "message": "Audio \"sfx-ai-click\" is 0.01s but its slot (data-duration) is 0.20s — the slot is shortened to the media length when rendered. Set data-duration to ~0.01s if that isn't intended.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {
+          "data-composition-id": "main",
+          "data-start": "0",
+          "data-duration": "20",
+          "data-width": "1920",
+          "data-height": "1080"
+        },
+        "sourceFile": "index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 1920,
+          "height": 1080
+        },
+        "time": 0
+      },
+      {
+        "code": "clip_media_fit",
+        "severity": "warning",
+        "message": "Audio \"sfx-ai-ready\" is 0.13s but its slot (data-duration) is 0.35s — the slot is shortened to the media length when rendered. Set data-duration to ~0.13s if that isn't intended.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {
+          "data-composition-id": "main",
+          "data-start": "0",
+          "data-duration": "20",
+          "data-width": "1920",
+          "data-height": "1080"
+        },
+        "sourceFile": "index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 1920,
+          "height": 1080
+        },
+        "time": 0
+      },
+      {
+        "code": "clip_media_fit",
+        "severity": "warning",
+        "message": "Audio \"sfx-outro-bell\" is 1.48s but its slot (data-duration) is 1.80s — the slot is shortened to the media length when rendered. Set data-duration to ~1.48s if that isn't intended.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {
+          "data-composition-id": "main",
+          "data-start": "0",
+          "data-duration": "20",
+          "data-width": "1920",
+          "data-height": "1080"
+        },
+        "sourceFile": "index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 1920,
+          "height": 1080
+        },
+        "time": 0
+      }
+    ]
+  },
+  "layout": {
+    "ok": true,
+    "errorCount": 0,
+    "warningCount": 0,
+    "infoCount": 0,
+    "findings": [],
+    "duration": 20,
+    "samples": [
+      1.111,
+      3.333,
+      5.556,
+      7.778,
+      10,
+      12.222,
+      14.444,
+      16.667,
+      18.889
+    ],
+    "transitionSamples": [],
+    "transitionSamplesDropped": 0,
+    "tolerance": 2,
+    "totalIssueCount": 0,
+    "truncated": false
+  },
+  "motion": {
+    "ok": true,
+    "errorCount": 0,
+    "warningCount": 0,
+    "infoCount": 0,
+    "findings": [],
+    "enabled": false,
+    "samples": 0
+  },
+  "contrast": {
+    "ok": true,
+    "errorCount": 0,
+    "warningCount": 0,
+    "infoCount": 0,
+    "findings": [],
+    "enabled": true,
+    "samples": [
+      1.111,
+      5.556,
+      10,
+      14.444,
+      18.889
+    ],
+    "checked": 56,
+    "passed": 56
+  },
+  "craft": {
+    "ok": true,
+    "errorCount": 0,
+    "warningCount": 7,
+    "infoCount": 0,
+    "findings": [
+      {
+        "code": "dead_stretch",
+        "severity": "warning",
+        "message": "Nothing on screen changes for 4.00 s (4.75–8.75 s): start the next move within 3 s, or put data-hold on the element whose stillness is deliberate; see references/motion.md.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {},
+        "sourceFile": "index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 4.75,
+        "seconds": 4,
+        "floorSeconds": 3,
+        "until": 8.75
+      },
+      {
+        "code": "line_unread",
+        "severity": "warning",
+        "message": "\"Tabla de posiciones con puntos bonus, historial de campeo...\" (23 words) is on screen 4.37 s (±0.01 s), under its 5.55 s floor: hold it about 0.5 s + 0.3 s a word (7.40 s here) before it leaves or changes; see references/motion.md.",
+        "text": "Tabla de posiciones con puntos bonus, historial de campeones, préstamos de guerreros entre equipos y links públicos de invitación a rivales con QR.",
+        "selector": "#s3-right > div:nth-of-type(1) > p:nth-of-type(1)",
+        "dataAttributes": {},
+        "sourceFile": "index.html",
+        "bbox": {
+          "x": 1081.37,
+          "y": 568.08,
+          "width": 688.8,
+          "height": 85.87
+        },
+        "time": 8.773,
+        "words": 23,
+        "seconds": 4.367,
+        "floorSeconds": 5.55
+      },
+      {
+        "code": "text_below_floor",
+        "severity": "warning",
+        "message": "Type floor is 28 px (2.6% of the 1080 px short side, what a phone can read) and 40 text elements stay under it for 0.5 s or more, the smallest \"Pizarra Táctica\" at 18 px: set reading text to at least 28 px, or put data-layout-ignore on text that is texture rather than reading; see references/look.md.",
+        "text": "Pizarra Táctica",
+        "selector": "#s3-right > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1)",
+        "dataAttributes": {},
+        "sourceFile": "index.html",
+        "bbox": {
+          "x": 1104.37,
+          "y": 710.08,
+          "width": 129.48,
+          "height": 21
+        },
+        "time": 8.875,
+        "times": [
+          0,
+          3.25,
+          3.25,
+          3.25,
+          3.25,
+          3.25,
+          3.25,
+          3.25,
+          3.25,
+          3.25,
+          3.25,
+          3.25,
+          3.25,
+          8.875,
+          8.875,
+          8.875,
+          8.875,
+          8.875,
+          8.875,
+          8.875,
+          8.875,
+          8.875,
+          8.875,
+          8.875,
+          8.875,
+          8.875,
+          8.875,
+          8.875,
+          8.875,
+          13.25,
+          13.25,
+          13.25,
+          13.25,
+          13.25,
+          13.25,
+          13.25,
+          13.25,
+          13.25,
+          17.5,
+          17.5
+        ],
+        "fontPx": 18,
+        "floorPx": 28,
+        "seconds": 4.375,
+        "elements": [
+          {
+            "selector": "#s3-right > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1)",
+            "text": "Pizarra Táctica",
+            "fontPx": 18,
+            "time": 8.875,
+            "seconds": 4.375
+          },
+          {
+            "selector": "#s3-right > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1)",
+            "text": "Integridad BD",
+            "fontPx": 18,
+            "time": 8.875,
+            "seconds": 4.375
+          },
+          {
+            "selector": "#s2-card-1 > div:nth-of-type(4)",
+            "text": "Control en tiempo real de asistencia, conmociones, gimnasio 1RM y estado físico de la Horda.",
+            "fontPx": 18.24,
+            "time": 3.25,
+            "seconds": 5.625
+          },
+          {
+            "selector": "#s2-card-2 > div:nth-of-type(4)",
+            "text": "Base de datos PostgreSQL 100% protegida con Row Level Security, caja chica e inventario.",
+            "fontPx": 18.24,
+            "time": 3.25,
+            "seconds": 5.625
+          },
+          {
+            "selector": "#s2-card-3 > div:nth-of-type(4)",
+            "text": "Certificados automáticos por tries y tackles, más penitencias de burpees y conos.",
+            "fontPx": 18.24,
+            "time": 3.25,
+            "seconds": 5.625
+          },
+          {
+            "selector": "#s4-chips > div:nth-of-type(1)",
+            "text": "🏋️ Historial Gym 1RM",
+            "fontPx": 18.94,
+            "time": 13.25,
+            "seconds": 4.25
+          },
+          {
+            "selector": "#s4-chips > div:nth-of-type(2)",
+            "text": "🧘 Wellness 7 Días",
+            "fontPx": 18.94,
+            "time": 13.25,
+            "seconds": 4.25
+          },
+          {
+            "selector": "#s4-chips > div:nth-of-type(3)",
+            "text": "🧠 Protocolo HIA",
+            "fontPx": 18.94,
+            "time": 13.25,
+            "seconds": 4.25
+          },
+          {
+            "selector": "#s4-chips > div:nth-of-type(4)",
+            "text": "🏉 Tries, Tackles y Minutos",
+            "fontPx": 18.94,
+            "time": 13.25,
+            "seconds": 4.25
+          },
+          {
+            "selector": "#s4-chips > div:nth-of-type(5)",
+            "text": "🔥 Detector de Sobreentreno",
+            "fontPx": 18.94,
+            "time": 13.25,
+            "seconds": 4.25
+          },
+          {
+            "selector": "#s4-chips > div:nth-of-type(6)",
+            "text": "📱 Web PWA + Android APK",
+            "fontPx": 18.94,
+            "time": 13.25,
+            "seconds": 4.25
+          },
+          {
+            "selector": "#s3-left > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2)",
+            "text": "Dashboard de 7 Tabs · Credenciales Forjadas",
+            "fontPx": 19,
+            "time": 8.875,
+            "seconds": 4.375
+          },
+          {
+            "selector": "#s1-badge",
+            "text": "RUGBY ORCOS NEGROS · REINO MANAGER v5.0",
+            "fontPx": 19.2,
+            "time": 0,
+            "seconds": 3.25
+          },
+          {
+            "selector": "#s2-card-1 > div:nth-of-type(1)",
+            "text": "ROSTER & SALUD",
+            "fontPx": 19.2,
+            "time": 3.25,
+            "seconds": 5.625
+          },
+          {
+            "selector": "#s2-card-2 > div:nth-of-type(1)",
+            "text": "GUARDIÁN DEL BOTÍN",
+            "fontPx": 19.2,
+            "time": 3.25,
+            "seconds": 5.625
+          },
+          {
+            "selector": "#s2-card-3 > div:nth-of-type(1)",
+            "text": "HONOR Y DISCIPLINA",
+            "fontPx": 19.2,
+            "time": 3.25,
+            "seconds": 5.625
+          },
+          {
+            "selector": "#s5-wrap > div:nth-of-type(1) > div:nth-of-type(1)",
+            "text": "RUGBY ORCOS NEGROS · REINO MANAGER v5.0",
+            "fontPx": 19.27,
+            "time": 17.5,
+            "seconds": 2.5
+          },
+          {
+            "selector": "#s5-wrap > div:nth-of-type(1) > div:nth-of-type(2)",
+            "text": "RUGBY-ORCOS.VERCEL.APP",
+            "fontPx": 19.27,
+            "time": 17.5,
+            "seconds": 2.5
+          },
+          {
+            "selector": "#s4-panel > div:nth-of-type(1) > div:nth-of-type(1)",
+            "text": "TRAINING HUB · GROQ · DEEPSEEK · GEMINI",
+            "fontPx": 19.94,
+            "time": 13.25,
+            "seconds": 4.25
+          },
+          {
+            "selector": "div.cmd-brand > div:nth-of-type(1) > div:nth-of-type(2)",
+            "text": "⚔️ Rango: Señor de la Guerra · Modo Staff",
+            "fontPx": 20,
+            "time": 3.25,
+            "seconds": 5.625
+          },
+          {
+            "selector": "#s2-header > div:nth-of-type(2) > div:nth-of-type(1)",
+            "text": "● ONLINE · SUPABASE-FIRST",
+            "fontPx": 20,
+            "time": 3.25,
+            "seconds": 5.625
+          },
+          {
+            "selector": "#s2-header > div:nth-of-type(2) > div:nth-of-type(2)",
+            "text": "🏰 CLUB / ⚔️ MAK'GORA",
+            "fontPx": 20,
+            "time": 3.25,
+            "seconds": 5.625
+          },
+          {
+            "selector": "#s3-top > div:nth-of-type(1) > div:nth-of-type(1)",
+            "text": "JERARQUÍA RPG Y PIZARRA TÁCTICA",
+            "fontPx": 20,
+            "time": 8.875,
+            "seconds": 4.375
+          },
+          {
+            "selector": "#s3-top > div:nth-of-type(2)",
+            "text": "11 FORMACIONES DRAG & DROP",
+            "fontPx": 20,
+            "time": 8.875,
+            "seconds": 4.375
+          },
+          {
+            "selector": "#s3-left > div:nth-of-type(1) > div:nth-of-type(2)",
+            "text": "TIER 4 · GUERRERO",
+            "fontPx": 20,
+            "time": 8.875,
+            "seconds": 4.375
+          },
+          {
+            "selector": "#s3-right > div:nth-of-type(1) > div:nth-of-type(1)",
+            "text": "TORNEO INTERNO MAK'GORA",
+            "fontPx": 20,
+            "time": 8.875,
+            "seconds": 4.375
+          },
+          {
+            "selector": "#s3-left > div:nth-of-type(2) > div:nth-of-type(1) > span:nth-of-type(1)",
+            "text": "Fuerza (Scrum & Gym 1RM)",
+            "fontPx": 21,
+            "time": 8.875,
+            "seconds": 4.375
+          },
+          {
+            "selector": "#s3-left > div:nth-of-type(2) > div:nth-of-type(1) > span:nth-of-type(2)",
+            "text": "94 / 99",
+            "fontPx": 21,
+            "time": 8.875,
+            "seconds": 4.375
+          },
+          {
+            "selector": "#s3-left > div:nth-of-type(3) > div:nth-of-type(1) > span:nth-of-type(1)",
+            "text": "Velocidad (Linebreaks)",
+            "fontPx": 21,
+            "time": 8.875,
+            "seconds": 4.375
+          },
+          {
+            "selector": "#s3-left > div:nth-of-type(3) > div:nth-of-type(1) > span:nth-of-type(2)",
+            "text": "88 / 99",
+            "fontPx": 21,
+            "time": 8.875,
+            "seconds": 4.375
+          },
+          {
+            "selector": "#s3-left > div:nth-of-type(4) > div:nth-of-type(1) > span:nth-of-type(1)",
+            "text": "Resistencia (80 Minutos)",
+            "fontPx": 21,
+            "time": 8.875,
+            "seconds": 4.375
+          },
+          {
+            "selector": "span.accent-gold",
+            "text": "91 / 99",
+            "fontPx": 21,
+            "time": 8.875,
+            "seconds": 4.375
+          },
+          {
+            "selector": "#s3-left > div:nth-of-type(5) > div:nth-of-type(1) > span:nth-of-type(1)",
+            "text": "Técnica (Tackles & Pases)",
+            "fontPx": 21,
+            "time": 8.875,
+            "seconds": 4.375
+          },
+          {
+            "selector": "#s3-left > div:nth-of-type(5) > div:nth-of-type(1) > span:nth-of-type(2)",
+            "text": "86 / 99",
+            "fontPx": 21,
+            "time": 8.875,
+            "seconds": 4.375
+          },
+          {
+            "selector": "#s3-right > div:nth-of-type(1) > p:nth-of-type(1)",
+            "text": "Tabla de posiciones con puntos bonus, historial de campeones, préstamos de guerreros entre equipos y links públicos de invitación a rivales con QR.",
+            "fontPx": 21,
+            "time": 8.875,
+            "seconds": 4.375
+          },
+          {
+            "selector": "#s4-cta",
+            "text": "⚡ Plan IA Generado · 594 Tests OK",
+            "fontPx": 21.53,
+            "time": 13.25,
+            "seconds": 4.25
+          },
+          {
+            "selector": "#s2-card-1 > div:nth-of-type(3)",
+            "text": "Protocolo HIA, Sin-Bin y Wellness",
+            "fontPx": 23.04,
+            "time": 3.25,
+            "seconds": 5.625
+          },
+          {
+            "selector": "#s2-card-2 > div:nth-of-type(3)",
+            "text": "Finanzas, Membresías y Rifas FIFO",
+            "fontPx": 23.04,
+            "time": 3.25,
+            "seconds": 5.625
+          },
+          {
+            "selector": "#s2-card-3 > div:nth-of-type(3)",
+            "text": "Salón de la Fama y Tribunal",
+            "fontPx": 23.04,
+            "time": 3.25,
+            "seconds": 5.625
+          },
+          {
+            "selector": "#s4-panel > p:nth-of-type(1)",
+            "text": "Cruza automáticamente fuerza 1RM, sueño, dolor muscular, protocolo HIA, tries, tackles y asistencia para diseñar planes de campo, gimnasio y prevención de sobreentrenamiento.",
+            "fontPx": 23.93,
+            "time": 13.25,
+            "seconds": 4.25
+          }
+        ]
+      },
+      {
+        "code": "dead_stretch",
+        "severity": "warning",
+        "message": "Nothing on screen changes for 3.25 s (9.88–13.13 s): start the next move within 3 s, or put data-hold on the element whose stillness is deliberate; see references/motion.md.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {},
+        "sourceFile": "index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 9.875,
+        "seconds": 3.25,
+        "floorSeconds": 3,
+        "until": 13.125
+      },
+      {
+        "code": "line_unread",
+        "severity": "warning",
+        "message": "\"Cruza automáticamente fuerza 1RM, sueño, dolor muscular, ...\" (23 words) is on screen 4.36 s (±0.01 s), under its 5.55 s floor: hold it about 0.5 s + 0.3 s a word (7.40 s here) before it leaves or changes; see references/motion.md.",
+        "text": "Cruza automáticamente fuerza 1RM, sueño, dolor muscular, protocolo HIA, tries, tackles y asistencia para diseñar planes de campo, gimnasio y prevención de sobreentrenamiento.",
+        "selector": "#s4-panel > p:nth-of-type(1)",
+        "dataAttributes": {},
+        "sourceFile": "index.html",
+        "bbox": {
+          "x": 184.41,
+          "y": 509.42,
+          "width": 1396.33,
+          "height": 62.400000000000034
+        },
+        "time": 13.141,
+        "words": 23,
+        "seconds": 4.359,
+        "floorSeconds": 5.55
+      },
+      {
+        "code": "dead_stretch",
+        "severity": "warning",
+        "message": "Nothing on screen changes for 3.13 s (13.88–17.00 s): start the next move within 3 s, or put data-hold on the element whose stillness is deliberate; see references/motion.md.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {},
+        "sourceFile": "index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 13.875,
+        "seconds": 3.125,
+        "floorSeconds": 3,
+        "until": 17
+      },
+      {
+        "code": "line_unread",
+        "severity": "warning",
+        "message": "The film's last line \"\"En el scrum y en la vida, siempre juntos. \" Siempre Orcos.\" (11 words) is on screen 2.50 s (±0.01 s), under the 2.85 s a closing line needs: hold it about 0.5 s + 0.3 s a word and at least 2 s before the film ends; see references/motion.md.",
+        "text": "\"En el scrum y en la vida, siempre juntos. \" Siempre Orcos.",
+        "selector": "#s5-motto",
+        "dataAttributes": {},
+        "sourceFile": "index.html",
+        "bbox": {
+          "x": 280.35,
+          "y": 537.72,
+          "width": 1359.3000000000002,
+          "height": 144.60000000000002
+        },
+        "time": 17.5,
+        "words": 11,
+        "seconds": 2.504,
+        "floorSeconds": 2.85
+      }
+    ],
+    "enabled": true,
+    "step": 0.125,
+    "samples": 160
+  },
+  "audio": {
+    "ok": true,
+    "errorCount": 0,
+    "warningCount": 0,
+    "infoCount": 0,
+    "findings": []
+  },
+  "hdr": {
+    "autoPromotion": null,
+    "inspection": "available"
+  },
+  "snapshots": {
+    "enabled": false,
+    "files": [],
+    "times": [],
+    "findingFiles": []
+  }
+}

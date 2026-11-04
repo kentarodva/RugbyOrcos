@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { clearCache, getCacheStats } from '../engine/aiCache';
 import { useToast } from '../context/ToastContext';
+import { useAuth } from '../context/AuthContext';
 import { supabase } from '../supabaseClient';
 import { registerWebPush, unregisterWebPush, getWebPushStatus } from '../utils/pushNotifications';
 import { getSetting, loadSettings } from '../data/clubSettings';
@@ -8,6 +9,8 @@ import { setProviderKey } from '../engine/multiProviderCoach';
 
 function Settings({ onClose, theme, setTheme }) {
   const { showToast } = useToast();
+  const { profile } = useAuth();
+  const isDev = profile?.system_role === 'desarrollador';
   const [pushStatus, setPushStatus] = useState({ supported: false, subscribed: false });
 
   useEffect(() => {
@@ -203,13 +206,14 @@ function Settings({ onClose, theme, setTheme }) {
             </div>
           </div>
 
-          {/* API Keys — Gemini, Groq, DeepSeek */}
+          {/* API Keys — Solo visible para rol Desarrollador */}
+          {isDev && (
           <div style={{
             background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border-glass)',
             padding: '15px', borderRadius: 'var(--radius-md)',
             display: 'flex', flexDirection: 'column', gap: '12px'
           }}>
-            <h4 style={{ fontSize: '0.9rem', fontWeight: 800 }}>🧠 Proveedores IA</h4>
+            <h4 style={{ fontSize: '0.9rem', fontWeight: 800 }}>🧠 Proveedores IA (Avanzado / Desarrollador)</h4>
             <p style={{ fontSize: '0.68rem', color: 'var(--color-text-muted)' }}>
               Las API keys se guardan en la base de datos del club. Todos los miembros usan la misma key.
             </p>
@@ -278,6 +282,7 @@ function Settings({ onClose, theme, setTheme }) {
                 style={{ fontSize: '0.6rem', color: 'var(--color-blue)' }}>👉 Conseguir API key</a>
             </div>
           </div>
+          )}
 
           {/* Avanzado */}
           <div style={{

@@ -1,4 +1,5 @@
 import React, { useContext, useMemo, useState, useRef, useCallback } from 'react';
+import { BarChart3, Dumbbell, Swords, HeartPulse, ClipboardCheck, Shield, Trophy, Users, Cake } from 'lucide-react';
 import { ClubContext } from '../../context/ClubContext';
 import { useTeamPlayers } from '../../context/hooks/useFilterByView';
 import { formatLocalDate } from '../../utils/dates.js';
@@ -13,16 +14,18 @@ import Salud from './Salud';
 import Cobertura from './Cobertura';
 import EquiposTab from './EquiposTab';
 import Atributos from './Atributos';
+import AwardsHall from '../AwardsHall';
 import EstadisticasSkeleton from '../Skeletons/EstadisticasSkeleton';
 import { getUpcomingBirthdays } from '../../services/statsService';
 
 const TABS = [
-  { id: 'demografia', label: '📊 Demografía' },
-  { id: 'fisico', label: '💪 Físico' },
-  { id: 'atributos', label: '⚔️ Atributos' },
-  { id: 'salud', label: '🏥 Salud' },
-  { id: 'cobertura', label: '📋 Cobertura' },
-  { id: 'equipos', label: '🏟️ Equipos' },
+  { id: 'demografia', label: 'Demografía', Icon: BarChart3 },
+  { id: 'fisico', label: 'Físico', Icon: Dumbbell },
+  { id: 'atributos', label: 'Atributos', Icon: Swords },
+  { id: 'salud', label: 'Salud', Icon: HeartPulse },
+  { id: 'cobertura', label: 'Cobertura', Icon: ClipboardCheck },
+  { id: 'equipos', label: 'Equipos', Icon: Shield },
+  { id: 'salon', label: 'Salón de la Fama', Icon: Trophy },
 ];
 
 function Estadisticas() {
@@ -87,24 +90,26 @@ function Estadisticas() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
       <div className="glass-panel" style={{ padding: '14px 18px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
-        <h3 className="neon-text-primary" style={{ fontSize: '1.1rem', fontFamily: 'Outfit', margin: 0 }}>📊 Estadísticas del Club</h3>
+        <h3 className="neon-text-primary" style={{ fontSize: '1.1rem', fontFamily: 'Outfit', margin: 0, display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+          <BarChart3 size={18} /> Estadísticas del Club
+        </h3>
         <span style={{ fontSize: '0.82rem', color: 'var(--text-secondary)' }}>{filteredPlayers.length} jugadores · {activePlayers.length} activos</span>
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '10px' }}>
-        <KPI value={filteredPlayers.length} label="Jugadores en vista" icon="👥" color="#00e676" />
-        <KPI value={activePlayers.length} label="Guerreros activos" icon="⚔️" color="#00e676" sub={filteredPlayers.length > 0 ? `${(activePlayers.length / filteredPlayers.length * 100).toFixed(0)}% del total` : ''} />
-        <KPI value={`${avg(ages)}`} label="Edad promedio" icon="🎂" color="#ffd740" sub={`${ages.length} reportaron edad`} />
-        <KPI value={`${avg(weights)}kg`} label="Peso promedio" icon="🏋️" color="#448aff" sub={`${weights.length} reportaron peso`} />
+        <KPI value={filteredPlayers.length} label="Jugadores en vista" icon={<Users size={16} />} color="#00e676" />
+        <KPI value={activePlayers.length} label="Guerreros activos" icon={<Swords size={16} />} color="#00e676" sub={filteredPlayers.length > 0 ? `${(activePlayers.length / filteredPlayers.length * 100).toFixed(0)}% del total` : ''} />
+        <KPI value={`${avg(ages)}`} label="Edad promedio" icon={<Cake size={16} />} color="#ffd740" sub={`${ages.length} reportaron edad`} />
+        <KPI value={`${avg(weights)}kg`} label="Peso promedio" icon={<Dumbbell size={16} />} color="#448aff" sub={`${weights.length} reportaron peso`} />
       </div>
       {upcomingBirthdays.length > 0 && (
         <div className="glass-panel" style={{ padding: '10px 16px', display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
-          <span style={{ fontSize: '1.2rem' }}>🎂</span>
+          <Cake size={18} style={{ color: '#ffd740' }} />
           <span style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase' }}>Próximos cumpleaños</span>
           {upcomingBirthdays.map((p, i) => (
             <span key={p.id} style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.82rem', color: p.days === 0 ? '#ffd740' : 'var(--text-primary)' }}>
               <span style={{ fontWeight: p.days === 0 ? 800 : 600 }}>{p.name}</span>
               <span style={{ color: 'var(--text-secondary)', fontSize: '0.78rem' }}>
-                {p.days === 0 ? '🎉 ¡Hoy!' : `${formatLocalDate(p.nextBD, { day: 'numeric', month: 'short' })} (${p.days}d)`}
+                {p.days === 0 ? '¡Hoy!' : `${formatLocalDate(p.nextBD, { day: 'numeric', month: 'short' })} (${p.days}d)`}
               </span>
               {i < upcomingBirthdays.length - 1 && <span style={{ color: 'rgba(255,255,255,0.15)', marginLeft: '2px' }}>|</span>}
             </span>
@@ -112,9 +117,13 @@ function Estadisticas() {
         </div>
       )}
       <div className="glass-panel" style={{ padding: '14px 18px' }}>
-        <FilterBar filters={filters} onChange={setFilters} uniqueEps={uniqueEps} searchInputRef={searchInputRef} />
+        {activeTab !== 'salon' && (
+          <FilterBar filters={filters} onChange={setFilters} uniqueEps={uniqueEps} searchInputRef={searchInputRef} />
+        )}
         <Tabs tabs={TABS} active={activeTab} onChange={setActiveTab} />
-        {filteredPlayers.length === 0 ? (
+        {activeTab === 'salon' ? (
+          <AwardsHall />
+        ) : filteredPlayers.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '30px', color: 'var(--text-muted)', fontSize: '0.82rem' }}>No hay jugadores que coincidan con los filtros actuales.</div>
         ) : (
           <>

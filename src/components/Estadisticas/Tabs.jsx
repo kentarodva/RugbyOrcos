@@ -6,14 +6,16 @@ export default function Tabs({ tabs, active, onChange }) {
       <div className="pro-subtabs" style={{ width: '100%' }}>
         {tabs.map(t => {
           const isActive = active === t.id;
+          const Icon = t.Icon;
           return (
             <button
               key={t.id}
               onClick={() => onChange(t.id)}
               className={`pro-subtab-btn ${isActive ? 'active' : ''}`}
-              style={{ flex: 1, justifyContent: 'center' }}
+              style={{ flex: 1, justifyContent: 'center', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
             >
-              {t.label}
+              {Icon && <Icon size={14} />}
+              <span>{t.label}</span>
             </button>
           );
         })}

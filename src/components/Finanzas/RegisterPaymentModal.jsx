@@ -1,7 +1,9 @@
 import React, { useState, useContext } from 'react';
+import { MessageCircle, Wallet } from 'lucide-react';
 import { ClubContext } from '../../context/ClubContext';
 import { useToast } from '../../context/ToastContext';
 import { CopInput } from '../common/FormattedInputs';
+import { buildWhatsAppUrl, buildPaymentReceiptText } from '../../utils/whatsappUtils';
 
 export function RegisterPaymentModal({ assignment, campaign, players, onClose, registerPayment, readOnly }) {
   const { addFinanceRecord } = useContext(ClubContext);
@@ -11,8 +13,7 @@ export function RegisterPaymentModal({ assignment, campaign, players, onClose, r
   const [notes, setNotes] = useState('');
   const remaining = Number(assignment.amount_due) - Number(assignment.amount_paid);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const processPayment = async (sendWhatsApp = false) => {
     const payAmount = Number(amount);
     if (!payAmount || payAmount <= 0) {
       showToast('Ingresa un monto válido.', 'warning');
@@ -34,18 +35,43 @@ export function RegisterPaymentModal({ assignment, campaign, players, onClose, r
       });
 
       await addFinanceRecord({
-        desc: `${campaign.type === 'raffle' ? '🎟️' : '🍲'} ${campaign.name} - ${player?.name || 'Jugador'}${notes ? ' (' + notes + ')' : ''}`,
+        desc: `${campaign.type === 'raffle' ? 'Rifa' : 'Campaña'} ${campaign.name} - ${player?.name || 'Jugador'}${notes ? ' (' + notes + ')' : ''}`,
         amount: payAmount,
         type: 'ingreso',
         category: 'general',
         date: new Date().toISOString().split('T')[0],
       });
 
-      showToast(`Pago de $${payAmount.toLocaleString()} registrado.`, 'success');
+      const receiptText = buildPaymentReceiptText({
+        playerName: player?.name || 'Guerrero',
+        concept: campaign.name,
+        amountPaidNow: payAmount,
+        totalPaid: Number(assignment.amount_paid || 0) + payAmount,
+        totalDue: Number(assignment.amount_due || 0),
+        notes: notes.trim(),
+      });
+
+      try {
+        await navigator.clipboard.writeText(receiptText);
+      } catch {
+        // clipboard optional
+      }
+
+      if (sendWhatsApp) {
+        const waUrl = buildWhatsAppUrl(player?.contacto?.phone, receiptText);
+        window.open(waUrl, '_blank', 'noopener,noreferrer');
+      }
+
+      showToast(`Pago de $${payAmount.toLocaleString()} registrado y recibo copiado.`, 'success');
       onClose();
-    } catch (err) {
+    } catch {
       showToast('Error al registrar el pago. Intenta de nuevo.', 'error');
     }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    await processPayment(false);
   };
 
   return (
@@ -80,9 +106,19 @@ export function RegisterPaymentModal({ assignment, campaign, players, onClose, r
               <label>Nota (opcional)</label>
               <input type="text" value={notes} onChange={e => setNotes(e.target.value)} placeholder="Ej. Pagó con billete de 50k" className="form-input" />
             </div>
-            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', flexWrap: 'wrap' }}>
               <button type="button" onClick={onClose} className="btn-outline">Cancelar</button>
-              <button type="submit" className="btn-neon">✅ Registrar Pago</button>
+              <button
+                type="button"
+                onClick={() => processPayment(true)}
+                className="btn-outline"
+                style={{ color: '#25D366', borderColor: 'rgba(37, 211, 102, 0.4)', display: 'inline-flex', alignItems: 'center', gap: '5px' }}
+              >
+                <MessageCircle size={14} /> Registrar + Recibo WA
+              </button>
+              <button type="submit" className="btn-neon" style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+                <Wallet size={14} /> Registrar Pago
+              </button>
             </div>
           </form>
         )}

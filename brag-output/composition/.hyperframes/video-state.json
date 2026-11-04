@@ -1,0 +1,131 @@
+{
+  "version": 1,
+  "historyId": "221b74d8-bd7e-4ae5-9b0a-199d46c91434",
+  "currentRevision": "4f5d8ab5-81e2-4137-9f61-c1bbfa49e092",
+  "pendingChanges": false,
+  "files": {
+    "assets/orcos_logo.png": {
+      "hash": "b8ee36e45f7a91078885b6841a288f31f95d82823a9945f37b2051dac1ffc18f",
+      "content": "C:\\Users\\KennentDVA\\.cache\\hyperframes\\history\\221b74d8-bd7e-4ae5-9b0a-199d46c91434\\blobs\\b8\\b8ee36e45f7a91078885b6841a288f31f95d82823a9945f37b2051dac1ffc18f"
+    },
+    "assets/sfx/casino/card-slide-1.ogg": {
+      "hash": "006cf9822d15d7063f8899e56041f41646df30adb6fbd8b974ee5d5420012690",
+      "content": "C:\\Users\\KennentDVA\\.cache\\hyperframes\\history\\221b74d8-bd7e-4ae5-9b0a-199d46c91434\\blobs\\00\\006cf9822d15d7063f8899e56041f41646df30adb6fbd8b974ee5d5420012690"
+    },
+    "assets/sfx/impact/impactBell_heavy_000.ogg": {
+      "hash": "94b8bb5f2d43ab65e4bcc32b28562416e9bc2c51d9fd4be1e333660ee52f977f",
+      "content": "C:\\Users\\KennentDVA\\.cache\\hyperframes\\history\\221b74d8-bd7e-4ae5-9b0a-199d46c91434\\blobs\\94\\94b8bb5f2d43ab65e4bcc32b28562416e9bc2c51d9fd4be1e333660ee52f977f"
+    },
+    "assets/sfx/impact/impactSoft_medium_001.ogg": {
+      "hash": "7642a4fd43e547afe4f7adfadb3dabb681c0ff512f52c1674bae30a726841faf",
+      "content": "C:\\Users\\KennentDVA\\.cache\\hyperframes\\history\\221b74d8-bd7e-4ae5-9b0a-199d46c91434\\blobs\\76\\7642a4fd43e547afe4f7adfadb3dabb681c0ff512f52c1674bae30a726841faf"
+    },
+    "assets/sfx/impact/impactSoft_medium_004.ogg": {
+      "hash": "b0a4dea90eed47accf50b768beff1166f2f1486fb139e4d025b2427637624bca",
+      "content": "C:\\Users\\KennentDVA\\.cache\\hyperframes\\history\\221b74d8-bd7e-4ae5-9b0a-199d46c91434\\blobs\\b0\\b0a4dea90eed47accf50b768beff1166f2f1486fb139e4d025b2427637624bca"
+    },
+    "assets/sfx/interface/bong_001.ogg": {
+      "hash": "d21d0f0b782445db579d11e2506b24cd1ac9d664ee33aeaf807761aa7b6fd710",
+      "content": "C:\\Users\\KennentDVA\\.cache\\hyperframes\\history\\221b74d8-bd7e-4ae5-9b0a-199d46c91434\\blobs\\d2\\d21d0f0b782445db579d11e2506b24cd1ac9d664ee33aeaf807761aa7b6fd710"
+    },
+    "assets/sfx/interface/click_002.ogg": {
+      "hash": "adcd1f4adc35f1b41bc1b5bbefeff7aa44f2f3f0d96d3199b544140c7c1e761c",
+      "content": "C:\\Users\\KennentDVA\\.cache\\hyperframes\\history\\221b74d8-bd7e-4ae5-9b0a-199d46c91434\\blobs\\ad\\adcd1f4adc35f1b41bc1b5bbefeff7aa44f2f3f0d96d3199b544140c7c1e761c"
+    },
+    "assets/sfx/interface/click_003.ogg": {
+      "hash": "2fa929138bc3a0f432696588f66eac94b8f6d463905ec8808c6461ce4b054292",
+      "content": "C:\\Users\\KennentDVA\\.cache\\hyperframes\\history\\221b74d8-bd7e-4ae5-9b0a-199d46c91434\\blobs\\2f\\2fa929138bc3a0f432696588f66eac94b8f6d463905ec8808c6461ce4b054292"
+    },
+    "hyperframes.json": {
+      "hash": "53dbce1e19aa713cbb12ee0bc4d206143b45ab15e6ffbfcaa8f69572d4d24d50",
+      "content": "C:\\Users\\KennentDVA\\.cache\\hyperframes\\history\\221b74d8-bd7e-4ae5-9b0a-199d46c91434\\blobs\\53\\53dbce1e19aa713cbb12ee0bc4d206143b45ab15e6ffbfcaa8f69572d4d24d50"
+    },
+    "index.html": {
+      "hash": "ea69de71a02fe3f2bb5047948aaf56ed26095fe10290fdc9068cb1007295bbf1",
+      "content": "C:\\Users\\KennentDVA\\.cache\\hyperframes\\history\\221b74d8-bd7e-4ae5-9b0a-199d46c91434\\blobs\\ea\\ea69de71a02fe3f2bb5047948aaf56ed26095fe10290fdc9068cb1007295bbf1"
+    },
+    "meta.json": {
+      "hash": "0bc3a413b706dc336ca2e909abe3fb8e6994be74cd36d732bff1a0eb6843bd81",
+      "content": "C:\\Users\\KennentDVA\\.cache\\hyperframes\\history\\221b74d8-bd7e-4ae5-9b0a-199d46c91434\\blobs\\0b\\0bc3a413b706dc336ca2e909abe3fb8e6994be74cd36d732bff1a0eb6843bd81"
+    },
+    "package.json": {
+      "hash": "518b91ba32afc8620d5e57cbe12b99f28defc2bcbd91cfe9d731f44939ff3735",
+      "content": "C:\\Users\\KennentDVA\\.cache\\hyperframes\\history\\221b74d8-bd7e-4ae5-9b0a-199d46c91434\\blobs\\51\\518b91ba32afc8620d5e57cbe12b99f28defc2bcbd91cfe9d731f44939ff3735"
+    },
+    "assets/music/happy-beats-business-moves-vol-12-by-ende-dot-app.mp3": {
+      "hash": "5888d4bd2ba0119b87a94e502ae2cc401c08192945cc5e5c2f8e8a33aa47a0a1",
+      "content": "C:\\Users\\KennentDVA\\.cache\\hyperframes\\history\\221b74d8-bd7e-4ae5-9b0a-199d46c91434\\blobs\\58\\5888d4bd2ba0119b87a94e502ae2cc401c08192945cc5e5c2f8e8a33aa47a0a1"
+    }
+  },
+  "revisions": {
+    "4f5d8ab5-81e2-4137-9f61-c1bbfa49e092": {
+      "actor": {
+        "kind": "outside",
+        "name": "Outside"
+      },
+      "label": "Changed outside the app",
+      "startedAt": 1793132056693,
+      "endedAt": 1793132056695,
+      "files": {
+        "index.html": {
+          "before": "C:\\Users\\KennentDVA\\.cache\\hyperframes\\history\\221b74d8-bd7e-4ae5-9b0a-199d46c91434\\blobs\\e9\\e9212dbc44df2cf91902c372f4023e529610587cb179494ee95f7162ad05ddc8",
+          "after": "C:\\Users\\KennentDVA\\.cache\\hyperframes\\history\\221b74d8-bd7e-4ae5-9b0a-199d46c91434\\blobs\\ea\\ea69de71a02fe3f2bb5047948aaf56ed26095fe10290fdc9068cb1007295bbf1"
+        }
+      }
+    }
+  },
+  "checks": {
+    "latest": {
+      "revision": null,
+      "id": "df12736c-dbec-4cdb-bc2d-8f167ffdbc7f"
+    },
+    "revisions": {},
+    "unversioned": [
+      {
+        "id": "df12736c-dbec-4cdb-bc2d-8f167ffdbc7f",
+        "scope": "project",
+        "report": "C:\\Users\\KennentDVA\\Documents\\Proyectos_Code\\Rugby Orcos\\brag-output\\composition\\.hyperframes\\artifacts\\checks\\df12736c-dbec-4cdb-bc2d-8f167ffdbc7f.json",
+        "metadata": {
+          "ok": true,
+          "browserSkipped": false,
+          "options": {
+            "samples": 9,
+            "atTransitions": false,
+            "maxIssues": 80,
+            "collapseStatic": true,
+            "tolerance": 2,
+            "timeout": 10000,
+            "contrast": true,
+            "strict": false,
+            "snapshots": false,
+            "browserGpuMode": "auto"
+          }
+        },
+        "createdAt": 1793131941105,
+        "contentHash": "45b54952104ab1016ccca077a40a0daf1eeeef0a308946190ec8ab846bd2fe6c",
+        "revision": null,
+        "inputFingerprint": "799c00603cb0e2c6f14b1e9fdb570dc5b2354f684548dd34ab18b1a3aa35a426",
+        "inputScope": "local-project-files",
+        "attribution": "unversioned"
+      }
+    ]
+  },
+  "snapshots": {
+    "latest": null,
+    "revisions": {},
+    "unversioned": []
+  },
+  "renders": {
+    "latest": {
+      "id": "4a69e5ed-4adf-4193-abc4-c22d23761291",
+      "completedAt": 1793132095211,
+      "output": "C:\\Users\\KennentDVA\\Documents\\Proyectos_Code\\Rugby Orcos\\brag-output\\brag.mp4",
+      "status": "completed",
+      "revision": "4f5d8ab5-81e2-4137-9f61-c1bbfa49e092"
+    },
+    "retainedRevisions": [
+      "4f5d8ab5-81e2-4137-9f61-c1bbfa49e092"
+    ]
+  },
+  "pendingArtifactCleanup": []
+}

@@ -1,9 +1,9 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { handleError } from '../utils/errorHandler';
+import { Sparkles, ZoomIn } from 'lucide-react';
 
 const CROP_SIZE = 300;
 const OUTPUT_SIZE = 512;
-const QUALITY = 0.8;
+const QUALITY = 0.85;
 
 function centerOffset(naturalW, naturalH, z) {
   const w = naturalW * z;
@@ -14,10 +14,7 @@ function centerOffset(naturalW, naturalH, z) {
 export function PhotoEditor({ file, photoUrl, onSave, onClose }) {
   const [imgSrc, setImgSrc] = useState(null);
   const [imgNatural, setImgNatural] = useState({ w: 0, h: 0 });
-  const [processing, setProcessing] = useState(false);
-  const [progress, setProgress] = useState(0);
-  const [bgRemoved, setBgRemoved] = useState(false);
-  const [bgError, setBgError] = useState(false);
+  const [tacticalMode, setTacticalMode] = useState(true);
   const [, forceUpdate] = useState(0);
 
   const zoomRef = useRef(1);
@@ -57,7 +54,6 @@ export function PhotoEditor({ file, photoUrl, onSave, onClose }) {
   useEffect(() => {
     if (file) {
       originalBlobRef.current = null;
-      setBgRemoved(false);
       const cleanup = loadImage(file, file);
       return cleanup;
     }
@@ -68,7 +64,6 @@ export function PhotoEditor({ file, photoUrl, onSave, onClose }) {
       let cancelled = false;
       let objectUrl = null;
       originalBlobRef.current = null;
-      setBgRemoved(false);
       const controller = new AbortController();
       fetch(photoUrl, { signal: controller.signal })
         .then(r => r.blob())
@@ -106,7 +101,6 @@ export function PhotoEditor({ file, photoUrl, onSave, onClose }) {
   }, [rerender]);
 
   const handleMouseDown = useCallback((e) => {
-    if (processing) return;
     e.preventDefault();
     const off = offsetRef.current;
     dragMetaRef.current = { startX: e.clientX, startY: e.clientY, startOffX: off.x, startOffY: off.y };
@@ -122,10 +116,9 @@ export function PhotoEditor({ file, photoUrl, onSave, onClose }) {
     };
     document.addEventListener('mousemove', onMove);
     document.addEventListener('mouseup', onUp);
-  }, [rerender, processing]);
+  }, [rerender]);
 
   const handleTouchStart = useCallback((e) => {
-    if (processing) return;
     if (e.touches.length !== 1) return;
     e.preventDefault();
     const off = offsetRef.current;
@@ -143,39 +136,7 @@ export function PhotoEditor({ file, photoUrl, onSave, onClose }) {
     };
     document.addEventListener('touchmove', onMove, { passive: false });
     document.addEventListener('touchend', onEnd);
-  }, [rerender, processing]);
-
-  const handleRemoveBackground = useCallback(async () => {
-    const src = sourceRef.current;
-    if (!src) return;
-    setProcessing(true);
-    setProgress(0);
-    try {
-      const { removeBackground } = await import('@imgly/background-removal');
-      const resultBlob = await removeBackground(src, {
-        model: 'medium',
-        output: { format: 'image/png' },
-        progress: (_key, current, total) => {
-          setProgress(Math.round((current / total) * 100));
-        },
-      });
-      setBgRemoved(true);
-      loadImage(URL.createObjectURL(resultBlob), resultBlob);
-    } catch (err) {
-      handleError(err, 'PhotoEditor.removeBackground', { silent: true });
-      setBgError(true);
-    } finally {
-      setProcessing(false);
-      setProgress(0);
-    }
-  }, [loadImage]);
-
-  const handleRestoreOriginal = useCallback(() => {
-    const orig = originalBlobRef.current;
-    if (!orig) return;
-    setBgRemoved(false);
-    loadImage(URL.createObjectURL(orig), orig);
-  }, [loadImage]);
+  }, [rerender]);
 
   const handleSave = useCallback(() => {
     const canvas = document.createElement('canvas');
@@ -195,9 +156,27 @@ export function PhotoEditor({ file, photoUrl, onSave, onClose }) {
       const drawX = off.x * (OUTPUT_SIZE / CROP_SIZE);
       const drawY = off.y * (OUTPUT_SIZE / CROP_SIZE);
 
-      ctx.fillStyle = '#1a1a2e';
+      ctx.fillStyle = '#090e17';
       ctx.fillRect(0, 0, OUTPUT_SIZE, OUTPUT_SIZE);
+
+      if (tacticalMode) {
+        ctx.filter = 'contrast(1.12) saturate(1.08) brightness(1.03)';
+      }
       ctx.drawImage(img, drawX, drawY, drawW, drawH);
+      ctx.filter = 'none';
+
+      if (tacticalMode) {
+        const vig = ctx.createRadialGradient(
+          OUTPUT_SIZE / 2, OUTPUT_SIZE * 0.45, OUTPUT_SIZE * 0.25,
+          OUTPUT_SIZE / 2, OUTPUT_SIZE / 2, OUTPUT_SIZE / 2
+        );
+        vig.addColorStop(0, 'rgba(0, 0, 0, 0)');
+        vig.addColorStop(0.75, 'rgba(4, 9, 16, 0.16)');
+        vig.addColorStop(1, 'rgba(4, 9, 16, 0.62)');
+        ctx.fillStyle = vig;
+        ctx.fillRect(0, 0, OUTPUT_SIZE, OUTPUT_SIZE);
+      }
+
       canvas.toBlob(blob => {
         if (blob) { onSave(blob); return; }
         canvas.toBlob(blob2 => {
@@ -206,7 +185,7 @@ export function PhotoEditor({ file, photoUrl, onSave, onClose }) {
       }, 'image/webp', QUALITY);
     };
     img.src = imgSrc;
-  }, [imgSrc, imgNatural, onSave]);
+  }, [imgSrc, imgNatural, tacticalMode, onSave]);
 
   if (!imgSrc) return null;
 
@@ -231,7 +210,7 @@ export function PhotoEditor({ file, photoUrl, onSave, onClose }) {
         </div>
 
         <p style={{ fontSize: '0.72rem', color: 'var(--color-text-muted)', margin: 0, textAlign: 'center' }}>
-          Arrastra para posicionar y usa el slider para hacer zoom
+          Arrastra para centrar tu rostro y usa el control de zoom
         </p>
 
         <div
@@ -240,7 +219,7 @@ export function PhotoEditor({ file, photoUrl, onSave, onClose }) {
           style={{
             width: CROP_SIZE, height: CROP_SIZE, position: 'relative',
             overflow: 'hidden', borderRadius: '50%', cursor: 'grab',
-            border: '3px solid var(--color-primary)',
+            border: `3px solid ${tacticalMode ? 'var(--color-primary)' : 'var(--border-glass)'}`,
             userSelect: 'none', touchAction: 'none'
           }}
         >
@@ -254,23 +233,26 @@ export function PhotoEditor({ file, photoUrl, onSave, onClose }) {
               width: imgW, height: imgH,
               transform: `translate(${off.x}px, ${off.y}px)`,
               transformOrigin: '0 0',
+              filter: tacticalMode ? 'contrast(1.12) saturate(1.08) brightness(1.03)' : 'none',
               pointerEvents: 'none',
             }}
           />
+          {tacticalMode && (
+            <div style={{
+              position: 'absolute', inset: 0, borderRadius: '50%',
+              background: 'radial-gradient(circle at 50% 45%, transparent 45%, rgba(4,9,16,0.58) 100%)',
+              pointerEvents: 'none'
+            }} />
+          )}
           <div style={{
             position: 'absolute', inset: 0, borderRadius: '50%',
             boxShadow: 'inset 0 0 0 1px var(--color-primary)',
             pointerEvents: 'none'
           }} />
-          <div style={{
-            position: 'absolute', inset: '-10px',
-            background: 'radial-gradient(circle 150px, transparent 149px, rgba(0,0,0,0.65) 150px)',
-            pointerEvents: 'none'
-          }} />
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%', maxWidth: `${CROP_SIZE}px` }}>
-          <span style={{ fontSize: '0.65rem', color: 'var(--color-text-muted)' }}>🔍</span>
+          <ZoomIn size={14} style={{ color: 'var(--color-text-muted)' }} />
           <input
             type="range"
             min={Math.max(CROP_SIZE / imgNatural.w, CROP_SIZE / imgNatural.h)}
@@ -278,51 +260,23 @@ export function PhotoEditor({ file, photoUrl, onSave, onClose }) {
             step={0.01}
             value={z}
             onChange={(e) => handleZoom(e.target.value)}
-            disabled={processing}
             style={{ flex: 1 }}
           />
-          <span style={{ fontSize: '0.65rem', color: 'var(--color-text-muted)' }}>{Math.round(z * 100)}%</span>
+          <span className="tabular-nums" style={{ fontSize: '0.68rem', color: 'var(--color-text-muted)' }}>{Math.round(z * 100)}%</span>
         </div>
 
-        {processing ? (
-          <div style={{ width: '100%', maxWidth: `${CROP_SIZE}px`, display: 'flex', flexDirection: 'column', gap: '6px' }}>
-            <div style={{ fontSize: '0.72rem', color: 'var(--color-text-muted)', textAlign: 'center' }}>
-              🧹 Quitando fondo... {progress}%
-            </div>
-            <div style={{
-              width: '100%', height: '6px', background: 'rgba(255,255,255,0.06)',
-              borderRadius: '3px', overflow: 'hidden'
-            }}>
-              <div style={{
-                width: `${progress}%`, height: '100%',
-                background: 'var(--color-primary)',
-                borderRadius: '3px', transition: 'width 0.3s ease'
-              }} />
-            </div>
-          </div>
-        ) : bgRemoved ? (
-          <>
-            <button onClick={handleRestoreOriginal} className="btn-outline" style={{ width: '100%', maxWidth: `${CROP_SIZE}px`, padding: '10px', fontSize: '0.85rem', marginBottom: bgError ? '8px' : 0 }}>
-              ↩ Usar Original (sin recorte)
-            </button>
-            {bgError && (
-              <button onClick={() => { setBgError(false); handleRemoveBackground(); }} className="btn-outline" style={{ width: '100%', maxWidth: `${CROP_SIZE}px`, padding: '10px', fontSize: '0.85rem', color: 'var(--color-yellow)', borderColor: 'rgba(255,234,0,0.2)' }}>
-                🧹 Reintentar Quitar Fondo
-              </button>
-            )}
-          </>
-        ) : bgError ? (
-          <div style={{ width: '100%', maxWidth: `${CROP_SIZE}px`, textAlign: 'center' }}>
-            <p style={{ fontSize: '0.75rem', color: '#ef4444', marginBottom: '8px' }}>Error al quitar fondo. El modelo no pudo procesar la imagen.</p>
-            <button onClick={() => { setBgError(false); handleRemoveBackground(); }} className="btn-outline" style={{ padding: '10px', fontSize: '0.85rem', width: '100%' }}>
-              🧹 Reintentar
-            </button>
-          </div>
-        ) : (
-          <button onClick={handleRemoveBackground} className="btn-outline" style={{ width: '100%', maxWidth: `${CROP_SIZE}px`, padding: '10px', fontSize: '0.85rem' }}>
-            🧹 Quitar Fondo
-          </button>
-        )}
+        <button
+          type="button"
+          onClick={() => setTacticalMode(v => !v)}
+          className={tacticalMode ? 'btn-neon' : 'btn-outline'}
+          style={{
+            width: '100%', maxWidth: `${CROP_SIZE}px`, padding: '9px 12px', fontSize: '0.8rem',
+            display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '6px'
+          }}
+        >
+          <Sparkles size={15} />
+          <span>{tacticalMode ? 'Modo Retrato Táctico: Activo (Alto Contraste)' : 'Activar Modo Retrato Táctico'}</span>
+        </button>
 
         <div style={{ display: 'flex', gap: '10px', width: '100%' }}>
           <button onClick={onClose} className="btn-outline" style={{ flex: 1, padding: '10px' }}>Cancelar</button>

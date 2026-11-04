@@ -9,8 +9,6 @@ import {
   Scale,
   Swords,
   Compass,
-  Trophy,
-  Mail,
   MessageSquare,
   Bot,
   ChevronRight,
@@ -43,13 +41,11 @@ export const ALL_GROUPS = [
     tabs: [
       { id: 'makgora', label: "Mak'Gora", icon: Swords },
       { id: 'cancha', label: 'Pizarra XV', perm: 'manage_tactics', icon: Compass },
-      { id: 'awards', label: 'Salón de la Fama', icon: Trophy },
     ],
   },
   {
     label: 'COMUNICACIÓN',
     tabs: [
-      { id: 'invitaciones', label: 'Invitaciones', icon: Mail },
       { id: 'messages', label: 'Mensajes', icon: MessageSquare },
       { id: 'ia', label: 'Coach IA', perm: 'config_ai', icon: Bot },
     ],

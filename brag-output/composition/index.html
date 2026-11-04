@@ -1,0 +1,647 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;800&family=Outfit:wght@700;800;900&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      :root {
+        --bg-dark: #07090e;
+        --bg-surface: #0f1624;
+        --bg-card: #131c2e;
+        --primary: #00e676;
+        --gold: #ffb300;
+        --cyan: #38bdf8;
+        --ink: #f8fafc;
+        --ink-soft: #cbd5e1;
+        --font-display: "Outfit", sans-serif;
+        --font-sans: "Inter", sans-serif;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background-color: var(--bg-dark);
+        color: var(--ink);
+        font-family: var(--font-sans);
+      }
+
+      #root {
+        position: relative;
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background-color: var(--bg-dark);
+      }
+
+      #bg-stage {
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(circle at 50% 25%, #0c291e 0%, #07090e 68%);
+        z-index: 0;
+      }
+
+      #bg-grid {
+        position: absolute;
+        inset: 0;
+        background-image:
+          linear-gradient(rgba(0, 230, 118, 0.05) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(0, 230, 118, 0.05) 1px, transparent 1px);
+        background-size: 64px 64px;
+        z-index: 0;
+      }
+
+      .scene {
+        position: absolute;
+        inset: 0;
+        padding: 84px 128px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        z-index: 2;
+      }
+
+      .pill-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        padding: 10px 24px;
+        border-radius: 999px;
+        background-color: #0d281d;
+        border: 2px solid var(--primary);
+        color: var(--primary);
+        font-family: var(--font-display);
+        font-size: 28px;
+        font-weight: 800;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+      }
+
+      .pill-gold {
+        background-color: #2b2108;
+        border-color: var(--gold);
+        color: var(--gold);
+      }
+
+      .hero-title {
+        font-family: var(--font-display);
+        font-size: 74px;
+        font-weight: 900;
+        line-height: 1.08;
+        letter-spacing: -0.02em;
+        color: var(--ink);
+      }
+
+      .accent-green {
+        color: var(--primary);
+      }
+
+      .accent-gold {
+        color: var(--gold);
+      }
+
+      .card-panel {
+        background-color: var(--bg-surface);
+        border: 2px solid #23324d;
+        border-radius: 24px;
+        padding: 32px 36px;
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.55);
+      }
+
+      .card-panel-green {
+        border-color: var(--primary);
+      }
+
+      .card-panel-gold {
+        border-color: var(--gold);
+      }
+
+      .cmd-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background-color: var(--bg-surface);
+        border: 2px solid #23324d;
+        border-radius: 22px;
+        padding: 24px 36px;
+        margin-bottom: 36px;
+      }
+
+      .cmd-brand {
+        display: flex;
+        align-items: center;
+        gap: 22px;
+      }
+
+      .cmd-logo {
+        width: 72px;
+        height: 72px;
+        object-fit: contain;
+      }
+
+      .metrics-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 28px;
+      }
+
+      .metric-number {
+        font-family: var(--font-display);
+        font-size: 62px;
+        font-weight: 900;
+        line-height: 1.05;
+        margin: 16px 0 12px 0;
+      }
+
+      .metric-label {
+        font-size: 28px;
+        font-weight: 700;
+        color: var(--ink);
+        margin-bottom: 10px;
+      }
+
+      .metric-desc {
+        font-size: 28px;
+        font-weight: 500;
+        color: var(--ink-soft);
+        line-height: 1.35;
+      }
+
+      .two-col {
+        display: grid;
+        grid-template-columns: 1.05fr 0.95fr;
+        gap: 36px;
+        align-items: stretch;
+      }
+
+      .stat-row {
+        margin-bottom: 20px;
+      }
+
+      .stat-head {
+        display: flex;
+        justify-content: space-between;
+        font-size: 28px;
+        font-weight: 700;
+        color: var(--ink);
+        margin-bottom: 8px;
+      }
+
+      .stat-track {
+        width: 100%;
+        height: 18px;
+        background-color: #1e293b;
+        border-radius: 999px;
+        overflow: hidden;
+      }
+
+      .stat-fill {
+        height: 100%;
+        border-radius: 999px;
+        background-color: var(--primary);
+      }
+
+      .stat-fill-gold {
+        background-color: var(--gold);
+      }
+
+      .chip-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
+        margin: 28px 0 0 0;
+      }
+
+      .source-chip {
+        padding: 14px 24px;
+        border-radius: 14px;
+        background-color: #162238;
+        border: 2px solid #2dd4bf;
+        color: var(--ink);
+        font-size: 28px;
+        font-weight: 700;
+      }
+
+      .btn-cta {
+        display: inline-flex;
+        align-items: center;
+        gap: 14px;
+        padding: 16px 32px;
+        border-radius: 16px;
+        background-color: var(--primary);
+        color: #041f11;
+        font-family: var(--font-display);
+        font-size: 28px;
+        font-weight: 900;
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-duration="20"
+      data-width="1920"
+      data-height="1080"
+    >
+      <div id="bg-stage" data-layout-ignore></div>
+      <div id="bg-grid" data-layout-ignore></div>
+
+      <!-- SCENE 1: HOOK (0.0s - 3.2s) -->
+      <div
+        id="scene-hook"
+        class="clip scene"
+        data-start="0"
+        data-duration="3.2"
+        data-track-index="1"
+        data-hold
+      >
+        <div
+          id="s1-wrap"
+          style="display: flex; flex-direction: column; align-items: center; text-align: center; gap: 28px;"
+        >
+          <img
+            id="s1-logo"
+            src="assets/orcos_logo.png"
+            alt="Rugby Orcos Negros"
+            style="width: 156px; height: 156px; object-fit: contain;"
+          />
+          <div id="s1-badge" class="pill-badge">
+            RUGBY ORCOS NEGROS · REINO MANAGER v5.0
+          </div>
+          <h1 id="s1-title" class="hero-title" style="max-width: 1480px;">
+            ¿Un Excel para tu club de rugby?<br />
+            <span class="accent-green">Nosotros fundamos un Reino.</span>
+          </h1>
+        </div>
+      </div>
+
+      <!-- SCENE 2: COMMAND CENTER v5.0 (3.2s - 8.74s) -->
+      <div
+        id="scene-command"
+        class="clip scene"
+        data-start="3.2"
+        data-duration="5.54"
+        data-track-index="2"
+        data-hold
+      >
+        <div id="s2-header" class="cmd-header">
+          <div class="cmd-brand">
+            <img src="assets/orcos_logo.png" alt="Logo" class="cmd-logo" />
+            <div>
+              <div
+                style="font-family: var(--font-display); font-size: 36px; font-weight: 900; color: var(--ink);"
+              >
+                RUGBY ORCOS NEGROS
+              </div>
+              <div style="font-size: 28px; font-weight: 700; color: var(--gold);">
+                ⚔️ Señor de la Guerra · Modo Staff
+              </div>
+            </div>
+          </div>
+          <div style="display: flex; align-items: center; gap: 18px;">
+            <div class="pill-badge">● SUPABASE-FIRST</div>
+            <div class="pill-badge pill-gold">🏰 CLUB / ⚔️ MAK'GORA</div>
+          </div>
+        </div>
+
+        <div class="metrics-grid">
+          <div id="s2-card-1" class="card-panel card-panel-green">
+            <div class="pill-badge">ROSTER & SALUD</div>
+            <div class="metric-number accent-green">80+ Guerreros</div>
+            <div class="metric-label">Protocolo HIA y Sin-Bin</div>
+            <div class="metric-desc">
+              Asistencia, bienestar y fuerza 1RM en vivo.
+            </div>
+          </div>
+
+          <div id="s2-card-2" class="card-panel card-panel-gold">
+            <div class="pill-badge pill-gold">GUARDIÁN DEL BOTÍN</div>
+            <div class="metric-number accent-gold">53 Tablas RLS</div>
+            <div class="metric-label">Finanzas y Rifas FIFO</div>
+            <div class="metric-desc">
+              Caja chica, membresías e inventario seguro.
+            </div>
+          </div>
+
+          <div id="s2-card-3" class="card-panel">
+            <div class="pill-badge">HONOR Y TRIBUNAL</div>
+            <div class="metric-number" style="color: var(--cyan);">43 Premios</div>
+            <div class="metric-label">Salón de la Fama</div>
+            <div class="metric-desc">
+              Certificados automáticos y penitencias RPG.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SCENE 3: FICHA RPG, PIZARRA TACTICA & MAK'GORA (8.74s - 13.11s) -->
+      <div
+        id="scene-rpg"
+        class="clip scene"
+        data-start="8.74"
+        data-duration="4.37"
+        data-track-index="3"
+        data-hold
+      >
+        <div id="s3-top" style="margin-bottom: 28px; display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <div class="pill-badge pill-gold" style="margin-bottom: 12px;">
+              PROGRESIÓN RPG Y TÁCTICA
+            </div>
+            <h2 class="hero-title" style="font-size: 54px;">
+              Cada jugador evoluciona como <span class="accent-green">Guerrero</span>
+            </h2>
+          </div>
+          <div class="pill-badge">11 FORMACIONES</div>
+        </div>
+
+        <div class="two-col">
+          <div id="s3-left" class="card-panel card-panel-green">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 22px;">
+              <div style="font-family: var(--font-display); font-size: 34px; font-weight: 900;">
+                Ficha RPG · 7 Tabs
+              </div>
+              <div class="pill-badge">TIER 4</div>
+            </div>
+
+            <div class="stat-row">
+              <div class="stat-head"><span>Fuerza (Scrum & 1RM)</span><span class="accent-green">94 / 99</span></div>
+              <div class="stat-track"><div id="bar-str" class="stat-fill" style="width: 94%;"></div></div>
+            </div>
+            <div class="stat-row">
+              <div class="stat-head"><span>Velocidad (Linebreaks)</span><span class="accent-green">88 / 99</span></div>
+              <div class="stat-track"><div id="bar-spd" class="stat-fill" style="width: 88%;"></div></div>
+            </div>
+            <div class="stat-row">
+              <div class="stat-head"><span>Resistencia (80 Min)</span><span class="accent-gold">91 / 99</span></div>
+              <div class="stat-track"><div id="bar-sta" class="stat-fill stat-fill-gold" style="width: 91%;"></div></div>
+            </div>
+            <div class="stat-row" style="margin-bottom: 0;">
+              <div class="stat-head"><span>Técnica (Tackles)</span><span class="accent-green">86 / 99</span></div>
+              <div class="stat-track"><div id="bar-tec" class="stat-fill" style="width: 86%;"></div></div>
+            </div>
+          </div>
+
+          <div id="s3-right" class="card-panel card-panel-gold" style="display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+              <div class="pill-badge pill-gold" style="margin-bottom: 18px;">TORNEO MAK'GORA</div>
+              <div style="font-family: var(--font-display); font-size: 40px; font-weight: 900; margin-bottom: 14px;">
+                6 Clanes · Fixture & Préstamos
+              </div>
+              <p style="font-size: 28px; color: var(--ink-soft); line-height: 1.38; margin-bottom: 24px;">
+                Puntos bonus, campeones e invitaciones QR para rivales.
+              </p>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+              <div style="background: #162238; padding: 18px 22px; border-radius: 16px; border: 1px solid #334155;">
+                <div style="font-size: 28px; color: var(--ink-soft); font-weight: 600;">Pizarra</div>
+                <div style="font-family: var(--font-display); font-size: 32px; font-weight: 900; color: var(--primary);">11 Formaciones</div>
+              </div>
+              <div style="background: #162238; padding: 18px 22px; border-radius: 16px; border: 1px solid #334155;">
+                <div style="font-size: 28px; color: var(--ink-soft); font-weight: 600;">Base de Datos</div>
+                <div style="font-family: var(--font-display); font-size: 32px; font-weight: 900; color: var(--gold);">133 FKs</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SCENE 4: IA PERSONAL TRAINER (13.11s - 16.93s) -->
+      <div
+        id="scene-ai"
+        class="clip scene"
+        data-start="13.11"
+        data-duration="3.82"
+        data-track-index="4"
+        data-hold
+      >
+        <div id="s4-panel" class="card-panel card-panel-green" style="padding: 44px 52px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+            <div class="pill-badge">GROQ · DEEPSEEK · GEMINI</div>
+            <div id="s4-cta" class="btn-cta">⚡ Plan IA · 594 Tests OK</div>
+          </div>
+
+          <h2 class="hero-title" style="font-size: 56px; margin-bottom: 16px;">
+            IA Personal Trainer con <span class="accent-green">14 fuentes de datos</span>
+          </h2>
+          <p style="font-size: 28px; color: var(--ink-soft); max-width: 1420px; line-height: 1.38;">
+            Planes automáticos de campo, gimnasio y prevención de lesiones.
+          </p>
+
+          <div id="s4-chips" class="chip-grid">
+            <div class="source-chip">🏋️ Gym 1RM</div>
+            <div class="source-chip">🧘 Wellness 7d</div>
+            <div class="source-chip">🧠 Protocolo HIA</div>
+            <div class="source-chip">🏉 Tries & Tackles</div>
+            <div class="source-chip">🔥 Anti-Sobreentreno</div>
+            <div class="source-chip">📱 PWA + Android APK</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SCENE 5: OUTRO / SIEMPRE ORCOS (16.93s - 20.0s) -->
+      <div
+        id="scene-outro"
+        class="clip scene"
+        data-start="16.93"
+        data-duration="3.07"
+        data-track-index="5"
+        data-hold
+      >
+        <div
+          id="s5-wrap"
+          style="display: flex; flex-direction: column; align-items: center; text-align: center; gap: 24px;"
+        >
+          <img
+            id="s5-logo"
+            src="assets/orcos_logo.png"
+            alt="Rugby Orcos Shield"
+            style="width: 164px; height: 164px; object-fit: contain;"
+          />
+          <h1 id="s5-motto" class="hero-title" style="font-size: 62px; max-width: 1460px;">
+            "En el scrum y en la vida, <span class="accent-green">siempre Orcos.</span>"
+          </h1>
+          <div style="display: flex; gap: 20px; align-items: center;">
+            <div class="pill-badge">RUGBY ORCOS NEGROS · v5.0</div>
+            <div class="pill-badge pill-gold">RUGBY-ORCOS.VERCEL.APP</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- AUDIO LAYER -->
+      <audio
+        id="bg-music"
+        class="clip"
+        data-start="0"
+        data-duration="20"
+        data-track-index="10"
+        data-volume="0.34"
+        data-fade-out="1.8"
+        src="assets/music/happy-beats-business-moves-vol-12-by-ende-dot-app.mp3"
+      ></audio>
+      <audio
+        id="sfx-hook"
+        class="clip"
+        data-start="0.15"
+        data-duration="0.19"
+        data-track-index="11"
+        data-volume="0.72"
+        src="assets/sfx/impact/impactSoft_medium_001.ogg"
+      ></audio>
+      <audio
+        id="sfx-card-1"
+        class="clip"
+        data-start="3.55"
+        data-duration="0.4"
+        data-track-index="12"
+        data-volume="0.65"
+        src="assets/sfx/casino/card-slide-1.ogg"
+      ></audio>
+      <audio
+        id="sfx-card-2"
+        class="clip"
+        data-start="4.1"
+        data-duration="0.01"
+        data-track-index="13"
+        data-volume="0.6"
+        src="assets/sfx/interface/click_003.ogg"
+      ></audio>
+      <audio
+        id="sfx-rpg-cut"
+        class="clip"
+        data-start="8.74"
+        data-duration="0.15"
+        data-track-index="14"
+        data-volume="0.72"
+        src="assets/sfx/impact/impactSoft_medium_004.ogg"
+      ></audio>
+      <audio
+        id="sfx-ai-click"
+        class="clip"
+        data-start="13.11"
+        data-duration="0.01"
+        data-track-index="15"
+        data-volume="0.68"
+        src="assets/sfx/interface/click_002.ogg"
+      ></audio>
+      <audio
+        id="sfx-ai-ready"
+        class="clip"
+        data-start="13.64"
+        data-duration="0.13"
+        data-track-index="16"
+        data-volume="0.68"
+        src="assets/sfx/interface/bong_001.ogg"
+      ></audio>
+      <audio
+        id="sfx-outro-bell"
+        class="clip"
+        data-start="16.93"
+        data-duration="1.48"
+        data-track-index="17"
+        data-volume="0.78"
+        src="assets/sfx/impact/impactBell_heavy_000.ogg"
+      ></audio>
+    </div>
+
+    <script>
+      const tl = gsap.timeline({ paused: true });
+
+      // Scene 1: Hook (0.0s - 3.2s)
+      tl.fromTo(
+        "#s1-wrap",
+        { y: 36, scale: 0.96 },
+        { y: 0, scale: 1, duration: 0.38, ease: "expo.out" },
+        0,
+      );
+
+      // Scene 2: Command Center (3.2s - 8.74s)
+      // beat-grid: card 1 at 3.55s, card 2 at 4.10s, card 3 at 4.64s
+      tl.fromTo(
+        "#s2-header",
+        { y: -28 },
+        { y: 0, duration: 0.35, ease: "power3.out" },
+        3.2,
+      );
+      tl.fromTo(
+        "#s2-card-1",
+        { y: 40, scale: 0.96 },
+        { y: 0, scale: 1, duration: 0.35, ease: "expo.out" },
+        3.45,
+      );
+      tl.fromTo(
+        "#s2-card-2",
+        { y: 40, scale: 0.96 },
+        { y: 0, scale: 1, duration: 0.35, ease: "expo.out" },
+        3.95,
+      );
+      tl.fromTo(
+        "#s2-card-3",
+        { y: 40, scale: 0.96 },
+        { y: 0, scale: 1, duration: 0.35, ease: "expo.out" },
+        4.45,
+      );
+
+      // Scene 3: RPG & Mak'Gora (8.74s - 13.11s) // beat-locked: 8.74s
+      tl.fromTo(
+        "#s3-left",
+        { x: -40 },
+        { x: 0, duration: 0.38, ease: "expo.out" },
+        8.74,
+      );
+      tl.fromTo(
+        "#s3-right",
+        { x: 40 },
+        { x: 0, duration: 0.38, ease: "expo.out" },
+        8.84,
+      );
+      tl.fromTo(
+        "#bar-str, #bar-spd, #bar-sta, #bar-tec",
+        { scaleX: 0.15, transformOrigin: "left center" },
+        { scaleX: 1, duration: 0.55, stagger: 0.12, ease: "power3.out" },
+        8.95,
+      );
+
+      // Scene 4: AI Personal Trainer (13.11s - 16.93s) // beat-locked: 13.11s
+      tl.fromTo(
+        "#s4-panel",
+        { y: 36, scale: 0.97 },
+        { y: 0, scale: 1, duration: 0.38, ease: "expo.out" },
+        13.11,
+      );
+      tl.fromTo(
+        "#s4-cta",
+        { scale: 0.9 },
+        { scale: 1, duration: 0.32, ease: "back.out(1.6)" },
+        13.55,
+      );
+
+      // Scene 5: Outro (16.93s - 20.0s) // beat-locked: 16.93s
+      tl.fromTo(
+        "#s5-wrap",
+        { scale: 0.94, y: 24 },
+        { scale: 1, y: 0, duration: 0.42, ease: "expo.out" },
+        16.93,
+      );
+
+      window.__timelines["main"] = tl;
+      tl.seek(0);
+    </script>
+  </body>
+</html>

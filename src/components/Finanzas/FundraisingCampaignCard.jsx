@@ -1,10 +1,16 @@
 import React, { useState, useEffect, useContext, useMemo } from 'react';
 import {
   Ticket, Utensils, Shirt, Bookmark, Edit3, Trash2, ChevronDown, ChevronUp,
-  CheckCircle2, Package, Plus, Minus, Wallet, Search, Trophy
+  CheckCircle2, Package, Plus, Minus, Wallet, Search, Trophy, MessageCircle, FileSpreadsheet, Share2
 } from 'lucide-react';
 import { ClubContext } from '../../context/ClubContext';
 import { useToast } from '../../context/ToastContext';
+import {
+  buildWhatsAppUrl,
+  buildDebtReminderText,
+  buildCampaignGroupSummaryText,
+  exportUniformOrderCSV,
+} from '../../utils/whatsappUtils';
 import { RaffleAssignmentModal } from './RaffleAssignmentModal';
 import { RaffleTicketModal } from './RaffleTicketModal';
 import { RegisterPaymentModal } from './RegisterPaymentModal';
@@ -237,6 +243,23 @@ export function FundraisingCampaignCard({ campaign, players, isStaff, currentPla
           {campaign.status === 'closed' && (
             <span className="pro-chip pro-chip-muted">CERRADA</span>
           )}
+          {isStaff && assignments.length > 0 && (
+            <button
+              type="button"
+              onClick={() => {
+                const text = buildCampaignGroupSummaryText({ campaign, assignments, playerMap });
+                navigator.clipboard.writeText(text).then(() => {
+                  showToast('Resumen de campaña copiado para el grupo de WhatsApp.', 'success');
+                });
+              }}
+              className="btn-outline"
+              style={{ padding: '6px 10px', fontSize: '0.72rem', color: 'var(--color-primary)', borderColor: 'rgba(0,230,118,0.3)', display: 'inline-flex', alignItems: 'center', gap: '5px' }}
+              title="Copiar resumen de campaña para el grupo de WhatsApp"
+            >
+              <Share2 size={13} />
+              <span>Resumen WhatsApp</span>
+            </button>
+          )}
           {isStaff && (
             <button onClick={() => setShowEditModal(true)} className="btn-outline" style={{ padding: '6px 9px', fontSize: '0.72rem' }} title="Editar campaña">
               <Edit3 size={14} />
@@ -342,8 +365,22 @@ export function FundraisingCampaignCard({ campaign, players, isStaff, currentPla
 
               {isStaff && isUniform && uniformSummary && assignments.length > 0 && (
                 <div style={{ padding: '12px 14px', borderRadius: 'var(--radius-sm)', background: 'rgba(64, 196, 255, 0.05)', border: '1px solid rgba(64, 196, 255, 0.2)' }}>
-                  <div style={{ fontSize: '0.74rem', fontWeight: 800, color: '#40c4ff', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    <Shirt size={14} /> Consolidado de Tallas para Confección ({assignments.length} kits)
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px', marginBottom: '8px' }}>
+                    <div style={{ fontSize: '0.74rem', fontWeight: 800, color: '#40c4ff', textTransform: 'uppercase', letterSpacing: '0.06em', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <Shirt size={14} /> Consolidado de Tallas para Confección ({assignments.length} kits)
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        exportUniformOrderCSV({ campaign, assignments, playerMap });
+                        showToast('Orden de Confección descargada en CSV/Excel.', 'success');
+                      }}
+                      className="btn-outline"
+                      style={{ padding: '5px 10px', fontSize: '0.72rem', color: '#40c4ff', borderColor: 'rgba(64, 196, 255, 0.35)', display: 'inline-flex', alignItems: 'center', gap: '5px' }}
+                    >
+                      <FileSpreadsheet size={13} />
+                      <span>Descargar Orden de Confección (CSV)</span>
+                    </button>
                   </div>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '10px', fontSize: '0.76rem' }}>
                     <div>
@@ -509,6 +546,27 @@ export function FundraisingCampaignCard({ campaign, players, isStaff, currentPla
 
                                 <td className="num">
                                   <div style={{ display: 'inline-flex', gap: '6px', justifyContent: 'flex-end' }}>
+                                    {isStaff && Number(a.amount_paid) < Number(a.amount_due) && (
+                                      <button
+                                        type="button"
+                                        onClick={() => {
+                                          const msg = buildDebtReminderText({
+                                            playerName: p?.name || 'Guerrero',
+                                            concept: campaign.name,
+                                            amountDue: a.amount_due,
+                                            amountPaid: a.amount_paid,
+                                            deadline: campaign.deadline,
+                                          });
+                                          const url = buildWhatsAppUrl(p?.contacto?.phone, msg);
+                                          window.open(url, '_blank', 'noopener,noreferrer');
+                                        }}
+                                        className="btn-outline"
+                                        style={{ padding: '4px 8px', fontSize: '0.7rem', color: '#25D366', borderColor: 'rgba(37, 211, 102, 0.35)', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
+                                        title="Enviar recordatorio de pago por WhatsApp"
+                                      >
+                                        <MessageCircle size={13} />
+                                      </button>
+                                    )}
                                     {isStaff && isRaffle && Number(a.amount_paid) < Number(a.amount_due) && playerTickets.some(t => !t.is_sold) && (
                                       <button
                                         onClick={() => setShowSellModal(a)}

@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { ClipboardCheck, Scale, Calendar, Dumbbell } from 'lucide-react';
 
 export function StatsHeroCards({ player, nextMatch, hasActivePlan }) {
   const attRate = player.attendance?.total > 0
@@ -13,14 +14,14 @@ export function StatsHeroCards({ player, nextMatch, hasActivePlan }) {
       value: `${attRate}%`,
       sub: `${player.attendance?.present || 0}/${player.attendance?.total || 0}`,
       color: attRate >= 80 ? 'text-emerald-400' : attRate >= 50 ? 'text-amber-400' : 'text-red-400',
-      icon: '📋',
+      Icon: ClipboardCheck,
     },
     {
       label: 'Burpees',
       value: burpees > 0 ? burpees : '0',
       sub: burpees > 0 ? 'pendientes' : '¡Al día!',
       color: burpees > 0 ? 'text-red-400' : 'text-emerald-400',
-      icon: '💀',
+      Icon: Scale,
     },
     {
       label: 'Próximo partido',
@@ -29,35 +30,38 @@ export function StatsHeroCards({ player, nextMatch, hasActivePlan }) {
         : '—',
       sub: nextMatch?.opponent || 'Sin rival',
       color: 'text-blue-400',
-      icon: '🏉',
+      Icon: Calendar,
     },
     {
       label: 'Plan de entreno',
       value: hasActivePlan ? 'Activo' : '—',
       sub: hasActivePlan ? 'Esta semana' : 'Sin plan',
       color: hasActivePlan ? 'text-emerald-400' : 'text-zinc-500',
-      icon: '💪',
+      Icon: Dumbbell,
     },
   ];
 
   return (
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
-      {cards.map((card, i) => (
-        <motion.div
-          key={card.label}
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.25, delay: i * 0.05 }}
-          className="relative rounded-xl p-4 bg-zinc-900/60 border border-zinc-800/50 hover:border-zinc-700/50 transition-all duration-300 group"
-        >
-          <div className="flex items-center gap-2 mb-2">
-            <span className="text-sm">{card.icon}</span>
-            <span className="text-[10px] uppercase tracking-wider text-zinc-500 font-semibold">{card.label}</span>
-          </div>
-          <div className={`text-xl font-extrabold font-display ${card.color}`}>{card.value}</div>
-          <div className="text-[10px] text-zinc-500 mt-0.5">{card.sub}</div>
-        </motion.div>
-      ))}
+      {cards.map((card, i) => {
+        const CardIcon = card.Icon;
+        return (
+          <motion.div
+            key={card.label}
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.25, delay: i * 0.05 }}
+            className="relative rounded-xl p-4 bg-zinc-900/60 border border-zinc-800/50 hover:border-emerald-500/30 transition-all duration-300 group tabular-nums"
+          >
+            <div className="flex items-center gap-2 mb-2">
+              <CardIcon size={14} className="text-emerald-400/80" />
+              <span className="text-[10px] uppercase tracking-wider text-zinc-500 font-semibold">{card.label}</span>
+            </div>
+            <div className={`text-xl font-extrabold font-display ${card.color}`}>{card.value}</div>
+            <div className="text-[10px] text-zinc-500 mt-0.5">{card.sub}</div>
+          </motion.div>
+        );
+      })}
     </div>
   );
 }

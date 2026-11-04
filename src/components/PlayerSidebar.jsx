@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Shield, Calendar, Dumbbell, HeartPulse, TrendingUp, Wallet, Bot } from 'lucide-react';
 import { PlayerPhoto } from './PlayerPhoto';
 import { getRpgRole } from '../context/ClubContext.jsx';
 import { formatHeightM, formatWeightKg } from '../utils/inputFormatters';
@@ -15,13 +16,13 @@ export default function PlayerSidebar({ player, activeTab, onTabChange, onOpenAv
   ];
 
   const tabs = [
-    { id: 'perfil', icon: '🛡️', label: 'Perfil' },
-    { id: 'agenda', icon: '📅', label: 'Agenda' },
-    { id: 'entreno', icon: '💪', label: 'Entreno' },
-    { id: 'bienestar', icon: '🧘', label: 'Bienestar' },
-    { id: 'progreso', icon: '📈', label: 'Progreso' },
-    { id: 'finanzas', icon: '💰', label: 'Finanzas' },
-    { id: 'ia', icon: '🤖', label: 'IA' },
+    { id: 'perfil', Icon: Shield, label: 'Perfil' },
+    { id: 'agenda', Icon: Calendar, label: 'Agenda' },
+    { id: 'entreno', Icon: Dumbbell, label: 'Entreno' },
+    { id: 'bienestar', Icon: HeartPulse, label: 'Bienestar' },
+    { id: 'progreso', Icon: TrendingUp, label: 'Progreso' },
+    { id: 'finanzas', Icon: Wallet, label: 'Finanzas' },
+    { id: 'ia', Icon: Bot, label: 'IA' },
   ];
 
   return (
@@ -43,23 +44,26 @@ export default function PlayerSidebar({ player, activeTab, onTabChange, onOpenAv
               <PlayerPhoto player={player} size={36} />
             </div>
             <nav className="w-full flex flex-col items-center gap-0.5">
-              {tabs.map(tab => (
-                <button
-                  key={tab.id}
-                  onClick={() => onTabChange(tab.id)}
-                  className={`w-9 h-9 flex items-center justify-center rounded-lg transition-all duration-200 relative group ${
-                    activeTab === tab.id
-                      ? 'bg-emerald-400/10 text-emerald-400'
-                      : 'text-zinc-500 hover:bg-zinc-800/50 hover:text-zinc-300'
-                  }`}
-                  title={tab.label}
-                >
-                  <span className="text-sm">{tab.icon}</span>
-                  <div className="absolute left-10 bg-zinc-800 text-zinc-200 text-[11px] px-2 py-1 rounded-md opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50 shadow-lg">
-                    {tab.label}
-                  </div>
-                </button>
-              ))}
+              {tabs.map(tab => {
+                const TabIcon = tab.Icon;
+                return (
+                  <button
+                    key={tab.id}
+                    onClick={() => onTabChange(tab.id)}
+                    className={`w-9 h-9 flex items-center justify-center rounded-lg transition-all duration-200 relative group ${
+                      activeTab === tab.id
+                        ? 'bg-emerald-400/10 text-emerald-400'
+                        : 'text-zinc-500 hover:bg-zinc-800/50 hover:text-zinc-300'
+                    }`}
+                    title={tab.label}
+                  >
+                    <TabIcon size={16} />
+                    <div className="absolute left-10 bg-zinc-800 text-zinc-200 text-[11px] px-2 py-1 rounded-md opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50 shadow-lg">
+                      {tab.label}
+                    </div>
+                  </button>
+                );
+              })}
             </nav>
           </motion.div>
         ) : (
@@ -107,20 +111,23 @@ export default function PlayerSidebar({ player, activeTab, onTabChange, onOpenAv
             <div className="w-full h-px bg-zinc-800 my-0.5" />
 
             <nav className="w-full flex flex-col gap-0.5">
-              {tabs.map(tab => (
-                <button
-                  key={tab.id}
-                  onClick={() => onTabChange(tab.id)}
-                  className={`w-full text-left px-3 py-2 rounded-lg text-[12px] font-medium transition-all duration-200 ${
-                    activeTab === tab.id
-                      ? 'bg-emerald-400/10 text-emerald-400'
-                      : 'text-zinc-400 hover:bg-zinc-800/40 hover:text-zinc-200'
-                  }`}
-                >
-                  <span className="mr-2.5 text-sm">{tab.icon}</span>
-                  {tab.label}
-                </button>
-              ))}
+              {tabs.map(tab => {
+                const TabIcon = tab.Icon;
+                return (
+                  <button
+                    key={tab.id}
+                    onClick={() => onTabChange(tab.id)}
+                    className={`w-full text-left px-3 py-2 rounded-lg text-[12px] font-medium transition-all duration-200 flex items-center gap-2.5 ${
+                      activeTab === tab.id
+                        ? 'bg-emerald-400/10 text-emerald-400'
+                        : 'text-zinc-400 hover:bg-zinc-800/40 hover:text-zinc-200'
+                    }`}
+                  >
+                    <TabIcon size={15} />
+                    <span>{tab.label}</span>
+                  </button>
+                );
+              })}
             </nav>
           </motion.div>
         )}

@@ -1,10 +1,13 @@
 import React, { useContext, useState } from 'react';
-import { Users, CheckCircle2, HelpCircle, XCircle, ChevronDown, ChevronUp, Share2, Trash2 } from 'lucide-react';
+import { Users, CheckCircle2, HelpCircle, XCircle, ChevronDown, ChevronUp, Share2, Trash2, MessageCircle } from 'lucide-react';
 import { ClubContext } from '../../../context/ClubContext';
+import { useToast } from '../../../context/ToastContext';
 import { formatLocalDate } from '../../../utils/dates.js';
+import { buildMatchAvailabilitySummaryText } from '../../../utils/whatsappUtils';
 
 function FutureCard({ future, onDelete }) {
   const { createInvitation, matchInvitations, players, setMatchAvailability } = useContext(ClubContext);
+  const { showToast } = useToast();
   const [showConvocatoria, setShowConvocatoria] = useState(false);
 
   const daysUntil = Math.ceil((new Date(future.date + 'T00:00:00') - new Date()) / (1000 * 60 * 60 * 24));
@@ -61,6 +64,22 @@ function FutureCard({ future, onDelete }) {
             <Users size={13} />
             <span className="tabular-nums">Convocatoria ({goingPlayers.length})</span>
             {showConvocatoria ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              const text = buildMatchAvailabilitySummaryText({ future, teamPlayers });
+              navigator.clipboard.writeText(text).then(() => {
+                showToast('Lista de convocatoria copiada para WhatsApp.', 'success');
+              });
+            }}
+            className="btn-outline"
+            style={{ padding: '4px 10px', fontSize: '0.72rem', display: 'inline-flex', alignItems: 'center', gap: '5px', color: '#25D366', borderColor: 'rgba(37, 211, 102, 0.35)' }}
+            title="Copiar lista de convocados para pegar en el grupo de WhatsApp"
+          >
+            <MessageCircle size={13} />
+            <span>Copiar Lista WA</span>
           </button>
 
           {existingInv ? (

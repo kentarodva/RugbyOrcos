@@ -1,6 +1,7 @@
 import React from 'react';
+import { KeyRound } from 'lucide-react';
 
-function RosterControls({ search, onSearchChange, divisionView, onDivisionViewChange, teams, makgoraFilter, onMakgoraFilterChange, onAdd, onPrint, onToggleBulk, bulkMode, searchInputRef, onCompare, showDeleted, onToggleDeleted }) {
+function RosterControls({ search, onSearchChange, divisionView, onDivisionViewChange, teams, makgoraFilter, onMakgoraFilterChange, onAdd, onPrint, onToggleBulk, bulkMode, searchInputRef, onCompare, showDeleted, onToggleDeleted, onBulkCredentials }) {
   return (
     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '15px' }}>
       <div style={{ display: 'flex', gap: '10px', flex: 1, maxWidth: '700px', flexWrap: 'wrap' }}>
@@ -70,6 +71,15 @@ function RosterControls({ search, onSearchChange, divisionView, onDivisionViewCh
         <button onClick={onPrint} className="btn-outline" style={{ padding: '8px 14px', fontSize: '0.8rem' }}>
           Imprimir
         </button>
+        {onBulkCredentials && (
+          <button
+            onClick={onBulkCredentials}
+            className="btn-outline"
+            style={{ padding: '8px 14px', fontSize: '0.8rem', color: 'var(--color-gold)', borderColor: 'rgba(255, 179, 0, 0.35)', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+          >
+            <KeyRound size={14} /> Accesos del Club
+          </button>
+        )}
         <button onClick={onToggleBulk} className={bulkMode ? 'btn-neon' : 'btn-outline'} style={{ padding: '8px 14px', fontSize: '0.8rem', borderColor: bulkMode ? undefined : 'var(--color-purple)', color: bulkMode ? undefined : 'var(--color-purple)' }}>
           {bulkMode ? 'Cancelar Asignacion' : 'Asignar Posiciones'}
         </button>

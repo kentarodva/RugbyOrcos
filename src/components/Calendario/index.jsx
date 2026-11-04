@@ -8,6 +8,7 @@ import { wrapCatch } from '../../utils/errorHandler';
 import { fetchEventRsvps, upsertRsvp } from '../../services/dataService';
 import { useDataListener } from '../../context/hooks/useDataListener';
 import Rivales from '../Rivales';
+import Invitaciones from '../Invitaciones';
 import CalendarioTabs from './CalendarioTabs';
 import AgendaTab from './AgendaTab';
 import FixtureTab from './FixtureTab';
@@ -359,6 +360,7 @@ function Calendario() {
       )}
 
       {activeTab === 'rivales' && <Rivales />}
+      {activeTab === 'invitaciones' && <Invitaciones />}
     </div>
   );
 }

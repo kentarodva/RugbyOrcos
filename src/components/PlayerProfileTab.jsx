@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
+import { Swords, Dumbbell, Shield, Trophy, ClipboardCheck, Target, Award, Crown, CreditCard, FileText, Edit3 } from 'lucide-react';
 import { supabase } from '../supabaseClient';
 import { useToast } from '../context/ToastContext';
 import { formatLocalDate } from '../utils/dates';
 import { MENSUALIDAD_BASE } from './Finanzas/constants';
 import { HeightInput, WeightInput, SizeSelect } from './common/FormattedInputs';
+import PositionSelect from './Roster/PositionSelect';
 import { formatHeightM, formatWeightKg } from '../utils/inputFormatters';
 
 const EPS_LIST = ['Nueva EPS', 'Sanitas', 'Salud Total', 'Coosalud', 'Mutual Ser', 'Cajacopi', 'Familiar de Colombia', 'FOMAG'];
@@ -65,6 +67,8 @@ export default function PlayerProfileTab({ player, players, updatePlayer, campai
     const c = player.clothingSizes || player.clothing || {};
     setProfileForm({
       apodo: player.apodo || '', contacto_phone: player.contacto?.phone || '', contacto_email: player.contacto?.email || '',
+      position_id: player.position_id || null,
+      posicion: player.posicion || '',
       weight: player.weight || '', height: player.height || '',
       jersey: c.jersey || '', shorts: c.shorts || '', socks: c.socks || '',
       health_insurance: EPS_LIST.includes(player.health_insurance) ? player.health_insurance : 'OTRA',
@@ -83,6 +87,8 @@ export default function PlayerProfileTab({ player, players, updatePlayer, campai
     const calcAge = f.birth_date ? Math.max(0, Math.floor((Date.now() - new Date(f.birth_date).getTime()) / 31557600000)) : null;
     const updated = {
       ...player, name: player.name, apodo: f.apodo,
+      position_id: f.position_id || null,
+      posicion: f.posicion || player.posicion || '',
       contacto: { phone: f.contacto_phone, email: f.contacto_email },
       weight: f.weight !== '' && f.weight != null ? Number(f.weight) : null,
       height: f.height !== '' && f.height != null ? Number(f.height) : null,
@@ -125,13 +131,13 @@ export default function PlayerProfileTab({ player, players, updatePlayer, campai
     <div className="space-y-4">
       {!editMode && (
         <div className="flex justify-end">
-          <button onClick={handleEditProfile} className="text-xs px-3 py-1.5 rounded-lg border border-zinc-700/50 text-zinc-400 hover:text-zinc-200 hover:border-zinc-600 transition-all">
-            ✏️ Editar Perfil
+          <button onClick={handleEditProfile} className="text-xs px-3 py-1.5 rounded-lg border border-zinc-700/50 text-zinc-400 hover:text-zinc-200 hover:border-zinc-600 transition-all inline-flex items-center gap-1.5">
+            <Edit3 size={13} /> Editar Perfil
           </button>
         </div>
       )}
 
-      <Section title="Atributos de Batalla" icon="⚔️">
+      <Section title="Atributos de Batalla" icon={<Swords size={14} className="text-emerald-400" />}>
         <div className="space-y-3">
           {Object.entries(attrs).map(([key, val]) => (
             <div key={key}>
@@ -159,7 +165,7 @@ export default function PlayerProfileTab({ player, players, updatePlayer, campai
         </div>
       )}
 
-      <Section title="Rendimiento Físico" icon="🏋️">
+      <Section title="Rendimiento Físico" icon={<Dumbbell size={14} className="text-emerald-400" />}>
         <div className="grid grid-cols-3 gap-3 mb-4">
           {[{ label: 'Sentadilla', val: gym.squat || 0, color: '#ef4444' }, { label: 'Banca', val: gym.bench || 0, color: '#3b82f6' }, { label: 'Peso Muerto', val: gym.deadlift || 0, color: '#a855f7' }].map(s => (
             <div key={s.label} className="text-center p-3 rounded-lg bg-zinc-800/30">
@@ -170,7 +176,7 @@ export default function PlayerProfileTab({ player, players, updatePlayer, campai
         </div>
       </Section>
 
-      <Section title="Estadísticas de Combate" icon="🏟️">
+      <Section title="Estadísticas de Combate" icon={<Shield size={14} className="text-emerald-400" />}>
         <div className="grid grid-cols-3 gap-2">
           {[{ label: 'Tries', val: totalTries, color: '#ef4444' }, { label: 'Conversiones', val: (player.matchStats || []).reduce((s, m) => s + (m.conversions || 0), 0), color: '#f59e0b' }, { label: 'Tackles', val: totalTackles, color: '#3b82f6' }, { label: 'Recup.', val: (player.matchStats || []).reduce((s, m) => s + (m.turnovers || 0), 0), color: '#22c55e' }, { label: 'MVP', val: totalMvp, color: '#a855f7' }, { label: 'Partidos', val: (player.matchStats || []).length, color: '#71717a' }].map((s, i) => (
             <div key={i} className="text-center p-2.5 rounded-lg bg-zinc-800/30">
@@ -182,7 +188,7 @@ export default function PlayerProfileTab({ player, players, updatePlayer, campai
       </Section>
 
       {badges.length > 0 && (
-        <Section title="Insignias de Batalla" icon="🏅" defaultOpen={false}>
+        <Section title="Insignias de Batalla" icon={<Award size={14} className="text-amber-400" />} defaultOpen={false}>
           <div className="flex flex-wrap gap-2">
             {badges.map((b, i) => (
               <div key={i} className="px-3 py-1.5 rounded-full text-xs bg-amber-400/5 border border-amber-400/20 text-amber-400">
@@ -193,7 +199,7 @@ export default function PlayerProfileTab({ player, players, updatePlayer, campai
         </Section>
       )}
 
-      <Section title="Asistencia" icon="📋" defaultOpen={false}>
+      <Section title="Asistencia" icon={<ClipboardCheck size={14} className="text-emerald-400" />} defaultOpen={false}>
         <div className="flex items-center gap-3 mb-3">
           <div className={`text-2xl font-extrabold ${attPct >= 80 ? 'text-emerald-400' : attPct >= 60 ? 'text-amber-400' : 'text-red-400'}`}>{attPct}%</div>
           <div className="flex-1"><ProgressBar val={attPct} max={100} color={attPct >= 80 ? '#22c55e' : attPct >= 60 ? '#f59e0b' : '#ef4444'} /></div>
@@ -206,7 +212,7 @@ export default function PlayerProfileTab({ player, players, updatePlayer, campai
         </div>
       </Section>
 
-      <Section title="Mis Metas" icon="🎯" defaultOpen={false}>
+      <Section title="Mis Metas" icon={<Target size={14} className="text-emerald-400" />} defaultOpen={false}>
         {player.goals?.length > 0 ? (
           <div className="space-y-1.5 mb-3">
             {player.goals.map((g, i) => (
@@ -228,7 +234,7 @@ export default function PlayerProfileTab({ player, players, updatePlayer, campai
         </form>
       </Section>
 
-      <Section title="Mi Ranking" icon="🏆" defaultOpen={false}>
+      <Section title="Mi Ranking" icon={<Trophy size={14} className="text-amber-400" />} defaultOpen={false}>
         <div className="grid grid-cols-2 gap-2">
           {[{ label: 'Tries', key: 'tries' }, { label: 'Tackles', key: 'tackles' }, { label: 'MVP', key: 'mvp' }, { label: 'Asistencia', key: 'attendance' }].map(stat => {
             const ranks = players.filter(p => p.rol !== 'Entrenador').map(p => ({
@@ -250,7 +256,7 @@ export default function PlayerProfileTab({ player, players, updatePlayer, campai
       </Section>
 
       {(player.memberships) && (
-        <Section title="Membresía del Clan" icon="👑" defaultOpen={false}>
+        <Section title="Membresía del Clan" icon={<Crown size={14} className="text-amber-400" />} defaultOpen={false}>
           <div className="flex items-center gap-3">
             <div className="flex-1"><ProgressBar val={player.memberships.paid || 0} max={player.memberships.due || MENSUALIDAD_BASE} color="#22c55e" /></div>
             <span className="text-xs text-zinc-400 whitespace-nowrap">
@@ -263,7 +269,7 @@ export default function PlayerProfileTab({ player, players, updatePlayer, campai
       {activeCampaigns.length > 0 && (
         <div className="bg-zinc-900/50 border border-zinc-800/50 rounded-xl p-4 mb-4 flex items-center justify-between">
           <div>
-            <span className="text-sm text-zinc-200 font-medium">🎟️ {activeCampaigns.length} campaña(s) activa(s)</span>
+            <span className="text-sm text-zinc-200 font-medium">{activeCampaigns.length} campaña(s) activa(s)</span>
           </div>
           <button onClick={() => onOpenTickets?.()} className="text-xs px-3 py-1.5 rounded-lg bg-emerald-400/10 text-emerald-400 hover:bg-emerald-400/20 transition-all">
             Mis Tickets
@@ -272,7 +278,7 @@ export default function PlayerProfileTab({ player, players, updatePlayer, campai
       )}
 
       {myPayments.length > 0 && (
-        <Section title="Historial de Pagos" icon="💳" defaultOpen={false}>
+        <Section title="Historial de Pagos" icon={<CreditCard size={14} className="text-emerald-400" />} defaultOpen={false}>
           <div className="space-y-1">
             {myPayments.map((p, i) => (
               <div key={p.id || i} className="flex justify-between items-center px-3 py-2 rounded-lg bg-zinc-800/30 text-xs">
@@ -288,7 +294,7 @@ export default function PlayerProfileTab({ player, players, updatePlayer, campai
       )}
 
       {(cloth?.jersey || cloth?.shorts || cloth?.socks || player.health_insurance || player._meta?.docType || player.had_fractures || player.allergies || player.medical_conditions || player._meta?.startYear) && (
-        <Section title="Info Adicional" icon="📄" defaultOpen={false}>
+        <Section title="Info Adicional" icon={<FileText size={14} className="text-emerald-400" />} defaultOpen={false}>
           <div className="grid grid-cols-2 gap-2 text-xs">
             {cloth?.jersey && <div className="text-zinc-400">Jersey: <span className="text-zinc-200 font-semibold">{cloth.jersey}</span></div>}
             {cloth?.shorts && <div className="text-zinc-400">Short: <span className="text-zinc-200 font-semibold">{cloth.shorts}</span></div>}
@@ -320,6 +326,14 @@ export default function PlayerProfileTab({ player, players, updatePlayer, campai
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-3">
                 <Input label="Apodo" value={profileForm.apodo} onChange={setF('apodo')} />
+                <div>
+                  <label className="block text-[10px] text-zinc-500 mb-1">⭐ Posición en Cancha</label>
+                  <PositionSelect
+                    value={profileForm.position_id}
+                    onChange={({ position_id, position_name }) => setProfileForm(p => ({ ...p, position_id, posicion: position_name }))}
+                    style={{ width: '100%', padding: '7px 10px', fontSize: '0.76rem' }}
+                  />
+                </div>
                 <Input label="Teléfono" value={profileForm.contacto_phone} onChange={setF('contacto_phone')} />
                 <Input label="Email" type="email" value={profileForm.contacto_email} onChange={setF('contacto_email')} />
                 <Input label="⭐ Nacimiento" type="date" value={profileForm.birth_date} onChange={setF('birth_date')} />

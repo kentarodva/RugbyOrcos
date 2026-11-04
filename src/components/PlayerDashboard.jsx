@@ -23,6 +23,7 @@ import PlayerWellnessTab from './PlayerWellnessTab';
 import PlayerFinanzasTab from './PlayerFinanzasTab';
 import { TRACKABLE_EXERCISES } from './PlayerProgressTab';
 import { HeightInput, WeightInput, SizeSelect } from './common/FormattedInputs';
+import PositionSelect from './Roster/PositionSelect';
 
 const PlayerProgressTab = React.lazy(() => import('./PlayerProgressTab'));
 const AIChat = React.lazy(() => import('./AIChat'));
@@ -45,6 +46,7 @@ function PlayerDashboard() {
   const [planVersion, setPlanVersion] = useState(0);
   const [setupForm, setSetupForm] = useState({
     birth_date: '', weight: '', height: '', health_insurance: '', custom_eps: '',
+    position_id: null, posicion: '',
     contacto_phone: '', emergency_contact_name: '', emergency_contact_phone: '',
     jersey: 'M', shorts: 'M', socks: '40-42',
     tracked_exercises: ['squat', 'bench', 'deadlift'],
@@ -68,6 +70,8 @@ function PlayerDashboard() {
         birth_date: player.birth_date || '',
         weight: player.weight || '',
         height: player.height || '',
+        position_id: player.position_id || null,
+        posicion: player.posicion || '',
         health_insurance: player.health_insurance || '',
         custom_eps: '',
         contacto_phone: player.contacto?.phone || '',
@@ -135,6 +139,8 @@ function PlayerDashboard() {
     await updatePlayer({
       ...player,
       name: player.name,
+      position_id: f.position_id || player.position_id || null,
+      posicion: f.posicion || player.posicion || '',
       birth_date: f.birth_date || null,
       ...(calcAge != null && { age: calcAge }),
       weight: Number(f.weight),
@@ -506,7 +512,15 @@ function PlayerDashboard() {
                   placeholder="Escribe tu EPS..." className="form-input" style={{ padding: '6px 8px', fontSize: '0.78rem' }} />
               )}
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px' }}>
+                <div className="form-group" style={{ margin: 0 }}>
+                  <label style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)' }}>Posición en Cancha</label>
+                  <PositionSelect
+                    value={setupForm.position_id}
+                    onChange={({ position_id, position_name }) => setSetupForm(p => ({ ...p, position_id, posicion: position_name }))}
+                    style={{ width: '100%', padding: '6px 8px', fontSize: '0.76rem' }}
+                  />
+                </div>
                 <div className="form-group" style={{ margin: 0 }}>
                   <label style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)' }}>Peso Actual (KG) *</label>
                   <WeightInput

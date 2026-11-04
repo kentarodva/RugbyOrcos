@@ -1,5 +1,5 @@
 import React from 'react';
-import { Calendar, Radio, Trophy, Clock, Swords } from 'lucide-react';
+import { Calendar, Radio, Trophy, Clock, Swords, Mail } from 'lucide-react';
 
 const TABS = [
   { key: 'agenda', label: 'Agenda y Convocatorias', Icon: Calendar },
@@ -7,6 +7,7 @@ const TABS = [
   { key: 'fixture', label: 'Campaña y Fixture', Icon: Trophy },
   { key: 'proximos', label: 'Próximos Partidos', Icon: Clock },
   { key: 'rivales', label: 'Rivales & Árbitro', Icon: Swords },
+  { key: 'invitaciones', label: 'Invitaciones', Icon: Mail },
 ];
 
 function CalendarioTabs({ activeTab, onChange, hasActiveMatch }) {

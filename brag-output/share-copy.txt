@@ -1,0 +1,1 @@
+Rugby Orcos Negros — Reino Manager v5.0: construimos una PWA Supabase-First donde más de 80 jugadores entrenan y compiten con atributos RPG, pizarra táctica de 11 formaciones, torneo interno Mak'Gora y un IA Personal Trainer conectado a 14 fuentes de datos. "En el scrum y en la vida, siempre juntos. Siempre Orcos."

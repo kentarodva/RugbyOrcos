@@ -16,6 +16,7 @@ import AddPlayerModal from './Modals/AddPlayerModal';
 import EditPlayerModal from './Modals/EditPlayerModal';
 import DeleteConfirmModal from './Modals/DeleteConfirmModal';
 import CredentialModal from './Modals/CredentialModal';
+import BulkCredentialsModal from './Modals/BulkCredentialsModal';
 import ResetPasswordModal from './Modals/ResetPasswordModal';
 import PositionSelect from './PositionSelect';
 import PlayerCompare from './PlayerCompare';
@@ -73,6 +74,7 @@ function Roster() {
   const [selectedPlayer, setSelectedPlayer] = useState(null);
   const [confirmDeleteId, setConfirmDeleteId] = useState(null);
   const [showCredentialModal, setShowCredentialModal] = useState(false);
+  const [showBulkCredentialsModal, setShowBulkCredentialsModal] = useState(false);
   const [showResetModal, setShowResetModal] = useState(false);
   const [bulkMode, setBulkMode] = useState(false);
   const [selectedPlayerIds, setSelectedPlayerIds] = useState(new Set());
@@ -243,6 +245,7 @@ function Roster() {
           onCompare={() => setShowCompare(true)}
           showDeleted={showDeleted}
           onToggleDeleted={() => setShowDeleted(d => !d)}
+          onBulkCredentials={hasPermission('manage_players') ? () => setShowBulkCredentialsModal(true) : undefined}
         />
 
         {bulkMode && (
@@ -382,6 +385,14 @@ function Roster() {
           player={selectedPlayer}
           onClose={() => { setShowCredentialModal(false); }}
           onGenerate={handleCredential}
+        />
+      )}
+
+      {showBulkCredentialsModal && (
+        <BulkCredentialsModal
+          players={teamPlayers}
+          onClose={() => setShowBulkCredentialsModal(false)}
+          createPlayerCredentials={createPlayerCredentials}
         />
       )}
 

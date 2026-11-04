@@ -1,7 +1,9 @@
 import React, { useState, useContext } from 'react';
+import { MessageCircle } from 'lucide-react';
 import { ClubContext } from '../../context/ClubContext';
 import { MENSUALIDAD_BASE, ABONOS_RAPIDOS } from './constants';
 import { CopInput } from '../common/FormattedInputs';
+import { buildWhatsAppUrl, buildDebtReminderText } from '../../utils/whatsappUtils';
 
 export function MembershipCard({ player, getMembershipStatus, onRequestConfirm, onRequestHistory, isStaff }) {
   const { getAssignments, campaigns } = useContext(ClubContext);
@@ -113,6 +115,23 @@ export function MembershipCard({ player, getMembershipStatus, onRequestConfirm, 
             </div>
             <button type="submit" className="btn-neon" style={{ padding: '6px 10px', fontSize: '0.7rem' }}>
               Abonar
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                const msg = buildDebtReminderText({
+                  playerName: player.name,
+                  concept: 'Mensualidad del Club',
+                  amountDue: due,
+                  amountPaid: paid,
+                });
+                window.open(buildWhatsAppUrl(player.contacto?.phone, msg), '_blank', 'noopener,noreferrer');
+              }}
+              className="btn-outline"
+              style={{ padding: '6px 9px', fontSize: '0.7rem', color: '#25D366', borderColor: 'rgba(37, 211, 102, 0.35)', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
+              title="Enviar recordatorio de mensualidad por WhatsApp"
+            >
+              <MessageCircle size={13} />
             </button>
           </form>
         </div>
