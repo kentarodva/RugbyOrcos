@@ -56,9 +56,32 @@ export function usePitchState(activeTeam) {
     }
   }, [pitchOrientation]);
 
+  const applyTacticToState = useCallback((tactic, orientation) => {
+    if (!tactic) return;
+    const alignmentMap = { union: 'standard', league: 'league_13s' };
+    const targetAlignment = alignmentMap[tactic.formation_type] || tactic.formation_type || 'standard';
+    currentTacticRef.current = tactic;
+
+    const positions = orientation === 'horizontal'
+      ? tactic.positions_horizontal
+      : tactic.positions_vertical;
+
+    if (positions && positions.length > 0) {
+      setFieldPositions(positions);
+    }
+    setLineup(tactic.lineup && typeof tactic.lineup === 'object' ? tactic.lineup : {});
+    setTacticalNotes(tactic.notes || '');
+    setActiveAlignment(targetAlignment);
+    setActiveTacticId(tactic.id);
+  }, []);
+
   const loadCustomTactics = useCallback(async (teamCat) => {
     const tactics = await fetchCustomTactics(teamCat);
     setCustomTactics(tactics);
+
+    if (tactics && tactics.length > 0 && !currentTacticRef.current) {
+      applyTacticToState(tactics[0], pitchOrientation);
+    }
 
     if (channelRef.current) {
       channelRef.current.unsubscribe();
@@ -67,7 +90,7 @@ export function usePitchState(activeTeam) {
       const refreshed = await fetchCustomTactics(teamCat);
       setCustomTactics(refreshed);
     });
-  }, []);
+  }, [applyTacticToState, pitchOrientation]);
 
   useEffect(() => {
     return () => {
@@ -119,37 +142,31 @@ export function usePitchState(activeTeam) {
     return updated;
   }, []);
 
+  const saveActiveTacticChanges = useCallback(async () => {
+    if (!activeTacticId) return null;
+    const current = currentTacticRef.current || {};
+    const updates = {
+      lineup,
+      notes: tacticalNotes,
+      positions_horizontal: pitchOrientation === 'horizontal' ? fieldPositions : (current.positions_horizontal || ALIGNMENTS_HORIZONTAL[activeAlignment]),
+      positions_vertical: pitchOrientation === 'vertical' ? fieldPositions : (current.positions_vertical || ALIGNMENTS_VERTICAL[activeAlignment]),
+    };
+    const updated = await updateCustomTactic(activeTacticId, updates);
+    if (updated) {
+      currentTacticRef.current = updated;
+      setCustomTactics(prev => prev.map(t => t.id === activeTacticId ? updated : t));
+    }
+    return updated;
+  }, [activeTacticId, lineup, tacticalNotes, pitchOrientation, fieldPositions, activeAlignment]);
+
   const handleSelectTactic = useCallback((tacticId) => {
     const tactic = customTactics.find(t => t.id === tacticId);
     if (!tactic) {
       if (import.meta.env.DEV) console.warn('[Tactic] Not found:', tacticId);
       return;
     }
-
-    const alignmentMap = { union: 'standard', league: 'league_13s' };
-    const targetAlignment = alignmentMap[tactic.formation_type] || tactic.formation_type || 'standard';
-
-    currentTacticRef.current = tactic;
-
-    const positions = pitchOrientation === 'horizontal'
-      ? tactic.positions_horizontal
-      : tactic.positions_vertical;
-
-    if (positions && positions.length > 0) {
-      setFieldPositions(positions);
-    }
-
-    if (tactic.lineup && Object.keys(tactic.lineup).length > 0) {
-      setLineup(tactic.lineup);
-    }
-
-    if (tactic.notes) {
-      setTacticalNotes(tactic.notes);
-    }
-
-    setActiveAlignment(targetAlignment);
-    setActiveTacticId(tactic.id);
-  }, [customTactics, pitchOrientation]);
+    applyTacticToState(tactic, pitchOrientation);
+  }, [customTactics, pitchOrientation, applyTacticToState]);
 
   const executeAutoAssign = useCallback(async (players, filters = {}) => {
     if (!players || players.length === 0) {
@@ -213,10 +230,18 @@ export function usePitchState(activeTeam) {
         });
         newLineup[selectedSlot.id] = playerId;
       }
+      if (activeTacticId) {
+        updateCustomTactic(activeTacticId, { lineup: newLineup }).then(updated => {
+          if (updated) {
+            currentTacticRef.current = updated;
+            setCustomTactics(list => list.map(t => t.id === activeTacticId ? updated : t));
+          }
+        }).catch(() => {});
+      }
       return newLineup;
     });
     setShowSelectModal(false);
-  }, [selectedSlot]);
+  }, [selectedSlot, activeTacticId]);
 
   const clearField = useCallback(() => {
     setConfirmState({
@@ -329,6 +354,7 @@ export function usePitchState(activeTeam) {
     autoAssignLoading,
     loadCustomTactics,
     saveCurrentTactic,
+    saveActiveTacticChanges,
     handleDeleteTactic,
     handleUpdateTactic,
     handleSelectTactic,

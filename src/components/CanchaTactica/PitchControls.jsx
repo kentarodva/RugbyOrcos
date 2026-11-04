@@ -11,6 +11,7 @@ function PitchControls({
 
   customTactics = [],
   onSaveTactic,
+  onUpdateActiveTactic,
   onAutoAssign,
   activeTacticId,
   autoAssignLoading,
@@ -82,7 +83,24 @@ function PitchControls({
         </div>
 
         <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
-          {/* Guardar táctica */}
+          {/* Actualizar táctica activa en BD */}
+          {activeTacticId && onUpdateActiveTactic && (
+            <button
+              onClick={onUpdateActiveTactic}
+              className="btn-neon"
+              style={{
+                padding: '6px 12px',
+                fontSize: '0.78rem',
+                fontWeight: '700',
+                borderRadius: 'var(--radius-sm)',
+                cursor: 'pointer',
+              }}
+              title="Guardar cambios de alineación, posiciones y notas en la base de datos"
+            >
+              ☁️ Actualizar Táctica
+            </button>
+          )}
+          {/* Guardar nueva táctica */}
           {onSaveTactic && (
             <button
               onClick={onSaveTactic}
@@ -98,7 +116,7 @@ function PitchControls({
                 background: 'transparent',
               }}
             >
-              💾 Guardar
+              💾 {activeTacticId ? 'Guardar como Nueva' : 'Guardar en BD'}
             </button>
           )}
 

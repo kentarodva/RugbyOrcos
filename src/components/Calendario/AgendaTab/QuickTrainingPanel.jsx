@@ -1,4 +1,5 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { getSetting, setSetting, loadSettings } from '../../../data/clubSettings';
 
 const DAYS = [
   { num: 1, label: 'Lun', title: 'Lunes' },
@@ -30,6 +31,26 @@ function QuickTrainingPanel({ onCreate, existingLocations, currentTeamCategory, 
       return saved ? JSON.parse(saved) : [];
     } catch { return []; }
   });
+
+  useEffect(() => {
+    loadSettings().then(() => {
+      const dbLocations = getSetting('custom_locations');
+      if (dbLocations) {
+        try {
+          const parsed = typeof dbLocations === 'string' ? JSON.parse(dbLocations) : dbLocations;
+          if (Array.isArray(parsed)) {
+            setCustomLocations(prev => {
+              const merged = [...new Set([...prev, ...parsed])];
+              localStorage.setItem('qtp_custom_locations', JSON.stringify(merged));
+              return merged;
+            });
+          }
+        } catch {
+          // ignore parse error
+        }
+      }
+    }).catch(() => {});
+  }, []);
   const [customTitle, setCustomTitle] = useState('');
   const [customType, setCustomType] = useState('entrenamiento');
   const [customNotes, setCustomNotes] = useState('');
@@ -70,6 +91,7 @@ function QuickTrainingPanel({ onCreate, existingLocations, currentTeamCategory, 
       setCustomLocations(prev => {
         const next = [...new Set([...prev, trimmed])];
         localStorage.setItem('qtp_custom_locations', JSON.stringify(next));
+        setSetting('custom_locations', JSON.stringify(next)).catch(() => {});
         return next;
       });
       setCustomLocation('');

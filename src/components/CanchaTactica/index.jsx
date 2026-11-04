@@ -36,7 +36,7 @@ function CanchaTactica() {
     handleStartDrag, handleDragMove, handleEndDrag,
     isPlayerAligned,
     customTactics, activeTacticId, autoAssignLoading,
-    loadCustomTactics, saveCurrentTactic,
+    loadCustomTactics, saveCurrentTactic, saveActiveTacticChanges,
     handleDeleteTactic, handleUpdateTactic,
     executeAutoAssign,
   } = usePitchState(activeTeam);
@@ -127,6 +127,7 @@ function CanchaTactica() {
             activeTacticId={activeTacticId}
             autoAssignLoading={autoAssignLoading}
             onSaveTactic={() => setShowSaveModal(true)}
+            onUpdateActiveTactic={activeTacticId ? saveActiveTacticChanges : null}
             onAutoAssign={handleAutoAssign}
             onDeleteTactic={handleDeleteTactic}
             onRenameTactic={handleUpdateTactic}
