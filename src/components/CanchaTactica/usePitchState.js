@@ -80,7 +80,8 @@ export function usePitchState(activeTeam) {
     setCustomTactics(tactics);
 
     if (tactics && tactics.length > 0 && !currentTacticRef.current) {
-      applyTacticToState(tactics[0], pitchOrientation);
+      const exactMatch = tactics.find(t => t.scope === teamCat) || tactics[0];
+      applyTacticToState(exactMatch, pitchOrientation);
     }
 
     if (channelRef.current) {
