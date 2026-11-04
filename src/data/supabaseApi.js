@@ -122,7 +122,8 @@ const apisupabase = {
       .from('players')
       .upsert({
         id: player.id,
-        user_id: userId,
+        user_id: player.user_id || player.userId || userId,
+        ...(player.username !== undefined ? { username: player.username } : {}),
         legacy_id: player.legacy_id,
         first_name: player.first_name,
         middle_name: player.middle_name || null,
@@ -172,6 +173,7 @@ const apisupabase = {
         photo_url: player.photo_url || null,
         source: player.source || 'manual',
         form_submitted_at: player.form_submitted_at,
+        deleted_at: player.deleted_at ?? null,
         updated_at: new Date().toISOString(),
       })
       .select()
@@ -180,7 +182,7 @@ const apisupabase = {
     return { data, error };
   },
 
-  async batchUpsertPlayers(players, userId) {
+  async batchUpsertPlayers(players, _userId) {
     const records = players.map(p => ({
       id: p.id,
       user_id: p.user_id || null,
@@ -228,20 +230,25 @@ const apisupabase = {
     return { data, error };
   },
 
-  async batchUpdatePositions(updates, userId) {
-    const records = updates.map(({ id, position_id }) => ({
-      id,
-      user_id: userId,
-      position_id,
-      updated_at: new Date().toISOString(),
-    }));
-
-    const { data, error } = await supabase
-      .from('players')
-      .upsert(records, { onConflict: 'id' })
-      .select();
-
-    return { data, error };
+  async batchUpdatePositions(updates) {
+    const now = new Date().toISOString();
+    const results = await Promise.all(
+      updates.map(({ id, position_id, position }) =>
+        supabase
+          .from('players')
+          .update({
+            position_id,
+            ...(position !== undefined ? { position } : {}),
+            updated_at: now,
+          })
+          .eq('id', id)
+          .select()
+          .single()
+      )
+    );
+    const firstError = results.find(r => r.error)?.error || null;
+    const data = results.map(r => r.data).filter(Boolean);
+    return { data, error: firstError };
   },
 
   async deleteAllPlayers(userId) {
@@ -695,6 +702,8 @@ export function supabasePlayerToReact(p) {
     systemRole: p.system_role || 'jugador',
     avatar_id: p.avatar_id || null,
     photo_url: p.photo_url || null,
+    deleted_at: p.deleted_at || null,
+    preferences: p.preferences || {},
     memberships: {
       paid: Number(p.memberships_paid) || 0,
       due: Number(p.memberships_due) || 0,

@@ -5,9 +5,7 @@ const TREND_UP = '↑';
 const TREND_DOWN = '↓';
 const TREND_SAME = '→';
 
-export function StandingsTable({ standings, teams }) {
-  const userTeamId = null;
-
+export function StandingsTable({ standings }) {
   const prevPositions = {};
   const displayStandings = standings.map((s, i) => {
     const prev = prevPositions[s.team_id];

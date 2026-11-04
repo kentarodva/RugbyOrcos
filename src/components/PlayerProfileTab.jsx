@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { getRpgRole } from '../context/ClubContext';
+import { supabase } from '../supabaseClient';
 import { useToast } from '../context/ToastContext';
 import { formatLocalDate } from '../utils/dates';
 import { MENSUALIDAD_BASE } from './Finanzas/constants';
+import { HeightInput, WeightInput, SizeSelect } from './common/FormattedInputs';
+import { formatHeightM, formatWeightKg } from '../utils/inputFormatters';
 
 const EPS_LIST = ['Nueva EPS', 'Sanitas', 'Salud Total', 'Coosalud', 'Mutual Ser', 'Cajacopi', 'Familiar de Colombia', 'FOMAG'];
 
@@ -41,7 +43,6 @@ export default function PlayerProfileTab({ player, players, updatePlayer, campai
   const [editMode, setEditMode] = useState(false);
   const [profileForm, setProfileForm] = useState({});
 
-  const rpgRole = getRpgRole(player.systemRole || 'jugador');
   const attrs = player.attributes || { force: 50, speed: 50, stamina: 50, technique: 50 };
   const gym = player.gymStats || { squat: 0, bench: 0, deadlift: 0 };
   const injury = (player.injuryLog || [])[0];
@@ -95,6 +96,24 @@ export default function PlayerProfileTab({ player, players, updatePlayer, campai
       allergies: f.allergies || null, medical_conditions: f.medical_conditions || null,
       start_year: f.start_year ? Number(f.start_year) : null,
     };
+    const newWeight = f.weight !== '' && f.weight != null ? Number(f.weight) : null;
+    const newHeight = f.height !== '' && f.height != null ? Number(f.height) : null;
+    if (newWeight && (newWeight !== player.weight || newHeight !== player.height)) {
+      try {
+        await supabase.rpc('player_record_progress_snapshot', {
+          p_player_id: player.id,
+          p_weight: newWeight,
+          p_height: newHeight,
+          p_squat: Number(player.gymStats?.squat || 0),
+          p_bench: Number(player.gymStats?.bench || 0),
+          p_deadlift: Number(player.gymStats?.deadlift || 0),
+          p_custom_lifts: player.preferences?.custom_lifts || {},
+          p_tracked_exercises: player.preferences?.tracked_exercises || ['squat', 'bench', 'deadlift'],
+        });
+      } catch {
+        // non-blocking
+      }
+    }
     await updatePlayer(updated);
     setEditMode(false);
     showToast('Perfil actualizado.', 'success');
@@ -125,7 +144,7 @@ export default function PlayerProfileTab({ player, players, updatePlayer, campai
           ))}
           {player.weight && (
             <p className="text-[11px] text-zinc-500 text-center pt-1">
-              Relativa: {gym.squat || gym.bench || gym.deadlift ? ((gym.squat + gym.bench + gym.deadlift) / player.weight).toFixed(1) : '—'} · {player.weight}kg · {player.height}m
+              Relativa: {gym.squat || gym.bench || gym.deadlift ? ((gym.squat + gym.bench + gym.deadlift) / player.weight).toFixed(1) : '—'} · {formatWeightKg(player.weight)} · {formatHeightM(player.height)}
             </p>
           )}
         </div>
@@ -309,8 +328,28 @@ export default function PlayerProfileTab({ player, players, updatePlayer, campai
               </div>
               {profileForm.health_insurance === 'OTRA' && <Input label="Escribe tu EPS" value={profileForm.custom_eps} onChange={setF('custom_eps')} />}
               <div className="grid grid-cols-2 gap-3">
-                <Input label="⭐ Peso (kg)" type="number" step="0.1" value={profileForm.weight} onChange={setF('weight')} />
-                <Input label="⭐ Altura (m)" type="number" step="0.01" value={profileForm.height} onChange={setF('height')} />
+                <div>
+                  <label className="block text-[10px] text-zinc-500 mb-1">⭐ Peso (KG)</label>
+                  <WeightInput value={profileForm.weight} onChange={setF('weight')} placeholder="85" />
+                </div>
+                <div>
+                  <label className="block text-[10px] text-zinc-500 mb-1">⭐ Altura (Ej. 1,85M)</label>
+                  <HeightInput value={profileForm.height} onChange={setF('height')} placeholder="1,85" />
+                </div>
+              </div>
+              <div className="grid grid-cols-3 gap-2">
+                <div>
+                  <label className="block text-[10px] text-zinc-500 mb-1">Camiseta</label>
+                  <SizeSelect kind="jersey" value={profileForm.jersey} onChange={setF('jersey')} />
+                </div>
+                <div>
+                  <label className="block text-[10px] text-zinc-500 mb-1">Pantaloneta</label>
+                  <SizeSelect kind="shorts" value={profileForm.shorts} onChange={setF('shorts')} />
+                </div>
+                <div>
+                  <label className="block text-[10px] text-zinc-500 mb-1">Medias</label>
+                  <SizeSelect kind="socks" value={profileForm.socks} onChange={setF('socks')} />
+                </div>
               </div>
               <hr className="border-zinc-800" />
               <h4 className="text-[11px] text-zinc-500 font-semibold uppercase tracking-wide">Experiencia</h4>

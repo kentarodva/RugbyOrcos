@@ -14,7 +14,7 @@ const ROUND_NAMES = {
   10: 'Jornada 10',
 };
 
-export function FixtureList({ matches, activeTournament, onGenerate, onUpdateMatch, onStats, onEdit }) {
+export function FixtureList({ matches, onGenerate, onUpdateMatch, onStats, onEdit }) {
   const regularMatches = matches.filter(m => m.phase !== 'playoff');
   const hasMatches = regularMatches.length > 0;
 

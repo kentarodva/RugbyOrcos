@@ -1,4 +1,4 @@
-﻿export const MENSUALIDAD_BASE = 10000;
+export const MENSUALIDAD_BASE = 10000;
 export const ABONOS_RAPIDOS = [2000, 5000, 10000];
 
 export const FINANCE_CATEGORIES = [
@@ -16,15 +16,16 @@ export const FINANCE_CATEGORIES = [
 ];
 
 export const CATEGORY_LABELS = {
-  eventualidad: '🔴 Eventualidad',
-  mensualidad: '👑 Mensualidad',
-  implementos: '📦 Implementos',
-  tercer_tiempo: '🍻 Tercer Tiempo',
-  transporte: '🚌 Transporte',
-  reunion: '🤝 Reunión',
-  hotel: '🏨 Hotel',
-  prestamo: '💳 Préstamo',
-  alimentacion: '🍽️ Alimentación'
+  eventualidad: 'Eventualidad',
+  mensualidad: 'Mensualidad',
+  implementos: 'Implementos',
+  tercer_tiempo: 'Tercer Tiempo',
+  transporte: 'Transporte',
+  reunion: 'Reunión',
+  hotel: 'Hotel',
+  prestamo: 'Préstamo',
+  alimentacion: 'Alimentación',
+  general: 'General'
 };
 
 export const MEMBERSHIP_STATUS = {
@@ -52,12 +53,12 @@ export const INVENTORY_CATEGORIES = [
 ];
 
 export const FINANCE_SUB_TABS = [
-  { id: 'caja', label: '💰 Caja Chica' },
-  { id: 'membresias', label: '👑 Membresías ($10.000)' }
+  { id: 'caja', label: 'Caja Chica' },
+  { id: 'membresias', label: 'Membresías ($10.000)' }
 ];
 
 export const MAIN_SUB_TABS = [
-  { id: 'finances', label: '💰 Caja Chica y Membresías', activeColor: 'var(--color-primary)' },
-  { id: 'fundraising', label: '🎟️ Recaudación', activeColor: 'var(--color-gold)' },
-  { id: 'inventory', label: '📦 Inventario', activeColor: 'var(--color-blue)' },
+  { id: 'finances', label: 'Caja Chica y Membresías', activeColor: 'var(--color-primary)' },
+  { id: 'fundraising', label: 'Campañas, Rifas y Uniformes', activeColor: 'var(--color-gold)' },
+  { id: 'inventory', label: 'Inventario', activeColor: 'var(--color-blue)' },
 ];

@@ -1,1 +1,1 @@
-﻿export { default } from './Finanzas/index';
+export { default } from './Finanzas/index';

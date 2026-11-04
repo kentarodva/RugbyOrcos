@@ -8,7 +8,7 @@ import FaultBookTab from './FaultBookTab';
 import RankingsTab from './RankingsTab';
 
 function Tribunal() {
-  const { players, schedule, recordAttendance, recordMatchInfractions, redeemPenalty } = useContext(ClubContext);
+  const { schedule, recordAttendance, recordMatchInfractions, redeemPenalty } = useContext(ClubContext);
   const { showToast } = useToast();
 
   const allTeamPlayers = useTeamPlayers();

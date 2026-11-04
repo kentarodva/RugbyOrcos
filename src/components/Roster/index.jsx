@@ -28,7 +28,7 @@ function Roster() {
     recordPhysicalTest, recordInjury, updateInjuryPhase, activeTeam,
     runHiaProtocol, updateClothingSizes, updateGymStats,
     createPlayerCredentials, resetPlayerPassword, hasPermission,
-    viewMode, divisionView, setDivisionView, makgoraTeamId, makgoraTeams, teams,
+    viewMode, divisionView, setDivisionView, makgoraTeams, teams,
     syncStatus, bulkUpdatePosition,
   } = useContext(ClubContext);
   const { showToast } = useToast();
@@ -87,7 +87,7 @@ function Roster() {
     if (fresh) setSelectedPlayer(fresh);
   }, [players, selectedPlayer?.id]);
 
-  const teamPlayers = useTeamPlayers();
+  const teamPlayers = useTeamPlayers({ includeDeleted: true });
   const displayPlayers = useMemo(() => {
     if (showDeleted) return teamPlayers;
     return teamPlayers.filter(p => !p.deleted_at);

@@ -1,4 +1,4 @@
-import React, { useContext, useState, useMemo, useCallback, useRef, useEffect } from 'react';
+import React, { useContext, useState, useMemo, useCallback, useRef } from 'react';
 import { ClubContext } from '../../context/ClubContext';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
@@ -24,7 +24,7 @@ function Calendario() {
     schedule, addScheduleEvent, updateScheduleEvent, deleteScheduleEvent, generateWhatsAppMessage, activeTeam,
     fixtures, addFixture, updateFixture, deleteFixture, players, recordMatchStats,
     futureFixtures, addFutureFixture, deleteFutureFixture, rivals,
-    viewMode, divisionView, makgoraTeamId, makgoraTeams,
+    viewMode, divisionView, makgoraTeams,
     syncStatus, hasPermission,
     liveMatch, startLiveMatch, addLiveEvent,
     pauseLiveMatch, resumeLiveMatch, endLiveMatch, deleteLiveMatch,

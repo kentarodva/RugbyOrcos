@@ -9,42 +9,48 @@ export function useInvitations(user, userTier, profile) {
   useEffect(() => {
     if (!user?.id) return;
 
+    const reloadInvitations = () => {
+      apisupabase.fetchInvitations(user.id, userTier, profile?.club_scope).then(invitationsData => {
+        if (!invitationsData) return;
+        const invMapped = invitationsData.map(inv => ({
+          id: inv.id,
+          futureFixtureId: inv.future_fixture_id,
+          token: inv.token,
+          rivalName: inv.rival_name,
+          rivalId: inv.rival_id,
+          status: inv.status,
+          expiresAt: inv.expires_at,
+          guestCount: inv.guest_count || 0,
+          response: inv.response || 'pending',
+          responseNotes: inv.response_notes,
+          respondedAt: inv.responded_at,
+          createdAt: inv.created_at,
+          futureFixture: inv.future_fixtures ? {
+            id: inv.future_fixtures.id,
+            opponent: inv.future_fixtures.opponent,
+            date: inv.future_fixtures.date,
+            time: inv.future_fixtures.time,
+            location: inv.future_fixtures.location,
+            rivalId: inv.future_fixtures.rival_id,
+          } : null,
+          guests: (inv.guest_players || []).map(g => ({
+            id: g.id, name: g.name, number: g.number,
+            position: g.position, notes: g.notes,
+          })),
+        }));
+        setMatchInvitations(invMapped);
+      });
+    };
+
     const channel = supabase
       .channel('invitations_realtime')
       .on('postgres_changes',
         { event: '*', schema: 'public', table: 'guest_players' },
-        () => {
-          apisupabase.fetchInvitations(user.id, userTier, profile?.club_scope).then(invitationsData => {
-            if (!invitationsData) return;
-            const invMapped = invitationsData.map(inv => ({
-              id: inv.id,
-              futureFixtureId: inv.future_fixture_id,
-              token: inv.token,
-              rivalName: inv.rival_name,
-              rivalId: inv.rival_id,
-              status: inv.status,
-              expiresAt: inv.expires_at,
-              guestCount: inv.guest_count || 0,
-              response: inv.response || 'pending',
-              responseNotes: inv.response_notes,
-              respondedAt: inv.responded_at,
-              createdAt: inv.created_at,
-              futureFixture: inv.future_fixtures ? {
-                id: inv.future_fixtures.id,
-                opponent: inv.future_fixtures.opponent,
-                date: inv.future_fixtures.date,
-                time: inv.future_fixtures.time,
-                location: inv.future_fixtures.location,
-                rivalId: inv.future_fixtures.rival_id,
-              } : null,
-              guests: (inv.guest_players || []).map(g => ({
-                id: g.id, name: g.name, number: g.number,
-                position: g.position, notes: g.notes,
-              })),
-            }));
-            setMatchInvitations(invMapped);
-          });
-        }
+        reloadInvitations
+      )
+      .on('postgres_changes',
+        { event: '*', schema: 'public', table: 'match_invitations' },
+        reloadInvitations
       )
       .subscribe();
 

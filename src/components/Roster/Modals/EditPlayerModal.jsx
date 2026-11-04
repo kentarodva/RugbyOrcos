@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import PositionSelect from '../PositionSelect';
 import { PlayerPhoto } from '../../PlayerPhoto';
+import { HeightInput, WeightInput } from '../../common/FormattedInputs';
 
 const ROLES_CLUB = ['Entrenador', 'Capitan', 'Subcapitan', 'Titular', 'Suplente'];
 
@@ -116,16 +117,16 @@ function EditPlayerModal({ player, onClose, onSubmit, makgoraTeams, SYSTEM_ROLES
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px' }}>
             <div className="form-group" style={{ margin: 0 }}>
-              <label style={{ fontSize: '0.72rem' }}>Peso (kg)</label>
-              <input type="number" value={form.weight} onChange={set('weight')} placeholder="Ej. 95" className="form-input" style={{ padding: '6px 8px', fontSize: '0.78rem' }} min="40" max="160" />
+              <label style={{ fontSize: '0.72rem' }}>Peso (KG)</label>
+              <WeightInput value={form.weight} onChange={set('weight')} placeholder="95" style={{ padding: '6px 8px', fontSize: '0.78rem' }} />
             </div>
             <div className="form-group" style={{ margin: 0 }}>
-              <label style={{ fontSize: '0.72rem' }}>Altura (m)</label>
-              <input type="number" value={form.height} onChange={set('height')} placeholder="Ej. 1.82" className="form-input" style={{ padding: '6px 8px', fontSize: '0.78rem' }} min="1.4" max="2.2" step="0.01" />
+              <label style={{ fontSize: '0.72rem' }}>Altura (Ej. 1,85M)</label>
+              <HeightInput value={form.height} onChange={set('height')} placeholder="1,85" style={{ padding: '6px 8px', fontSize: '0.78rem' }} />
             </div>
             <div className="form-group" style={{ margin: 0 }}>
               <label style={{ fontSize: '0.72rem' }}>Edad</label>
-              <input type="number" value={form.age} onChange={set('age')} placeholder="Ej. 25" className="form-input" style={{ padding: '6px 8px', fontSize: '0.78rem' }} min="14" max="60" />
+              <input type="number" value={form.age} onChange={set('age')} placeholder="Ej. 25" className="form-input tabular-nums" style={{ padding: '6px 8px', fontSize: '0.78rem' }} min="14" max="60" />
             </div>
           </div>
 

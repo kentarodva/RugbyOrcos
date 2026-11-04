@@ -1,6 +1,7 @@
 import React, { useState, useContext } from 'react';
 import { ClubContext } from '../../context/ClubContext';
 import { MENSUALIDAD_BASE, ABONOS_RAPIDOS } from './constants';
+import { CopInput } from '../common/FormattedInputs';
 
 export function MembershipCard({ player, getMembershipStatus, onRequestConfirm, onRequestHistory, isStaff }) {
   const { getAssignments, campaigns } = useContext(ClubContext);
@@ -102,15 +103,14 @@ export function MembershipCard({ player, getMembershipStatus, onRequestConfirm, 
             ))}
           </div>
           <form onSubmit={handleCustomSubmit} style={{ display: 'flex', gap: '6px', marginTop: '8px' }}>
-            <input
-              type="number"
-              value={customAmount}
-              onChange={(e) => setCustomAmount(e.target.value)}
-              placeholder="Otro monto"
-              className="form-input"
-              style={{ flex: 1, padding: '6px', fontSize: '0.75rem' }}
-              min="500"
-            />
+            <div style={{ flex: 1 }}>
+              <CopInput
+                value={customAmount}
+                onChange={(e) => setCustomAmount(e.target.value)}
+                placeholder="Otro monto"
+                style={{ padding: '6px', fontSize: '0.75rem' }}
+              />
+            </div>
             <button type="submit" className="btn-neon" style={{ padding: '6px 10px', fontSize: '0.7rem' }}>
               Abonar
             </button>

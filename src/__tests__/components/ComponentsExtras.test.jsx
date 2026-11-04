@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import React from 'react';
 import Invitaciones from '../../components/Invitaciones';
 import Settings from '../../components/Settings';
@@ -180,7 +180,10 @@ describe('Header — renderizado', function () {
 
   it('muestra los botones principales', function () {
     render(wrapInClubContext(React.createElement(Header, headerProps)));
+    const datosBtn = screen.getByText(/Datos/);
+    expect(datosBtn).toBeDefined();
+    fireEvent.click(datosBtn);
     expect(screen.getByText(/Respaldar/)).toBeDefined();
-    expect(screen.getByText(/Cargar/)).toBeDefined();
+    expect(screen.getByText(/Restaurar/)).toBeDefined();
   });
 });

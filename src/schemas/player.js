@@ -82,7 +82,9 @@ const playerWorkoutLogSchema = z.object({
   date: z.string(),
   routine: z.string().optional().nullable(),
   category: z.string().optional().nullable(),
-  exercises: z.array(z.object({ exerciseId: z.string() })),
+  exercises: z.array(z.any()).optional(),
+  ejercicios: z.array(z.any()).optional(),
+  exerciseLogs: z.array(z.any()).optional(),
   completed: z.boolean(),
 });
 
@@ -98,11 +100,11 @@ export const playerSchema = z.object({
   camiseta: z.number().optional().nullable(),
   contacto: playerContactSchema,
   rol: playerRolEnum,
-  posicion: playerPositionEnum.optional().nullable(),
+  posicion: z.union([playerPositionEnum, z.literal(''), z.string()]).optional().nullable(),
   position_id: z.number().optional().nullable(),
   estado: playerStatusEnum,
   attributes: playerAttributesSchema,
-  history: z.array(playerAttributesSchema),
+  history: z.array(playerAttributesSchema.extend({ date: z.string().optional().nullable(), source: z.string().optional().nullable() })),
   injuryLog: z.array(playerInjuryLogSchema),
   attendance: playerAttendanceSchema,
   penalties: playerPenaltiesSchema,
@@ -115,7 +117,7 @@ export const playerSchema = z.object({
   systemRole: systemRoleEnum,
   memberships: z.object({ paid: z.number(), due: z.number(), lastPayment: z.string().optional().nullable(), lastAmount: z.number().optional().nullable() }).optional(),
   teamCategory: z.string(),
-  teamId: z.string().uuid().optional(),
+  teamId: z.string().uuid().optional().nullable(),
   weight: z.number().optional().nullable(),
   height: z.number().optional().nullable(),
   gymStats: playerGymStatsSchema,
@@ -134,6 +136,8 @@ export const playerSchema = z.object({
   photo_url: z.string().optional().nullable(),
   document_type: z.string().optional().nullable(),
   document_number: z.string().optional().nullable(),
+  deleted_at: z.string().optional().nullable(),
+  preferences: z.record(z.string(), z.any()).optional().nullable(),
 });
 
 export const scheduleEventSchema = z.object({
@@ -145,7 +149,7 @@ export const scheduleEventSchema = z.object({
   mapsLink: z.string().optional().nullable(),
   type: z.string(),
   teamCategory: z.string(),
-  teamId: z.string().uuid().optional(),
+  teamId: z.string().uuid().optional().nullable(),
   linkedRoutine: z.string().optional().nullable(),
   recurrenceGroup: z.string().optional().nullable(),
 });
@@ -158,7 +162,7 @@ export const financeRecordSchema = z.object({
   date: z.string(),
   category: z.string(),
   teamCategory: z.string(),
-  teamId: z.string().uuid().optional(),
+  teamId: z.string().uuid().optional().nullable(),
 });
 
 export const fixtureSchema = z.object({
@@ -170,7 +174,7 @@ export const fixtureSchema = z.object({
   tries: z.number(),
   mvp: z.string(),
   teamCategory: z.string(),
-  teamId: z.string().uuid().optional(),
+  teamId: z.string().uuid().optional().nullable(),
 });
 
 export const futureFixtureSchema = z.object({
@@ -180,7 +184,7 @@ export const futureFixtureSchema = z.object({
   time: z.string().optional().nullable(),
   location: z.string().optional().nullable(),
   teamCategory: z.string(),
-  teamId: z.string().uuid().optional(),
+  teamId: z.string().uuid().optional().nullable(),
 });
 
 export const rivalSchema = z.object({
@@ -197,7 +201,7 @@ export const championshipSchema = z.object({
   deadlineDate: z.string(),
   description: z.string().optional().nullable(),
   teamCategory: z.string(),
-  teamId: z.string().uuid().optional(),
+  teamId: z.string().uuid().optional().nullable(),
 });
 
 export const inventoryItemSchema = z.object({
@@ -207,5 +211,5 @@ export const inventoryItemSchema = z.object({
   assignedTo: z.string().optional().nullable(),
   status: z.string(),
   teamCategory: z.string(),
-  teamId: z.string().uuid().optional(),
+  teamId: z.string().uuid().optional().nullable(),
 });

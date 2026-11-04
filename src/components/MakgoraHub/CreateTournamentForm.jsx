@@ -10,8 +10,6 @@ export function CreateTournamentForm({ teams, onCreate, onCancel }) {
   const [newExtName, setNewExtName] = useState('');
   const [newExtRpgName, setNewExtRpgName] = useState('');
 
-  const internalTeams = teams.filter(t => !t.is_external);
-  const externalTeams = teams.filter(t => t.is_external);
   const allAvailable = teams.filter(t => t.is_active);
 
   React.useEffect(() => {

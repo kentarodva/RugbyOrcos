@@ -34,7 +34,7 @@ export function useSyncPush(user) {
       attr_stamina: player.attributes?.stamina ?? 50,
       attr_technique: player.attributes?.technique ?? 50,
       team_category: player.teamCategory,
-      team_id: player.teamId,
+      team_id: player.teamId ?? undefined,
       system_role: player.systemRole || 'jugador',
       makgora_team_id: player.makgora_team_id || null,
       weight_kg: player.weight || null,
@@ -63,6 +63,10 @@ export function useSyncPush(user) {
       memberships_due: player.memberships?.due ?? 0,
       last_payment_date: player.memberships?.lastPayment || null,
       last_payment_amount: player.memberships?.lastAmount || null,
+      ...(player.userId !== undefined ? { user_id: player.userId } : {}),
+      ...(player.username !== undefined ? { username: player.username } : {}),
+      ...(player.deleted_at !== undefined ? { deleted_at: player.deleted_at } : {}),
+      ...(player.preferences !== undefined ? { preferences: player.preferences } : {}),
       source: 'manual',
     };
   }, []);
@@ -112,7 +116,8 @@ export function useSyncPush(user) {
           id: r.id, date: r.date, opponent: r.opponent,
           orcos_score: r.orcosScore, opponent_score: r.opponentScore,
           tries: r.tries, mvp: r.mvp, team_category: r.teamCategory, team_id: r.teamId,
-          rival_id: r.rivalId || null
+          rival_id: r.rivalId || null,
+          ...(r.squad !== undefined ? { squad: r.squad } : {})
         }),
         rivals: (r) => ({
           id: r.id, name: r.name, colors: r.colors, contact: r.contact, notes: r.notes
@@ -120,7 +125,9 @@ export function useSyncPush(user) {
         futureFixtures: (r) => ({
           id: r.id, opponent: r.opponent, date: r.date,
           time: r.time, location: r.location, team_category: r.teamCategory, team_id: r.teamId,
-          rival_id: r.rivalId || null
+          rival_id: r.rivalId || null,
+          ...(r.availabilities !== undefined ? { availabilities: r.availabilities } : {}),
+          ...(r.squad !== undefined ? { squad: r.squad } : {})
         }),
       };
       const mapper = map[entityType];
@@ -241,6 +248,93 @@ export function useSyncPull(
             });
           }
 
+          const [
+            { data: matchStatsRows },
+            { data: injuryRows },
+            { data: wellnessRows },
+            { data: workoutRows },
+            { data: infractionRows },
+            { data: historyRows },
+            { data: hiaRows },
+          ] = await Promise.all([
+            supabase.from('match_stats').select('*'),
+            supabase.from('injury_log').select('*'),
+            supabase.from('wellness_logs').select('*'),
+            supabase.from('workout_logs').select('*'),
+            supabase.from('infractions').select('*'),
+            supabase.from('attribute_history').select('*'),
+            supabase.from('hia_assessments').select('*'),
+          ]);
+
+          const groupByPlayer = (rows) => {
+            const map = {};
+            (rows || []).forEach(r => {
+              if (!map[r.player_id]) map[r.player_id] = [];
+              map[r.player_id].push(r);
+            });
+            return map;
+          };
+
+          const matchStatsMap = groupByPlayer(matchStatsRows);
+          const injuryMap = groupByPlayer(injuryRows);
+          const wellnessMap = groupByPlayer(wellnessRows);
+          const workoutMap = groupByPlayer(workoutRows);
+          const infractionMap = groupByPlayer(infractionRows);
+          const historyMap = groupByPlayer(historyRows);
+          const hiaMap = groupByPlayer(hiaRows);
+
+          normalized.forEach(player => {
+            if (matchStatsMap[player.id]?.length) {
+              player.matchStats = matchStatsMap[player.id].map(s => ({
+                id: s.id, date: s.match_date, opponent: s.opponent,
+                tries: s.tries || 0, conversions: s.conversions || 0,
+                tackles: s.tackles || 0, turnovers: s.turnovers || 0,
+                yellowCards: s.yellow_cards || 0, redCards: s.red_cards || 0,
+                mvp: s.mvp || false,
+              }));
+            }
+            if (injuryMap[player.id]?.length) {
+              player.injuryLog = injuryMap[player.id]
+                .filter(i => Number(i.phase || 1) < 4)
+                .map(i => ({
+                  diagnosis: i.diagnosis, date: i.injury_date || '',
+                  weeks: i.recovery_weeks || 0, phase: i.phase || 1,
+                }));
+            }
+            if (wellnessMap[player.id]?.length) {
+              player.wellnessLogs = wellnessMap[player.id].map(w => ({
+                id: w.id, date: w.log_date, sleep: w.sleep_quality,
+                soreness: w.muscle_soreness, stress: w.stress_level,
+              }));
+            }
+            if (workoutMap[player.id]?.length) {
+              player.workoutLog = workoutMap[player.id].map(w => ({
+                id: w.id, date: w.workout_date, routine: w.routine_name,
+                category: w.category, exercises: w.exercises || [],
+                ejercicios: w.exercises || [], exerciseLogs: w.exercise_logs || [],
+                completed: w.completed || false,
+              }));
+            }
+            if (infractionMap[player.id]?.length) {
+              player.infractionLog = infractionMap[player.id].map(i => ({
+                id: i.id, date: i.infraction_date,
+                penales: i.penalties || 0, amarillas: i.yellow_cards || 0,
+                rojas: i.red_cards || 0, faultType: i.fault_type,
+                context: i.context, notes: i.notes,
+              }));
+            }
+            if (historyMap[player.id]?.length) {
+              player.history = historyMap[player.id].map(h => ({
+                date: h.recorded_date, source: h.source || 'auto',
+                force: h.attr_force, speed: h.attr_speed,
+                stamina: h.attr_stamina, technique: h.attr_technique,
+              }));
+            }
+            if (hiaMap[player.id]?.length) {
+              player.hiaAssessments = hiaMap[player.id];
+            }
+          });
+
           setPlayers(normalized);
         } else if (!playerError) {
           setPlayers([]);
@@ -290,7 +384,7 @@ export function useSyncPull(
             id: f.id, date: f.date, opponent: f.opponent,
             orcosScore: f.orcos_score, opponentScore: f.opponent_score,
             tries: f.tries, mvp: f.mvp, teamCategory: f.team_category, teamId: f.team_id,
-            rivalId: f.rival_id
+            rivalId: f.rival_id, squad: f.squad || []
           }));
           setFixtures(mapped);
         } else { setFixtures([]); }
@@ -307,7 +401,9 @@ export function useSyncPull(
           const mapped = appData.futureFixtures.map(f => ({
             id: f.id, opponent: f.opponent, date: f.date,
             time: f.time, location: f.location, teamCategory: f.team_category, teamId: f.team_id,
-            rivalId: f.rival_id
+            rivalId: f.rival_id,
+            availabilities: f.availabilities || {},
+            squad: f.squad || [],
           }));
           setFutureFixtures(mapped);
         } else { setFutureFixtures([]); }

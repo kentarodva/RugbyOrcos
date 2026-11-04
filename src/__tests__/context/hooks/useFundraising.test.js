@@ -1,6 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
-import { supabase } from '../../../supabaseClient.js';
 
 vi.mock('../../../supabaseClient.js', () => {
   const mockChain = () => {

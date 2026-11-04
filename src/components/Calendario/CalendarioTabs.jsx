@@ -1,39 +1,39 @@
 import React from 'react';
+import { Calendar, Radio, Trophy, Clock, Swords } from 'lucide-react';
 
 const TABS = [
-  { key: 'agenda', label: 'Agenda y Convocatorias', color: 'var(--color-primary)' },
-  { key: 'envivo', label: 'En Vivo', color: 'var(--color-red)', live: true },
-  { key: 'fixture', label: 'Campana y Fixture', color: 'var(--color-gold)' },
-  { key: 'proximos', label: 'Proximos Partidos', color: 'var(--color-blue)' },
-  { key: 'rivales', label: 'Rivales & Arbitro', color: 'var(--color-red)' },
+  { key: 'agenda', label: 'Agenda y Convocatorias', Icon: Calendar },
+  { key: 'envivo', label: 'En Vivo', Icon: Radio, live: true },
+  { key: 'fixture', label: 'Campaña y Fixture', Icon: Trophy },
+  { key: 'proximos', label: 'Próximos Partidos', Icon: Clock },
+  { key: 'rivales', label: 'Rivales & Árbitro', Icon: Swords },
 ];
 
 function CalendarioTabs({ activeTab, onChange, hasActiveMatch }) {
   return (
-    <div style={{ display: 'flex', gap: '10px', width: '100%', borderBottom: '1px solid var(--border-glass)', paddingBottom: '15px', marginBottom: '20px', flexWrap: 'wrap', alignItems: 'center' }}>
-      {TABS.map(tab => {
-        const isLive = tab.live && hasActiveMatch;
-        return (
-          <button
-            key={tab.key}
-            onClick={() => onChange(tab.key)}
-            className="btn-outline"
-            style={{
-              background: activeTab === tab.key ? tab.color : isLive ? tab.color + '20' : 'transparent',
-              color: activeTab === tab.key ? '#000' : isLive ? tab.color : '#fff',
-              borderColor: activeTab === tab.key ? tab.color : isLive ? tab.color : 'var(--border-glass)',
-              fontWeight: activeTab === tab.key || isLive ? 800 : 500,
-              padding: '8px 16px',
-              fontSize: '0.85rem',
-              position: 'relative',
-              animation: isLive ? 'pulse 2s infinite' : 'none',
-            }}
-          >
-            {isLive && <span style={{ display: 'inline-block', width: '8px', height: '8px', borderRadius: '50%', background: tab.color, marginRight: '6px', verticalAlign: 'middle' }} />}
-            {tab.label}
-          </button>
-        );
-      })}
+    <div style={{ borderBottom: '1px solid var(--border-glass)', paddingBottom: '14px', marginBottom: '20px', display: 'flex', flexWrap: 'wrap', alignItems: 'center' }}>
+      <div className="pro-subtabs">
+        {TABS.map(tab => {
+          const isLive = tab.live && hasActiveMatch;
+          const isActive = activeTab === tab.key;
+          const Icon = tab.Icon;
+          return (
+            <button
+              key={tab.key}
+              onClick={() => onChange(tab.key)}
+              className={`pro-subtab-btn ${isActive ? 'active' : ''}`}
+              style={isLive && !isActive ? { color: 'var(--color-red)', animation: 'pulse 2s infinite' } : undefined}
+            >
+              {isLive ? (
+                <span style={{ display: 'inline-block', width: '8px', height: '8px', borderRadius: '50%', background: isActive ? '#05080d' : 'var(--color-red)' }} />
+              ) : (
+                <Icon size={15} />
+              )}
+              <span>{tab.label}</span>
+            </button>
+          );
+        })}
+      </div>
     </div>
   );
 }

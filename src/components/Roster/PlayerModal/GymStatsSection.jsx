@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { WeightInput } from '../../common/FormattedInputs';
 
 function GymStatsSection({ player, onGymSubmit }) {
   const [showForm, setShowForm] = useState(false);
@@ -88,20 +89,20 @@ function GymStatsSection({ player, onGymSubmit }) {
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '12px', background: 'rgba(255,255,255,0.02)', padding: '15px', borderRadius: 'var(--radius-sm)', border: '1px dashed var(--color-primary)' }}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
             <div className="form-group">
-              <label style={{ fontSize: '0.75rem' }}>Sentadilla 1RM (Kg)</label>
-              <input type="number" value={gym.squat} onChange={set('squat')} className="form-input" required />
+              <label style={{ fontSize: '0.75rem' }}>Sentadilla 1RM</label>
+              <WeightInput value={gym.squat} onChange={set('squat')} required />
             </div>
             <div className="form-group">
-              <label style={{ fontSize: '0.75rem' }}>Press de Banca 1RM (Kg)</label>
-              <input type="number" value={gym.bench} onChange={set('bench')} className="form-input" required />
+              <label style={{ fontSize: '0.75rem' }}>Press de Banca 1RM</label>
+              <WeightInput value={gym.bench} onChange={set('bench')} required />
             </div>
             <div className="form-group">
-              <label style={{ fontSize: '0.75rem' }}>Peso Muerto 1RM (Kg)</label>
-              <input type="number" value={gym.deadlift} onChange={set('deadlift')} className="form-input" required />
+              <label style={{ fontSize: '0.75rem' }}>Peso Muerto 1RM</label>
+              <WeightInput value={gym.deadlift} onChange={set('deadlift')} required />
             </div>
             <div className="form-group">
-              <label style={{ fontSize: '0.75rem' }}>Peso Corporal Actual (Kg)</label>
-              <input type="number" value={gym.weight} onChange={set('weight')} className="form-input" required />
+              <label style={{ fontSize: '0.75rem' }}>Peso Corporal Actual</label>
+              <WeightInput value={gym.weight} onChange={set('weight')} required />
             </div>
           </div>
           <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', marginTop: '5px' }}>

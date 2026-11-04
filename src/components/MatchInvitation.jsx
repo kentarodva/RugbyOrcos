@@ -77,6 +77,16 @@ function MatchInvitation() {
   };
 
   const handleRemoveGuest = async (id) => {
+    if (typeof supabase.rpc === 'function' && invitation?.token) {
+      const rpcRes = await supabase.rpc('delete_invitation_guest', {
+        p_token: invitation.token,
+        p_guest_id: id,
+      });
+      if (rpcRes && !rpcRes.error && !rpcRes.data?.error) {
+        setGuests(prev => prev.filter(g => g.id !== id));
+        return;
+      }
+    }
     const { error } = await supabase.from('guest_players').delete().eq('id', id);
     if (error) { setError('Error al eliminar: ' + error.message); return; }
     setGuests(prev => prev.filter(g => g.id !== id));
@@ -84,6 +94,18 @@ function MatchInvitation() {
 
   const handleResponder = async (response) => {
     setResponding(true);
+    if (typeof supabase.rpc === 'function' && invitation?.token) {
+      const rpcRes = await supabase.rpc('respond_match_invitation', {
+        p_token: invitation.token,
+        p_response: response,
+        p_notes: null,
+      });
+      if (rpcRes && !rpcRes.error && !rpcRes.data?.error) {
+        setResponding(false);
+        setInvitation(prev => ({ ...prev, response, responded_at: new Date().toISOString() }));
+        return;
+      }
+    }
     const payload = {
       response,
       response_notes: null,

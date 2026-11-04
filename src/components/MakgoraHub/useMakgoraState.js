@@ -13,7 +13,7 @@ const emitChange = (table, action, payload = {}) => {
 
 export function useMakgoraState() {
   const { showToast } = useToast();
-  const { players, loans, requestLoan, updateLoanStatus } = useContext(ClubContext);
+  const { players, loans, requestLoan, updateLoanStatus, refreshMakgoraTeams } = useContext(ClubContext);
   const [tab, setTab] = useState('teams');
   const [teams, setTeams] = useState([]);
   const [tournaments, setTournaments] = useState([]);
@@ -46,8 +46,11 @@ export function useMakgoraState() {
 
   const loadTeams = useCallback(async () => {
     const { data } = await supabase.from('makgora_teams').select('*').order('sort_order');
-    if (data) setTeams(data);
-  }, []);
+    if (data) {
+      setTeams(data);
+      refreshMakgoraTeams?.();
+    }
+  }, [refreshMakgoraTeams]);
 
   const loadTournaments = useCallback(async () => {
     const { data } = await supabase.from('tournaments').select('*').order('start_date', { ascending: false });
@@ -200,7 +203,7 @@ export function useMakgoraState() {
       });
     }
 
-    const { error, data } = await supabase.from('tournament_matches').insert(firstRound).select();
+    const { error } = await supabase.from('tournament_matches').insert(firstRound).select();
     if (error) { showToast(error.message, 'error'); return; }
 
     showToast(`Playoffs generados: Ronda 1 (${firstRound.length} partidos, ${totalRounds} rondas totales)`, 'success');

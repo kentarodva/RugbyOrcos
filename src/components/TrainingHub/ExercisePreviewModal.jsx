@@ -16,7 +16,6 @@ export default function ExercisePreviewModal({ exercise, onClose, onAddToRoutine
 
   const instructions = ex.instructions || {};
   const instEs = typeof instructions === 'object' ? (instructions.es || instructions.en || '') : '';
-  const instEn = typeof instructions === 'object' ? (instructions.en || '') : '';
 
   const muscles = [];
   if (ex.target_muscle) muscles.push(ex.target_muscle);

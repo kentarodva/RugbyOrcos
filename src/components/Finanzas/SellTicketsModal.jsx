@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { ClubContext } from '../../context/ClubContext';
 import { useToast } from '../../context/ToastContext';
+import { CopInput } from '../common/FormattedInputs';
 
 export function SellTicketsModal({ campaign, assignment, tickets, onClose, readOnly }) {
   const { sellTickets, addFinanceRecord } = useContext(ClubContext);
@@ -45,7 +46,7 @@ export function SellTicketsModal({ campaign, assignment, tickets, onClose, readO
     ? ticketsToSell * ticketPrice
     : calcAmount;
   const remainder = calcAmount - (ticketsToSell * ticketPrice);
-  const newTotalPaid = alreadyPaid + effectiveAmount + Math.max(0, remainder);
+  const _newTotalPaid = alreadyPaid + effectiveAmount + Math.max(0, remainder);
 
   const canConfirm = (calcQuantity > 0 || calcAmount > 0) && effectiveAmount > 0;
 
@@ -61,7 +62,7 @@ export function SellTicketsModal({ campaign, assignment, tickets, onClose, readO
         ? finalQuantity * ticketPrice + Math.max(0, remainder)
         : calcAmount;
 
-      const result = await sellTickets({
+      await sellTickets({
         campaign,
         assignment,
         unsoldTickets,
@@ -135,14 +136,11 @@ export function SellTicketsModal({ campaign, assignment, tickets, onClose, readO
               )}
             </div>
             <div className="form-group">
-              <label>Monto total ($)</label>
-              <input
-                type="number"
+              <label>Monto total ($ COP)</label>
+              <CopInput
                 value={amount}
                 onChange={e => { setAmount(e.target.value); setLastEdited('amount'); }}
                 placeholder="0"
-                min="0"
-                className="form-input"
                 style={{ padding: '8px', fontSize: '0.85rem' }}
               />
             </div>

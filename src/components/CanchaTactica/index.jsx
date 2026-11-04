@@ -12,8 +12,15 @@ import SaveTacticModal from './SaveTacticModal';
 import TacticFiltersModal from './TacticFiltersModal';
 
 function CanchaTactica() {
-  const { players, activeTeam } = React.useContext(ClubContext);
+  const { players, activeTeam, futureFixtures } = React.useContext(ClubContext);
   const pitchRef = useRef(null);
+
+  const nextMatch = useMemo(() => {
+    const today = new Date(new Date().toDateString());
+    return (futureFixtures || [])
+      .filter(f => (!activeTeam || f.teamCategory === activeTeam) && new Date(f.date + 'T00:00:00') >= today)
+      .sort((a, b) => new Date(a.date) - new Date(b.date))[0] || null;
+  }, [futureFixtures, activeTeam]);
 
   const {
     lineup, tacticalNotes, setTacticalNotes,
@@ -37,6 +44,7 @@ function CanchaTactica() {
   const [showSidebar, setShowSidebar] = React.useState(true);
   const [showSaveModal, setShowSaveModal] = React.useState(false);
   const [showFilterModal, setShowFilterModal] = React.useState(false);
+  const isLargeFullscreen = pitchSize === 'large';
 
   const allTeamPlayers = useTeamPlayers();
   const teamPlayers = useMemo(() => allTeamPlayers.filter(p => p.rol !== 'Entrenador'), [allTeamPlayers]);
@@ -83,12 +91,19 @@ function CanchaTactica() {
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
 
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
             <div>
-              <h3 style={{ fontSize: '1.2rem', fontWeight: 700, fontFamily: 'Outfit' }}>
-                {isLargeFullscreen ? 'Pizarra Tactica — Vista Completa' : 'Pizarra de Alineaciones (XV Inicial)'}
-              </h3>
-              <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>Arrastra los circulos para mover posiciones o tocalos para alinear orcos.</p>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                <h3 style={{ fontSize: '1.2rem', fontWeight: 700, fontFamily: 'Outfit', margin: 0 }}>
+                  {isLargeFullscreen ? 'Pizarra Táctica — Vista Completa' : 'Pizarra de Alineaciones (XV Inicial)'}
+                </h3>
+                {nextMatch && (
+                  <span className="pro-chip pro-chip-success tabular-nums">
+                    Próximo vs {nextMatch.opponent}: {Object.values(nextMatch.availabilities || {}).filter(v => v === 'going').length} confirmados
+                  </span>
+                )}
+              </div>
+              <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginTop: '3px' }}>Arrastra los círculos para mover posiciones o tócalos para alinear guerreros.</p>
             </div>
             <div style={{ display: 'flex', gap: '8px' }}>
               <button onClick={resetToDefaultPositions} className="btn-outline" style={{ padding: '6px 12px', fontSize: '0.8rem', color: 'var(--color-gold)', borderColor: 'rgba(255, 179, 0, 0.2)' }}>
@@ -221,6 +236,7 @@ function CanchaTactica() {
           selectedSlot={selectedSlot}
           teamPlayers={teamPlayers}
           isPlayerAligned={isPlayerAligned}
+          availabilities={nextMatch?.availabilities || {}}
           onAssign={assignPlayer}
           onClose={() => setShowSelectModal(false)}
         />

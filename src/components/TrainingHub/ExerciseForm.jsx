@@ -1,13 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useToast } from '../../context/ToastContext';
-import { useAuth } from '../../context/AuthContext';
-import ExerciseIcon, { CATEGORY_LABELS, SUBCATEGORY_LABELS } from './ExerciseIcon';
+import { CATEGORY_LABELS, SUBCATEGORY_LABELS } from './ExerciseIcon';
 import { createExercise } from '../../services/trainingService';
 
 function ExerciseForm({ onCreated, onClose }) {
   const { showToast } = useToast();
-  const { user } = useAuth();
-  const [playerId, setPlayerId] = useState(null);
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState({
     name_technical: '',
@@ -29,15 +26,6 @@ function ExerciseForm({ onCreated, onClose }) {
     recuperacion: ['movilidad'],
     prevencion: ['hombros', 'cuello', 'rodillas', 'tobillos', 'general'],
   };
-
-  useEffect(() => {
-    if (!user?.id) return;
-    import('../../services/dataService').then(({ fetchPlayers }) => {
-      fetchPlayers({ userId: user.id }).then(data => {
-        if (data?.[0]) setPlayerId(data[0].id);
-      });
-    });
-  }, [user?.id]);
 
   const handleChange = (field, value) => {
     if (field === 'category') {

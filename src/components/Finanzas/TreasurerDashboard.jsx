@@ -1,11 +1,13 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { supabase } from '../../supabaseClient';
 import { useToast } from '../../context/ToastContext';
+import { ClubContext } from '../../context/ClubContext';
 import { formatLocalDate, parseLocalDate } from '../../utils/dates';
 import { getCampaigns, getTreasurerDeliveries } from '../../services/dataService';
 
 function TreasurerDashboard({ onClose }) {
   const { showToast } = useToast();
+  const clubCtx = useContext(ClubContext);
   const [tab, setTab] = useState('pending');
   const [data, setData] = useState({ pending: [], campaigns: [], players: [], deliveries: [] });
   const [loading, setLoading] = useState(true);
@@ -40,6 +42,8 @@ function TreasurerDashboard({ onClose }) {
       if (d?.error) throw new Error(d.error);
       showToast(status === 'paid' ? 'Venta confirmada y registrada en asignación.' : 'Venta rechazada.', 'success');
       loadAll();
+      clubCtx?.loadCampaigns?.();
+      clubCtx?.loadAllPayments?.();
     } catch (err) {
       showToast('Error: ' + err.message, 'error');
     } finally {
@@ -49,7 +53,7 @@ function TreasurerDashboard({ onClose }) {
 
   const pendingFiado = data.pending.filter(p => p.sale_status === 'fiado');
   const pendingPaid = data.pending.filter(p => p.sale_status === 'paid');
-  const totalRaised = data.campaigns.reduce((s, c) => {
+  const _totalRaised = data.campaigns.reduce((s, c) => {
     if (c.type === 'raffle') return s + (c.ticket_price || 0) * (c.total_tickets || 0);
     return s;
   }, 0);
@@ -78,7 +82,7 @@ function TreasurerDashboard({ onClose }) {
            {item.fiado_until && <div style={{ fontSize: '0.68rem', color: 'var(--color-gold)' }}>Fiado hasta: {formatLocalDate(parseLocalDate(item.fiado_until))}</div>}
           {item.reported_price && <div style={{ fontSize: '0.72rem', color: 'var(--color-text)' }}>Valor: ${Number(item.reported_price).toLocaleString()}</div>}
           <div style={{ fontSize: '0.65rem', color: 'var(--color-text-muted)', marginTop: '2px' }}>
-            Reportó: {item.reported_by_name || '—'} · {item.reported_at ? new Date(item.reported_at).toLocaleString() : '—'}
+            Reportó: {item.reported_by_name || item.player_name || '—'} · {(item.reported_at || item.created_at) ? new Date(item.reported_at || item.created_at).toLocaleString() : '—'}
           </div>
         </div>
         <div style={{ display: 'flex', gap: '6px', alignItems: 'flex-start' }}>

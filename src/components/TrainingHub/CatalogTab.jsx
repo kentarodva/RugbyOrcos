@@ -1,5 +1,4 @@
-import { useState, useEffect, useContext, useMemo } from 'react';
-import { ClubContext } from '../../context/ClubContext';
+import { useState, useEffect, useMemo } from 'react';
 import { WORKOUTS, CATEGORY_LABELS as PLAN_LABELS, CATEGORY_ICONS, CATEGORY_COLORS } from './constants';
 import ExercisePreviewModal from './ExercisePreviewModal';
 import { getExerciseCatalog } from '../../services/trainingService';
@@ -31,7 +30,6 @@ const CATEGORY_COLORS_MAP = {
 };
 
 function CatalogTab({ activeCategory, onCategoryChange }) {
-  const { userTier } = useContext(ClubContext);
   const [view, setView] = useState('plans');
   const [exercises, setExercises] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -91,7 +89,6 @@ function CatalogTab({ activeCategory, onCategoryChange }) {
   if (page > totalPages && totalPages > 0) setPage(totalPages);
   const pageItems = filtered.slice((page - 1) * perPage, page * perPage);
 
-  const isStaff = userTier <= 3;
   const plansCategories = ['forwards', 'backs', 'captain', 'coach', 'general'];
   const borderColor = CATEGORY_COLORS[activeCategory] || 'var(--color-primary)';
 

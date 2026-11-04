@@ -1,4 +1,4 @@
-import React, { useContext, useState, useMemo } from 'react';
+import React, { useContext, useState } from 'react';
 import { ClubContext } from '../context/ClubContext';
 import { useToast } from '../context/ToastContext';
 import { formatLocalDate } from '../utils/dates.js';

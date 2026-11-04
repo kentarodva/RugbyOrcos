@@ -11,23 +11,26 @@ let mockResolve = { data: null, error: null };
 vi.mock('../../supabaseClient.js', () => {
   const upsertResolve = () => Promise.resolve(mockResolve);
   const lookupResolve = () => Promise.resolve(mockLookup);
-  const listResolve = () => Promise.resolve(mockList);
   function qb() {
     return {
+      then: (cb) => cb(mockList),
       select: vi.fn().mockReturnThis(),
       eq: vi.fn().mockReturnThis(),
       order: vi.fn().mockReturnThis(),
-      limit: vi.fn(listResolve),
+      limit: vi.fn().mockReturnThis(),
       maybeSingle: vi.fn(lookupResolve),
+      single: vi.fn(lookupResolve),
       upsert: vi.fn(() => ({
         select: vi.fn(() => ({
           maybeSingle: vi.fn(upsertResolve),
+          single: vi.fn(upsertResolve),
         })),
       })),
       update: vi.fn(() => ({
         eq: vi.fn(() => ({
           select: vi.fn(() => ({
             maybeSingle: vi.fn(upsertResolve),
+            single: vi.fn(upsertResolve),
           })),
         })),
       })),
@@ -59,7 +62,7 @@ vi.mock('../../engine/planNormalizer', () => ({
     },
     fromAI: false,
   })),
-  normalizeAIOutput: vi.fn((aiPlan, player) => ({
+  normalizeAIOutput: vi.fn((aiPlan) => ({
     ...aiPlan,
     plan: {
       campo: (aiPlan.plan?.campo || []).map(e => ({ ...e, fromAI: true })),

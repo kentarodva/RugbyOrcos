@@ -38,6 +38,28 @@ function UserManagement() {
     if (form.password.length < 6) { setError('Contrasena: minimo 6 caracteres.'); return; }
 
     setSaving(true);
+    if (typeof supabase.rpc === 'function') {
+      const rpcRes = await supabase.rpc('admin_create_staff_user', {
+        p_email: form.email,
+        p_password: form.password,
+        p_display_name: form.displayName,
+        p_system_role: form.systemRole,
+        p_club_scope: form.clubScope || null,
+      });
+      if (rpcRes && !rpcRes.error && rpcRes.data) {
+        if (rpcRes.data.error) {
+          setSaving(false);
+          setError(rpcRes.data.error);
+          return;
+        }
+        setSaving(false);
+        setShowCreate(false);
+        setForm({ email: '', password: '', displayName: '', systemRole: 'jugador', clubScope: '' });
+        loadUsers();
+        return;
+      }
+    }
+
     const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
       email: form.email,
       password: form.password,

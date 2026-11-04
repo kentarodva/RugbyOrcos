@@ -45,5 +45,5 @@ export function getTeamOvertrainingRisk(players) {
     const detection = detectOvertraining(p);
     if (detection) results.push({ playerId: p.id, playerName: p.name, ...detection });
   });
-  return results.sort((a, b) => a.severity === 'alta' ? -1 : 1);
+  return results.sort((a) => a.severity === 'alta' ? -1 : 1);
 }

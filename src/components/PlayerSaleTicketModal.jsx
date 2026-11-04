@@ -3,12 +3,12 @@ import { supabase } from '../supabaseClient';
 import { useToast } from '../context/ToastContext';
 import { formatLocalDate, parseLocalDate } from '../utils/dates';
 
-const TicketRow = React.memo(({ ticket, reports, setReports, handleReport, reporting }) => {
+const TicketRow = React.memo(function TicketRow({ ticket, reports, setReports, handleReport, reporting }) {
   const campaign = ticket.campaign || {};
   const r = reports[ticket.id] || {};
   const isPendingFiado = ticket.sale_status === 'fiado' && !ticket.reviewed_by;
   const isPendingPaid = ticket.sale_status === 'paid' && !ticket.reviewed_by;
-  const isApproved = ticket.sale_status === 'paid' && ticket.reviewed_by;
+  const isApproved = (ticket.sale_status === 'paid' || ticket.sale_status === 'sold') && ticket.reviewed_by;
   const isRejected = ticket.sale_status === 'rejected';
   const isAvailable = ticket.sale_status === 'available' || (!ticket.sale_status && !ticket.is_sold);
 
@@ -92,7 +92,7 @@ function PlayerSaleTicketModal({ playerId, onClose }) {
   const pendingReports = tickets.filter(t => t.sale_status === 'fiado' && !t.reviewed_by);
   const pendingPaidReports = tickets.filter(t => t.sale_status === 'paid' && !t.reviewed_by);
   const availableTickets = tickets.filter(t => t.sale_status === 'available' || (!t.sale_status && !t.is_sold));
-  const approvedTickets = tickets.filter(t => t.sale_status === 'paid' && t.reviewed_by);
+  const approvedTickets = tickets.filter(t => (t.sale_status === 'paid' || t.sale_status === 'sold') && t.reviewed_by);
   const rejectedTickets = tickets.filter(t => t.sale_status === 'rejected');
 
   const handleReport = async (ticket, saleStatus) => {

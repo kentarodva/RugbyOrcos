@@ -140,11 +140,19 @@ export function AuthProvider({ children }) {
   };
 
   const checkFirstRun = async () => {
+    if (typeof supabase.rpc === 'function') {
+      try {
+        const res = await supabase.rpc('check_is_first_run');
+        if (res && typeof res.data === 'boolean' && !res.error) {
+          return res.data;
+        }
+      } catch { /* fallback to user_profiles count */ }
+    }
     const { count, error } = await supabase
       .from('user_profiles')
       .select('*', { count: 'exact', head: true });
 
-    if (error) return true;
+    if (error) return false;
     return count === 0;
   };
 

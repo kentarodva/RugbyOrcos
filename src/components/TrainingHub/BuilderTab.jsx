@@ -1,5 +1,4 @@
-import { useState, useEffect, useContext, useMemo, useRef, useCallback } from 'react';
-import { ClubContext } from '../../context/ClubContext';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { useToast } from '../../context/ToastContext';
 import { persistPlan } from '../../engine/trainingPlanService';
 import { getExerciseCatalog, getExerciseByCode } from '../../services/trainingService';
@@ -465,7 +464,7 @@ export default function BuilderTab({ teamPlayers, onBuilderPlanSaved }) {
 }
 
 /* ── CatalogAdder sub-component (modal for adding exercises to a category) ── */
-function CatalogAdder({ exercises, category, categoryLabel, categoryColor, alreadyAdded, onAdd, onClose }) {
+function CatalogAdder({ exercises, categoryLabel, categoryColor, alreadyAdded, onAdd, onClose }) {
   const { showToast } = useToast();
   const [search, setSearch] = useState('');
   const [equipFilter, setEquipFilter] = useState('all');

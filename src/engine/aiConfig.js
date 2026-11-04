@@ -7,7 +7,7 @@ const PROVIDERS = {
     priority: 1,
     apiKeyStorage: 'orcos_openrouter_key',
     endpoint: 'https://openrouter.ai/api/v1',
-    defaultModel: 'free',
+
     models: {
       free: {
         id: 'openrouter/auto',
@@ -20,7 +20,7 @@ const PROVIDERS = {
         temperature: { chat: 0.7, training: 0.7, analysis: 0.3 }
       }
     },
-    defaultModel: 'free'
+    defaultModel: 'free',
   },
   groq: {
     id: 'groq',

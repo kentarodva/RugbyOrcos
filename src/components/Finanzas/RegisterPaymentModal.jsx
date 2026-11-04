@@ -1,9 +1,10 @@
 import React, { useState, useContext } from 'react';
 import { ClubContext } from '../../context/ClubContext';
 import { useToast } from '../../context/ToastContext';
+import { CopInput } from '../common/FormattedInputs';
 
 export function RegisterPaymentModal({ assignment, campaign, players, onClose, registerPayment, readOnly }) {
-  const { addFinanceRecord, activeTeam } = useContext(ClubContext);
+  const { addFinanceRecord } = useContext(ClubContext);
   const { showToast } = useToast();
   const player = players.find(p => p.id === assignment.player_id);
   const [amount, setAmount] = useState('');
@@ -72,8 +73,8 @@ export function RegisterPaymentModal({ assignment, campaign, players, onClose, r
         ) : (
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
             <div className="form-group">
-              <label>Monto a Pagar ($)</label>
-              <input type="number" value={amount} onChange={e => setAmount(e.target.value)} placeholder={`Máx: $${remaining.toLocaleString()}`} className="form-input" min="1" max={remaining} required />
+              <label>Monto a Pagar ($ COP)</label>
+              <CopInput value={amount} onChange={e => setAmount(e.target.value)} placeholder={`Máx: ${remaining.toLocaleString('es-CO')}`} required />
             </div>
             <div className="form-group">
               <label>Nota (opcional)</label>

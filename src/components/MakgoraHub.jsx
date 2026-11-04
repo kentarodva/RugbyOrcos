@@ -1,1 +1,1 @@
-﻿export { default } from './MakgoraHub/index';
+export { default } from './MakgoraHub/index';

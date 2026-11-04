@@ -1,5 +1,6 @@
 import React from 'react';
 import { FINANCE_CATEGORIES } from './constants';
+import { CopInput } from '../common/FormattedInputs';
 
 export function FinanceForm({
   finDesc, setFinDesc,
@@ -20,7 +21,7 @@ export function FinanceForm({
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
           <div className="form-group">
             <label>Monto ($ COP)</label>
-            <input type="number" value={finAmount} onChange={(e) => setFinAmount(e.target.value)} placeholder="Monto" className="form-input" required />
+            <CopInput value={finAmount} onChange={(e) => setFinAmount(e.target.value)} placeholder="50.000" required />
           </div>
           <div className="form-group">
             <label>Tipo</label>

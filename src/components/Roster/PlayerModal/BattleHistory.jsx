@@ -1,4 +1,5 @@
 import React from 'react';
+import { Swords, Crown } from 'lucide-react';
 
 function BattleHistory({ player }) {
   const stats = player.matchStats || [];
@@ -9,13 +10,16 @@ function BattleHistory({ player }) {
   const totalMvp = stats.filter(s => s.mvp).length;
 
   return (
-    <div style={{ background: 'var(--bg-dark)', padding: '20px', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border-glass)', marginTop: '20px' }}>
-      <h4 style={{ fontSize: '0.95rem', fontWeight: 800, color: 'var(--color-primary)', marginBottom: '15px' }}>
-        Historial de Batallas (Estadisticas Tecnicas)
-      </h4>
+    <div style={{ background: 'var(--bg-dark)', padding: '20px', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border-glass)', marginTop: '10px' }}>
+      <div className="pro-section-header" style={{ marginBottom: '12px' }}>
+        <div className="pro-section-title" style={{ fontSize: '0.95rem' }}>
+          <Swords size={16} color="var(--color-primary)" />
+          <span>Historial de Batallas ({stats.length} partidos)</span>
+        </div>
+      </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '8px', textAlign: 'center' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '8px', textAlign: 'center' }} className="tabular-nums">
           <div style={{ background: 'rgba(0, 230, 118, 0.02)', border: '1px solid rgba(0, 230, 118, 0.1)', padding: '8px 4px', borderRadius: 'var(--radius-sm)' }}>
             <span style={{ fontSize: '0.55rem', color: 'var(--color-text-muted)', display: 'block' }}>ENSAYOS</span>
             <strong style={{ fontSize: '1rem', color: 'var(--color-primary)' }}>{totalTries}</strong>
@@ -40,32 +44,32 @@ function BattleHistory({ player }) {
 
         {stats.length === 0 ? (
           <p style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', textAlign: 'center', margin: '10px 0' }}>
-            Aun no se han disputado batallas registradas para este guerrero.
+            Aún no se han disputado batallas registradas para este guerrero.
           </p>
         ) : (
-          <div style={{ maxHeight: '200px', overflowY: 'auto', paddingRight: '5px' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.75rem', textAlign: 'left' }}>
+          <div className="pro-table-wrap" style={{ maxHeight: '220px', overflowY: 'auto' }}>
+            <table className="pro-table">
               <thead>
-                <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.08)', color: 'var(--color-text-muted)' }}>
-                  <th style={{ padding: '6px 4px' }}>FECHA</th>
-                  <th style={{ padding: '6px 4px' }}>RIVAL</th>
-                  <th style={{ padding: '6px 4px', textAlign: 'center' }}>Tries</th>
-                  <th style={{ padding: '6px 4px', textAlign: 'center' }}>Conv.</th>
-                  <th style={{ padding: '6px 4px', textAlign: 'center' }}>Tackles</th>
-                  <th style={{ padding: '6px 4px', textAlign: 'center' }}>Recup.</th>
-                  <th style={{ padding: '6px 4px', textAlign: 'center' }}>MVP</th>
+                <tr>
+                  <th>Fecha</th>
+                  <th>Rival</th>
+                  <th className="num">Tries</th>
+                  <th className="num">Conv.</th>
+                  <th className="num">Tackles</th>
+                  <th className="num">Recup.</th>
+                  <th className="num">MVP</th>
                 </tr>
               </thead>
               <tbody>
-                {stats.slice().reverse().map(st => (
-                  <tr key={st.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.03)', fontWeight: st.mvp ? 700 : 400 }}>
-                    <td style={{ padding: '8px 4px', color: 'var(--color-text-muted)' }}>{st.date}</td>
-                    <td style={{ padding: '8px 4px' }}>{st.opponent}</td>
-                    <td style={{ padding: '8px 4px', textAlign: 'center', color: st.tries > 0 ? 'var(--color-primary)' : 'inherit' }}>{st.tries}</td>
-                    <td style={{ padding: '8px 4px', textAlign: 'center' }}>{st.conversions}</td>
-                    <td style={{ padding: '8px 4px', textAlign: 'center', color: st.tackles >= 10 ? 'var(--color-gold)' : 'inherit' }}>{st.tackles}</td>
-                    <td style={{ padding: '8px 4px', textAlign: 'center' }}>{st.turnovers}</td>
-                    <td style={{ padding: '8px 4px', textAlign: 'center' }}>{st.mvp ? '👑' : '-'}</td>
+                {stats.slice().reverse().map((st, idx) => (
+                  <tr key={st.id || idx} style={{ fontWeight: st.mvp ? 700 : 400 }}>
+                    <td className="tabular-nums" style={{ color: 'var(--color-text-muted)', fontSize: '0.74rem' }}>{st.date}</td>
+                    <td>{st.opponent}</td>
+                    <td className="num" style={{ color: st.tries > 0 ? 'var(--color-primary)' : 'inherit' }}>{st.tries}</td>
+                    <td className="num">{st.conversions}</td>
+                    <td className="num" style={{ color: st.tackles >= 10 ? 'var(--color-gold)' : 'inherit' }}>{st.tackles}</td>
+                    <td className="num">{st.turnovers}</td>
+                    <td className="num">{st.mvp ? <Crown size={13} color="var(--color-gold)" style={{ display: 'inline' }} /> : '—'}</td>
                   </tr>
                 ))}
               </tbody>

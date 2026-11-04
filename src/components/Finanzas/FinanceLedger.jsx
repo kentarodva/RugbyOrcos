@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Trash2, ReceiptText } from 'lucide-react';
 import { CATEGORY_LABELS } from './constants';
 
 export function FinanceLedger({ teamFinances, onDeleteFinanceRecord, isSuperRole }) {
@@ -7,39 +8,61 @@ export function FinanceLedger({ teamFinances, onDeleteFinanceRecord, isSuperRole
 
   return (
     <div className="glass-panel" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '15px' }}>
-      <h3 style={{ fontSize: '1.1rem', fontWeight: 700, fontFamily: 'Outfit' }}>📋 Historial de Caja (Ledger)</h3>
+      <div className="pro-section-header" style={{ marginBottom: 0 }}>
+        <div className="pro-section-title" style={{ fontSize: '1.02rem' }}>
+          <ReceiptText size={18} color="var(--color-primary)" />
+          <span>Historial de Caja (Ledger)</span>
+        </div>
+        <span className="pro-chip pro-chip-muted tabular-nums">{teamFinances.length} mov.</span>
+      </div>
+
       {teamFinances.length === 0 ? (
         <p style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)', textAlign: 'center', padding: '15px 0' }}>Sin transacciones registradas.</p>
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '300px', overflowY: 'auto', paddingRight: '5px' }}>
-          {sorted.map(f => {
-            const catLabel = CATEGORY_LABELS[f.category] || '';
-            return (
-              <div key={f.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px', background: 'rgba(255,255,255,0.01)', border: '1px solid var(--border-glass)', borderRadius: 'var(--radius-sm)', fontSize: '0.8rem' }}>
-                <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
-                  <strong>{f.desc}</strong>
-                  <span style={{ fontSize: '0.65rem', color: 'var(--color-text-muted)' }}>
-                    📅 {f.date} {catLabel && ' | ' + catLabel}
-                  </span>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <strong style={{ color: f.type === 'ingreso' ? 'var(--color-primary)' : 'var(--color-red)' }}>
-                    {f.type === 'ingreso' ? '+' : '-'}${(f.amount || 0).toLocaleString()}
-                  </strong>
-                  {isSuperRole && (
-                    <button
-                      onClick={() => setDeleteConfirm(f)}
-                      className="btn-outline"
-                      style={{ padding: '3px 6px', fontSize: '0.65rem', color: 'var(--color-red)', borderColor: 'rgba(255,61,0,0.3)' }}
-                      title="Eliminar transaccion"
-                    >
-                      🗑️
-                    </button>
-                  )}
-                </div>
-              </div>
-            );
-          })}
+        <div className="pro-table-wrap" style={{ maxHeight: '340px', overflowY: 'auto' }}>
+          <table className="pro-table">
+            <thead>
+              <tr>
+                <th>Fecha</th>
+                <th>Concepto</th>
+                <th>Categoría</th>
+                <th className="num">Monto</th>
+                {isSuperRole && <th className="num"></th>}
+              </tr>
+            </thead>
+            <tbody>
+              {sorted.map(f => {
+                const catLabel = CATEGORY_LABELS[f.category] || 'General';
+                const isIngreso = f.type === 'ingreso';
+                return (
+                  <tr key={f.id}>
+                    <td className="tabular-nums" style={{ fontSize: '0.74rem', color: 'var(--color-text-muted)', whiteSpace: 'nowrap' }}>
+                      {f.date}
+                    </td>
+                    <td style={{ fontWeight: 600 }}>{f.desc}</td>
+                    <td>
+                      <span className="pro-chip pro-chip-muted">{catLabel}</span>
+                    </td>
+                    <td className="num" style={{ fontWeight: 800, color: isIngreso ? 'var(--color-primary)' : 'var(--color-red)' }}>
+                      {isIngreso ? '+' : '-'}${(f.amount || 0).toLocaleString()}
+                    </td>
+                    {isSuperRole && (
+                      <td className="num">
+                        <button
+                          onClick={() => setDeleteConfirm(f)}
+                          className="btn-outline"
+                          style={{ padding: '4px 7px', color: 'var(--color-red)', borderColor: 'rgba(255,61,0,0.3)' }}
+                          title="Eliminar transacción"
+                        >
+                          <Trash2 size={13} />
+                        </button>
+                      </td>
+                    )}
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
         </div>
       )}
 
@@ -47,21 +70,23 @@ export function FinanceLedger({ teamFinances, onDeleteFinanceRecord, isSuperRole
         <div className="modal-overlay" onClick={() => setDeleteConfirm(null)} style={{ zIndex: 1000 }}>
           <div className="modal-content animated-slide" style={{ maxWidth: '380px' }} onClick={e => e.stopPropagation()}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-              <h3 style={{ fontSize: '1.1rem', fontWeight: 800, fontFamily: 'Outfit' }}>⚠️ Eliminar Transaccion</h3>
+              <h3 style={{ fontSize: '1.1rem', fontWeight: 800, fontFamily: 'Outfit', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Trash2 size={18} color="var(--color-red)" /> Eliminar Transacción
+              </h3>
               <button onClick={() => setDeleteConfirm(null)} className="btn-outline" style={{ padding: '4px 10px', fontSize: '0.75rem' }}>✕</button>
             </div>
-            <p style={{ fontSize: '0.95rem', marginBottom: '20px', lineHeight: 1.5 }}>
+            <p style={{ fontSize: '0.95rem', marginBottom: '20px', lineHeight: 1.5 }} className="tabular-nums">
               ¿Eliminar <strong style={{ color: deleteConfirm.type === 'ingreso' ? 'var(--color-primary)' : 'var(--color-red)' }}>
                 {deleteConfirm.type === 'ingreso' ? '+' : '-'}${Number(deleteConfirm.amount).toLocaleString()}
               </strong> — <strong>{deleteConfirm.desc}</strong>?
             </p>
             <p style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', marginBottom: '15px' }}>
-              Esta accion no se puede deshacer.
+              Esta acción no se puede deshacer.
             </p>
             <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
               <button onClick={() => setDeleteConfirm(null)} className="btn-outline">Cancelar</button>
               <button onClick={() => { onDeleteFinanceRecord(deleteConfirm.id); setDeleteConfirm(null); }} className="btn-neon" style={{ background: 'var(--color-red)', borderColor: 'var(--color-red)' }}>
-                🗑️ Eliminar
+                Eliminar
               </button>
             </div>
           </div>

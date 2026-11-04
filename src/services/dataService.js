@@ -21,7 +21,7 @@ const emit = (table, action, payload) => {
 // ===================================================================
 
 export async function fetchPlayersWithRelations() {
-  const { data, error } = await supabase.from('players').select('*').order('name');
+  const { data, error } = await supabase.from('players').select('*').order('first_name');
   if (error) throw error;
   return data || [];
 }
@@ -163,8 +163,14 @@ export async function recordMembershipPayment(playerId, amount, method = 'efecti
     date: new Date().toISOString().split('T')[0],
   });
 
+  const { data: currentPlayer } = await supabase
+    .from('players')
+    .select('memberships_paid')
+    .eq('id', playerId)
+    .maybeSingle();
+
   await supabase.from('players').update({
-    memberships_paid: supabase.raw(`COALESCE(memberships_paid, 0) + ${amount}`),
+    memberships_paid: (Number(currentPlayer?.memberships_paid) || 0) + Number(amount),
     last_payment_date: new Date().toISOString().split('T')[0],
     last_payment_amount: amount,
   }).eq('id', playerId);
@@ -179,8 +185,14 @@ export async function reverseMembershipPayment(playerId, paymentId, amount) {
 
   await supabase.from('finances').delete().eq('payment_id', paymentId);
 
+  const { data: currentPlayer } = await supabase
+    .from('players')
+    .select('memberships_paid')
+    .eq('id', playerId)
+    .maybeSingle();
+
   await supabase.from('players').update({
-    memberships_paid: supabase.raw(`GREATEST(0, COALESCE(memberships_paid, 0) - ${amount})`),
+    memberships_paid: Math.max(0, (Number(currentPlayer?.memberships_paid) || 0) - Number(amount)),
   }).eq('id', playerId);
 
   emit('player_payments', 'delete', { playerId, paymentId });

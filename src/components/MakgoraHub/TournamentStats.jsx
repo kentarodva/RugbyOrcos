@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../supabaseClient.js';
 
-export function TournamentStats({ tournament, teams }) {
+export function TournamentStats({ tournament }) {
   const [stats, setStats] = useState([]);
   const [players, setPlayers] = useState([]);
 

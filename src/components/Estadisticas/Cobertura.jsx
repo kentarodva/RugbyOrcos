@@ -1,6 +1,5 @@
 import React, { useMemo } from 'react';
 import { SmallDonut, HorizontalBar, COLORS } from './charts.jsx';
-import { normalizeEPS } from '../../utils/csvImport';
 import { getEPSDistribution, getDataCoverage } from '../../services/statsService';
 
 export default function Cobertura({ players }) {

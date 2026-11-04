@@ -8,3 +8,7 @@ test-results/
 .secrets/
 seed/
 !seed/migrations/
+.serena/
+_catalog/
+_dereferenced/
+codememory.db

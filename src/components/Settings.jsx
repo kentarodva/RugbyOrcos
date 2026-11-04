@@ -4,7 +4,7 @@ import { useToast } from '../context/ToastContext';
 import { supabase } from '../supabaseClient';
 import { registerWebPush, unregisterWebPush, getWebPushStatus } from '../utils/pushNotifications';
 import { getSetting, loadSettings } from '../data/clubSettings';
-import { setProviderKey, isAnyAIConfigured } from '../engine/multiProviderCoach';
+import { setProviderKey } from '../engine/multiProviderCoach';
 
 function Settings({ onClose, theme, setTheme }) {
   const { showToast } = useToast();

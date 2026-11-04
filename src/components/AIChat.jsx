@@ -1,1 +1,1 @@
-﻿export { default } from './AIChat/index';
+export { default } from './AIChat/index';

@@ -131,7 +131,7 @@ export async function getWebPushStatus() {
 
 // ── Token storage ──
 
-async function saveTokenToSupabase(token, source = 'capacitor') {
+async function saveTokenToSupabase(token) {
   try {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;

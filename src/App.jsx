@@ -12,9 +12,9 @@ import Footer from './components/Footer';
 import AnnouncementModal from './components/AnnouncementModal';
 import BirthdayCelebration from './components/BirthdayCelebration';
 import ImportCSVModal from './components/Admin/ImportCSVModal';
-import Sidebar from './components/Sidebar';
+import Sidebar, { QuickNavBar } from './components/Sidebar';
 import { ChangePasswordModal } from './components/Auth/ChangePasswordModal';
-import apisupabase from './data/supabaseApi';
+import apisupabase, { supabasePlayerToReact } from './data/supabaseApi';
 
 import { useGlobalShortcuts } from './utils/keyboardShortcuts';
 import { addPushNavigateListener } from './utils/pushNotifications';
@@ -40,7 +40,7 @@ function App() {
     exportData, importData, hasPermission,
     getAllClubsLabels, addClub, deleteClub, dynamicClubs, syncStatus,
     viewMode, setViewMode, divisionView, setDivisionView,
-    makgoraTeamId, setMakgoraTeamId, makgoraTeams,
+    makgoraTeamId, setMakgoraTeamId, makgoraTeams, setPlayers,
   } = useContext(ClubContext);
   const { isAuthenticated, signOut, profile, user, requirePasswordChange, clearPasswordChangeFlag } = useAuth();
   const { showToast } = useToast();
@@ -152,6 +152,14 @@ function App() {
     }
     const { data, error } = await apisupabase.batchUpsertPlayers(players, user.id);
     if (error) throw error;
+    if (data?.length && setPlayers) {
+      const imported = data.map(supabasePlayerToReact);
+      setPlayers(prev => {
+        const byId = new Map((prev || []).map(p => [p.id, p]));
+        imported.forEach(p => byId.set(p.id, p));
+        return Array.from(byId.values());
+      });
+    }
     showToast(`${data?.length || players.length} jugadores importados correctamente.`, 'success');
   };
 
@@ -209,6 +217,7 @@ function App() {
         exportData={exportData}
       />
 
+      {isAuthenticated && <QuickNavBar activeTab={activeTab} setActiveTab={setActiveTab} hasPermission={hasPermission} profile={profile} onOpenDrawer={() => setSidebarOpen(true)} />}
       {showAdminPanel && hasPermission('admin_panel') && (
         <motion.div key="admin" initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.2 }}>
         <AdminPanel
@@ -232,7 +241,8 @@ function App() {
         <Suspense fallback={<motion.div key="suspense" className="glass-panel" style={{ padding: '40px', textAlign: 'center', color: 'var(--color-text-muted)' }}
           initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
         >Cargando modulo...</motion.div>}>
-        {activeTab === 'dashboard' && <motion.div key="dashboard" variants={tabVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.25, ease: 'easeOut' }}><Dashboard /></motion.div>}
+        {activeTab === 'dashboard' && <motion.div key="dashboard" variants={tabVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.25, ease: 'easeOut' }}><Dashboard onNavigate={setActiveTab} /></motion.div>}
+        {activeTab === 'mi_ficha' && <motion.div key="mi_ficha" variants={tabVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.25, ease: 'easeOut' }}><PlayerDashboard /></motion.div>}
         {activeTab === 'roster' && hasPermission('manage_players') && <motion.div key="roster" variants={tabVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.25, ease: 'easeOut' }}><Roster /></motion.div>}
         {activeTab === 'estadisticas' && <motion.div key="estadisticas" variants={tabVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.25, ease: 'easeOut' }}><Estadisticas /></motion.div>}
         {activeTab === 'cancha' && hasPermission('manage_tactics') && <motion.div key="cancha" variants={tabVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.25, ease: 'easeOut' }}><CanchaTactica /></motion.div>}

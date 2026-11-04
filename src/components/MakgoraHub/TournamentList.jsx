@@ -2,7 +2,7 @@ import React from 'react';
 import { TournamentCard } from './TournamentCard';
 import { CreateTournamentForm } from './CreateTournamentForm';
 
-export function TournamentList({ tournaments, showCreate, teamName, onCreateToggle, onCreate, onSelect, onEdit, teams, onTeamCreated }) {
+export function TournamentList({ tournaments, showCreate, teamName, onCreateToggle, onCreate, onSelect, onEdit, teams }) {
   return (
     <div>
       <div style={{ marginBottom: '15px' }}>

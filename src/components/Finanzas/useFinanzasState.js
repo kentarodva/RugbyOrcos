@@ -2,7 +2,7 @@ import { useState, useMemo, useCallback } from 'react';
 import { MENSUALIDAD_BASE } from './constants';
 import { useFilterByView } from '../../context/hooks/useFilterByView';
 
-export function useFinanzasState({ finances, players, activeTeam, viewMode, divisionView, makgoraTeamId, addFinanceRecord, recordMembershipPayment, updateInventoryItem, showToast }) {
+export function useFinanzasState({ finances, players, addFinanceRecord, recordMembershipPayment, updateInventoryItem, showToast }) {
   const [activeSubTab, setActiveSubTab] = useState('finances');
   const [financeSubTab, setFinanceSubTab] = useState('caja');
   const [showAddForm, setShowAddForm] = useState(false);

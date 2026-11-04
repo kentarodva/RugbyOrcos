@@ -43,7 +43,6 @@ export function PaymentHistoryModal({ onClose, playerId, scopePlayerId }) {
   const handleLoadMore = async () => {
     const prevLength = allPayments.length;
     await loadAllPayments({ offset: paymentsOffset, limit: PAYMENTS_PAGE_SIZE, append: true });
-    const newLength = allPayments.length + PAYMENTS_PAGE_SIZE;
     setPaymentsOffset(prev => prev + PAYMENTS_PAGE_SIZE);
     setHasMore(prevLength > 0);
   };

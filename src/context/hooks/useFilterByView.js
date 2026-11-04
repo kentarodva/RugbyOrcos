@@ -13,27 +13,28 @@ import { ClubContext } from '../ClubContext';
  *   const filtered = filter(myCustomArray);
  */
 
-export function useTeamPlayers() {
+export function useTeamPlayers({ includeDeleted = false } = {}) {
   const { players, activeTeam, divisionView, viewMode, makgoraTeamId } = useContext(ClubContext);
 
   return useMemo(() => {
     if (!players?.length) return [];
+    const base = includeDeleted ? players : players.filter(p => !p.deleted_at);
 
     if (viewMode === 'general' && divisionView === 'all') {
-      return players.filter(p => p.teamCategory?.startsWith('orcos'));
+      return base.filter(p => p.teamCategory?.startsWith('orcos'));
     }
     if (viewMode === 'general') {
-      return players.filter(p => p.teamCategory === `orcos_${divisionView}`);
+      return base.filter(p => p.teamCategory === `orcos_${divisionView}`);
     }
     if (viewMode === 'makgora' && makgoraTeamId) {
-      let filtered = players.filter(p => p.makgora_team_id === makgoraTeamId);
+      let filtered = base.filter(p => p.makgora_team_id === makgoraTeamId);
       if (divisionView !== 'all') {
         filtered = filtered.filter(p => p.teamCategory === `orcos_${divisionView}`);
       }
       return filtered;
     }
-    return players.filter(p => p.teamCategory === activeTeam);
-  }, [players, viewMode, divisionView, makgoraTeamId, activeTeam]);
+    return base.filter(p => p.teamCategory === activeTeam);
+  }, [players, viewMode, divisionView, makgoraTeamId, activeTeam, includeDeleted]);
 }
 
 export function useViewFilter() {

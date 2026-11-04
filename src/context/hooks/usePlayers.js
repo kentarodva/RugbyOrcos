@@ -155,6 +155,9 @@ export function usePlayers(activeTeam, sendLocalNotification, pushPlayerToSupaba
       }
     }
 
+    const summaryUpserts = [];
+    const penaltyUpserts = [];
+
     setPlayers(prev => prev.map(player => {
       if (player.teamCategory !== activeTeam) return player;
       const uiStatus = attendanceList[player.id];
@@ -187,8 +190,31 @@ export function usePlayers(activeTeam, sendLocalNotification, pushPlayerToSupaba
       newPenalties.burpees = Math.max(0, newPenalties.burpees - oldBurpees + newBurpees);
       if (uiStatus === 'falta_injustificada') newPenalties.cones = true;
 
+      summaryUpserts.push({
+        player_id: player.id,
+        total: newAttendance.total || 0,
+        present: newAttendance.present || 0,
+        late: newAttendance.late || 0,
+        absent_unjustified: newAttendance.absentUnjustified || 0,
+        absent_justified: newAttendance.absentJustified || 0,
+        updated_at: new Date().toISOString(),
+      });
+      penaltyUpserts.push({
+        player_id: player.id,
+        burpees: newPenalties.burpees || 0,
+        cones: Boolean(newPenalties.cones),
+        updated_at: new Date().toISOString(),
+      });
+
       return { ...player, attendance: newAttendance, penalties: newPenalties };
     }));
+
+    if (summaryUpserts.length > 0) {
+      supabase.from('player_attendance_summary').upsert(summaryUpserts, { onConflict: 'player_id' }).then(() => {}, () => {});
+    }
+    if (penaltyUpserts.length > 0) {
+      supabase.from('penalties').upsert(penaltyUpserts, { onConflict: 'player_id' }).then(() => {}, () => {});
+    }
 
     sendLocalNotification('Asistencia Guardada', `Se registró la asistencia del evento del ${sessionDate}.`);
     return true;
@@ -423,11 +449,12 @@ export function usePlayers(activeTeam, sendLocalNotification, pushPlayerToSupaba
   }, []);
 
   const bulkUpdatePosition = useCallback((playerIds, positionId, positionName) => {
-    if (!playerIds || playerIds.size === 0) return;
+    const idSet = playerIds instanceof Set ? playerIds : new Set(playerIds || []);
+    if (idSet.size === 0) return;
     const updates = [];
     setPlayers(prev => prev.map(p => {
-      if (!playerIds.has(p.id)) return p;
-      updates.push({ id: p.id, position_id: positionId });
+      if (!idSet.has(p.id)) return p;
+      updates.push({ id: p.id, position_id: positionId, position: positionName || p.posicion });
       return { ...p, position_id: positionId, posicion: positionName || p.posicion };
     }));
     if (updates.length > 0 && user?.id) {

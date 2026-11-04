@@ -1,5 +1,4 @@
-import React, { useContext, useState } from 'react';
-import { ClubContext } from '../context/ClubContext.jsx';
+import React, { useState } from 'react';
 import { useTeamPlayers } from '../context/hooks/useFilterByView';
 import { formatLocalDate } from '../utils/dates.js';
 import { MENSUALIDAD_BASE } from './Finanzas/constants';
@@ -58,7 +57,6 @@ function getTop3(players, award) {
 }
 
 function AwardsHall() {
-  const { players } = useContext(ClubContext);
   const [tab, setTab] = useState('honor');
   const filteredPlayers = useTeamPlayers();
 

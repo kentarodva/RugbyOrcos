@@ -68,7 +68,7 @@ function Rivales() {
   const generateArbitroSheet = () => {
     const today = formatLocalDate(new Date());
     const teamLabel = activeTeam.replace(/_/g, ' ').toUpperCase();
-    const jueces = players.filter(p => p.systemRole === 'arbitro' && p.teamCategory === activeTeam);
+    const jueces = teamPlayers.filter(p => p.systemRole === 'arbitro');
 
     let text = `🏉 *PLANILLA DE ÁRBITRO - RUGBY ORCOS NEGROS* 🏉\n`;
     text += `━━━━━━━━━━━━━━━━━━━━━━━━\n`;

@@ -1,7 +1,7 @@
 import React, { Suspense, useState, useEffect, useContext, useMemo, useCallback, useRef } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { ClubContext, getRpgRole } from '../context/ClubContext.jsx';
-import { supabase } from '../supabaseClient';
+import { supabase } from '../supabaseClient.js';
+import { ClubContext } from '../context/ClubContext.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useToast } from '../context/ToastContext.jsx';
 import { getOrGeneratePlan, getActivePlan } from '../engine/trainingPlanService';
@@ -21,12 +21,14 @@ import PlayerProfileTab from './PlayerProfileTab';
 import PlayerAgendaTab from './PlayerAgendaTab';
 import PlayerWellnessTab from './PlayerWellnessTab';
 import PlayerFinanzasTab from './PlayerFinanzasTab';
+import { TRACKABLE_EXERCISES } from './PlayerProgressTab';
+import { HeightInput, WeightInput, SizeSelect } from './common/FormattedInputs';
 
 const PlayerProgressTab = React.lazy(() => import('./PlayerProgressTab'));
 const AIChat = React.lazy(() => import('./AIChat'));
 
 function PlayerDashboard() {
-  const { players, recordWellness, schedule, futureFixtures, updatePlayer, campaigns, allPayments, logWorkout, userTier } = useContext(ClubContext);
+  const { players, recordWellness, schedule, futureFixtures, setMatchAvailability, updatePlayer, campaigns, allPayments, logWorkout, userTier } = useContext(ClubContext);
   const { profile, user } = useAuth();
   const { showToast } = useToast();
 
@@ -42,8 +44,11 @@ function PlayerDashboard() {
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [planVersion, setPlanVersion] = useState(0);
   const [setupForm, setSetupForm] = useState({
-    birth_date: '', weight: '', height: '', health_insurance: '',
+    birth_date: '', weight: '', height: '', health_insurance: '', custom_eps: '',
     contacto_phone: '', emergency_contact_name: '', emergency_contact_phone: '',
+    jersey: 'M', shorts: 'M', socks: '40-42',
+    tracked_exercises: ['squat', 'bench', 'deadlift'],
+    lifts: { squat: '', bench: '', deadlift: '' },
   });
 
   const player = (userTier >= 4 ? players.find(p => p.userId === user?.id) : null)
@@ -54,16 +59,31 @@ function PlayerDashboard() {
     });
 
   useEffect(() => {
-    if (player && !player.birth_date && !sessionStorage.getItem('setup_skip_' + player.id)) {
-      setSetupForm(f => ({ ...f,
+    if (player && !player.preferences?.profile_confirmed && !sessionStorage.getItem('setup_skip_' + player.id)) {
+      const cloth = player.clothingSizes || player.clothing || {};
+      const tracked = Array.isArray(player.preferences?.tracked_exercises) && player.preferences.tracked_exercises.length > 0
+        ? player.preferences.tracked_exercises
+        : ['squat', 'bench', 'deadlift'];
+      setSetupForm({
         birth_date: player.birth_date || '',
         weight: player.weight || '',
         height: player.height || '',
         health_insurance: player.health_insurance || '',
+        custom_eps: '',
         contacto_phone: player.contacto?.phone || '',
         emergency_contact_name: player.emergency_contact_name || '',
         emergency_contact_phone: player.emergency_contact_phone || '',
-      }));
+        jersey: cloth.jersey || 'M',
+        shorts: cloth.shorts || 'M',
+        socks: cloth.socks || '40-42',
+        tracked_exercises: tracked,
+        lifts: {
+          squat: player.gymStats?.squat || '',
+          bench: player.gymStats?.bench || '',
+          deadlift: player.gymStats?.deadlift || '',
+          ...(player.preferences?.custom_lifts || {}),
+        },
+      });
       setShowSetup(true);
     }
   }, [player]);
@@ -71,25 +91,64 @@ function PlayerDashboard() {
   const handleSetupSave = async () => {
     const f = setupForm;
     if (!f.birth_date || !f.weight || !f.height) {
-      showToast('Completa fecha de nacimiento, peso y altura.', 'error');
+      showToast('Completa fecha de nacimiento, peso y altura para iniciar tu historial.', 'error');
       return;
     }
     const calcAge = f.birth_date
       ? Math.max(0, Math.floor((Date.now() - new Date(f.birth_date).getTime()) / 31557600000))
       : null;
+
+    const tracked = f.tracked_exercises || [];
+    const squatVal = tracked.includes('squat') ? Number(f.lifts?.squat || 0) : Number(player.gymStats?.squat || 0);
+    const benchVal = tracked.includes('bench') ? Number(f.lifts?.bench || 0) : Number(player.gymStats?.bench || 0);
+    const deadliftVal = tracked.includes('deadlift') ? Number(f.lifts?.deadlift || 0) : Number(player.gymStats?.deadlift || 0);
+    const customLifts = {};
+    TRACKABLE_EXERCISES.forEach(ex => {
+      if (!['squat', 'bench', 'deadlift'].includes(ex.key) && tracked.includes(ex.key)) {
+        customLifts[ex.key] = Number(f.lifts?.[ex.key] || 0);
+      }
+    });
+
+    const nextPrefs = {
+      ...(player.preferences || {}),
+      profile_confirmed: true,
+      profile_confirmed_at: new Date().toISOString(),
+      tracked_exercises: tracked,
+      custom_lifts: customLifts,
+    };
+
+    try {
+      await supabase.rpc('player_record_progress_snapshot', {
+        p_player_id: player.id,
+        p_weight: Number(f.weight),
+        p_height: Number(f.height),
+        p_squat: squatVal,
+        p_bench: benchVal,
+        p_deadlift: deadliftVal,
+        p_custom_lifts: customLifts,
+        p_tracked_exercises: tracked,
+      });
+    } catch {
+      // Fallback handled by updatePlayer below
+    }
+
     await updatePlayer({
       ...player,
       name: player.name,
       birth_date: f.birth_date || null,
       ...(calcAge != null && { age: calcAge }),
-      weight: Number(f.weight), height: Number(f.height),
+      weight: Number(f.weight),
+      height: Number(f.height),
+      clothingSizes: { jersey: f.jersey || 'M', shorts: f.shorts || 'M', socks: f.socks || '40-42' },
+      gymStats: { squat: squatVal, bench: benchVal, deadlift: deadliftVal },
       health_insurance: f.health_insurance === 'OTRA' ? (f.custom_eps || null) : f.health_insurance || null,
       contacto: { phone: f.contacto_phone || null, email: player.contacto?.email },
       emergency_contact_name: f.emergency_contact_name || null,
       emergency_contact_phone: f.emergency_contact_phone || null,
+      preferences: nextPrefs,
     });
     setShowSetup(false);
-    showToast('¡Perfil completado! Bienvenido al club.', 'success');
+    showToast('¡Datos confirmados e historial de progreso iniciado!', 'success');
   };
 
   const avatarHooks = usePlayerAvatar(player, updatePlayer);
@@ -220,7 +279,6 @@ function PlayerDashboard() {
 
   const handleGeneratePlan = () => {
     if (!player) return;
-    const prefs = player.preferences?.training_prefs || {};
     setShowOnboarding(true);
   };
 
@@ -256,8 +314,6 @@ function PlayerDashboard() {
       </div>
     );
   }
-
-  const rpgRole = getRpgRole(player.systemRole || 'jugador');
 
   return (
     <div className="flex h-full min-h-0 bg-gradient-to-br from-zinc-950 via-zinc-900 to-zinc-950">
@@ -300,6 +356,7 @@ function PlayerDashboard() {
           {activeTab === 'agenda' && (
             <motion.div key="agenda" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={{ duration: 0.2 }}>
               <PlayerAgendaTab
+                playerId={player.id}
                 myTeamEvents={myTeamEvents}
                 myUpcomingMatches={myUpcomingMatches}
                 allCalendarEvents={allCalendarEvents}
@@ -308,6 +365,7 @@ function PlayerDashboard() {
                 myRsvp={myRsvp}
                 myRsvpMap={myRsvpMap}
                 onRsvp={handleRsvp}
+                onSetMatchAvailability={setMatchAvailability}
               />
             </motion.div>
           )}
@@ -412,22 +470,22 @@ function PlayerDashboard() {
 
       {showSetup && (
         <div className="modal-overlay" onClick={() => {}}>
-          <div className="modal-content glass-panel animated-slide" onClick={e => e.stopPropagation()} style={{ maxWidth: '520px' }}>
-            <h3 style={{ color: 'var(--color-gold)', fontSize: '1.1rem', fontWeight: 700, marginBottom: '4px', fontFamily: 'Outfit' }}>
-              ⚔️ ¡Bienvenido al club!
+          <div className="modal-content glass-panel animated-slide" onClick={e => e.stopPropagation()} style={{ maxWidth: '580px', maxHeight: '90vh', overflowY: 'auto' }}>
+            <h3 style={{ color: 'var(--color-gold)', fontSize: '1.15rem', fontWeight: 800, marginBottom: '4px', fontFamily: 'Outfit' }}>
+              Verifica tus Datos e Inicia tu Historial de Progreso
             </h3>
-            <p style={{ fontSize: '0.78rem', color: 'var(--color-text-muted)', marginBottom: '16px' }}>
-              Completa tu perfil para aparecer en las estadísticas del equipo.
+            <p style={{ fontSize: '0.78rem', color: 'var(--color-text-muted)', marginBottom: '14px' }}>
+              Revisa tus datos registrados, confirma tus tallas de uniforme y selecciona qué ejercicios de fuerza realizas para llevar tu curva de progreso.
             </p>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                 <div className="form-group" style={{ margin: 0 }}>
-                  <label style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)' }}>⭐ Fecha de nacimiento</label>
+                  <label style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)' }}>Fecha de nacimiento *</label>
                   <input type="date" value={setupForm.birth_date} onChange={e => setSetupForm(p => ({ ...p, birth_date: e.target.value }))}
                     className="form-input" style={{ padding: '6px 8px', fontSize: '0.78rem' }} />
                 </div>
                 <div className="form-group" style={{ margin: 0 }}>
-                  <label style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)' }}>⭐ EPS / Seguro</label>
+                  <label style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)' }}>EPS / Seguro Médico</label>
                   <select value={setupForm.health_insurance} onChange={e => setSetupForm(p => ({ ...p, health_insurance: e.target.value }))}
                     className="form-input" style={{ padding: '6px 8px', fontSize: '0.78rem' }}>
                     <option value="">No tiene EPS</option>
@@ -447,44 +505,124 @@ function PlayerDashboard() {
                 <input type="text" value={setupForm.custom_eps} onChange={e => setSetupForm(p => ({ ...p, custom_eps: e.target.value }))}
                   placeholder="Escribe tu EPS..." className="form-input" style={{ padding: '6px 8px', fontSize: '0.78rem' }} />
               )}
+
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                 <div className="form-group" style={{ margin: 0 }}>
-                  <label style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)' }}>⭐ Peso (kg)</label>
-                  <input type="number" step="0.1" value={setupForm.weight} onChange={e => setSetupForm(p => ({ ...p, weight: e.target.value }))}
-                    placeholder="Peso" className="form-input" style={{ padding: '6px 8px', fontSize: '0.78rem' }} />
+                  <label style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)' }}>Peso Actual (KG) *</label>
+                  <WeightInput
+                    value={setupForm.weight}
+                    onChange={e => setSetupForm(p => ({ ...p, weight: e.target.value }))}
+                    placeholder="85"
+                    style={{ padding: '6px 8px', fontSize: '0.78rem' }}
+                  />
                 </div>
                 <div className="form-group" style={{ margin: 0 }}>
-                  <label style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)' }}>⭐ Altura (m)</label>
-                  <input type="number" step="0.01" value={setupForm.height} onChange={e => setSetupForm(p => ({ ...p, height: e.target.value }))}
-                    placeholder="Altura" className="form-input" style={{ padding: '6px 8px', fontSize: '0.78rem' }} />
+                  <label style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)' }}>Altura (Ej. 1,85M) *</label>
+                  <HeightInput
+                    value={setupForm.height}
+                    onChange={e => setSetupForm(p => ({ ...p, height: e.target.value }))}
+                    placeholder="1,85"
+                    style={{ padding: '6px 8px', fontSize: '0.78rem' }}
+                  />
                 </div>
               </div>
-              <hr style={{ border: 'none', borderTop: '1px solid rgba(255,255,255,0.06)', margin: '4px 0' }} />
-              <p style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)', margin: 0 }}>📞 Opcionales</p>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+
+              <div style={{ padding: '10px 12px', borderRadius: '8px', background: 'rgba(64,196,255,0.05)', border: '1px solid rgba(64,196,255,0.18)' }}>
+                <div style={{ fontSize: '0.72rem', fontWeight: 700, color: '#40c4ff', marginBottom: '6px' }}>Tallas de Uniforme / Kit</div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px' }}>
+                  <div className="form-group" style={{ margin: 0 }}>
+                    <label style={{ fontSize: '0.65rem', color: 'var(--color-text-muted)' }}>Camiseta</label>
+                    <SizeSelect
+                      kind="jersey"
+                      value={setupForm.jersey}
+                      onChange={e => setSetupForm(p => ({ ...p, jersey: e.target.value }))}
+                      style={{ padding: '5px 8px', fontSize: '0.76rem' }}
+                    />
+                  </div>
+                  <div className="form-group" style={{ margin: 0 }}>
+                    <label style={{ fontSize: '0.65rem', color: 'var(--color-text-muted)' }}>Pantaloneta</label>
+                    <SizeSelect
+                      kind="shorts"
+                      value={setupForm.shorts}
+                      onChange={e => setSetupForm(p => ({ ...p, shorts: e.target.value }))}
+                      style={{ padding: '5px 8px', fontSize: '0.76rem' }}
+                    />
+                  </div>
+                  <div className="form-group" style={{ margin: 0 }}>
+                    <label style={{ fontSize: '0.65rem', color: 'var(--color-text-muted)' }}>Medias</label>
+                    <SizeSelect
+                      kind="socks"
+                      value={setupForm.socks}
+                      onChange={e => setSetupForm(p => ({ ...p, socks: e.target.value }))}
+                      style={{ padding: '5px 8px', fontSize: '0.76rem' }}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div style={{ padding: '10px 12px', borderRadius: '8px', background: 'rgba(0,230,118,0.04)', border: '1px solid rgba(0,230,118,0.18)' }}>
+                <div style={{ fontSize: '0.74rem', fontWeight: 700, color: 'var(--color-primary)', marginBottom: '6px' }}>
+                  ¿Qué ejercicios realizas y cuánto levantas hoy? (Desmarca los que no hagas)
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px' }}>
+                  {TRACKABLE_EXERCISES.map(ex => {
+                    const isChecked = (setupForm.tracked_exercises || []).includes(ex.key);
+                    return (
+                      <div key={ex.key} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '6px', padding: '5px 8px', borderRadius: '6px', background: isChecked ? 'rgba(0,230,118,0.06)' : 'rgba(255,255,255,0.02)', border: `1px solid ${isChecked ? 'rgba(0,230,118,0.22)' : 'var(--border-glass)'}` }}>
+                        <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.73rem', cursor: 'pointer', margin: 0, flex: 1 }}>
+                          <input
+                            type="checkbox"
+                            checked={isChecked}
+                            onChange={() => {
+                              setSetupForm(p => {
+                                const curr = p.tracked_exercises || [];
+                                const next = curr.includes(ex.key) ? curr.filter(k => k !== ex.key) : [...curr, ex.key];
+                                return { ...p, tracked_exercises: next };
+                              });
+                            }}
+                            style={{ accentColor: 'var(--color-primary)' }}
+                          />
+                          <span>{ex.label}</span>
+                        </label>
+                        {isChecked && (
+                          <WeightInput
+                            value={setupForm.lifts?.[ex.key] ?? ''}
+                            onChange={e => setSetupForm(p => ({ ...p, lifts: { ...(p.lifts || {}), [ex.key]: e.target.value } }))}
+                            placeholder="0"
+                            style={{ width: '92px', padding: '3px 6px', fontSize: '0.74rem', textAlign: 'right' }}
+                          />
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px' }}>
                 <div className="form-group" style={{ margin: 0 }}>
-                  <label style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)' }}>Teléfono</label>
+                  <label style={{ fontSize: '0.68rem', color: 'var(--color-text-muted)' }}>Teléfono</label>
                   <input type="text" value={setupForm.contacto_phone} onChange={e => setSetupForm(p => ({ ...p, contacto_phone: e.target.value }))}
-                    placeholder="Teléfono" className="form-input" style={{ padding: '6px 8px', fontSize: '0.78rem' }} />
+                    placeholder="Teléfono" className="form-input" style={{ padding: '6px 8px', fontSize: '0.76rem' }} />
                 </div>
                 <div className="form-group" style={{ margin: 0 }}>
-                  <label style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)' }}>Contacto emergencia</label>
+                  <label style={{ fontSize: '0.68rem', color: 'var(--color-text-muted)' }}>Contacto emergencia</label>
                   <input type="text" value={setupForm.emergency_contact_name} onChange={e => setSetupForm(p => ({ ...p, emergency_contact_name: e.target.value }))}
-                    placeholder="Nombre" className="form-input" style={{ padding: '6px 8px', fontSize: '0.78rem' }} />
+                    placeholder="Nombre" className="form-input" style={{ padding: '6px 8px', fontSize: '0.76rem' }} />
+                </div>
+                <div className="form-group" style={{ margin: 0 }}>
+                  <label style={{ fontSize: '0.68rem', color: 'var(--color-text-muted)' }}>Tel. emergencia</label>
+                  <input type="text" value={setupForm.emergency_contact_phone} onChange={e => setSetupForm(p => ({ ...p, emergency_contact_phone: e.target.value }))}
+                    placeholder="Teléfono" className="form-input" style={{ padding: '6px 8px', fontSize: '0.76rem' }} />
                 </div>
               </div>
-              <div className="form-group" style={{ margin: 0 }}>
-                <label style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)' }}>Teléfono emergencia</label>
-                <input type="text" value={setupForm.emergency_contact_phone} onChange={e => setSetupForm(p => ({ ...p, emergency_contact_phone: e.target.value }))}
-                  placeholder="Teléfono" className="form-input" style={{ padding: '6px 8px', fontSize: '0.78rem' }} />
-              </div>
-              <div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
+
+              <div style={{ display: 'flex', gap: '8px', marginTop: '6px' }}>
                 <button onClick={() => { sessionStorage.setItem('setup_skip_' + player.id, '1'); setShowSetup(false); }}
                   className="btn-outline" style={{ flex: 1, justifyContent: 'center', padding: '8px', fontSize: '0.78rem' }}>
-                  Saltar
+                  Recordarme luego
                 </button>
-                <button onClick={handleSetupSave} className="btn-neon" style={{ flex: 1, justifyContent: 'center', padding: '8px', fontSize: '0.78rem' }}>
-                  💾 Guardar
+                <button onClick={handleSetupSave} className="btn-neon" style={{ flex: 2, justifyContent: 'center', padding: '8px', fontSize: '0.8rem' }}>
+                  Confirmar Datos e Iniciar Historial
                 </button>
               </div>
             </div>

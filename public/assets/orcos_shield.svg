@@ -1,0 +1,10 @@
+<svg width="256" height="256" viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <title>Rugby Orcos Negros</title>
+  <path d="M128 14L226 50V126C226 184 184 224 128 244C72 224 30 184 30 126V50L128 14Z" fill="#0b1322" stroke="#00e676" stroke-width="10" stroke-linejoin="round"/>
+  <path d="M128 32L208 62V124C208 172 173 206 128 224C83 206 48 172 48 124V62L128 32Z" stroke="#ffb300" stroke-width="4" stroke-linejoin="round"/>
+  <path d="M96 58V106M160 58V106M96 86H160" stroke="#ffb300" stroke-width="8" stroke-linecap="round"/>
+  <ellipse cx="128" cy="134" rx="32" ry="48" transform="rotate(-24 128 134)" fill="#0b1626" stroke="#00e676" stroke-width="9"/>
+  <path d="M109 92L147 176" stroke="#ffb300" stroke-width="5" stroke-linecap="round"/>
+  <path d="M64 166C60 132 76 112 90 104C84 128 88 152 106 174L64 166Z" fill="#ffb300"/>
+  <path d="M192 166C196 132 180 112 166 104C172 128 168 152 150 174L192 166Z" fill="#ffb300"/>
+</svg>

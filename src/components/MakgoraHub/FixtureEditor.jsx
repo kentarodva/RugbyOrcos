@@ -59,11 +59,6 @@ export function FixtureEditor({ matches, tournament, teams, onSaved, onClose }) 
     setRounds(arr);
   }, [matches]);
 
-  const teamName = (id) => {
-    const t = teams.find(t => t.id === id);
-    return t?.rpg_name || t?.name || '—';
-  };
-
   const save = async () => {
     const all = rounds.flatMap(r => r.matches);
     const { error: delError } = await supabase.from('tournament_matches')

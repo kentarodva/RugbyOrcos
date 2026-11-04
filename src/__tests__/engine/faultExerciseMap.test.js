@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect } from 'vitest';
 
 const FAULT_EXERCISE_MAP = {
   missedTackles: { label: 'Tackles fallados', corrective: ['tackle_tecnico', 'tackle_persecucion'], priority: 'critical', minMatches: 1 },
@@ -17,7 +17,7 @@ const FAULT_EXERCISE_MAP = {
 
 describe('FAULT_EXERCISE_MAP — integrity', () => {
   it('cada entrada tiene label, corrective, priority, minMatches', () => {
-    Object.entries(FAULT_EXERCISE_MAP).forEach(([key, val]) => {
+    Object.values(FAULT_EXERCISE_MAP).forEach((val) => {
       expect(val.label).toBeDefined();
       expect(Array.isArray(val.corrective)).toBe(true);
       expect(val.corrective.length).toBeGreaterThan(0);
@@ -28,7 +28,7 @@ describe('FAULT_EXERCISE_MAP — integrity', () => {
   });
 
   it('critical entries tienen minMatches 1', () => {
-    Object.entries(FAULT_EXERCISE_MAP).forEach(([key, val]) => {
+    Object.values(FAULT_EXERCISE_MAP).forEach((val) => {
       if (val.priority === 'critical') {
         expect(val.minMatches).toBe(1);
       }

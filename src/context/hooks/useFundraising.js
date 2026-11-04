@@ -8,7 +8,7 @@ const emit = (table, action, payload = {}) => {
   }));
 };
 
-export function useFundraising(activeTeam, user) {
+export function useFundraising(activeTeam, _user) {
   const [campaigns, setCampaigns] = useState(() => []);
   const [allPayments, setAllPayments] = useState(() => []);
 
@@ -56,7 +56,7 @@ export function useFundraising(activeTeam, user) {
   const updateCampaign = useCallback(async (campaignId, updates) => {
     const isClosing = updates.status === 'closed' || updates.status === 'cancelled';
     if (isClosing) {
-      const { data: tickets } = await supabase
+      await supabase
         .from('raffle_tickets')
         .update({ is_sold: false, sold_to_name: '', assigned_to: null })
         .eq('campaign_id', campaignId)
@@ -126,7 +126,7 @@ export function useFundraising(activeTeam, user) {
     }
   }, []);
 
-  const bulkAssignFood = useCallback(async (campaignId, playerIds, amountDue) => {
+  const bulkAssignFood = useCallback(async (campaignId, playerIds, amountDue, extra = null) => {
     const records = playerIds.map(playerId => ({
       id: generateId(),
       campaign_id: campaignId,
@@ -134,8 +134,18 @@ export function useFundraising(activeTeam, user) {
       amount_due: amountDue,
       amount_paid: 0,
       notes: '',
+      ...(extra && typeof extra === 'object' ? extra : {}),
     }));
     await supabase.from('fundraising_assignments').insert(records);
+  }, []);
+
+  const updateAssignment = useCallback(async (assignmentId, updates) => {
+    const { error } = await supabase
+      .from('fundraising_assignments')
+      .update({ ...updates, updated_at: new Date().toISOString() })
+      .eq('id', assignmentId);
+    if (error) throw error;
+    emit('fundraising_campaigns', 'update', { assignmentId });
   }, []);
 
   const markTicketSold = useCallback(async (ticketId, soldToName) => {
@@ -242,6 +252,7 @@ export function useFundraising(activeTeam, user) {
     getRaffleTickets,
     bulkAssignTickets,
     bulkAssignFood,
+    updateAssignment,
     markTicketSold,
     registerPayment,
     deletePayment,

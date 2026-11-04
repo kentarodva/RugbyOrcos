@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react';
+import { supabase } from '../../supabaseClient.js';
 import apisupabase from '../../data/supabaseApi.js';
 import { wrapCatch } from '../../utils/errorHandler';
 import { generateId, sanitize } from '../../utils/ids.js';
@@ -23,11 +24,17 @@ export function useFixtures(activeTeam, sendLocalNotification, pushEntityToSupab
   }, [user?.id]);
 
   const updateFixture = useCallback((fixture) => {
-    const safe = {
-      ...fixture, opponent: sanitize(fixture.opponent), mvp: sanitize(fixture.mvp || ''),
-    };
-    setFixtures(prev => prev.map(f => f.id === fixture.id ? safe : f));
-    pushEntityToSupabase('fixtures', safe);
+    setFixtures(prev => prev.map(f => {
+      if (f.id !== fixture.id) return f;
+      const merged = { ...f, ...fixture };
+      const safe = {
+        ...merged,
+        opponent: sanitize(merged.opponent || ''),
+        mvp: sanitize(merged.mvp || ''),
+      };
+      pushEntityToSupabase('fixtures', safe);
+      return safe;
+    }));
   }, [pushEntityToSupabase]);
 
   return { fixtures, setFixtures, addFixture, updateFixture, deleteFixture };
@@ -72,7 +79,7 @@ export function useFutureFixtures(activeTeam, sendLocalNotification, pushEntityT
   const addFutureFixture = useCallback((fixture) => {
     const newFix = {
       ...fixture, opponent: sanitize(fixture.opponent), id: generateId(), teamCategory: fixture.teamCategory || activeTeam,
-      rivalId: fixture.rivalId || null
+      rivalId: fixture.rivalId || null, availabilities: fixture.availabilities || {}, squad: fixture.squad || []
     };
     setFutureFixtures(prev => [...prev, newFix]);
     pushEntityToSupabase('futureFixtures', newFix);
@@ -86,7 +93,27 @@ export function useFutureFixtures(activeTeam, sendLocalNotification, pushEntityT
     }
   }, [user?.id]);
 
-  return { futureFixtures, setFutureFixtures, addFutureFixture, deleteFutureFixture };
+  const setMatchAvailability = useCallback(async (fixtureId, playerId, status) => {
+    if (!fixtureId || !playerId) return;
+    setFutureFixtures(prev => prev.map(f => {
+      if (f.id !== fixtureId) return f;
+      const nextAvail = { ...(f.availabilities || {}), [playerId]: status };
+      return { ...f, availabilities: nextAvail };
+    }));
+    if (user?.id) {
+      try {
+        await supabase.rpc('set_match_availability', {
+          p_fixture_id: fixtureId,
+          p_player_id: playerId,
+          p_status: status
+        });
+      } catch (err) {
+        wrapCatch('useFutureFixtures.setMatchAvailability', { notifyUser: true })(err);
+      }
+    }
+  }, [user?.id]);
+
+  return { futureFixtures, setFutureFixtures, addFutureFixture, deleteFutureFixture, setMatchAvailability };
 }
 
 const SCORING = { try: 5, conversion: 2, penalty: 3, drop_goal: 3 };

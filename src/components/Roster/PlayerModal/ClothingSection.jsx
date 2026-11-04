@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { SizeSelect } from '../../common/FormattedInputs';
 
 function ClothingSection({ player, onClothingSubmit }) {
   const [showForm, setShowForm] = useState(false);
@@ -54,16 +55,16 @@ function ClothingSection({ player, onClothingSubmit }) {
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '5px' }}>
             <div className="form-group">
-              <label style={{ fontSize: '0.6rem' }}>Jersey</label>
-              <input type="text" value={sizes.jersey} onChange={(e) => setSizes(prev => ({ ...prev, jersey: e.target.value.toUpperCase() }))} className="form-input" style={{ padding: '4px', fontSize: '0.75rem' }} required />
+              <label style={{ fontSize: '0.6rem' }}>Camiseta</label>
+              <SizeSelect kind="jersey" value={sizes.jersey} onChange={(e) => setSizes(prev => ({ ...prev, jersey: e.target.value }))} style={{ padding: '4px', fontSize: '0.75rem' }} />
             </div>
             <div className="form-group">
-              <label style={{ fontSize: '0.6rem' }}>Shorts</label>
-              <input type="text" value={sizes.shorts} onChange={(e) => setSizes(prev => ({ ...prev, shorts: e.target.value.toUpperCase() }))} className="form-input" style={{ padding: '4px', fontSize: '0.75rem' }} required />
+              <label style={{ fontSize: '0.6rem' }}>Pantaloneta</label>
+              <SizeSelect kind="shorts" value={sizes.shorts} onChange={(e) => setSizes(prev => ({ ...prev, shorts: e.target.value }))} style={{ padding: '4px', fontSize: '0.75rem' }} />
             </div>
             <div className="form-group">
               <label style={{ fontSize: '0.6rem' }}>Medias</label>
-              <input type="text" value={sizes.socks} onChange={(e) => setSizes(prev => ({ ...prev, socks: e.target.value }))} className="form-input" style={{ padding: '4px', fontSize: '0.75rem' }} required />
+              <SizeSelect kind="socks" value={sizes.socks} onChange={(e) => setSizes(prev => ({ ...prev, socks: e.target.value }))} style={{ padding: '4px', fontSize: '0.75rem' }} />
             </div>
           </div>
           <button type="submit" className="btn-neon" style={{ padding: '5px', fontSize: '0.7rem', justifyContent: 'center' }}>

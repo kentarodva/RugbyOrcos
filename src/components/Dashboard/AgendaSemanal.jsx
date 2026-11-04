@@ -34,7 +34,7 @@ function sameDay(d1, d2) {
 }
 
 function AgendaSemanal() {
-  const { schedule, futureFixtures, activeTeam } = useContext(ClubContext);
+  const { schedule, futureFixtures } = useContext(ClubContext);
   const [viewMode_, setViewMode_] = useState('weekly');
   const filterByView = useFilterByView();
 

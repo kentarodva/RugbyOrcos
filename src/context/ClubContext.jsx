@@ -69,12 +69,6 @@ export const ClubProvider = ({ children }) => {
   const { dynamicClubs, getAllClubs, getAllClubsLabels, addClub, deleteClub } = useClubs(isSuperRole, user);
   const { sendLocalNotification, scheduleReminder } = useNotifications();
 
-  const [fixtures, setFixtures] = React.useState(() => []);
-  const [rivals, setRivals] = React.useState(() => []);
-  const [futureFixtures, setFutureFixtures] = React.useState(() => []);
-  const [matchInvitations, setMatchInvitations] = React.useState(() => []);
-  const [loans, setLoans] = React.useState(() => []);
-
   const prefs = profile?.preferences || {};
 
   // View mode: 'general' | 'makgora'
@@ -148,11 +142,10 @@ export const ClubProvider = ({ children }) => {
 
   const mensualidadBase = Number(clubConfig.mensualidad_base) || 10000;
 
-  // Fetch makgora_teams from Supabase
-  React.useEffect(() => {
+  const refreshMakgoraTeams = React.useCallback(() => {
     supabase
       .from('makgora_teams')
-      .select('id, name, rpg_name, emblem_color')
+      .select('id, name, rpg_name, emblem_color, is_external, is_active, sort_order')
       .order('sort_order')
       .then(({ data }) => {
         if (data && data.length > 0) {
@@ -163,6 +156,11 @@ export const ClubProvider = ({ children }) => {
         }
       })
       .catch(wrapCatch('ClubContext.fetchMakgoraTeams', { notifyUser: true }));
+  }, [makgoraTeamId]);
+
+  // Fetch makgora_teams from Supabase
+  React.useEffect(() => {
+    refreshMakgoraTeams();
   }, []);
 
   // Fetch teams from Supabase
@@ -179,23 +177,40 @@ export const ClubProvider = ({ children }) => {
       .catch(wrapCatch('ClubContext.fetchTeams', { notifyUser: true }));
   }, []);
 
-  const { pushPlayerToSupabase } = useSyncPush(user);
-  const playerHooks = usePlayers(activeTeam, sendLocalNotification, pushPlayerToSupabase, null, user, mensualidadBase);
+  const { pushPlayerToSupabase, pushEntityToSupabase } = useSyncPush(user);
+  const playerHooks = usePlayers(activeTeam, sendLocalNotification, pushPlayerToSupabase, pushEntityToSupabase, user, mensualidadBase);
   const { players, setPlayers, normalizePlayer } = playerHooks;
 
-  const scheduleHooks = useSchedule(activeTeam, sendLocalNotification, scheduleReminder, null, user);
+  const scheduleHooks = useSchedule(activeTeam, sendLocalNotification, scheduleReminder, pushEntityToSupabase, user);
   const { schedule, setSchedule } = scheduleHooks;
 
-  const [championships, setChampionships] = React.useState(() => []);
-  const championshipHooks = useChampionships(activeTeam, null, user);
+  const championshipHooks = useChampionships(activeTeam, pushEntityToSupabase, user);
+  const { championships, setChampionships } = championshipHooks;
 
-  const financeHooks = useFinances(activeTeam, null, sendLocalNotification, user);
+  const financeHooks = useFinances(activeTeam, pushEntityToSupabase, sendLocalNotification, user);
   const { finances, setFinances } = financeHooks;
 
-  const inventoryHooks = useInventory(null, user);
+  const inventoryHooks = useInventory(pushEntityToSupabase, user);
   const { inventory, setInventory } = inventoryHooks;
 
-  const { syncStatus, pushEntityToSupabase } = useSync(
+  const fixtureHooks = useFixtures(activeTeam, sendLocalNotification, pushEntityToSupabase, user);
+  const { fixtures, setFixtures } = fixtureHooks;
+
+  const rivalHooks = useRivals(pushEntityToSupabase, user);
+  const { rivals, setRivals } = rivalHooks;
+
+  const futureFixtureHooks = useFutureFixtures(activeTeam, sendLocalNotification, pushEntityToSupabase, user);
+  const { futureFixtures, setFutureFixtures } = futureFixtureHooks;
+
+  const liveMatchHooks = useLiveMatch(user);
+
+  const invitationHooks = useInvitations(user, userTier, profile);
+  const { matchInvitations, setMatchInvitations } = invitationHooks;
+
+  const loanHooks = useLoans(user);
+  const { loans, setLoans } = loanHooks;
+
+  const { syncStatus } = useSync(
     user, userTier, profile,
     setPlayers, setSchedule, setChampionships, setFinances,
     setInventory, setFixtures, setRivals, setFutureFixtures,
@@ -203,24 +218,17 @@ export const ClubProvider = ({ children }) => {
     mensualidadBase
   );
 
-  const fixtureHooks = useFixtures(activeTeam, sendLocalNotification, pushEntityToSupabase, user);
-  const rivalHooks = useRivals(pushEntityToSupabase, user);
-  const futureFixtureHooks = useFutureFixtures(activeTeam, sendLocalNotification, pushEntityToSupabase, user);
-  const liveMatchHooks = useLiveMatch(user);
-
-  const invitationHooks = useInvitations(user, userTier, profile);
-  const loanHooks = useLoans(user);
-
   const fundraisingHooks = useFundraising(activeTeam, user);
 
   React.useEffect(() => {
     fundraisingHooks.loadAllPayments();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []);
 
   const dataIOHooks = useDataIO(
     players, schedule, championships, finances, inventory, fixtures, rivals, futureFixtures,
     activeTeam, setPlayers, setSchedule, setChampionships, setFinances, setInventory, setFixtures, setActiveTeam,
-    sendLocalNotification, normalizePlayer
+    sendLocalNotification, normalizePlayer,
+    { setRivals, setFutureFixtures, pushPlayerToSupabase, pushEntityToSupabase }
   );
 
   const handleMembershipPayment = async (playerId, amount) => {
@@ -279,7 +287,7 @@ export const ClubProvider = ({ children }) => {
   return (
     <ClubContext.Provider value={{
       activeTeam, setActiveTeam, activeTeamId,
-      players, addPlayer: playerHooks.addPlayer, updatePlayer: playerHooks.updatePlayer, deletePlayer: playerHooks.deletePlayer,
+      players, setPlayers, addPlayer: playerHooks.addPlayer, updatePlayer: playerHooks.updatePlayer, deletePlayer: playerHooks.deletePlayer,
       recordAttendance: playerHooks.recordAttendance, recordMatchInfractions: playerHooks.recordMatchInfractions, redeemPenalty: playerHooks.redeemPenalty,
       recordPhysicalTest: playerHooks.recordPhysicalTest, recordInjury: playerHooks.recordInjury, updateInjuryPhase: playerHooks.updateInjuryPhase,
       recordMatchStats: playerHooks.recordMatchStats, recordWellness: playerHooks.recordWellness, runHiaProtocol: playerHooks.runHiaProtocol,
@@ -294,7 +302,7 @@ export const ClubProvider = ({ children }) => {
       dynamicClubs, getAllClubs, getAllClubsLabels, addClub, deleteClub,
       recordMembershipPayment: handleMembershipPayment,
       rivals, addRival: rivalHooks.addRival, updateRival: rivalHooks.updateRival, deleteRival: rivalHooks.deleteRival,
-      futureFixtures, addFutureFixture: futureFixtureHooks.addFutureFixture, deleteFutureFixture: futureFixtureHooks.deleteFutureFixture,
+      futureFixtures, addFutureFixture: futureFixtureHooks.addFutureFixture, deleteFutureFixture: futureFixtureHooks.deleteFutureFixture, setMatchAvailability: futureFixtureHooks.setMatchAvailability,
       liveMatch: liveMatchHooks.liveMatch, setLiveMatch: liveMatchHooks.setLiveMatch,
       liveEvents: liveMatchHooks.liveEvents, setLiveEvents: liveMatchHooks.setLiveEvents,
       startLiveMatch: liveMatchHooks.startLiveMatch,
@@ -305,7 +313,7 @@ export const ClubProvider = ({ children }) => {
       loans, requestLoan: loanHooks.requestLoan, updateLoanStatus: loanHooks.updateLoanStatus,
       createPlayerCredentials: playerHooks.createPlayerCredentials, resetPlayerPassword: playerHooks.resetPlayerPassword, resetStaffPassword, bulkUpdatePosition: playerHooks.bulkUpdatePosition,
       viewMode, setViewMode, divisionView, setDivisionView,
-      makgoraTeamId, setMakgoraTeamId, makgoraTeams, teams,
+      makgoraTeamId, setMakgoraTeamId, makgoraTeams, setMakgoraTeams, refreshMakgoraTeams, teams,
       clubConfig, mensualidadBase,
       campaigns: fundraisingHooks.campaigns,
       allPayments: fundraisingHooks.allPayments,
@@ -318,6 +326,7 @@ export const ClubProvider = ({ children }) => {
       getRaffleTickets: fundraisingHooks.getRaffleTickets,
       bulkAssignTickets: fundraisingHooks.bulkAssignTickets,
       bulkAssignFood: fundraisingHooks.bulkAssignFood,
+      updateAssignment: fundraisingHooks.updateAssignment,
       markTicketSold: fundraisingHooks.markTicketSold,
       registerPayment: fundraisingHooks.registerPayment,
       deletePayment: fundraisingHooks.deletePayment,

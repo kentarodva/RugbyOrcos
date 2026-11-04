@@ -286,7 +286,19 @@ El `manifest.json` no se vincula en `index.html`. El service worker solo se usa 
 - Las keys de AI providers van en `localStorage`, seteables desde Settings UI
 - Las credenciales de Supabase van en `.env` (nunca commitear)
 
-### R6.3 — RLS en todas las tablas
+### R6.3 — `user_profiles` SELECT es público (NO RESTRINGIR)
+
+```sql
+-- ✅ CORRECTO — esta es la ÚNICA tabla con SELECT abierto
+CREATE POLICY user_profiles_select ON user_profiles FOR SELECT USING (true);
+
+-- ❌ INCORRECTO — rompe el login
+CREATE POLICY user_profiles_select ON user_profiles FOR SELECT USING (auth.uid() = user_id);
+```
+
+**Razón:** `user_profiles` se consulta durante el flujo de autenticación. Si el SELECT falla, la app no puede determinar el `system_role` del usuario y muestra "Sin rango en el Reino". Los datos en `user_profiles` (nombre, rol, alcance) no son sensibles. INSERT/UPDATE/DELETE ya están protegidos por RLS.
+
+### R6.4 — RLS en todas las tablas (excepto user_profiles SELECT)
 
 Verificar que cada tabla nueva tenga `ALTER TABLE ... ENABLE ROW LEVEL SECURITY` y al menos una policy.
 
