@@ -69,7 +69,15 @@ BEGIN
     p_weight,
     p_height,
     COALESCE(p_custom_lifts, '{}'::jsonb)
-  );
+  )
+  ON CONFLICT (player_id, recorded_date)
+  DO UPDATE SET
+    squat = EXCLUDED.squat,
+    bench = EXCLUDED.bench,
+    deadlift = EXCLUDED.deadlift,
+    weight = COALESCE(EXCLUDED.weight, public.gym_history.weight),
+    height = COALESCE(EXCLUDED.height, public.gym_history.height),
+    custom_lifts = COALESCE(EXCLUDED.custom_lifts, public.gym_history.custom_lifts);
 
   RETURN jsonb_build_object('success', true, 'recorded_date', v_today, 'preferences', v_prefs);
 END;

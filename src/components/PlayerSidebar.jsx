@@ -2,6 +2,7 @@ import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { PlayerPhoto } from './PlayerPhoto';
 import { getRpgRole } from '../context/ClubContext.jsx';
+import { formatHeightM, formatWeightKg } from '../utils/inputFormatters';
 
 export default function PlayerSidebar({ player, activeTab, onTabChange, onOpenAvatarPicker, collapsed, onToggleCollapse }) {
   const rpgRole = getRpgRole(player.systemRole || 'jugador');
@@ -97,9 +98,9 @@ export default function PlayerSidebar({ player, activeTab, onTabChange, onOpenAv
             </div>
 
             {player.weight && (
-              <div className="flex gap-2 text-[10px] text-zinc-500 font-medium">
-                <span className="bg-zinc-800/50 rounded-md px-2 py-0.5">{player.weight}kg</span>
-                <span className="bg-zinc-800/50 rounded-md px-2 py-0.5">{player.height}m</span>
+              <div className="flex gap-2 text-[10px] text-zinc-400 font-semibold tabular-nums">
+                <span className="bg-zinc-800/70 rounded-md px-2 py-0.5">{formatWeightKg(player.weight)}</span>
+                <span className="bg-zinc-800/70 rounded-md px-2 py-0.5">{formatHeightM(player.height)}</span>
               </div>
             )}
 

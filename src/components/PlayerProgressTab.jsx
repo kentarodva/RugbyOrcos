@@ -5,7 +5,7 @@ import { supabase } from '../supabaseClient';
 import { ClubContext } from '../context/ClubContext';
 import { useToast } from '../context/ToastContext';
 import { HeightInput, WeightInput } from './common/FormattedInputs';
-import { formatHeightM } from '../utils/inputFormatters';
+import { formatHeightM, formatWeightKg } from '../utils/inputFormatters';
 
 export const TRACKABLE_EXERCISES = [
   { key: 'squat', label: 'Sentadilla', color: '#ff3d00', defaultActive: true },
@@ -328,7 +328,7 @@ function PlayerProgressTab({ playerId }) {
             <div className="pro-kpi-card">
               <div className="pro-kpi-label">Peso Actual</div>
               <div className="pro-kpi-value" style={{ color: '#26c6da' }}>
-                {latest.weight || player?.weight || '—'} <span style={{ fontSize: '0.75rem', fontWeight: 500 }}>kg</span>
+                {formatWeightKg(latest.weight || player?.weight)}
               </div>
               {first.weight && latest.weight && history.length > 1 && (
                 <div style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)' }} className="tabular-nums">
