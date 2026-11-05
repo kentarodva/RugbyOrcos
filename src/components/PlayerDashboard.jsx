@@ -24,6 +24,8 @@ import PlayerFinanzasTab from './PlayerFinanzasTab';
 import { TRACKABLE_EXERCISES } from './PlayerProgressTab';
 import { HeightInput, WeightInput, SizeSelect } from './common/FormattedInputs';
 import PositionSelect from './Roster/PositionSelect';
+import { copyOrDownloadPlayerCard } from '../utils/exportPlayerCard';
+import { printCertificateOfAffiliation } from '../utils/exportPdf';
 
 const PlayerProgressTab = React.lazy(() => import('./PlayerProgressTab'));
 const AIChat = React.lazy(() => import('./AIChat'));
@@ -44,6 +46,7 @@ function PlayerDashboard() {
   const [showRoutineBuilder, setShowRoutineBuilder] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [planVersion, setPlanVersion] = useState(0);
+  const [cardStatus, setCardStatus] = useState('');
   const [setupForm, setSetupForm] = useState({
     birth_date: '', weight: '', height: '', health_insurance: '', custom_eps: '',
     position_id: null, posicion: '',
@@ -324,6 +327,34 @@ function PlayerDashboard() {
     }
   };
 
+  const handleExportPlayerCard = async () => {
+    if (!player) return;
+    setCardStatus('Generando Ficha...');
+    try {
+      const res = await copyOrDownloadPlayerCard(player, 'Rugby Orcos Negros Club');
+      if (res?.copied) {
+        setCardStatus('✅ Ficha copiada + PNG');
+        showToast('Ficha de Guerrero copiada al portapapeles y descargada en PNG.', 'success');
+      } else {
+        setCardStatus('✅ Ficha descargada');
+        showToast('Ficha de Guerrero descargada con éxito.', 'success');
+      }
+    } catch {
+      setCardStatus('⚠️ Error al generar');
+      showToast('Error al generar la ficha de guerrero.', 'error');
+    }
+    setTimeout(() => setCardStatus(''), 4000);
+  };
+
+  const handlePrintPazYSalvo = () => {
+    if (!player) return;
+    printCertificateOfAffiliation({
+      player,
+      teamLabel: 'Rugby Orcos Negros Club',
+      division: player.teamCategory || 'Masculina Mayor',
+    });
+  };
+
   if (!player) {
     return (
       <div style={{ padding: '40px', textAlign: 'center' }}>
@@ -351,6 +382,44 @@ function PlayerDashboard() {
       </motion.aside>
 
       <main className="flex-1 overflow-y-auto p-6 min-h-0">
+        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', marginBottom: '14px', flexWrap: 'wrap' }}>
+          <button
+            onClick={handleExportPlayerCard}
+            className="btn-outline"
+            style={{
+              padding: '6px 14px',
+              fontSize: '0.78rem',
+              fontWeight: 800,
+              borderColor: 'rgba(255, 215, 64, 0.45)',
+              color: 'var(--color-gold)',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+            }}
+            title="Genera tu Ficha de Guerrero RPG oficial en HD para descargar y compartir en Instagram Stories / WhatsApp"
+          >
+            🎴 {cardStatus || 'Ficha de Guerrero HD'}
+          </button>
+
+          <button
+            onClick={handlePrintPazYSalvo}
+            className="btn-outline"
+            style={{
+              padding: '6px 14px',
+              fontSize: '0.78rem',
+              fontWeight: 800,
+              borderColor: 'rgba(0, 230, 118, 0.4)',
+              color: 'var(--color-primary)',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+            }}
+            title="Genera e imprime tu Certificado Oficial de Afiliación y Paz y Salvo en PDF"
+          >
+            📜 Certificado & Paz y Salvo PDF
+          </button>
+        </div>
+
         <StatsHeroCards
           player={player}
           nextMatch={myUpcomingMatches?.[0] || null}

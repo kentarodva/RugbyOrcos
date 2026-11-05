@@ -5,6 +5,7 @@ import MatchHeader from './MatchHeader';
 import LiveScorer from './LiveScorer';
 import EventTimeline from './EventTimeline';
 import LivePlayerStats from './LivePlayerStats';
+import { playRugbyWhistle } from '../../../../utils/rugbyAudio';
 
 function LiveMatch({
   liveMatch: initialMatch,
@@ -77,6 +78,9 @@ function LiveMatch({
   }, [liveMatch]);
 
   const handleAddEvent = useCallback(async (event) => {
+    if (event?.event_type === 'try') {
+      playRugbyWhistle('try');
+    }
     const ev = await onAddEvent(event);
     if (!ev) {
       showToast?.('Error al registrar evento.', 'error');
@@ -142,6 +146,7 @@ function LiveMatch({
                 showToast?.('Ingresa el nombre del rival.', 'warning');
                 return;
               }
+              playRugbyWhistle('kickoff');
               onStart?.({ opponent: opponentName.trim() });
             }}
             disabled={!opponentName.trim()}

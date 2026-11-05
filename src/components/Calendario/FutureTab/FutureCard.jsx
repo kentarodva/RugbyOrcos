@@ -6,9 +6,28 @@ import { formatLocalDate } from '../../../utils/dates.js';
 import { buildMatchAvailabilitySummaryText } from '../../../utils/whatsappUtils';
 
 function FutureCard({ future, onDelete }) {
-  const { createInvitation, matchInvitations, players, setMatchAvailability } = useContext(ClubContext);
+  const { createInvitation, matchInvitations, players, setMatchAvailability, fixtures } = useContext(ClubContext);
   const { showToast } = useToast();
   const [showConvocatoria, setShowConvocatoria] = useState(false);
+
+  const headToHead = React.useMemo(() => {
+    const oppLower = (future.opponent || '').toLowerCase().trim();
+    if (!oppLower) return null;
+    const history = (fixtures || []).filter(f => {
+      const name = (f.opponent || '').toLowerCase().trim();
+      return name && (name.includes(oppLower) || oppLower.includes(name));
+    });
+    if (history.length === 0) return null;
+    let won = 0, lost = 0, drawn = 0;
+    history.forEach(m => {
+      const o = Number(m.orcosScore ?? m.orcos_score ?? 0);
+      const r = Number(m.opponentScore ?? m.opponent_score ?? 0);
+      if (o > r) won++;
+      else if (o < r) lost++;
+      else drawn++;
+    });
+    return { total: history.length, won, lost, drawn };
+  }, [fixtures, future.opponent]);
 
   const daysUntil = Math.ceil((new Date(future.date + 'T00:00:00') - new Date()) / (1000 * 60 * 60 * 24));
   const isSoon = daysUntil <= 7 && daysUntil >= 0;
@@ -115,6 +134,18 @@ function FutureCard({ future, onDelete }) {
           <h4 style={{ fontSize: '1.05rem', fontWeight: 800, color: 'var(--color-text-main)', margin: 0 }}>{future.opponent}</h4>
         </div>
       </div>
+
+      {headToHead && (
+        <div style={{ textAlign: 'center', marginTop: '-4px', marginBottom: '4px' }}>
+          <span
+            className="pro-chip pro-chip-muted tabular-nums"
+            style={{ fontSize: '0.68rem', borderColor: 'rgba(255, 215, 64, 0.4)', color: 'var(--color-gold)', display: 'inline-block' }}
+            title={`Historial oficial vs ${future.opponent}: ${headToHead.won} Victorias, ${headToHead.lost} Derrotas, ${headToHead.drawn} Empates`}
+          >
+            ⚔️ Cara a Cara: {headToHead.won}V - {headToHead.lost}D ({headToHead.total} partidos previos)
+          </span>
+        </div>
+      )}
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', fontSize: '0.75rem', background: 'rgba(255,255,255,0.02)', padding: '10px 12px', borderRadius: 'var(--radius-sm)' }}>
         <div>

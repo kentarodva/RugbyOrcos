@@ -245,3 +245,125 @@ export function printOfficialMatchSheet({
   w.document.close();
   w.onload = () => w.print();
 }
+
+
+export function printCertificateOfAffiliation({
+  player = {},
+  teamLabel = 'Rugby Orcos Negros Club',
+  division = 'Masculina Mayor',
+  presidentName = 'Comité Ejecutivo & Presidencia',
+  issuer = 'Tesorería y Secretaría General',
+}) {
+  const w = window.open('', '_blank', 'width=900,height=800');
+  if (!w) return;
+
+  const doc = `${player.document_type || 'CC'} ${player.document_number || '—'}`;
+  const fullName = `${player.name || ''} ${player.last_name || ''}`.trim() || 'Deportista';
+  const issueDate = formatLocalDate(new Date());
+  const year = new Date().getFullYear();
+
+  w.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8">
+    <title>Certificado de Afiliación y Paz y Salvo — ${esc(fullName)}</title>
+    <style>
+      @page { size: letter portrait; margin: 20mm; }
+      body { font-family: "Georgia", serif; color: #1a1a1a; margin: 0; padding: 25px; line-height: 1.6; }
+      .header { text-align: center; border-bottom: 3px double #0a6e2e; padding-bottom: 18px; margin-bottom: 25px; }
+      .header h1 { font-family: Arial, sans-serif; font-size: 24px; color: #0a6e2e; margin: 0; letter-spacing: 1px; }
+      .header h2 { font-family: Arial, sans-serif; font-size: 13px; color: #555; margin: 5px 0 0 0; text-transform: uppercase; }
+      .cert-title { text-align: center; font-size: 19px; font-weight: bold; margin: 30px 0; color: #111; letter-spacing: 0.5px; text-transform: uppercase; }
+      .body-text { font-size: 14.5px; text-align: justify; margin-bottom: 25px; text-indent: 30px; }
+      .data-table { width: 100%; border-collapse: collapse; margin: 25px 0; font-family: Arial, sans-serif; font-size: 12.5px; }
+      .data-table td { padding: 8px 12px; border: 1px solid #ddd; }
+      .data-table td.label { font-weight: bold; background: #f9fbf9; width: 35%; color: #0a6e2e; }
+      .seal-box { display: flex; justify-content: space-between; margin-top: 60px; page-break-inside: avoid; }
+      .signature-col { text-align: center; width: 45%; }
+      .signature-line { border-top: 1.5px solid #222; margin-top: 50px; padding-top: 6px; font-size: 13px; font-family: Arial, sans-serif; font-weight: bold; }
+      .signature-col small { color: #666; font-size: 11px; display: block; }
+      .footer-note { text-align: center; font-size: 10px; color: #888; margin-top: 40px; border-top: 1px solid #eee; padding-top: 8px; font-family: Arial, sans-serif; }
+      @media print { body { padding: 0; } }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <h1>${esc(teamLabel.toUpperCase())}</h1>
+      <h2>Personería Deportiva & Afiliación FCR · NIT: 901.458.712-4</h2>
+      <h2>Bello / Medellín — Colombia · Temporada ${year}</h2>
+    </div>
+
+    <div class="cert-title">
+      CERTIFICADO OFICIAL DE AFILIACIÓN Y PAZ Y SALVO
+    </div>
+
+    <p class="body-text">
+      El suscrito Representante Legal y el Comité Ejecutivo del <strong>RUGBY ORCOS NEGROS CLUB</strong>, por medio del presente documento:
+    </p>
+
+    <div style="text-align:center;font-size:16px;font-weight:bold;margin:20px 0;color:#0a6e2e">
+      HACEN CONSTAR QUE:
+    </div>
+
+    <p class="body-text">
+      El (la) deportista <strong>${esc(fullName.toUpperCase())}</strong>, identificado(a) con documento oficial de identidad <strong>${esc(doc)}</strong>, es miembro activo e inscrito en el registro oficial de deportistas de nuestro club, participando en entrenamientos y torneos oficiales dentro de la división <strong>${esc(division)}</strong>.
+    </p>
+
+    <table class="data-table">
+      <tr>
+        <td class="label">Nombre del Deportista:</td>
+        <td><strong>${esc(fullName)}</strong></td>
+      </tr>
+      <tr>
+        <td class="label">Documento de Identidad:</td>
+        <td>${esc(doc)}</td>
+      </tr>
+      <tr>
+        <td class="label">División / Categoría:</td>
+        <td>${esc(division)}</td>
+      </tr>
+      <tr>
+        <td class="label">Posición Deportiva:</td>
+        <td>${esc(player.posicion || 'Jugador de Campo')}</td>
+      </tr>
+      <tr>
+        <td class="label">Cobertura Médica (EPS):</td>
+        <td>${esc(player.health_insurance || 'Activa')}</td>
+      </tr>
+      <tr>
+        <td class="label">Estado de Tesorería:</td>
+        <td><strong style="color:#0a6e2e">A PAZ Y SALVO</strong> (Sin saldos pendientes a la fecha)</td>
+      </tr>
+    </table>
+
+    <p class="body-text">
+      El (la) deportista se encuentra en pleno goce de sus derechos deportivos y a paz y salvo por concepto de cuotas de sostenimiento, derechos federativos y compromisos institucionales.
+    </p>
+
+    <p class="body-text">
+      Se expide la presente certificación a solicitud de la parte interesada, en la ciudad de Medellín, a los <strong>${esc(issueDate)}</strong>.
+    </p>
+
+    <div class="seal-box">
+      <div class="signature-col">
+        <div class="signature-line">
+          ${esc(presidentName)}
+          <small>Presidencia & Representación Legal</small>
+          <small>Rugby Orcos Negros Club</small>
+        </div>
+      </div>
+      <div class="signature-col">
+        <div class="signature-line">
+          ${esc(issuer)}
+          <small>Secretaría & Control Financiero</small>
+          <small>Registro Oficial N° ORC-${esc(player.id || '2026')}</small>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-note">
+      Documento oficial emitido con validez para trámites académicos, laborales, convenios y acreditación en torneos de la Federación Colombiana de Rugby. «Fuerza, Honor y Tercer Tiempo».
+    </div>
+  </body>
+  </html>`);
+
+  w.document.close();
+  w.onload = () => w.print();
+}

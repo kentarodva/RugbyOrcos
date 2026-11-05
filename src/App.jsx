@@ -41,6 +41,7 @@ function App() {
     getAllClubsLabels, addClub, deleteClub, dynamicClubs, syncStatus,
     viewMode, setViewMode, divisionView, setDivisionView,
     makgoraTeamId, setMakgoraTeamId, makgoraTeams, setPlayers,
+    liveMatch,
   } = useContext(ClubContext);
   const { isAuthenticated, signOut, profile, user, requirePasswordChange, clearPasswordChangeFlag } = useAuth();
   const { showToast } = useToast();
@@ -218,6 +219,38 @@ function App() {
       />
 
       {isAuthenticated && <QuickNavBar activeTab={activeTab} setActiveTab={setActiveTab} hasPermission={hasPermission} profile={profile} onOpenDrawer={() => setSidebarOpen(true)} />}
+
+      {isAuthenticated && liveMatch && (liveMatch.status === 'live' || liveMatch.status === 'paused') && (
+        <div
+          onClick={() => setActiveTab('calendario')}
+          style={{
+            background: 'linear-gradient(90deg, rgba(255, 23, 68, 0.22) 0%, rgba(10, 20, 32, 0.95) 50%, rgba(0, 230, 118, 0.22) 100%)',
+            borderBottom: '1px solid var(--color-primary)',
+            padding: '8px 16px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '12px',
+            cursor: 'pointer',
+            fontSize: '0.82rem',
+            fontWeight: 800,
+            zIndex: 900,
+            transition: 'background 0.2s ease',
+          }}
+          title="Clic para ir directamente a la transmisión del partido en vivo"
+        >
+          <span style={{ color: '#ff1744', display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#ff1744', display: 'inline-block' }} />
+            {liveMatch.status === 'live' ? 'PARTIDO EN VIVO' : 'PARTIDO PAUSADO'}:
+          </span>
+          <span style={{ color: 'var(--color-primary)' }}>Orcos {liveMatch.orcos_score ?? 0}</span>
+          <span style={{ color: 'var(--color-text-muted)' }}>vs</span>
+          <span style={{ color: '#fff' }}>{liveMatch.opponent_name || 'Rival'} {liveMatch.opponent_score ?? 0}</span>
+          <span style={{ color: 'var(--color-gold)', fontSize: '0.72rem', border: '1px solid var(--color-gold)', padding: '2px 8px', borderRadius: '4px', textTransform: 'uppercase' }}>
+            Ver Partido ➔
+          </span>
+        </div>
+      )}
       {showAdminPanel && hasPermission('admin_panel') && (
         <motion.div key="admin" initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.2 }}>
         <AdminPanel

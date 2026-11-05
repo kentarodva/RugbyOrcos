@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import MatchTimer from './MatchTimer';
 import { buildMatchWhatsAppText, copyOrDownloadMatchBanner } from '../../../../utils/exportMatchBanner';
+import { playRugbyWhistle, isSoundEnabled, setSoundEnabled } from '../../../../utils/rugbyAudio';
 
 function MatchHeader({ liveMatch, liveEvents, onPause, onResume, onEnd, onClose, onDelete }) {
   const [copyStatus, setCopyStatus] = useState('');
   const [bannerStatus, setBannerStatus] = useState('');
+  const [soundOn, setSoundOn] = useState(() => isSoundEnabled());
 
   const status = liveMatch?.status || 'finished';
   const score = (() => {
@@ -32,6 +34,28 @@ function MatchHeader({ liveMatch, liveEvents, onPause, onResume, onEnd, onClose,
     }
     return Math.floor(acc / 60);
   })();
+
+  const handleToggleSound = () => {
+    const next = !soundOn;
+    setSoundOn(next);
+    setSoundEnabled(next);
+    if (next) playRugbyWhistle('pause');
+  };
+
+  const handlePause = () => {
+    playRugbyWhistle('pause');
+    onPause?.();
+  };
+
+  const handleResume = () => {
+    playRugbyWhistle('kickoff');
+    onResume?.();
+  };
+
+  const handleEnd = () => {
+    playRugbyWhistle('fulltime');
+    onEnd?.();
+  };
 
   const handleShareWhatsApp = async () => {
     const text = buildMatchWhatsAppText({
@@ -86,7 +110,17 @@ function MatchHeader({ liveMatch, liveEvents, onPause, onResume, onEnd, onClose,
         }}>
           {status === 'live' ? '🔴 EN VIVO' : status === 'paused' ? '⏸ PAUSADO' : '✅ FINALIZADO'}
         </span>
-        <div style={{ display: 'flex', gap: '6px' }}>
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+          <button
+            onClick={handleToggleSound}
+            title={soundOn ? 'Silenciar silbato y efectos de sonido' : 'Activar silbato y efectos arbitrales'}
+            style={{
+              background: 'transparent', border: 'none', color: soundOn ? 'var(--color-primary)' : 'var(--color-text-muted)',
+              cursor: 'pointer', fontSize: '0.9rem', opacity: soundOn ? 1 : 0.6,
+            }}
+          >
+            {soundOn ? '🔊' : '🔇'}
+          </button>
           {onDelete && (
             <button onClick={onDelete} title="Eliminar" style={{
               background: 'transparent', border: 'none', color: 'var(--color-red)',
@@ -124,17 +158,17 @@ function MatchHeader({ liveMatch, liveEvents, onPause, onResume, onEnd, onClose,
       {/* Action Controls & WhatsApp Sharing */}
       <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', flexWrap: 'wrap', marginTop: '12px' }}>
         {status === 'live' && (
-          <button onClick={onPause} className="btn-outline" style={{ fontSize: '0.75rem', padding: '8px 16px' }}>
+          <button onClick={handlePause} className="btn-outline" style={{ fontSize: '0.75rem', padding: '8px 16px' }}>
             ⏸ Pausar
           </button>
         )}
         {status === 'paused' && (
-          <button onClick={onResume} className="btn-outline" style={{ fontSize: '0.75rem', padding: '8px 16px', borderColor: 'var(--color-primary)', color: 'var(--color-primary)' }}>
+          <button onClick={handleResume} className="btn-outline" style={{ fontSize: '0.75rem', padding: '8px 16px', borderColor: 'var(--color-primary)', color: 'var(--color-primary)' }}>
             ▶ Reanudar
           </button>
         )}
         {(status === 'live' || status === 'paused') && (
-          <button onClick={onEnd} className="btn-gold" style={{ fontSize: '0.75rem', padding: '8px 16px' }}>
+          <button onClick={handleEnd} className="btn-gold" style={{ fontSize: '0.75rem', padding: '8px 16px' }}>
             ⏹ Finalizar
           </button>
         )}

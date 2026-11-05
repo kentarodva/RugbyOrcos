@@ -19,6 +19,7 @@ import MatchSquadModal from './FixtureTab/MatchSquadModal';
 const LiveMatchInline = LiveMatch;
 
 import CalendarioSkeleton from '../Skeletons/CalendarioSkeleton';
+import { downloadCalendarIcs } from '../../utils/exportCalendarIcs';
 
 function Calendario() {
   const {
@@ -267,13 +268,38 @@ function Calendario() {
     return mine?.status || null;
   }, [currentPlayer?.id, rsvpList]);
 
+  const handleExportIcs = () => {
+    const allMatches = [...(futureFixtures || []), ...(fixtures || [])];
+    downloadCalendarIcs({ matches: allMatches, teamLabel: 'Rugby Orcos Negros Club' });
+    showToast('Calendario .ICS descargado. Ábrelo en tu teléfono para sincronizar.', 'success');
+  };
+
   if (syncStatus === 'idle' || syncStatus === 'syncing') {
     return <CalendarioSkeleton activeTab={activeTab} />;
   }
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-      <CalendarioTabs activeTab={activeTab} onChange={setActiveTab} hasActiveMatch={!!liveMatch && liveMatch.status !== 'finished'} />
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
+        <CalendarioTabs activeTab={activeTab} onChange={setActiveTab} hasActiveMatch={!!liveMatch && liveMatch.status !== 'finished'} />
+        <button
+          onClick={handleExportIcs}
+          className="btn-outline"
+          style={{
+            fontSize: '0.74rem',
+            padding: '6px 12px',
+            borderColor: 'rgba(59, 130, 246, 0.45)',
+            color: '#60a5fa',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '6px',
+            fontWeight: 700,
+          }}
+          title="Descarga el archivo estándar .ICS para añadir todos los partidos a Google Calendar, iPhone o Outlook"
+        >
+          📅 Sincronizar Calendario (.ICS)
+        </button>
+      </div>
 
       {activeTab === 'agenda' && (
         <AgendaTab

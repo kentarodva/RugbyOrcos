@@ -79,5 +79,28 @@ describe('exportPdf — Fix #28: sanitización HTML y Planillas', () => {
       expect(htmlWritten).toContain('CAP');
       expect(htmlWritten).toContain('Certificación Médica y Antidopaje');
     });
+
+    it('genera certificado oficial de afiliación y paz y salvo en PDF', async () => {
+      const { printCertificateOfAffiliation } = await import('../../utils/exportPdf.js');
+      const player = {
+        id: 'p77',
+        name: 'Mateo',
+        last_name: 'Zapata',
+        document_type: 'CC',
+        document_number: '10203040',
+        health_insurance: 'Sura EPS',
+        posicion: 'Apertura',
+      };
+
+      printCertificateOfAffiliation({ player, division: 'Masculina Mayor' });
+
+      expect(window.open).toHaveBeenCalled();
+      expect(mockWindow.document.write).toHaveBeenCalled();
+      const html = mockWindow.document.write.mock.calls[0][0];
+      expect(html).toContain('CERTIFICADO OFICIAL DE AFILIACIÓN Y PAZ Y SALVO');
+      expect(html).toContain('MATEO ZAPATA');
+      expect(html).toContain('10203040');
+      expect(html).toContain('A PAZ Y SALVO');
+    });
   });
 });
