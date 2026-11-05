@@ -21,14 +21,15 @@ import PlayerProfileTab from './PlayerProfileTab';
 import PlayerAgendaTab from './PlayerAgendaTab';
 import PlayerWellnessTab from './PlayerWellnessTab';
 import PlayerFinanzasTab from './PlayerFinanzasTab';
-import { TRACKABLE_EXERCISES } from './PlayerProgressTab';
+import { TRACKABLE_EXERCISES } from '../constants/exerciseConstants';
 import { HeightInput, WeightInput, SizeSelect } from './common/FormattedInputs';
 import PositionSelect from './Roster/PositionSelect';
 import { copyOrDownloadPlayerCard } from '../utils/exportPlayerCard';
 import { printCertificateOfAffiliation } from '../utils/exportPdf';
+import { lazyWithRetry } from '../utils/lazyWithRetry';
 
-const PlayerProgressTab = React.lazy(() => import('./PlayerProgressTab'));
-const AIChat = React.lazy(() => import('./AIChat'));
+const PlayerProgressTab = lazyWithRetry(() => import('./PlayerProgressTab'));
+const AIChat = lazyWithRetry(() => import('./AIChat'));
 
 function PlayerDashboard() {
   const { players, recordWellness, schedule, futureFixtures, setMatchAvailability, updatePlayer, campaigns, allPayments, logWorkout, userTier: _userTier } = useContext(ClubContext);

@@ -1,4 +1,4 @@
-import React, { useState, useContext, useRef, useEffect, lazy, Suspense } from 'react';
+import React, { useState, useContext, useRef, useEffect, Suspense } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ClubContext } from './context/ClubContext';
 import { useAuth } from './context/AuthContext';
@@ -19,21 +19,22 @@ import apisupabase, { supabasePlayerToReact } from './data/supabaseApi';
 import { useGlobalShortcuts } from './utils/keyboardShortcuts';
 import { addPushNavigateListener } from './utils/pushNotifications';
 import ErrorBoundary from './components/ErrorBoundary';
+import { lazyWithRetry } from './utils/lazyWithRetry';
 
-const Roster = lazy(() => import('./components/Roster'));
-const Tribunal = lazy(() => import('./components/Tribunal'));
-const Calendario = lazy(() => import('./components/Calendario'));
-const Finanzas = lazy(() => import('./components/Finanzas'));
-const PlayerDashboard = lazy(() => import('./components/PlayerDashboard'));
-const AwardsHall = lazy(() => import('./components/AwardsHall'));
-const MakgoraHub = lazy(() => import('./components/MakgoraHub'));
-const MatchInvitation = lazy(() => import('./components/MatchInvitation'));
-const Invitaciones = lazy(() => import('./components/Invitaciones'));
-const Messages = lazy(() => import('./components/Messages'));
-const CanchaTactica = lazy(() => import('./components/CanchaTactica'));
-const TrainingHub = lazy(() => import('./components/TrainingHub'));
-const AIChat = lazy(() => import('./components/AIChat'));
-const Estadisticas = lazy(() => import('./components/Estadisticas'));
+const Roster = lazyWithRetry(() => import('./components/Roster'));
+const Tribunal = lazyWithRetry(() => import('./components/Tribunal'));
+const Calendario = lazyWithRetry(() => import('./components/Calendario'));
+const Finanzas = lazyWithRetry(() => import('./components/Finanzas'));
+const PlayerDashboard = lazyWithRetry(() => import('./components/PlayerDashboard'));
+const AwardsHall = lazyWithRetry(() => import('./components/AwardsHall'));
+const MakgoraHub = lazyWithRetry(() => import('./components/MakgoraHub'));
+const MatchInvitation = lazyWithRetry(() => import('./components/MatchInvitation'));
+const Invitaciones = lazyWithRetry(() => import('./components/Invitaciones'));
+const Messages = lazyWithRetry(() => import('./components/Messages'));
+const CanchaTactica = lazyWithRetry(() => import('./components/CanchaTactica'));
+const TrainingHub = lazyWithRetry(() => import('./components/TrainingHub'));
+const AIChat = lazyWithRetry(() => import('./components/AIChat'));
+const Estadisticas = lazyWithRetry(() => import('./components/Estadisticas'));
 
 function App() {
   const {

@@ -14,23 +14,89 @@ class ErrorBoundary extends React.Component {
     if (import.meta.env.DEV) console.error('[ErrorBoundary]', error, info);
   }
 
+  handleReload = () => {
+    window.location.reload();
+  };
+
+  handleReset = () => {
+    this.setState({ hasError: false, error: null });
+  };
+
   render() {
     if (this.state.hasError) {
-      return this.props.fallback || (
-        <div style={{
-          padding: '40px 20px', textAlign: 'center', color: 'var(--color-text-muted)',
-          border: '1px solid var(--border-glass)', borderRadius: '12px', margin: '20px 0',
-        }}>
-          <p style={{ fontSize: '1rem', fontWeight: 700, color: '#ef4444', marginBottom: '8px' }}>
-            ⚠️ Este módulo no pudo cargar
+      if (this.props.fallback) return this.props.fallback;
+
+      const errorMsg = this.state.error?.message || '';
+      const isChunkError =
+        errorMsg.includes('Failed to fetch dynamically imported module') ||
+        errorMsg.includes('Importing a module script failed') ||
+        errorMsg.includes('Loading chunk') ||
+        errorMsg.includes('dynamically imported module') ||
+        this.state.error?.name === 'ChunkLoadError';
+
+      return (
+        <div
+          style={{
+            padding: '36px 20px',
+            textAlign: 'center',
+            color: 'var(--color-text-muted)',
+            background: 'rgba(10, 16, 26, 0.9)',
+            border: `1px solid ${isChunkError ? 'rgba(0, 230, 118, 0.3)' : 'rgba(239, 68, 68, 0.3)'}`,
+            borderRadius: '16px',
+            margin: '20px 0',
+            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.45)',
+          }}
+        >
+          <div style={{ fontSize: '2.2rem', marginBottom: '8px' }}>
+            {isChunkError ? '🛡️' : '⚠️'}
+          </div>
+          <p
+            style={{
+              fontSize: '1.05rem',
+              fontWeight: 800,
+              color: isChunkError ? 'var(--color-primary, #00e676)' : '#ef4444',
+              marginBottom: '6px',
+            }}
+          >
+            {isChunkError ? 'Nueva Versión del Club Disponible' : 'Este módulo no pudo cargar'}
           </p>
-          <p style={{ fontSize: '0.75rem', marginBottom: '16px' }}>
-            {this.state.error?.message || 'Error desconocido al cargar el componente.'}
+          <p
+            style={{
+              fontSize: '0.8rem',
+              color: 'var(--color-text-muted)',
+              marginBottom: '18px',
+              maxWidth: '460px',
+              margin: '0 auto 18px',
+              lineHeight: 1.5,
+            }}
+          >
+            {isChunkError
+              ? 'Se acaba de desplegar una actualización con nuevos módulos y mejoras. Para sincronizar tu fortaleza y ver los cambios, recarga la aplicación.'
+              : errorMsg || 'Error desconocido al cargar el componente.'}
           </p>
-          <button onClick={() => this.setState({ hasError: false })}
-            className="btn-neon" style={{ padding: '8px 20px', fontSize: '0.8rem' }}>
-            🔄 Reintentar
-          </button>
+          <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', flexWrap: 'wrap' }}>
+            <button
+              onClick={this.handleReload}
+              className="btn-primary"
+              style={{
+                padding: '9px 24px',
+                fontSize: '0.82rem',
+                fontWeight: 800,
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+              }}
+            >
+              🔄 {isChunkError ? 'Cargar Nueva Versión' : 'Recargar Página'}
+            </button>
+            <button
+              onClick={this.handleReset}
+              className="btn-outline"
+              style={{ padding: '9px 18px', fontSize: '0.82rem' }}
+            >
+              Reintentar
+            </button>
+          </div>
         </div>
       );
     }
