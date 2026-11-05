@@ -61,6 +61,18 @@ function PlayerDashboard() {
     });
 
   useEffect(() => {
+    if (!showSetup) return;
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape' && player?.id) {
+        sessionStorage.setItem('setup_skip_' + player.id, '1');
+        setShowSetup(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [showSetup, player?.id]);
+
+  useEffect(() => {
     if (player && !player.preferences?.profile_confirmed && !sessionStorage.getItem('setup_skip_' + player.id)) {
       const cloth = player.clothingSizes || player.clothing || {};
       const tracked = Array.isArray(player.preferences?.tracked_exercises) && player.preferences.tracked_exercises.length > 0
@@ -475,14 +487,27 @@ function PlayerDashboard() {
       )}
 
       {showSetup && (
-        <div className="modal-overlay" onClick={() => {}}>
+        <div className="modal-overlay" onClick={() => { sessionStorage.setItem('setup_skip_' + player.id, '1'); setShowSetup(false); }}>
           <div className="modal-content glass-panel animated-slide" onClick={e => e.stopPropagation()} style={{ maxWidth: '580px', maxHeight: '90vh', overflowY: 'auto' }}>
-            <h3 style={{ color: 'var(--color-gold)', fontSize: '1.15rem', fontWeight: 800, marginBottom: '4px', fontFamily: 'Outfit' }}>
-              Verifica tus Datos e Inicia tu Historial de Progreso
-            </h3>
-            <p style={{ fontSize: '0.78rem', color: 'var(--color-text-muted)', marginBottom: '14px' }}>
-              Revisa tus datos registrados, confirma tus tallas de uniforme y selecciona qué ejercicios de fuerza realizas para llevar tu curva de progreso.
-            </p>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '10px' }}>
+              <div>
+                <h3 style={{ color: 'var(--color-gold)', fontSize: '1.15rem', fontWeight: 800, marginBottom: '4px', fontFamily: 'Outfit' }}>
+                  Verifica tus Datos e Inicia tu Historial de Progreso
+                </h3>
+                <p style={{ fontSize: '0.78rem', color: 'var(--color-text-muted)', marginBottom: '14px' }}>
+                  Revisa tus datos registrados, confirma tus tallas de uniforme y selecciona qué ejercicios de fuerza realizas para llevar tu curva de progreso.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => { sessionStorage.setItem('setup_skip_' + player.id, '1'); setShowSetup(false); }}
+                className="btn-outline"
+                style={{ padding: '4px 10px', fontSize: '0.85rem', color: 'var(--color-text-muted)', borderColor: 'rgba(255,255,255,0.15)' }}
+                title="Cerrar y recordar luego"
+              >
+                ✕
+              </button>
+            </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                 <div className="form-group" style={{ margin: 0 }}>
