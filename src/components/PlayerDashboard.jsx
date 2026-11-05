@@ -31,7 +31,7 @@ const PlayerProgressTab = React.lazy(() => import('./PlayerProgressTab'));
 const AIChat = React.lazy(() => import('./AIChat'));
 
 function PlayerDashboard() {
-  const { players, recordWellness, schedule, futureFixtures, setMatchAvailability, updatePlayer, campaigns, allPayments, logWorkout, userTier } = useContext(ClubContext);
+  const { players, recordWellness, schedule, futureFixtures, setMatchAvailability, updatePlayer, campaigns, allPayments, logWorkout, userTier: _userTier } = useContext(ClubContext);
   const { profile, user } = useAuth();
   const { showToast } = useToast();
 
@@ -56,10 +56,21 @@ function PlayerDashboard() {
     lifts: { squat: '', bench: '', deadlift: '' },
   });
 
-  const player = (userTier >= 4 ? players.find(p => p.userId === user?.id) : null)
+  const [adminSelectedPlayerId, setAdminSelectedPlayerId] = useState('edc12780-3218-4edb-a6ad-6c5cce3fb3b5');
+
+  const player = (adminSelectedPlayerId ? players.find(p => p.id === adminSelectedPlayerId) : null)
+    ?? players.find(p => p.userId && user?.id && p.userId === user.id)
     ?? players.find(p => {
-      if (profile?.display_name && p.name.toLowerCase() === profile.display_name.toLowerCase()) return true;
-      if (user?.email && p.contacto?.email === user.email) return true;
+      if (user?.email) {
+        const uEmail = user.email.toLowerCase();
+        if (p.contacto?.email && p.contacto.email.toLowerCase() === uEmail) return true;
+        if (p.email && p.email.toLowerCase() === uEmail) return true;
+      }
+      if (profile?.display_name && p.name) {
+        const pName = p.name.toLowerCase();
+        const dName = profile.display_name.toLowerCase();
+        if (pName === dName || pName.includes(dName) || dName.includes(pName)) return true;
+      }
       return false;
     });
 
@@ -358,19 +369,46 @@ function PlayerDashboard() {
 
   if (!player) {
     return (
-      <div style={{ padding: '40px', textAlign: 'center' }}>
-        <h2 style={{ color: 'var(--color-gold)' }}>Guerrero no encontrado</h2>
-        <p style={{ color: 'var(--color-text-muted)' }}>Contacta a tu Comandante de Horda para vincular tu cuenta.</p>
+      <div style={{ padding: '60px 20px', textAlign: 'center', maxWidth: '480px', margin: '0 auto' }}>
+        <div style={{ fontSize: '3rem', marginBottom: '12px' }}>👹</div>
+        <h2 style={{ color: 'var(--color-gold)', fontFamily: 'Outfit', fontWeight: 900, marginBottom: '8px' }}>
+          Selecciona tu Guerrero
+        </h2>
+        <p style={{ color: 'var(--color-text-muted)', fontSize: '0.85rem', marginBottom: '20px' }}>
+          Tu cuenta no está vinculada automáticamente por ID. Selecciona tu ficha para ver tu panel de guerrero:
+        </p>
+        <select
+          value={adminSelectedPlayerId}
+          onChange={e => setAdminSelectedPlayerId(e.target.value)}
+          className="form-select"
+          style={{ width: '100%', padding: '12px', fontSize: '0.9rem', marginBottom: '14px' }}
+        >
+          <option value="">-- Elige un Guerrero de la Lista --</option>
+          {players.map(p => (
+            <option key={p.id} value={p.id}>
+              #{p.camiseta ?? '—'} {p.name} ({p.posicion || 'Campo'})
+            </option>
+          ))}
+        </select>
+        <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
+          Tip: Tu Comandante de Horda puede vincular tu cuenta directamente en Roster → Forjar Credenciales.
+        </p>
       </div>
     );
   }
 
   return (
-    <div className="flex h-full min-h-0 bg-gradient-to-br from-zinc-950 via-zinc-900 to-zinc-950">
+    <div
+      className="flex h-full min-h-0"
+      style={{
+        background: 'radial-gradient(ellipse at top, rgba(14, 27, 43, 0.98) 0%, rgba(6, 12, 20, 1) 100%)',
+        minHeight: 'calc(100vh - 75px)',
+      }}
+    >
       <motion.aside
-        animate={{ width: sidebarCollapsed ? 56 : 240 }}
+        animate={{ width: sidebarCollapsed ? 64 : 260 }}
         transition={{ duration: 0.25, ease: 'easeInOut' }}
-        className="shrink-0 border-r border-zinc-800/40 overflow-hidden"
+        className="shrink-0 overflow-hidden"
       >
         <PlayerSidebar
           player={player}
