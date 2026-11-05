@@ -15,11 +15,16 @@ function LiveMatch({
   onAddEvent,
   onPause,
   onResume,
+  onDelay,
+  onSetScorer,
   onEnd,
   onDelete,
   onClose,
   addFixture,
   showToast,
+  currentUser,
+  currentProfile,
+  canManageMatch,
 }) {
   const [liveMatch, setLiveMatch] = useState(initialMatch);
   const [liveEvents, setLiveEvents] = useState([]);
@@ -178,6 +183,7 @@ function LiveMatch({
         liveEvents={liveEvents}
         onPause={onPause}
         onResume={onResume}
+        onDelay={onDelay}
         onEnd={handleEnd}
         onClose={onClose}
         onDelete={onDelete}
@@ -201,13 +207,17 @@ function LiveMatch({
         />
       )}
 
-      {(liveMatch?.status === 'live' || liveMatch?.status === 'paused') && (
+      {(liveMatch?.status === 'live' || liveMatch?.status === 'paused' || liveMatch?.status === 'delayed') && (
         <LiveScorer
           players={players}
           liveMatch={liveMatch}
           liveEvents={liveEvents}
           onAddEvent={handleAddEvent}
           getElapsed={getElapsed}
+          onSetScorer={onSetScorer}
+          currentUser={currentUser}
+          currentProfile={currentProfile}
+          canManageMatch={canManageMatch}
         />
       )}
 

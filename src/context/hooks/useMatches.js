@@ -133,11 +133,16 @@ export function useLiveMatch(user) {
   const [liveEvents, setLiveEvents] = useState([]);
 
   const startLiveMatch = useCallback(async (opts = {}) => {
+    const isDelayed = Boolean(opts.delayed || opts.delayReason);
     const match = {
       fixture_id: opts.fixtureId || null,
       opponent_name: sanitize(opts.opponentName || ''),
       team_category: opts.teamCategory || null,
-      status: 'live',
+      status: isDelayed ? 'delayed' : 'live',
+      delay_reason: opts.delayReason || null,
+      designated_scorer_name: opts.designatedScorerName || null,
+      designated_scorer_id: opts.designatedScorerId || null,
+      scorer_locked: Boolean(opts.designatedScorerName),
       orcos_score: 0,
       opponent_score: 0,
     };
@@ -190,8 +195,32 @@ export function useLiveMatch(user) {
   }, [updateLiveMatch, liveMatch]);
 
   const resumeLiveMatch = useCallback(async () => {
-    await updateLiveMatch({ status: 'live', started_at: new Date().toISOString() });
+    await updateLiveMatch({ status: 'live', started_at: new Date().toISOString(), delay_reason: null });
   }, [updateLiveMatch]);
+
+  const delayLiveMatch = useCallback(async (reason) => {
+    if (!liveMatch) return;
+    const now = Date.now();
+    let totalElapsed = liveMatch.elapsed_seconds || 0;
+    if (liveMatch.status === 'live' && liveMatch.started_at) {
+      const start = new Date(liveMatch.started_at).getTime();
+      totalElapsed += Math.max(0, Math.floor((now - start) / 1000));
+    }
+    await updateLiveMatch({
+      status: 'delayed',
+      elapsed_seconds: totalElapsed,
+      delay_reason: reason || 'Retraso de transporte o logística'
+    });
+  }, [updateLiveMatch, liveMatch]);
+
+  const setDesignatedScorer = useCallback(async (scorerName, scorerId = null, locked = true) => {
+    if (!liveMatch) return;
+    await updateLiveMatch({
+      designated_scorer_name: scorerName,
+      designated_scorer_id: scorerId,
+      scorer_locked: locked
+    });
+  }, [updateLiveMatch, liveMatch]);
 
   const endLiveMatch = useCallback(async () => {
     if (!liveMatch) return;
@@ -220,7 +249,7 @@ export function useLiveMatch(user) {
     liveMatch, setLiveMatch,
     liveEvents, setLiveEvents,
     startLiveMatch, addLiveEvent, updateLiveMatch,
-    pauseLiveMatch, resumeLiveMatch, endLiveMatch, deleteLiveMatch,
+    pauseLiveMatch, resumeLiveMatch, delayLiveMatch, setDesignatedScorer, endLiveMatch, deleteLiveMatch,
     calcScore: () => calcScore(liveEvents),
   };
 }

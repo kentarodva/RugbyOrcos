@@ -15,6 +15,7 @@ import { copyOrDownloadTacticalImage, buildLineupWhatsAppText } from '../../util
 import { copyToClipboard } from '../../utils/whatsappUtils';
 import { formatTeamCategory } from '../../context/constants';
 import { printOfficialMatchSheet } from '../../utils/exportPdf';
+import { AcademiaLeyesModal } from './AcademiaLeyesModal';
 
 function CanchaTactica() {
   const { players, activeTeam, futureFixtures, makgoraTeams = [], viewMode, makgoraTeamId } = React.useContext(ClubContext);
@@ -99,6 +100,7 @@ function CanchaTactica() {
   const [showSidebar, setShowSidebar] = React.useState(true);
   const [showSaveModal, setShowSaveModal] = React.useState(false);
   const [showFilterModal, setShowFilterModal] = React.useState(false);
+  const [showAcademia, setShowAcademia] = React.useState(false);
   const isLargeFullscreen = pitchSize === 'large';
 
   const allTeamPlayers = useTeamPlayers();
@@ -313,6 +315,7 @@ function CanchaTactica() {
             onExportImage={handleExportBroadcastImage}
             onCopyWhatsAppText={handleCopyLineupWhatsApp}
             onPrintOfficialPdf={handlePrintOfficialPdf}
+            onOpenAcademia={() => setShowAcademia(true)}
           />
 
           <PitchField
@@ -462,6 +465,12 @@ function CanchaTactica() {
         <TacticFiltersModal
           onAssign={handleAutoAssignWithFilters}
           onClose={() => setShowFilterModal(false)}
+        />
+      )}
+
+      {showAcademia && (
+        <AcademiaLeyesModal
+          onClose={() => setShowAcademia(false)}
         />
       )}
     </div>

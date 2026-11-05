@@ -220,12 +220,14 @@ function App() {
 
       {isAuthenticated && <QuickNavBar activeTab={activeTab} setActiveTab={setActiveTab} hasPermission={hasPermission} profile={profile} onOpenDrawer={() => setSidebarOpen(true)} />}
 
-      {isAuthenticated && liveMatch && (liveMatch.status === 'live' || liveMatch.status === 'paused') && (
+      {isAuthenticated && liveMatch && (liveMatch.status === 'live' || liveMatch.status === 'paused' || liveMatch.status === 'delayed') && (
         <div
           onClick={() => setActiveTab('calendario')}
           style={{
-            background: 'linear-gradient(90deg, rgba(255, 23, 68, 0.22) 0%, rgba(10, 20, 32, 0.95) 50%, rgba(0, 230, 118, 0.22) 100%)',
-            borderBottom: '1px solid var(--color-primary)',
+            background: liveMatch.status === 'delayed'
+              ? 'linear-gradient(90deg, rgba(255, 171, 0, 0.25) 0%, rgba(10, 20, 32, 0.95) 50%, rgba(255, 171, 0, 0.25) 100%)'
+              : 'linear-gradient(90deg, rgba(255, 23, 68, 0.22) 0%, rgba(10, 20, 32, 0.95) 50%, rgba(0, 230, 118, 0.22) 100%)',
+            borderBottom: `1px solid ${liveMatch.status === 'delayed' ? 'var(--color-orange, #ffab00)' : 'var(--color-primary)'}`,
             padding: '8px 16px',
             display: 'flex',
             alignItems: 'center',
@@ -239,13 +241,18 @@ function App() {
           }}
           title="Clic para ir directamente a la transmisión del partido en vivo"
         >
-          <span style={{ color: '#ff1744', display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#ff1744', display: 'inline-block' }} />
-            {liveMatch.status === 'live' ? 'PARTIDO EN VIVO' : 'PARTIDO PAUSADO'}:
+          <span style={{ color: liveMatch.status === 'delayed' ? '#ffab00' : '#ff1744', display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: liveMatch.status === 'delayed' ? '#ffab00' : '#ff1744', display: 'inline-block' }} />
+            {liveMatch.status === 'live' ? 'PARTIDO EN VIVO' : liveMatch.status === 'delayed' ? 'PARTIDO EN ESPERA (COROZAL)' : 'PARTIDO PAUSADO'}:
           </span>
           <span style={{ color: 'var(--color-primary)' }}>Orcos {liveMatch.orcos_score ?? 0}</span>
           <span style={{ color: 'var(--color-text-muted)' }}>vs</span>
           <span style={{ color: '#fff' }}>{liveMatch.opponent_name || 'Rival'} {liveMatch.opponent_score ?? 0}</span>
+          {liveMatch.status === 'delayed' && liveMatch.delay_reason && (
+            <span style={{ color: 'var(--color-text-muted)', fontSize: '0.74rem', fontStyle: 'italic' }}>
+              ({liveMatch.delay_reason})
+            </span>
+          )}
           <span style={{ color: 'var(--color-gold)', fontSize: '0.72rem', border: '1px solid var(--color-gold)', padding: '2px 8px', borderRadius: '4px', textTransform: 'uppercase' }}>
             Ver Partido ➔
           </span>

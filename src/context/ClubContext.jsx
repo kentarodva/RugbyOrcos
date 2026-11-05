@@ -308,6 +308,7 @@ export const ClubProvider = ({ children }) => {
       startLiveMatch: liveMatchHooks.startLiveMatch,
       addLiveEvent: liveMatchHooks.addLiveEvent, updateLiveMatch: liveMatchHooks.updateLiveMatch,
       pauseLiveMatch: liveMatchHooks.pauseLiveMatch, resumeLiveMatch: liveMatchHooks.resumeLiveMatch,
+      delayLiveMatch: liveMatchHooks.delayLiveMatch, setDesignatedScorer: liveMatchHooks.setDesignatedScorer,
       endLiveMatch: liveMatchHooks.endLiveMatch, deleteLiveMatch: liveMatchHooks.deleteLiveMatch,
       matchInvitations, createInvitation: invitationHooks.createInvitation, cancelInvitation: invitationHooks.cancelInvitation, deleteInvitation: invitationHooks.deleteInvitation, updateInvitationResponse: invitationHooks.updateInvitationResponse,
       loans, requestLoan: loanHooks.requestLoan, updateLoanStatus: loanHooks.updateLoanStatus,

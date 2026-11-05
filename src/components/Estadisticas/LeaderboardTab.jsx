@@ -1,6 +1,12 @@
 import React, { useState } from 'react';
-import { Trophy, Target, Shield, Star, Award } from 'lucide-react';
 import { PlayerPhoto } from '../PlayerPhoto';
+import {
+  OrcosRugbyBallIcon,
+  OrcosBattleAxeHPostsIcon,
+  OrcosTackleShieldIcon,
+  OrcosThirdTimeHornIcon,
+  OrcosWarBannerIcon,
+} from '../common/OrcosIcons';
 
 export function LeaderboardTab({ players = [], teamCategory = 'all' }) {
   const [filterCat, setFilterCat] = useState(teamCategory || 'all');
@@ -140,10 +146,10 @@ export function LeaderboardTab({ players = [], teamCategory = 'all' }) {
         gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
         gap: '16px'
       }}>
-        {renderPodium('TRYMAN / TRYWOMAN DE ORO', <Trophy size={20} />, topTries, 'Tries', '#00e676')}
-        {renderPodium('BOTÍN DE ORO (PATEADOR)', <Target size={20} />, topKickers, 'Pts', '#ffd740')}
-        {renderPodium('ESCUDO DE HIERRO (CAPS)', <Shield size={20} />, topCaps, 'Partidos', '#38bdf8')}
-        {renderPodium('CAMPEÓN MAKGORA (XP)', <Star size={20} />, topMvp, 'XP', '#a855f7')}
+        {renderPodium('TRYMAN / TRYWOMAN DE ORO', <OrcosRugbyBallIcon size={20} color="#00e676" />, topTries, 'Tries', '#00e676')}
+        {renderPodium('BOTÍN DE ORO (PATEADOR)', <OrcosBattleAxeHPostsIcon size={20} color="#ffd740" />, topKickers, 'Pts', '#ffd740')}
+        {renderPodium('ESCUDO DE HIERRO (CAPS)', <OrcosTackleShieldIcon size={20} color="#38bdf8" />, topCaps, 'Partidos', '#38bdf8')}
+        {renderPodium('CAMPEÓN MAKGORA (XP)', <OrcosThirdTimeHornIcon size={20} color="#a855f7" />, topMvp, 'XP', '#a855f7')}
       </div>
 
       {/* Footer Banner */}
@@ -156,7 +162,7 @@ export function LeaderboardTab({ players = [], teamCategory = 'all' }) {
         alignItems: 'center',
         gap: '14px'
       }}>
-        <Award size={32} color="#ffd740" style={{ flexShrink: 0 }} />
+        <OrcosWarBannerIcon size={32} color="#ffd740" style={{ flexShrink: 0 }} />
         <div>
           <div style={{ fontSize: '0.9rem', fontWeight: 800, color: '#ffd740' }}>
             Premios Oficiales de Clausura de Temporada

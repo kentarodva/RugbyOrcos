@@ -29,7 +29,7 @@ function Calendario() {
     viewMode, divisionView, makgoraTeams,
     syncStatus, hasPermission,
     liveMatch, startLiveMatch, addLiveEvent,
-    pauseLiveMatch, resumeLiveMatch, endLiveMatch, deleteLiveMatch,
+    pauseLiveMatch, resumeLiveMatch, delayLiveMatch, setDesignatedScorer, endLiveMatch, deleteLiveMatch,
   } = useContext(ClubContext);
   const { showToast } = useToast();
   const { user, profile } = useAuth();
@@ -356,12 +356,17 @@ function Calendario() {
           onAddEvent={addLiveEvent}
           onPause={pauseLiveMatch}
           onResume={resumeLiveMatch}
+          onDelay={delayLiveMatch}
+          onSetScorer={setDesignatedScorer}
           onEnd={handleEndLiveMatch}
           onDelete={handleDeleteLiveMatch}
           onClose={() => setActiveTab('fixture')}
           onStart={handleStartLiveMatch}
           addFixture={addFixture}
           showToast={showToast}
+          currentUser={user}
+          currentProfile={profile}
+          canManageMatch={hasPermission('admin_panel') || profile?.role === 'coach' || profile?.role === 'capitan'}
         />
       )}
 

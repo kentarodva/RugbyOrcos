@@ -89,4 +89,24 @@ Mediante la función `printOfficialMatchSheet` ([`exportPdf.js`](file:///C:/User
 * Indicación de primera línea capacitado para scrum pactado.
 * Firmas del Capitán, Entrenador Principal y Árbitro Central.
 
+---
+
+## 5. Academia de Leyes FCR y Dojo Reglamentario Didáctico
+
+Para asegurar que todo guerrero de Orcos Rugby Club domine el reglamento oficial de la **Federación Colombiana de Rugby (FCR)** y **World Rugby**, la pizarra táctica incorpora el modal interactivo de la Academia ([`AcademiaLeyesModal.jsx`](file:///C:/Users/KennentDVA/Documents/Proyectos_Code/Rugby%20Orcos/src/components/CanchaTactica/AcademiaLeyesModal.jsx)) alimentado por el catálogo normativo ([`rugbyLawsAcademy.js`](file:///C:/Users/KennentDVA/Documents/Proyectos_Code/Rugby%20Orcos/src/data/rugbyLawsAcademy.js)):
+
+1. **6 Infracciones y Faltas Críticas Didácticas:**
+   - **Placaje Alto / Contacto con la Cabeza (World Rugby Ley 9.13):** Prohibido el placaje por encima de la línea de los hombros o esternón. Incluye el *Head Contact Process* (falta, grado de peligro, factores de mitigación) sancionado con Tarjeta Amarilla (10 min en el sin-bin) o Roja.
+   - **Fuera de Juego en el Ruck & Entrada por la Puerta (Leyes 14 y 15):** La línea de offside pasa por el último pie del último jugador en el ruck. Entrada obligatoria por detrás de la línea imaginaria de los postes/puerta.
+   - **Knock-on / Pase Hacia Adelante (Ley 11):** Salida de balón hacia la zona de in-goal contraria que toca el suelo u otro jugador, sancionado con Scrum para el rival.
+   - **Colapso de Scrum / Peligro en la Primera Línea (Ley 19.37):** Tirar del pilar contrario hacia abajo o no mantener el empuje recto. Penal contra el equipo infractor y advertencia de seguridad cervical.
+   - **No Soltar el Balón Tras el Tackle / Holding on (Ley 14.7):** El jugador placado debe poner el balón a disposición inmediatamente; el placador debe soltar al portador antes de disputar (jackal legal sobre sus pies).
+   - **Pantalla y Obstrucción / Crossing (Ley 9.1):** Un compañero no puede correr cortando la trayectoria de un defensor para impedir el placaje.
+2. **Examen Reglamentario Interactivo:** Test de 5 preguntas aleatorias con evaluación instantánea, retroalimentación táctica y recompensa de **+100 XP** para el escalafón de Makgora.
+3. **Certificaciones Oficiales World Rugby Passport:** Enlaces directos a los 4 exámenes globales obligatorios para competencias FCR:
+   - *Rugby Ready (Seguridad, calentamiento y técnica)*
+   - *Gestión de la Conmoción Cerebral (Protocolo HIA para Jugadores y Público)*
+   - *Leyes del Juego (Examen oficial World Rugby Laws)*
+   - *Primeros Auxilios en el Rugby (FAIR)*
+
 Ver siguiente: [[05_MATCH_CENTER_EN_VIVO_Y_CALENDARIO]]

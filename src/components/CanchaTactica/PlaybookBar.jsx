@@ -23,6 +23,7 @@ function PlaybookBar({
   onExportImage,
   onCopyWhatsAppText,
   onPrintOfficialPdf,
+  onOpenAcademia,
 }) {
   const [exportStatus, setExportStatus] = useState('');
   const [copyStatus, setCopyStatus] = useState('');
@@ -178,6 +179,27 @@ function PlaybookBar({
           >
             📄 Planilla PDF FCR
           </button>
+
+          {onOpenAcademia && (
+            <button
+              type="button"
+              onClick={onOpenAcademia}
+              className="btn-outline"
+              style={{
+                padding: '6px 10px',
+                fontSize: '0.75rem',
+                fontWeight: 800,
+                borderColor: '#00e676',
+                color: '#00e676',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px',
+              }}
+              title="Academia de Rugby, Leyes FCR y Certificaciones World Rugby Passport"
+            >
+              📖 Academia FCR
+            </button>
+          )}
 
           <button
             type="button"
