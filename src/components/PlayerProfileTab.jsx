@@ -12,6 +12,54 @@ import {
 
 const EPS_LIST = ['Nueva EPS', 'Sanitas', 'Salud Total', 'Coosalud', 'Mutual Ser', 'Cajacopi', 'Familiar de Colombia', 'FOMAG'];
 
+const RUGBY_POSITIONS_GROUPS = [
+  {
+    group: 'Primera Línea (Scrum & Choque Frontal)',
+    options: [
+      { id: 1, name: 'Pilar Izquierdo', num: 1 },
+      { id: 2, name: 'Talonador (Hooker)', num: 2 },
+      { id: 3, name: 'Pilar Derecho', num: 3 },
+    ],
+  },
+  {
+    group: 'Segunda Línea (Salto & Empuje de Melé)',
+    options: [
+      { id: 4, name: 'Segunda Línea #4', num: 4 },
+      { id: 5, name: 'Segunda Línea #5', num: 5 },
+    ],
+  },
+  {
+    group: 'Tercera Línea (Flankers & Octavo - Portadores)',
+    options: [
+      { id: 6, name: 'Ala / Flanker Ciego #6', num: 6 },
+      { id: 7, name: 'Ala / Flanker Abierto #7', num: 7 },
+      { id: 8, name: 'Octavo (N8)', num: 8 },
+    ],
+  },
+  {
+    group: 'Medios (Conducción & Estrategia)',
+    options: [
+      { id: 9, name: 'Medio Scrum #9', num: 9 },
+      { id: 10, name: 'Apertura (Fly-half) #10', num: 10 },
+    ],
+  },
+  {
+    group: 'Centros (Penetración & Defensa Frontal)',
+    options: [
+      { id: 12, name: 'Centro Interior #12', num: 12 },
+      { id: 13, name: 'Centro Exterior #13', num: 13 },
+    ],
+  },
+  {
+    group: 'Tres Cuartos / Definidores (Velocidad & Fondo)',
+    options: [
+      { id: 11, name: 'Wing Izquierdo #11', num: 11 },
+      { id: 14, name: 'Wing Derecho #14', num: 14 },
+      { id: 15, name: 'Zaguero (Fullback) #15', num: 15 },
+    ],
+  },
+];
+
 const attrColors = { force: '#ff1744', speed: '#00e676', stamina: '#00b0ff', technique: '#ffd740' };
 const attrLabels = { force: 'Fuerza', speed: 'Velocidad', stamina: 'Resistencia', technique: 'Técnica' };
 const attrIcons = {
@@ -213,84 +261,265 @@ export default function PlayerProfileTab({ player, _players, updatePlayer, _camp
         </div>
       </div>
 
-      {/* Edit Mode Form */}
+      {/* Edit Profile Modal Dialog */}
       {editMode && (
-        <div className="glass-panel" style={{ padding: '20px', borderRadius: '14px', border: '1px solid var(--color-gold)' }}>
-          <h4 style={{ color: 'var(--color-gold)', fontWeight: 800, marginBottom: '14px' }}>
-            ✏️ Modificar Información de Guerrero
-          </h4>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '12px' }}>
-            <div>
-              <label style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', display: 'block', marginBottom: '4px' }}>Apodo / Alias de Combate</label>
-              <input
-                type="text"
-                value={profileForm.apodo}
-                onChange={e => setProfileForm(prev => ({ ...prev, apodo: e.target.value }))}
-                className="form-input"
-                placeholder="Ej: El Tanque, La Muralla..."
-              />
+        <div
+          className="modal-overlay"
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(0, 0, 0, 0.8)',
+            backdropFilter: 'blur(8px)',
+            zIndex: 9999,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '16px',
+          }}
+          onClick={() => setEditMode(false)}
+        >
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: 15 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 15 }}
+            className="modal-content"
+            style={{
+              maxWidth: '680px',
+              width: '100%',
+              maxHeight: '90vh',
+              overflowY: 'auto',
+              background: 'linear-gradient(180deg, rgba(14, 25, 40, 0.98) 0%, rgba(8, 14, 24, 0.99) 100%)',
+              border: '1px solid rgba(0, 230, 118, 0.4)',
+              borderRadius: '20px',
+              padding: '24px',
+              boxShadow: '0 20px 60px rgba(0, 0, 0, 0.7), 0 0 30px rgba(0, 230, 118, 0.1)',
+            }}
+            onClick={e => e.stopPropagation()}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', paddingBottom: '12px' }}>
+              <div>
+                <h3 style={{ color: 'var(--color-primary)', fontWeight: 900, fontFamily: 'Outfit', fontSize: '1.2rem', margin: 0 }}>
+                  🛡️ Modificar Ficha de Guerrero
+                </h3>
+                <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', margin: '4px 0 0 0' }}>
+                  Datos oficiales del club. La posición en cancha está estandarizada según las 15 posiciones de World Rugby.
+                </p>
+              </div>
+              <button
+                onClick={() => setEditMode(false)}
+                className="btn-outline"
+                style={{ padding: '4px 10px', fontSize: '0.8rem', borderRadius: '8px' }}
+              >
+                ✕
+              </button>
             </div>
-            <div>
-              <label style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', display: 'block', marginBottom: '4px' }}>Posición en Cancha</label>
-              <input
-                type="text"
-                value={profileForm.posicion}
-                onChange={e => setProfileForm(prev => ({ ...prev, posicion: e.target.value }))}
-                className="form-input"
-                placeholder="Ej: Pilar izquierdo, Octavo..."
-              />
-            </div>
-            <div>
-              <label style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', display: 'block', marginBottom: '4px' }}>Teléfono Celular</label>
-              <input
-                type="text"
-                value={profileForm.contacto_phone}
-                onChange={e => setProfileForm(prev => ({ ...prev, contacto_phone: e.target.value }))}
-                className="form-input"
-                placeholder="300 000 0000"
-              />
-            </div>
-            <div>
-              <label style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', display: 'block', marginBottom: '4px' }}>Peso (kg)</label>
-              <input
-                type="number"
-                value={profileForm.weight}
-                onChange={e => setProfileForm(prev => ({ ...prev, weight: e.target.value }))}
-                className="form-input"
-                placeholder="Ej: 135"
-              />
-            </div>
-            <div>
-              <label style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', display: 'block', marginBottom: '4px' }}>Estatura (m)</label>
-              <input
-                type="number"
-                step="0.01"
-                value={profileForm.height}
-                onChange={e => setProfileForm(prev => ({ ...prev, height: e.target.value }))}
-                className="form-input"
-                placeholder="Ej: 1.83"
-              />
-            </div>
-            <div>
-              <label style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', display: 'block', marginBottom: '4px' }}>EPS / Cobertura Médica</label>
-              <input
-                type="text"
-                value={profileForm.health_insurance}
-                onChange={e => setProfileForm(prev => ({ ...prev, health_insurance: e.target.value }))}
-                className="form-input"
-                placeholder="Ej: Nueva EPS, Sanitas, Coosalud..."
-              />
-            </div>
-          </div>
 
-          <div style={{ marginTop: '16px', display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-            <button onClick={() => setEditMode(false)} className="btn-outline" style={{ fontSize: '0.8rem', padding: '8px 16px' }}>
-              Cancelar
-            </button>
-            <button onClick={handleSaveProfile} className="btn-primary" style={{ fontSize: '0.8rem', padding: '8px 20px', fontWeight: 800 }}>
-              💾 Guardar Cambios
-            </button>
-          </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '14px' }}>
+              {/* Apodo */}
+              <div>
+                <label style={{ fontSize: '0.75rem', fontWeight: 700, color: '#fff', display: 'block', marginBottom: '4px' }}>
+                  Apodo / Alias de Combate
+                </label>
+                <input
+                  type="text"
+                  value={profileForm.apodo}
+                  onChange={e => setProfileForm(prev => ({ ...prev, apodo: e.target.value }))}
+                  className="form-input"
+                  placeholder="Ej: El Tanque, La Muralla..."
+                  style={{ width: '100%', padding: '9px 12px', fontSize: '0.82rem', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '8px', color: '#fff' }}
+                />
+              </div>
+
+              {/* Posición en Cancha Standard Select */}
+              <div>
+                <label style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-gold)', display: 'block', marginBottom: '4px' }}>
+                  🏉 Posición en Cancha (World Rugby)
+                </label>
+                <select
+                  value={profileForm.position_id || ''}
+                  onChange={e => {
+                    const posId = e.target.value ? Number(e.target.value) : null;
+                    let foundName = '';
+                    RUGBY_POSITIONS_GROUPS.forEach(g => {
+                      const match = g.options.find(o => o.id === posId);
+                      if (match) foundName = match.name;
+                    });
+                    setProfileForm(prev => ({
+                      ...prev,
+                      position_id: posId,
+                      posicion: foundName || prev.posicion,
+                    }));
+                  }}
+                  className="form-select"
+                  style={{ width: '100%', padding: '9px 12px', fontSize: '0.82rem', background: '#0e1824', border: '1px solid rgba(255, 215, 64, 0.4)', borderRadius: '8px', color: '#fff' }}
+                >
+                  <option value="">Selecciona tu posición oficial...</option>
+                  {RUGBY_POSITIONS_GROUPS.map(group => (
+                    <optgroup key={group.group} label={group.group} style={{ background: '#0a1018', color: 'var(--color-gold)' }}>
+                      {group.options.map(opt => (
+                        <option key={opt.id} value={opt.id} style={{ background: '#0e1824', color: '#fff' }}>
+                          #{opt.num} - {opt.name}
+                        </option>
+                      ))}
+                    </optgroup>
+                  ))}
+                </select>
+                <div style={{ fontSize: '0.66rem', color: 'var(--color-text-muted)', marginTop: '4px' }}>
+                  {profileForm.posicion ? `Seleccionada: ${profileForm.posicion}` : 'Elige tu puesto táctico'}
+                </div>
+              </div>
+
+              {/* Teléfono */}
+              <div>
+                <label style={{ fontSize: '0.75rem', fontWeight: 700, color: '#fff', display: 'block', marginBottom: '4px' }}>
+                  📱 Celular / WhatsApp
+                </label>
+                <input
+                  type="text"
+                  value={profileForm.contacto_phone}
+                  onChange={e => setProfileForm(prev => ({ ...prev, contacto_phone: e.target.value }))}
+                  className="form-input"
+                  placeholder="300 123 4567"
+                  style={{ width: '100%', padding: '9px 12px', fontSize: '0.82rem', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '8px', color: '#fff' }}
+                />
+              </div>
+
+              {/* Peso (kg) */}
+              <div>
+                <label style={{ fontSize: '0.75rem', fontWeight: 700, color: '#fff', display: 'block', marginBottom: '4px' }}>
+                  ⚖️ Peso Corporal (kg)
+                </label>
+                <input
+                  type="number"
+                  step="0.5"
+                  value={profileForm.weight}
+                  onChange={e => setProfileForm(prev => ({ ...prev, weight: e.target.value }))}
+                  className="form-input"
+                  placeholder="Ej: 110"
+                  style={{ width: '100%', padding: '9px 12px', fontSize: '0.82rem', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '8px', color: '#fff' }}
+                />
+              </div>
+
+              {/* Estatura (m) */}
+              <div>
+                <label style={{ fontSize: '0.75rem', fontWeight: 700, color: '#fff', display: 'block', marginBottom: '4px' }}>
+                  📏 Estatura (m)
+                </label>
+                <input
+                  type="number"
+                  step="0.01"
+                  value={profileForm.height}
+                  onChange={e => setProfileForm(prev => ({ ...prev, height: e.target.value }))}
+                  className="form-input"
+                  placeholder="Ej: 1.83"
+                  style={{ width: '100%', padding: '9px 12px', fontSize: '0.82rem', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '8px', color: '#fff' }}
+                />
+              </div>
+
+              {/* EPS */}
+              <div>
+                <label style={{ fontSize: '0.75rem', fontWeight: 700, color: '#fff', display: 'block', marginBottom: '4px' }}>
+                  🏥 Cobertura Médica / EPS
+                </label>
+                <select
+                  value={profileForm.health_insurance}
+                  onChange={e => setProfileForm(prev => ({ ...prev, health_insurance: e.target.value }))}
+                  className="form-select"
+                  style={{ width: '100%', padding: '9px 12px', fontSize: '0.82rem', background: '#0e1824', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '8px', color: '#fff' }}
+                >
+                  <option value="">Selecciona EPS...</option>
+                  {EPS_LIST.map(eps => (
+                    <option key={eps} value={eps}>{eps}</option>
+                  ))}
+                  <option value="OTRA">Otra EPS / Medicina Prepagada</option>
+                </select>
+                {profileForm.health_insurance === 'OTRA' && (
+                  <input
+                    type="text"
+                    value={profileForm.custom_eps}
+                    onChange={e => setProfileForm(prev => ({ ...prev, custom_eps: e.target.value }))}
+                    placeholder="Escribe el nombre de tu EPS..."
+                    style={{ width: '100%', marginTop: '6px', padding: '7px 10px', fontSize: '0.78rem', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '6px', color: '#fff' }}
+                  />
+                )}
+              </div>
+
+              {/* Contacto de Emergencia */}
+              <div>
+                <label style={{ fontSize: '0.75rem', fontWeight: 700, color: '#fff', display: 'block', marginBottom: '4px' }}>
+                  🚨 Contacto de Emergencia (Nombre)
+                </label>
+                <input
+                  type="text"
+                  value={profileForm.emergency_contact_name}
+                  onChange={e => setProfileForm(prev => ({ ...prev, emergency_contact_name: e.target.value }))}
+                  className="form-input"
+                  placeholder="Nombre de familiar"
+                  style={{ width: '100%', padding: '9px 12px', fontSize: '0.82rem', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '8px', color: '#fff' }}
+                />
+              </div>
+
+              {/* Teléfono de Emergencia */}
+              <div>
+                <label style={{ fontSize: '0.75rem', fontWeight: 700, color: '#fff', display: 'block', marginBottom: '4px' }}>
+                  ☎️ Teléfono de Emergencia
+                </label>
+                <input
+                  type="text"
+                  value={profileForm.emergency_contact_phone}
+                  onChange={e => setProfileForm(prev => ({ ...prev, emergency_contact_phone: e.target.value }))}
+                  className="form-input"
+                  placeholder="300 000 0000"
+                  style={{ width: '100%', padding: '9px 12px', fontSize: '0.82rem', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '8px', color: '#fff' }}
+                />
+              </div>
+
+              {/* Talla Camiseta */}
+              <div>
+                <label style={{ fontSize: '0.75rem', fontWeight: 700, color: '#fff', display: 'block', marginBottom: '4px' }}>
+                  👕 Talla Camiseta Oficial
+                </label>
+                <select
+                  value={profileForm.jersey || ''}
+                  onChange={e => setProfileForm(prev => ({ ...prev, jersey: e.target.value }))}
+                  className="form-select"
+                  style={{ width: '100%', padding: '9px 12px', fontSize: '0.82rem', background: '#0e1824', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '8px', color: '#fff' }}
+                >
+                  <option value="">Selecciona talla...</option>
+                  {['S', 'M', 'L', 'XL', '2XL', '3XL', '4XL'].map(t => (
+                    <option key={t} value={t}>{t}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Talla Pantaloneta */}
+              <div>
+                <label style={{ fontSize: '0.75rem', fontWeight: 700, color: '#fff', display: 'block', marginBottom: '4px' }}>
+                  🩳 Talla Pantaloneta
+                </label>
+                <select
+                  value={profileForm.shorts || ''}
+                  onChange={e => setProfileForm(prev => ({ ...prev, shorts: e.target.value }))}
+                  className="form-select"
+                  style={{ width: '100%', padding: '9px 12px', fontSize: '0.82rem', background: '#0e1824', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '8px', color: '#fff' }}
+                >
+                  <option value="">Selecciona talla...</option>
+                  {['S', 'M', 'L', 'XL', '2XL', '3XL'].map(t => (
+                    <option key={t} value={t}>{t}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            <div style={{ marginTop: '20px', display: 'flex', gap: '10px', justifyContent: 'flex-end', borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '16px' }}>
+              <button onClick={() => setEditMode(false)} className="btn-outline" style={{ fontSize: '0.82rem', padding: '9px 18px' }}>
+                Cancelar
+              </button>
+              <button onClick={handleSaveProfile} className="btn-primary" style={{ fontSize: '0.82rem', padding: '9px 24px', fontWeight: 800 }}>
+                💾 Guardar Ficha Oficial
+              </button>
+            </div>
+          </motion.div>
         </div>
       )}
 

@@ -56,10 +56,32 @@ export function PlayerFinanzasTab({ player, allPayments = [], campaigns = [], on
   const m = player.memberships || { paid: 0, due: MENSUALIDAD_BASE };
   const paidAmt = Math.max(Number(m.paid) || 0, totalPaidFromPayments);
   const dueAmt = (Number(m.due) > 0 ? Number(m.due) : MENSUALIDAD_BASE);
-  const debtAmt = Math.max(0, dueAmt - paidAmt);
+  const _debtAmt = Math.max(0, dueAmt - paidAmt);
 
   const isCovered = paidAmt >= dueAmt;
   const lastPayment = membershipPayments[0];
+
+  const now = new Date();
+  const currentMonthName = now.toLocaleString('es-CO', { month: 'long', year: 'numeric' });
+  const lastPayDateStr = lastPayment?.payment_date || player?.last_payment_date;
+  const lastPayDate = lastPayDateStr ? new Date(lastPayDateStr + 'T00:00:00') : null;
+  const lastPayMonthName = lastPayDate
+    ? lastPayDate.toLocaleString('es-CO', { month: 'long', year: 'numeric' })
+    : 'Julio 2026';
+
+  // Has the calendar month moved past the last payment?
+  const isPastCycle = lastPayDate && (
+    lastPayDate.getFullYear() < now.getFullYear() ||
+    (lastPayDate.getFullYear() === now.getFullYear() && lastPayDate.getMonth() < now.getMonth())
+  );
+
+  const whatsappPaymentMsg = encodeURIComponent(
+    `🏉 *RUGBY ORCOS — Comprobante de Membresía*\n` +
+    `¡Hola Tesorería! Adjunto el soporte de pago de mi cuota mensual correspondiente a *${currentMonthName}* ($10.000 COP).\n` +
+    `👤 *Guerrero:* ${player.name}\n` +
+    `🏉 *Posición:* ${player.posicion || 'Pilar'} #${player.jerseyNumber || 1}\n` +
+    `¡Por la Horda! 💚⚔️`
+  );
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
@@ -70,19 +92,19 @@ export function PlayerFinanzasTab({ player, allPayments = [], campaigns = [], on
           padding: '24px',
           borderRadius: '16px',
           background: 'linear-gradient(135deg, rgba(10, 22, 35, 0.95) 0%, rgba(5, 12, 20, 0.98) 100%)',
-          border: `1px solid ${isCovered ? 'rgba(0, 230, 118, 0.35)' : 'rgba(255, 61, 0, 0.35)'}`,
+          border: `1px solid ${isPastCycle ? 'rgba(255, 215, 64, 0.4)' : isCovered ? 'rgba(0, 230, 118, 0.35)' : 'rgba(255, 61, 0, 0.35)'}`,
           boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)',
         }}
       >
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px', marginBottom: '18px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <Wallet size={24} color={isCovered ? 'var(--color-primary)' : 'var(--color-gold)'} />
+            <Wallet size={24} color={isPastCycle ? 'var(--color-gold)' : isCovered ? 'var(--color-primary)' : '#ff5252'} />
             <div>
               <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 900, fontFamily: 'Outfit', color: '#fff' }}>
-                Balance General de Membresía
+                Membresía Mensual & Cuotas Oficiales
               </h3>
               <p style={{ margin: '2px 0 0', fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
-                Cuota mensual oficial del club: <strong style={{ color: 'var(--color-gold)' }}>${MENSUALIDAD_BASE.toLocaleString()} COP</strong>
+                Ciclo activo del club: <strong style={{ color: 'var(--color-gold)', textTransform: 'capitalize' }}>{currentMonthName}</strong> &middot; Cuota base: <strong>${MENSUALIDAD_BASE.toLocaleString()} COP/mes</strong>
               </p>
             </div>
           </div>
@@ -91,49 +113,71 @@ export function PlayerFinanzasTab({ player, allPayments = [], campaigns = [], on
             style={{
               padding: '6px 14px',
               borderRadius: '20px',
-              fontSize: '0.75rem',
+              fontSize: '0.74rem',
               fontWeight: 800,
-              background: isCovered ? 'rgba(0, 230, 118, 0.12)' : 'rgba(255, 61, 0, 0.12)',
-              color: isCovered ? 'var(--color-primary)' : 'var(--color-red)',
-              border: `1px solid ${isCovered ? 'var(--color-primary)' : 'var(--color-red)'}`,
+              background: isPastCycle ? 'rgba(255, 215, 64, 0.12)' : isCovered ? 'rgba(0, 230, 118, 0.12)' : 'rgba(255, 61, 0, 0.12)',
+              color: isPastCycle ? 'var(--color-gold)' : isCovered ? 'var(--color-primary)' : 'var(--color-red)',
+              border: `1px solid ${isPastCycle ? 'var(--color-gold)' : isCovered ? 'var(--color-primary)' : 'var(--color-red)'}`,
               display: 'inline-flex',
               alignItems: 'center',
               gap: '6px',
             }}
           >
-            {isCovered ? <CheckCircle2 size={14} /> : <AlertCircle size={14} />}
-            {isCovered ? 'CUOTA CUBIERTA · AL DÍA' : 'SALDO PENDIENTE'}
+            {isPastCycle ? <AlertCircle size={14} /> : isCovered ? <CheckCircle2 size={14} /> : <AlertCircle size={14} />}
+            {isPastCycle ? `CUBIERTO: ${lastPayMonthName.toUpperCase()} · PENDIENTE: ${currentMonthName.toUpperCase()}` : isCovered ? 'CUOTA AL DÍA' : 'SALDO PENDIENTE'}
           </span>
         </div>
 
         {/* 3 Main KPIs */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '12px', marginBottom: '16px' }}>
           <div style={{ background: 'rgba(255, 255, 255, 0.02)', border: '1px solid rgba(0, 230, 118, 0.25)', borderRadius: '12px', padding: '16px', textAlign: 'center' }}>
-            <div style={{ fontSize: '0.72rem', fontWeight: 700, color: 'var(--color-text-muted)', textTransform: 'uppercase' }}>Total Abonado</div>
+            <div style={{ fontSize: '0.72rem', fontWeight: 700, color: 'var(--color-text-muted)', textTransform: 'uppercase' }}>Abono Registrado</div>
             <div style={{ fontSize: '1.8rem', fontWeight: 900, color: '#00e676', fontFamily: 'Outfit' }}>${paidAmt.toLocaleString()}</div>
-            <div style={{ fontSize: '0.68rem', color: 'var(--color-primary)', marginTop: '2px' }}>Acreditado en tesorería</div>
+            <div style={{ fontSize: '0.68rem', color: 'var(--color-primary)', marginTop: '2px' }}>Acreditado ({lastPayMonthName})</div>
           </div>
 
-          <div style={{ background: 'rgba(255, 255, 255, 0.02)', border: `1px solid ${debtAmt > 0 ? 'rgba(255, 61, 0, 0.3)' : 'rgba(255, 255, 255, 0.08)'}`, borderRadius: '12px', padding: '16px', textAlign: 'center' }}>
-            <div style={{ fontSize: '0.72rem', fontWeight: 700, color: 'var(--color-text-muted)', textTransform: 'uppercase' }}>Saldo Pendiente</div>
-            <div style={{ fontSize: '1.8rem', fontWeight: 900, color: debtAmt > 0 ? '#ff1744' : '#00e676', fontFamily: 'Outfit' }}>${debtAmt.toLocaleString()}</div>
-            <div style={{ fontSize: '0.68rem', color: 'var(--color-text-muted)', marginTop: '2px' }}>{debtAmt === 0 ? 'Sin deudas registradas' : 'Pendiente por transferir'}</div>
+          <div style={{ background: 'rgba(255, 255, 255, 0.02)', border: `1px solid ${isPastCycle ? 'rgba(255, 215, 64, 0.3)' : 'rgba(255, 255, 255, 0.08)'}`, borderRadius: '12px', padding: '16px', textAlign: 'center' }}>
+            <div style={{ fontSize: '0.72rem', fontWeight: 700, color: 'var(--color-text-muted)', textTransform: 'uppercase' }}>Cuota Ciclo Actual</div>
+            <div style={{ fontSize: '1.8rem', fontWeight: 900, color: isPastCycle ? 'var(--color-gold)' : '#00e676', fontFamily: 'Outfit' }}>
+              ${isPastCycle ? MENSUALIDAD_BASE.toLocaleString() : '0'}
+            </div>
+            <div style={{ fontSize: '0.68rem', color: 'var(--color-text-muted)', marginTop: '2px', textTransform: 'capitalize' }}>
+              {isPastCycle ? `Cuota de ${currentMonthName}` : 'Mes actual cubierto'}
+            </div>
           </div>
 
           <div style={{ background: 'rgba(255, 255, 255, 0.02)', border: '1px solid rgba(255, 215, 64, 0.25)', borderRadius: '12px', padding: '16px', textAlign: 'center' }}>
-            <div style={{ fontSize: '0.72rem', fontWeight: 700, color: 'var(--color-text-muted)', textTransform: 'uppercase' }}>Último Pago</div>
+            <div style={{ fontSize: '0.72rem', fontWeight: 700, color: 'var(--color-text-muted)', textTransform: 'uppercase' }}>Último Comprobante</div>
             <div style={{ fontSize: '1.2rem', fontWeight: 900, color: 'var(--color-gold)', fontFamily: 'Outfit', marginTop: '6px' }}>
-              {lastPayment?.payment_date ? lastPayment.payment_date : '10/07/2026'}
+              {lastPayDateStr || '2026-07-10'}
             </div>
             <div style={{ fontSize: '0.68rem', color: 'var(--color-text-muted)', marginTop: '2px' }}>
-              {lastPayment?.amount ? `$${Number(lastPayment.amount).toLocaleString()} COP` : '$10.000 COP'}
+              ${Number(lastPayment?.amount || 10000).toLocaleString()} COP recibido
             </div>
           </div>
         </div>
 
-        {/* Informative Explanation of Status */}
-        <div style={{ background: 'rgba(255, 215, 64, 0.06)', border: '1px solid rgba(255, 215, 64, 0.25)', borderRadius: '10px', padding: '12px 16px', fontSize: '0.78rem', color: '#e2e8f0', lineHeight: 1.5 }}>
-          💡 <strong>Detalle de tu Estado Financiero:</strong> Tu pago de <strong>${paidAmt.toLocaleString()} COP</strong> está registrado en la Caja Chica del club (transacción <em>{lastPayment?.id ? lastPayment.id.slice(0, 8) : 'f22931f9'}...</em>). En el sistema, una cuota aparece como <strong>"Cubierta"</strong> mientras la tesorería mantenga tu saldo pendiente en $0. Cuando el tesorero emita la orden del nuevo mes, el saldo pendiente se incrementará automáticamente a cobrar.
+        {/* Clear Explanation of Monthly Cycle and Payment Options */}
+        <div style={{ background: 'rgba(255, 215, 64, 0.06)', border: '1px solid rgba(255, 215, 64, 0.25)', borderRadius: '12px', padding: '14px 18px', fontSize: '0.8rem', color: '#e2e8f0', lineHeight: 1.6 }}>
+          <p style={{ margin: '0 0 8px 0' }}>
+            💡 <strong>Claridad del Ciclo de Membresía:</strong> Tu pago previo de <strong>$10.000 COP</strong> (10/Julio/2026) cubrió exitosamente la mensualidad de <strong>{lastPayMonthName}</strong>. Debido a que el club maneja una cuota mensual de <strong>${MENSUALIDAD_BASE.toLocaleString()} COP</strong>, para estar al día con el periodo activo de <strong style={{ textTransform: 'capitalize', color: 'var(--color-gold)' }}>{currentMonthName}</strong> puedes realizar tu transferencia directamente a tesorería.
+          </p>
+
+          <div style={{ display: 'flex', gap: '10px', marginTop: '12px', flexWrap: 'wrap', alignItems: 'center' }}>
+            <a
+              href={`https://wa.me/?text=${whatsappPaymentMsg}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-primary"
+              style={{ padding: '8px 18px', fontSize: '0.78rem', fontWeight: 800, display: 'inline-flex', alignItems: 'center', gap: '6px', textDecoration: 'none' }}
+            >
+              📲 Notificar Abono de {currentMonthName} por WhatsApp
+            </a>
+
+            <span style={{ fontSize: '0.72rem', color: 'var(--color-text-muted)' }}>
+              Nequi / Bancolombia del Club &middot; Soporte verificado por el Tesorero
+            </span>
+          </div>
         </div>
       </div>
 

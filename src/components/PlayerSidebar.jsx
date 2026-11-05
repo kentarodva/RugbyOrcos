@@ -1,12 +1,12 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Calendar, Dumbbell, HeartPulse, TrendingUp, Wallet, Bot } from 'lucide-react';
+import { Calendar, Dumbbell, HeartPulse, TrendingUp, Wallet, Bot, LogOut } from 'lucide-react';
 import { PlayerPhoto } from './PlayerPhoto';
 import { getRpgRole } from '../context/ClubContext.jsx';
 import { formatHeightM, formatWeightKg } from '../utils/inputFormatters';
 import { OrcosTackleShieldIcon } from './common/OrcosIcons';
 
-export default function PlayerSidebar({ player, activeTab, onTabChange, onOpenAvatarPicker, collapsed, onToggleCollapse }) {
+export default function PlayerSidebar({ player, activeTab, onTabChange, onOpenAvatarPicker, collapsed, onToggleCollapse, onSignOut }) {
   const rpgRole = getRpgRole(player.systemRole || 'jugador');
   const attrs = player.attributes || {};
   const attrList = [
@@ -17,11 +17,11 @@ export default function PlayerSidebar({ player, activeTab, onTabChange, onOpenAv
   ];
 
   const tabs = [
-    { id: 'perfil', Icon: OrcosTackleShieldIcon, label: 'Ficha de Batalla' },
+    { id: 'perfil', Icon: OrcosTackleShieldIcon, label: 'Ficha & Perfil' },
     { id: 'agenda', Icon: Calendar, label: 'Agenda & Partidos' },
-    { id: 'entreno', Icon: Dumbbell, label: 'Entreno Inteligente' },
-    { id: 'bienestar', Icon: HeartPulse, label: 'Bienestar / RPE' },
-    { id: 'progreso', Icon: TrendingUp, label: 'Progreso de Fuerza' },
+    { id: 'entreno', Icon: Dumbbell, label: 'Entrenamiento' },
+    { id: 'bienestar', Icon: HeartPulse, label: 'Estado Físico & Fatiga' },
+    { id: 'progreso', Icon: TrendingUp, label: 'Fuerza & Rendimiento' },
     { id: 'finanzas', Icon: Wallet, label: 'Membresía & Cuotas' },
     { id: 'ia', Icon: Bot, label: 'Coach Táctico IA' },
   ];
@@ -93,6 +93,29 @@ export default function PlayerSidebar({ player, activeTab, onTabChange, onOpenAv
                 );
               })}
             </nav>
+
+            {onSignOut && (
+              <button
+                onClick={onSignOut}
+                style={{
+                  marginTop: '16px',
+                  width: '36px',
+                  height: '36px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  borderRadius: '8px',
+                  background: 'rgba(239, 68, 68, 0.1)',
+                  color: '#ff5252',
+                  border: '1px solid rgba(239, 68, 68, 0.3)',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s',
+                }}
+                title="Cerrar Sesión"
+              >
+                <LogOut size={16} />
+              </button>
+            )}
           </motion.div>
         ) : (
           <motion.div key="expanded" initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '14px', width: '100%' }}>
@@ -229,6 +252,33 @@ export default function PlayerSidebar({ player, activeTab, onTabChange, onOpenAv
                 );
               })}
             </nav>
+
+            {onSignOut && (
+              <button
+                onClick={onSignOut}
+                style={{
+                  marginTop: '16px',
+                  width: '100%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  padding: '9px 12px',
+                  borderRadius: '8px',
+                  background: 'rgba(239, 68, 68, 0.08)',
+                  color: '#ff5252',
+                  border: '1px solid rgba(239, 68, 68, 0.3)',
+                  cursor: 'pointer',
+                  fontSize: '0.78rem',
+                  fontWeight: 700,
+                  transition: 'all 0.2s',
+                }}
+                title="Cerrar Sesión de Guerrero"
+              >
+                <LogOut size={15} />
+                <span>Cerrar Sesión</span>
+              </button>
+            )}
           </motion.div>
         )}
       </AnimatePresence>

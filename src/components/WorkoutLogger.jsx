@@ -30,12 +30,13 @@ function WorkoutLogger({ player, logWorkout, myTrainingPlan, onOpenBuilder, onGe
         loadPercentage: ex.loadPercentage,
         aiReason: ex.aiReason,
         drills: ex.drills || [],
-        durationMin: ex.durationMin,
+        durationMin: saved?.durationMin ?? ex.durationMin ?? 15,
         fromAI: ex.fromAI,
         completed: saved?.completed ?? false,
         sets: saved?.sets ?? ex.sets ?? 3,
         reps: saved?.reps ?? ex.reps ?? 10,
-        weight: saved?.weight ?? '',
+        weight: saved?.weight ?? ex.weight ?? '',
+        rpe: saved?.rpe ?? 8,
       };
     });
   }, [plan, activeCategory, exercises]);
@@ -80,6 +81,7 @@ function WorkoutLogger({ player, logWorkout, myTrainingPlan, onOpenBuilder, onGe
             sets: v.sets || 0,
             reps: v.reps || 0,
             weight: v.weight ? Number(v.weight) : null,
+            durationMin: v.durationMin ? Number(v.durationMin) : null,
             rpe: v.rpe ? Number(v.rpe) : null,
           };
         });
@@ -133,10 +135,10 @@ function WorkoutLogger({ player, logWorkout, myTrainingPlan, onOpenBuilder, onGe
             className="btn-neon"
             style={{ padding: '14px 20px', fontSize: '0.85rem', justifyContent: 'center', display: 'flex', flexDirection: 'column', gap: '2px', opacity: generatingPlan ? 0.7 : 1 }}>
             {generatingPlan ? (
-              <>🧠 Gemini está creando tu plan...</>
+              <>🧠 Creando plan de preparación...</>
             ) : (
-              <><span style={{ fontWeight: 800 }}>🧠 Generar Plan con IA</span>
-              <span style={{ fontSize: '0.65rem', opacity: 0.8 }}>Gemini analiza tu perfil y genera ejercicios + alimentación</span></>
+              <><span style={{ fontWeight: 800 }}>⚡ Generar Plan de Entrenamiento</span>
+              <span style={{ fontSize: '0.65rem', opacity: 0.8 }}>Rutina adaptada a tu posición y objetivos</span></>
             )}
           </button>
 
@@ -144,7 +146,7 @@ function WorkoutLogger({ player, logWorkout, myTrainingPlan, onOpenBuilder, onGe
             className="btn-outline"
             style={{ padding: '14px 20px', fontSize: '0.85rem', justifyContent: 'center', display: 'flex', flexDirection: 'column', gap: '2px', borderColor: 'var(--color-primary)' }}>
             <span style={{ fontWeight: 800 }}>🏋️ Crear Rutina Manual</span>
-            <span style={{ fontSize: '0.65rem', opacity: 0.7 }}>Tú eliges los ejercicios del catálogo por categoría</span>
+            <span style={{ fontSize: '0.65rem', opacity: 0.7 }}>Elige tus ejercicios del catálogo por categoría</span>
           </button>
         </div>
       </div>
@@ -257,42 +259,78 @@ function WorkoutLogger({ player, logWorkout, myTrainingPlan, onOpenBuilder, onGe
                       </div>
                     )}
 
-                    {ex.completed && (
-                      <div style={{ display: 'flex', gap: '8px', marginTop: '6px', flexWrap: 'wrap' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                          <span style={{ fontSize: '0.65rem', color: 'var(--color-text-muted)' }}>Series:</span>
-                          <input type="number" min={1} max={20} value={ex.sets}
-                            onChange={e => updateExercise(ex.key, 'sets', Math.max(1, parseInt(e.target.value) || 1))}
-                            style={{ width: '40px', padding: '2px 4px', fontSize: '0.7rem', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border-glass)', borderRadius: '4px', color: 'var(--color-text)', textAlign: 'center' }} />
-                        </div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                          <span style={{ fontSize: '0.65rem', color: 'var(--color-text-muted)' }}>Reps:</span>
-                          <input type="number" min={1} max={100} value={ex.reps}
-                            onChange={e => updateExercise(ex.key, 'reps', Math.max(1, parseInt(e.target.value) || 1))}
-                            style={{ width: '40px', padding: '2px 4px', fontSize: '0.7rem', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border-glass)', borderRadius: '4px', color: 'var(--color-text)', textAlign: 'center' }} />
-                        </div>
-                        {activeCategory === 'gym' && (
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                            <span style={{ fontSize: '0.65rem', color: 'var(--color-text-muted)' }}>Peso:</span>
-                            <input type="number" min={0} value={ex.weight}
-                              onChange={e => updateExercise(ex.key, 'weight', e.target.value)}
-                              placeholder={ex.oneRMWeight ? String(ex.oneRMWeight) : ''}
-                              style={{ width: '55px', padding: '2px 4px', fontSize: '0.7rem', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border-glass)', borderRadius: '4px', color: 'var(--color-text)', textAlign: 'center' }} />
-                            <span style={{ fontSize: '0.6rem', color: 'var(--color-text-muted)' }}>kg</span>
-                          </div>
-                        )}
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                          <span style={{ fontSize: '0.65rem', color: 'var(--color-text-muted)' }}>RPE:</span>
-                          <select value={ex.rpe || ''} onChange={e => updateExercise(ex.key, 'rpe', e.target.value)}
-                            style={{ padding: '2px', fontSize: '0.7rem', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border-glass)', borderRadius: '4px', color: 'var(--color-text)' }}>
-                            <option value="">—</option>
-                            {[10,9,8,7,6,5,4,3,2,1].map(v => (
-                              <option key={v} value={v}>RPE {v}</option>
-                            ))}
-                          </select>
-                        </div>
+                    {/* Exercise Parameters: Sets, Reps, Weight, Time, RPE */}
+                    <div style={{ display: 'flex', gap: '10px', marginTop: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'rgba(255,255,255,0.03)', padding: '3px 8px', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.06)' }}>
+                        <span style={{ fontSize: '0.68rem', color: 'var(--color-text-muted)', fontWeight: 600 }}>Series:</span>
+                        <input
+                          type="number"
+                          min={1}
+                          max={20}
+                          value={ex.sets}
+                          onChange={e => updateExercise(ex.key, 'sets', Math.max(1, parseInt(e.target.value) || 1))}
+                          style={{ width: '42px', padding: '3px 4px', fontSize: '0.74rem', background: 'rgba(0,0,0,0.3)', border: '1px solid var(--border-glass)', borderRadius: '4px', color: '#fff', textAlign: 'center', fontWeight: 700 }}
+                        />
                       </div>
-                    )}
+
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'rgba(255,255,255,0.03)', padding: '3px 8px', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.06)' }}>
+                        <span style={{ fontSize: '0.68rem', color: 'var(--color-text-muted)', fontWeight: 600 }}>Reps:</span>
+                        <input
+                          type="number"
+                          min={1}
+                          max={100}
+                          value={ex.reps}
+                          onChange={e => updateExercise(ex.key, 'reps', Math.max(1, parseInt(e.target.value) || 1))}
+                          style={{ width: '42px', padding: '3px 4px', fontSize: '0.74rem', background: 'rgba(0,0,0,0.3)', border: '1px solid var(--border-glass)', borderRadius: '4px', color: '#fff', textAlign: 'center', fontWeight: 700 }}
+                        />
+                      </div>
+
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'rgba(255,255,255,0.03)', padding: '3px 8px', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.06)' }}>
+                        <span style={{ fontSize: '0.68rem', color: 'var(--color-text-muted)', fontWeight: 600 }}>Peso:</span>
+                        <input
+                          type="number"
+                          min={0}
+                          value={ex.weight}
+                          onChange={e => updateExercise(ex.key, 'weight', e.target.value)}
+                          placeholder={ex.oneRMWeight ? String(ex.oneRMWeight) : '0'}
+                          style={{ width: '50px', padding: '3px 4px', fontSize: '0.74rem', background: 'rgba(0,0,0,0.3)', border: '1px solid var(--border-glass)', borderRadius: '4px', color: '#fff', textAlign: 'center', fontWeight: 700 }}
+                        />
+                        <span style={{ fontSize: '0.62rem', color: 'var(--color-text-muted)' }}>kg</span>
+                      </div>
+
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'rgba(255,255,255,0.03)', padding: '3px 8px', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.06)' }}>
+                        <span style={{ fontSize: '0.68rem', color: 'var(--color-text-muted)', fontWeight: 600 }}>Tiempo:</span>
+                        <input
+                          type="number"
+                          min={1}
+                          max={180}
+                          value={ex.durationMin}
+                          onChange={e => updateExercise(ex.key, 'durationMin', Math.max(1, parseInt(e.target.value) || 1))}
+                          style={{ width: '42px', padding: '3px 4px', fontSize: '0.74rem', background: 'rgba(0,0,0,0.3)', border: '1px solid var(--border-glass)', borderRadius: '4px', color: '#fff', textAlign: 'center', fontWeight: 700 }}
+                        />
+                        <span style={{ fontSize: '0.62rem', color: 'var(--color-text-muted)' }}>min</span>
+                      </div>
+
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'rgba(255,255,255,0.03)', padding: '3px 8px', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.06)' }}>
+                        <span style={{ fontSize: '0.68rem', color: 'var(--color-text-muted)', fontWeight: 600 }}>RPE:</span>
+                        <select
+                          value={ex.rpe || ''}
+                          onChange={e => updateExercise(ex.key, 'rpe', e.target.value)}
+                          style={{ padding: '3px 6px', fontSize: '0.72rem', background: '#0e1824', border: '1px solid var(--border-glass)', borderRadius: '4px', color: '#fff' }}
+                        >
+                          <option value="">—</option>
+                          {[10, 9, 8, 7, 6, 5, 4, 3, 2, 1].map(v => (
+                            <option key={v} value={v}>RPE {v}</option>
+                          ))}
+                        </select>
+                      </div>
+
+                      {ex.completed && (
+                        <span className="pro-chip pro-chip-success" style={{ fontSize: '0.65rem', fontWeight: 800 }}>
+                          ✓ Completado
+                        </span>
+                      )}
+                    </div>
 
                     {ex.drills.length > 0 && (
                       <ul style={{ paddingLeft: '14px', marginTop: '4px', fontSize: '0.65rem', color: 'var(--color-text-muted)', display: 'flex', flexDirection: 'column', gap: '2px' }}>

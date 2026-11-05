@@ -17,7 +17,15 @@ export function useAIChatState() {
   const filterByView = useViewFilter();
 
   const [input, setInput] = useState('');
-  const [messages, setMessages] = useState([]);
+  const [messages, setMessages] = useState(() => {
+    if (typeof window === 'undefined' || !user?.id) return [];
+    try {
+      const cached = window.localStorage.getItem(`orcos_chat_history_${user.id}`);
+      return cached ? JSON.parse(cached) : [];
+    } catch {
+      return [];
+    }
+  });
   const [loading, setLoading] = useState(false);
   const [streamingText, setStreamingText] = useState('');
   const [streamingProvider, setStreamingProvider] = useState(null);
@@ -33,14 +41,24 @@ export function useAIChatState() {
       if (data?.messages) {
         try {
           const parsed = typeof data.messages === 'string' ? JSON.parse(data.messages) : data.messages;
-          if (Array.isArray(parsed)) setMessages(parsed);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            setMessages(parsed);
+            if (typeof window !== 'undefined') {
+              window.localStorage.setItem(`orcos_chat_history_${user.id}`, JSON.stringify(parsed));
+            }
+          }
         } catch { /* ignore */ }
       }
     }).catch(() => {});
   }, [user?.id]);
 
   useEffect(() => {
-    if (!user?.id || messages.length === 0) return;
+    if (!user?.id) return;
+    if (typeof window !== 'undefined') {
+      try {
+        window.localStorage.setItem(`orcos_chat_history_${user.id}`, JSON.stringify(messages));
+      } catch { /* ignore */ }
+    }
     const timer = setTimeout(async () => {
       try {
         await supabase.from('ai_chat_history').upsert({
@@ -49,7 +67,7 @@ export function useAIChatState() {
           updated_at: new Date().toISOString()
         }, { onConflict: 'user_id' });
       } catch { /* silencioso */ }
-    }, 2000);
+    }, 1000);
     return () => clearTimeout(timer);
   }, [messages, user?.id]);
 
@@ -267,10 +285,20 @@ export function useAIChatState() {
     }
   }, [handleSend]);
 
-  const handleClear = useCallback(() => {
+  const handleClear = useCallback(async () => {
     setMessages([]);
-    showToast('Chat limpiado.', 'info');
-  }, [showToast]);
+    if (typeof window !== 'undefined' && user?.id) {
+      try {
+        window.localStorage.removeItem(`orcos_chat_history_${user.id}`);
+        await supabase.from('ai_chat_history').upsert({
+          user_id: user.id,
+          messages: [],
+          updated_at: new Date().toISOString()
+        }, { onConflict: 'user_id' });
+      } catch { /* ignore */ }
+    }
+    showToast('Chat limpiado y reiniciado.', 'info');
+  }, [user?.id, showToast]);
 
   const handleAnalyzeLastMatch = useCallback(async () => {
     if (teamFixtures.length === 0) {

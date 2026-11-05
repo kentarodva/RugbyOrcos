@@ -33,7 +33,7 @@ const AIChat = lazyWithRetry(() => import('./AIChat'));
 
 function PlayerDashboard() {
   const { players, recordWellness, schedule, futureFixtures, setMatchAvailability, updatePlayer, campaigns, allPayments, logWorkout, userTier: _userTier } = useContext(ClubContext);
-  const { profile, user } = useAuth();
+  const { profile, user, signOut } = useAuth();
   const { showToast } = useToast();
 
   const [activeTab, setActiveTab] = useState('perfil');
@@ -217,10 +217,28 @@ function PlayerDashboard() {
 
   const allCalendarEvents = useMemo(() => {
     if (!player?.teamCategory) return [];
-    return schedule
-      .filter(e => matchesPlayerScope(e))
-      .sort((a, b) => new Date(a.date + 'T' + a.time) - new Date(b.date + 'T' + b.time));
-  }, [schedule, player?.teamCategory, matchesPlayerScope]);
+    const trainingEvents = schedule.filter(e => matchesPlayerScope(e));
+    const matchEvents = (futureFixtures || [])
+      .filter(f => !player.teamCategory || f.teamCategory === player.teamCategory)
+      .map(f => ({
+        id: f.id,
+        title: `🏉 Partido: Orcos vs ${f.opponent}`,
+        date: f.date,
+        time: f.time || '15:30',
+        location: f.location || 'San Francisco',
+        type: 'partido',
+        isMatch: true,
+        notes: `Convocatoria de combate contra ${f.opponent}`,
+        opponent: f.opponent,
+        availabilities: f.availabilities,
+      }));
+
+    return [...trainingEvents, ...matchEvents].sort((a, b) => {
+      const timeA = a.time || '00:00';
+      const timeB = b.time || '00:00';
+      return new Date(a.date + 'T' + timeA) - new Date(b.date + 'T' + timeB);
+    });
+  }, [schedule, futureFixtures, player?.teamCategory, matchesPlayerScope]);
 
   const handleOpenDetail = async (event) => {
     setSelectedEvent(event);
@@ -418,64 +436,119 @@ function PlayerDashboard() {
           onOpenAvatarPicker={() => setShowAvatarPicker(true)}
           collapsed={sidebarCollapsed}
           onToggleCollapse={() => setSidebarCollapsed(c => !c)}
+          onSignOut={signOut}
         />
       </motion.aside>
 
       <main className="flex-1 overflow-y-auto p-6 min-h-0">
-        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', marginBottom: '14px', flexWrap: 'wrap' }}>
-          <button
-            onClick={() => handleExportPlayerCard('standard')}
-            className="btn-outline"
-            style={{
-              padding: '6px 14px',
-              fontSize: '0.78rem',
-              fontWeight: 800,
-              borderColor: 'rgba(255, 215, 64, 0.45)',
-              color: 'var(--color-gold)',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '6px',
-            }}
-            title="Genera tu Ficha de Guerrero RPG oficial en HD para descargar y compartir en Instagram Stories / WhatsApp"
-          >
-            🎴 {cardStatus.includes('4K') ? 'Ficha HD' : (cardStatus || 'Ficha HD')}
-          </button>
+        {/* Warrior Command Top Bar */}
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            marginBottom: '16px',
+            flexWrap: 'wrap',
+            gap: '12px',
+            padding: '12px 18px',
+            background: 'rgba(10, 18, 30, 0.75)',
+            border: '1px solid rgba(0, 230, 118, 0.2)',
+            borderRadius: '14px',
+            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.35)',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <span style={{ fontSize: '1.4rem' }}>🐗</span>
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ fontFamily: 'Outfit', fontWeight: 900, fontSize: '0.95rem', color: '#fff' }}>
+                  {player.name}
+                </span>
+                <span className="pro-chip pro-chip-success" style={{ fontSize: '0.65rem' }}>
+                  #{player.jerseyNumber || 1} · {player.posicion || 'Pilar'}
+                </span>
+              </div>
+              <div style={{ fontSize: '0.68rem', color: 'var(--color-text-muted)' }}>
+                Fortaleza Orcos Rugby Club &middot; Corozal, Sucre
+              </div>
+            </div>
+          </div>
 
-          <button
-            onClick={() => handleExportPlayerCard('4k')}
-            className="btn-outline"
-            style={{
-              padding: '6px 14px',
-              fontSize: '0.78rem',
-              fontWeight: 800,
-              borderColor: 'rgba(0, 230, 118, 0.45)',
-              color: 'var(--color-primary)',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '6px',
-            }}
-            title="Genera tu Ficha de Guerrero RPG en resolución ULTRA 4K (2400x2400px con tu foto local)"
-          >
-            💎 Ficha 4K Ultra
-          </button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+            <button
+              onClick={() => handleExportPlayerCard('standard')}
+              className="btn-outline"
+              style={{
+                padding: '6px 12px',
+                fontSize: '0.74rem',
+                fontWeight: 800,
+                borderColor: 'rgba(255, 215, 64, 0.45)',
+                color: 'var(--color-gold)',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '5px',
+              }}
+              title="Genera tu Ficha de Guerrero RPG oficial en HD"
+            >
+              🎴 {cardStatus.includes('4K') ? 'Ficha HD' : (cardStatus || 'Ficha HD')}
+            </button>
 
-          <button
-            onClick={handlePrintPazYSalvo}
-            className="btn-outline"
-            style={{
-              padding: '6px 14px',
-              fontSize: '0.78rem',
-              fontWeight: 800,
-              borderColor: 'rgba(0, 230, 118, 0.4)',
-              color: 'var(--color-primary)',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '6px',
-            }}
-            title="Genera e imprime tu Certificado Oficial de Afiliación y Paz y Salvo en PDF"
-          >
-            📜 Certificado & Paz y Salvo PDF
-          </button>
+            <button
+              onClick={() => handleExportPlayerCard('4k')}
+              className="btn-outline"
+              style={{
+                padding: '6px 12px',
+                fontSize: '0.74rem',
+                fontWeight: 800,
+                borderColor: 'rgba(0, 230, 118, 0.45)',
+                color: 'var(--color-primary)',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '5px',
+              }}
+              title="Genera tu Ficha de Guerrero RPG en resolución ULTRA 4K"
+            >
+              💎 Ficha 4K
+            </button>
+
+            <button
+              onClick={handlePrintPazYSalvo}
+              className="btn-outline"
+              style={{
+                padding: '6px 12px',
+                fontSize: '0.74rem',
+                fontWeight: 800,
+                borderColor: 'rgba(0, 230, 118, 0.35)',
+                color: 'var(--color-primary)',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '5px',
+              }}
+              title="Certificado Oficial de Afiliación y Paz y Salvo en PDF"
+            >
+              📜 Paz y Salvo PDF
+            </button>
+
+            {signOut && (
+              <button
+                onClick={signOut}
+                className="btn-outline"
+                style={{
+                  padding: '6px 14px',
+                  fontSize: '0.74rem',
+                  fontWeight: 800,
+                  borderColor: 'rgba(239, 68, 68, 0.4)',
+                  color: '#ff5252',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                }}
+                title="Cerrar sesión de Guerrero"
+              >
+                🚪 Cerrar Sesión
+              </button>
+            )}
+          </div>
         </div>
 
         <StatsHeroCards
