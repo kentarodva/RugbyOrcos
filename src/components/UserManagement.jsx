@@ -102,12 +102,17 @@ function UserManagement() {
 
   const handleToggleActive = async (userId, currentActive) => {
     const { error } = await supabase.from('user_profiles').update({ is_active: !currentActive }).eq('user_id', userId);
-    if (!error) loadUsers();
+    if (error) { setError(error.message); return; }
+    setError('');
+    loadUsers();
   };
 
   const handleRoleChange = async (userId, newRole) => {
+    // The DB (migration 77) only lets presidente/desarrollador change roles; surface its message.
     const { error } = await supabase.from('user_profiles').update({ system_role: newRole }).eq('user_id', userId);
-    if (!error) loadUsers();
+    if (error) { setError(error.message); loadUsers(); return; }
+    setError('');
+    loadUsers();
   };
 
   const handleResetPassword = async () => {
