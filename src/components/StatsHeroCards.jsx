@@ -40,9 +40,9 @@ export function StatsHeroCards({ player, nextMatch, hasActivePlan }) {
       icon: <Calendar size={16} color="var(--color-blue, #38bdf8)" />,
     },
     {
-      label: 'Plan de Armas (IA)',
+      label: 'Plan de Entrenamiento',
       value: hasActivePlan ? 'Activo' : 'En pausa',
-      sub: hasActivePlan ? 'Rutina inteligente lista' : 'Genera tu microciclo',
+      sub: hasActivePlan ? 'Rutina lista para la batalla' : 'Genera tu microciclo',
       color: hasActivePlan ? 'var(--color-gold)' : 'var(--color-text-muted)',
       borderColor: hasActivePlan ? 'rgba(255, 215, 64, 0.35)' : 'rgba(255, 255, 255, 0.1)',
       bgGlow: hasActivePlan ? 'rgba(255, 215, 64, 0.08)' : 'rgba(255, 255, 255, 0.02)',

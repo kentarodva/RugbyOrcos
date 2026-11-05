@@ -153,6 +153,16 @@ function WorkoutLogger({ player, logWorkout, myTrainingPlan, onOpenBuilder, onGe
     );
   }
 
+  const categoryIcons = {
+    campo: '🏉',
+    gym: '🏋️',
+    recuperacion: '🧊',
+    calentamiento: '🔥',
+    crossfit: '⚡',
+    casa: '🏠',
+    prevencion: '🛡️',
+  };
+
   const categoryColors = {
     calentamiento: { color: '#ff9800', label: 'Calentamiento' },
     campo: { color: 'var(--color-primary)', label: 'Campo' },
@@ -166,193 +176,382 @@ function WorkoutLogger({ player, logWorkout, myTrainingPlan, onOpenBuilder, onGe
   const recentLogs = (player?.workoutLog || []).slice(-5).reverse();
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
       {myTrainingPlan.isInjured && (
-        <div className="glass-panel" style={{ padding: '12px', borderRadius: 'var(--radius-sm)', border: '1px solid rgba(255,61,0,0.3)', fontSize: '0.75rem', color: '#ff3d00', textAlign: 'center' }}>
-          🩹 Fase de recuperación {player.injuryLog?.[0]?.phase || 1}/4 — {myTrainingPlan.matchFaults.length > 0 ? `Fallos: ${myTrainingPlan.matchFaults.join(', ')}` : 'Sigue el plan al pie de la letra.'}
+        <div className="glass-panel" style={{ padding: '12px 16px', borderRadius: 'var(--radius-md)', border: '1px solid rgba(255,61,0,0.3)', fontSize: '0.78rem', color: '#ff7043', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <span>🩹</span>
+          <div>
+            <strong>Fase de recuperación {player.injuryLog?.[0]?.phase || 1}/4:</strong> {myTrainingPlan.matchFaults.length > 0 ? `Atención a: ${myTrainingPlan.matchFaults.join(', ')}` : 'Sigue el protocolo preventivo al pie de la letra.'}
+          </div>
         </div>
       )}
 
-      <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', alignItems: 'center' }}>
+      {/* Category Navigation Pills */}
+      <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
         {categories.map(([cat]) => {
           const cc = categoryColors[cat] || { color: 'var(--color-text-muted)', label: cat };
+          const icon = categoryIcons[cat] || '🏉';
           const catCompleted = Object.entries(exercises)
             .filter(([k]) => k.startsWith(cat + '_'))
             .filter(([, v]) => v.completed).length;
           const catTotal = (plan[cat] || []).length;
+          const isActive = activeCategory === cat;
+
           return (
-            <button key={cat} onClick={() => setActiveCategory(cat)}
-              className={activeCategory === cat ? 'btn-neon' : 'btn-outline'}
-              style={{ padding: '6px 14px', fontSize: '0.75rem', borderColor: cc.color, color: activeCategory === cat ? '#000' : cc.color }}>
-              {cc.label} ({catCompleted}/{catTotal})
+            <button
+              key={cat}
+              type="button"
+              onClick={() => setActiveCategory(cat)}
+              style={{
+                padding: '8px 16px',
+                borderRadius: '10px',
+                fontSize: '0.8rem',
+                fontWeight: 700,
+                cursor: 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px',
+                transition: 'all 0.18s ease',
+                background: isActive ? `${cc.color}22` : 'rgba(255, 255, 255, 0.03)',
+                border: `1.5px solid ${isActive ? cc.color : 'rgba(255, 255, 255, 0.08)'}`,
+                color: isActive ? '#fff' : 'var(--color-text-muted)',
+                boxShadow: isActive ? `0 0 16px ${cc.color}35` : 'none',
+              }}
+            >
+              <span>{icon}</span>
+              <span>{cc.label}</span>
+              <span
+                style={{
+                  fontSize: '0.7rem',
+                  padding: '2px 6px',
+                  borderRadius: '6px',
+                  background: isActive ? cc.color : 'rgba(255, 255, 255, 0.08)',
+                  color: isActive ? '#000' : 'var(--color-text-muted)',
+                  fontWeight: 800,
+                }}
+              >
+                {catCompleted}/{catTotal}
+              </span>
             </button>
           );
         })}
-        {myTrainingPlan.enrichedByAI && (
-          <span className="badge" style={{ marginLeft: 'auto', background: 'rgba(212,175,55,0.12)', color: 'var(--color-gold)', border: '1px solid rgba(212,175,55,0.25)', fontSize: '0.65rem', padding: '3px 8px' }}>
-            IA
-          </span>
-        )}
-        <button onClick={onOpenBuilder}
-          className="btn-outline"
-          style={{ padding: '4px 10px', fontSize: '0.65rem', color: 'var(--color-blue)', borderColor: 'var(--color-blue)' }}>
-          ✏️ Modificar
+
+        <button
+          type="button"
+          onClick={onOpenBuilder}
+          style={{
+            marginLeft: 'auto',
+            padding: '6px 12px',
+            fontSize: '0.72rem',
+            color: 'var(--color-blue)',
+            border: '1px solid rgba(56, 189, 248, 0.3)',
+            background: 'rgba(56, 189, 248, 0.08)',
+            borderRadius: '8px',
+            cursor: 'pointer',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '4px',
+            fontWeight: 700,
+          }}
+        >
+          ✏️ Personalizar Rutina
         </button>
       </div>
 
-      <div className="glass-panel" style={{ padding: '16px', borderRadius: 'var(--radius-lg)' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-          <h4 style={{ fontSize: '0.85rem', fontWeight: 700, fontFamily: 'Outfit', color: (categoryColors[activeCategory] || {}).color }}>
-            {(categoryColors[activeCategory] || {}).label || activeCategory}
-          </h4>
-          <span style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)' }}>
-            {completedCount}/{totalCount} completados
+      {/* Main Exercises Panel */}
+      <div className="glass-panel" style={{ padding: '20px', borderRadius: '16px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span style={{ fontSize: '1.2rem' }}>{categoryIcons[activeCategory] || '🏉'}</span>
+            <h4 style={{ fontSize: '1rem', fontWeight: 800, fontFamily: 'Outfit', color: (categoryColors[activeCategory] || {}).color || '#fff', margin: 0 }}>
+              {(categoryColors[activeCategory] || {}).label || activeCategory}
+            </h4>
+          </div>
+          <span style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', fontWeight: 600 }}>
+            {completedCount} de {totalCount} completados
           </span>
         </div>
+
         {totalCount > 0 && (
-          <div style={{ height: '4px', background: 'rgba(255,255,255,0.05)', borderRadius: '2px', marginBottom: '12px', overflow: 'hidden' }}>
-            <div style={{ height: '100%', width: `${(completedCount / totalCount) * 100}%`, background: (categoryColors[activeCategory] || {}).color || 'var(--color-primary)', borderRadius: '2px', transition: 'width 0.3s' }} />
+          <div style={{ height: '6px', background: 'rgba(255,255,255,0.06)', borderRadius: '3px', marginBottom: '18px', overflow: 'hidden' }}>
+            <div
+              style={{
+                height: '100%',
+                width: `${(completedCount / totalCount) * 100}%`,
+                background: (categoryColors[activeCategory] || {}).color || 'var(--color-primary)',
+                borderRadius: '3px',
+                transition: 'width 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+              }}
+            />
           </div>
         )}
 
         {currentExercises.length === 0 ? (
-          <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', textAlign: 'center', padding: '20px' }}>
-            No hay ejercicios en esta categoría.
+          <p style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', textAlign: 'center', padding: '28px' }}>
+            No hay ejercicios registrados en esta categoría.
           </p>
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            {currentExercises.map((ex) => (
-              <div key={ex.key}
-                style={{
-                  padding: '10px', borderRadius: 'var(--radius-sm)',
-                  background: ex.completed ? 'rgba(0,230,118,0.05)' : 'rgba(255,255,255,0.02)',
-                  border: `1px solid ${ex.completed ? 'rgba(0,230,118,0.2)' : 'var(--border-glass)'}`,
-                  transition: 'all 0.2s',
-                }}>
-                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
-                  <input type="checkbox" checked={ex.completed}
-                    onChange={() => updateExercise(ex.key, 'completed', !ex.completed)}
-                    style={{ marginTop: '3px', transform: 'scale(1.1)', accentColor: (categoryColors[activeCategory] || {}).color || 'var(--color-primary)' }} />
-                  <div style={{ flex: 1 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
-                      <label style={{ fontSize: '0.8rem', fontWeight: 600, cursor: 'pointer', color: ex.completed ? '#00e676' : 'var(--color-text)' }}
-                        onClick={() => updateExercise(ex.key, 'completed', !ex.completed)}>
-                        {ex.name}
-                      </label>
-                      {ex.durationMin && (
-                        <span style={{ fontSize: '0.6rem', color: 'var(--color-text-muted)', background: 'rgba(255,255,255,0.04)', padding: '1px 6px', borderRadius: '8px' }}>
-                          ⏱️ {ex.durationMin}min
-                        </span>
-                      )}
-                      {ex.fromAI && (
-                        <span style={{ fontSize: '0.6rem', color: 'var(--color-gold)', background: 'rgba(212,175,55,0.1)', padding: '1px 6px', borderRadius: '8px' }}>
-                          🤖 IA
-                        </span>
-                      )}
-                    </div>
-                    {ex.aiReason && (
-                      <p style={{ fontSize: '0.65rem', color: 'var(--color-gold)', fontStyle: 'italic', marginTop: '2px' }}>💡 {ex.aiReason}</p>
-                    )}
-                    {ex.oneRMWeight && (
-                      <div style={{ fontSize: '0.65rem', color: 'var(--color-blue)', marginTop: '2px' }}>
-                        🎯 Carga sugerida: {ex.oneRMWeight}kg {ex.loadPercentage ? `(${ex.loadPercentage})` : ''}
-                      </div>
-                    )}
-
-                    {/* Exercise Parameters: Sets, Reps, Weight, Time, RPE */}
-                    <div style={{ display: 'flex', gap: '10px', marginTop: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'rgba(255,255,255,0.03)', padding: '3px 8px', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.06)' }}>
-                        <span style={{ fontSize: '0.68rem', color: 'var(--color-text-muted)', fontWeight: 600 }}>Series:</span>
-                        <input
-                          type="number"
-                          min={1}
-                          max={20}
-                          value={ex.sets}
-                          onChange={e => updateExercise(ex.key, 'sets', Math.max(1, parseInt(e.target.value) || 1))}
-                          style={{ width: '42px', padding: '3px 4px', fontSize: '0.74rem', background: 'rgba(0,0,0,0.3)', border: '1px solid var(--border-glass)', borderRadius: '4px', color: '#fff', textAlign: 'center', fontWeight: 700 }}
-                        />
-                      </div>
-
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'rgba(255,255,255,0.03)', padding: '3px 8px', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.06)' }}>
-                        <span style={{ fontSize: '0.68rem', color: 'var(--color-text-muted)', fontWeight: 600 }}>Reps:</span>
-                        <input
-                          type="number"
-                          min={1}
-                          max={100}
-                          value={ex.reps}
-                          onChange={e => updateExercise(ex.key, 'reps', Math.max(1, parseInt(e.target.value) || 1))}
-                          style={{ width: '42px', padding: '3px 4px', fontSize: '0.74rem', background: 'rgba(0,0,0,0.3)', border: '1px solid var(--border-glass)', borderRadius: '4px', color: '#fff', textAlign: 'center', fontWeight: 700 }}
-                        />
-                      </div>
-
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'rgba(255,255,255,0.03)', padding: '3px 8px', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.06)' }}>
-                        <span style={{ fontSize: '0.68rem', color: 'var(--color-text-muted)', fontWeight: 600 }}>Peso:</span>
-                        <input
-                          type="number"
-                          min={0}
-                          value={ex.weight}
-                          onChange={e => updateExercise(ex.key, 'weight', e.target.value)}
-                          placeholder={ex.oneRMWeight ? String(ex.oneRMWeight) : '0'}
-                          style={{ width: '50px', padding: '3px 4px', fontSize: '0.74rem', background: 'rgba(0,0,0,0.3)', border: '1px solid var(--border-glass)', borderRadius: '4px', color: '#fff', textAlign: 'center', fontWeight: 700 }}
-                        />
-                        <span style={{ fontSize: '0.62rem', color: 'var(--color-text-muted)' }}>kg</span>
-                      </div>
-
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'rgba(255,255,255,0.03)', padding: '3px 8px', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.06)' }}>
-                        <span style={{ fontSize: '0.68rem', color: 'var(--color-text-muted)', fontWeight: 600 }}>Tiempo:</span>
-                        <input
-                          type="number"
-                          min={1}
-                          max={180}
-                          value={ex.durationMin}
-                          onChange={e => updateExercise(ex.key, 'durationMin', Math.max(1, parseInt(e.target.value) || 1))}
-                          style={{ width: '42px', padding: '3px 4px', fontSize: '0.74rem', background: 'rgba(0,0,0,0.3)', border: '1px solid var(--border-glass)', borderRadius: '4px', color: '#fff', textAlign: 'center', fontWeight: 700 }}
-                        />
-                        <span style={{ fontSize: '0.62rem', color: 'var(--color-text-muted)' }}>min</span>
-                      </div>
-
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'rgba(255,255,255,0.03)', padding: '3px 8px', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.06)' }}>
-                        <span style={{ fontSize: '0.68rem', color: 'var(--color-text-muted)', fontWeight: 600 }}>RPE:</span>
-                        <select
-                          value={ex.rpe || ''}
-                          onChange={e => updateExercise(ex.key, 'rpe', e.target.value)}
-                          style={{ padding: '3px 6px', fontSize: '0.72rem', background: '#0e1824', border: '1px solid var(--border-glass)', borderRadius: '4px', color: '#fff' }}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            {currentExercises.map((ex) => {
+              const activeColor = (categoryColors[activeCategory] || {}).color || 'var(--color-primary)';
+              return (
+                <div
+                  key={ex.key}
+                  style={{
+                    padding: '16px',
+                    borderRadius: '12px',
+                    background: ex.completed ? 'rgba(0, 230, 118, 0.05)' : 'rgba(255, 255, 255, 0.02)',
+                    border: `1.5px solid ${ex.completed ? 'rgba(0, 230, 118, 0.35)' : 'rgba(255, 255, 255, 0.07)'}`,
+                    boxShadow: ex.completed ? '0 0 16px rgba(0, 230, 118, 0.1)' : 'none',
+                    transition: 'all 0.2s ease',
+                  }}
+                >
+                  {/* Top Bar: Title + Badges + Large Check Button */}
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '14px' }}>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                        <span
+                          onClick={() => updateExercise(ex.key, 'completed', !ex.completed)}
+                          style={{
+                            fontSize: '0.92rem',
+                            fontWeight: 800,
+                            cursor: 'pointer',
+                            color: ex.completed ? 'var(--color-primary)' : '#fff',
+                          }}
                         >
-                          <option value="">—</option>
-                          {[10, 9, 8, 7, 6, 5, 4, 3, 2, 1].map(v => (
-                            <option key={v} value={v}>RPE {v}</option>
-                          ))}
-                        </select>
+                          {ex.name}
+                        </span>
+
+                        {ex.durationMin && (
+                          <span style={{ fontSize: '0.68rem', color: 'var(--color-text-muted)', background: 'rgba(255,255,255,0.05)', padding: '2px 8px', borderRadius: '6px', fontWeight: 600 }}>
+                            ⏱️ {ex.durationMin} min
+                          </span>
+                        )}
+
+                        {ex.fromAI && (
+                          <span style={{ fontSize: '0.68rem', color: 'var(--color-gold)', background: 'rgba(212,175,55,0.12)', border: '1px solid rgba(212,175,55,0.25)', padding: '2px 8px', borderRadius: '6px', fontWeight: 700 }}>
+                            ⚡ Plan Guerrero
+                          </span>
+                        )}
                       </div>
 
-                      {ex.completed && (
-                        <span className="pro-chip pro-chip-success" style={{ fontSize: '0.65rem', fontWeight: 800 }}>
-                          ✓ Completado
-                        </span>
+                      {ex.aiReason && (
+                        <p style={{ fontSize: '0.72rem', color: 'var(--color-gold)', fontStyle: 'italic', margin: '4px 0 0' }}>
+                          💡 {ex.aiReason}
+                        </p>
+                      )}
+
+                      {ex.oneRMWeight && (
+                        <div style={{ fontSize: '0.72rem', color: 'var(--color-blue)', marginTop: '4px', fontWeight: 600 }}>
+                          🎯 Carga objetivo: {ex.oneRMWeight} kg {ex.loadPercentage ? `(${ex.loadPercentage})` : ''}
+                        </div>
                       )}
                     </div>
 
-                    {ex.drills.length > 0 && (
-                      <ul style={{ paddingLeft: '14px', marginTop: '4px', fontSize: '0.65rem', color: 'var(--color-text-muted)', display: 'flex', flexDirection: 'column', gap: '2px' }}>
-                        {ex.drills.map((d, di) => <li key={di}>{d}</li>)}
-                      </ul>
-                    )}
+                    {/* Big Action Check Button */}
+                    <button
+                      type="button"
+                      onClick={() => updateExercise(ex.key, 'completed', !ex.completed)}
+                      style={{
+                        padding: '8px 16px',
+                        borderRadius: '10px',
+                        fontSize: '0.78rem',
+                        fontWeight: 800,
+                        cursor: 'pointer',
+                        border: 'none',
+                        background: ex.completed
+                          ? 'var(--color-primary)'
+                          : 'rgba(255, 255, 255, 0.06)',
+                        color: ex.completed ? '#000' : 'var(--color-text-muted)',
+                        boxShadow: ex.completed
+                          ? '0 0 16px rgba(0, 230, 118, 0.4)'
+                          : 'none',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        flexShrink: 0,
+                        transition: 'all 0.15s ease',
+                      }}
+                    >
+                      {ex.completed ? '✓ ¡Listo!' : '○ Marcar'}
+                    </button>
                   </div>
+
+                  {/* Clean Unified Telemetry Controls */}
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '12px',
+                      marginTop: '12px',
+                      flexWrap: 'wrap',
+                      background: 'rgba(0, 0, 0, 0.35)',
+                      padding: '8px 14px',
+                      borderRadius: '10px',
+                      border: '1px solid rgba(255, 255, 255, 0.05)',
+                    }}
+                  >
+                    {/* Series with Steppers */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <span style={{ fontSize: '0.72rem', color: 'var(--color-text-muted)', fontWeight: 700 }}>Series:</span>
+                      <button
+                        type="button"
+                        onClick={() => updateExercise(ex.key, 'sets', Math.max(1, (ex.sets || 1) - 1))}
+                        style={{ width: '22px', height: '22px', borderRadius: '4px', background: 'rgba(255,255,255,0.08)', border: 'none', color: '#fff', cursor: 'pointer', fontSize: '0.8rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                      >
+                        -
+                      </button>
+                      <input
+                        type="number"
+                        min={1}
+                        max={20}
+                        value={ex.sets}
+                        onChange={e => updateExercise(ex.key, 'sets', Math.max(1, parseInt(e.target.value) || 1))}
+                        style={{ width: '36px', padding: '3px 2px', fontSize: '0.8rem', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '4px', color: '#fff', textAlign: 'center', fontWeight: 800 }}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => updateExercise(ex.key, 'sets', Math.min(20, (ex.sets || 1) + 1))}
+                        style={{ width: '22px', height: '22px', borderRadius: '4px', background: 'rgba(255,255,255,0.08)', border: 'none', color: '#fff', cursor: 'pointer', fontSize: '0.8rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                      >
+                        +
+                      </button>
+                    </div>
+
+                    <span style={{ color: 'rgba(255,255,255,0.15)', fontSize: '0.8rem' }}>•</span>
+
+                    {/* Reps with Steppers */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <span style={{ fontSize: '0.72rem', color: 'var(--color-text-muted)', fontWeight: 700 }}>Reps:</span>
+                      <button
+                        type="button"
+                        onClick={() => updateExercise(ex.key, 'reps', Math.max(1, (ex.reps || 1) - 1))}
+                        style={{ width: '22px', height: '22px', borderRadius: '4px', background: 'rgba(255,255,255,0.08)', border: 'none', color: '#fff', cursor: 'pointer', fontSize: '0.8rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                      >
+                        -
+                      </button>
+                      <input
+                        type="number"
+                        min={1}
+                        max={100}
+                        value={ex.reps}
+                        onChange={e => updateExercise(ex.key, 'reps', Math.max(1, parseInt(e.target.value) || 1))}
+                        style={{ width: '38px', padding: '3px 2px', fontSize: '0.8rem', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '4px', color: '#fff', textAlign: 'center', fontWeight: 800 }}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => updateExercise(ex.key, 'reps', Math.min(100, (ex.reps || 1) + 1))}
+                        style={{ width: '22px', height: '22px', borderRadius: '4px', background: 'rgba(255,255,255,0.08)', border: 'none', color: '#fff', cursor: 'pointer', fontSize: '0.8rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                      >
+                        +
+                      </button>
+                    </div>
+
+                    <span style={{ color: 'rgba(255,255,255,0.15)', fontSize: '0.8rem' }}>•</span>
+
+                    {/* Weight */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <span style={{ fontSize: '0.72rem', color: 'var(--color-text-muted)', fontWeight: 700 }}>Peso:</span>
+                      <input
+                        type="number"
+                        min={0}
+                        value={ex.weight}
+                        onChange={e => updateExercise(ex.key, 'weight', e.target.value)}
+                        placeholder={ex.oneRMWeight ? String(ex.oneRMWeight) : '0'}
+                        style={{ width: '46px', padding: '3px 4px', fontSize: '0.8rem', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '4px', color: '#fff', textAlign: 'center', fontWeight: 800 }}
+                      />
+                      <span style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)' }}>kg</span>
+                    </div>
+
+                    <span style={{ color: 'rgba(255,255,255,0.15)', fontSize: '0.8rem' }}>•</span>
+
+                    {/* Duration */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <span style={{ fontSize: '0.72rem', color: 'var(--color-text-muted)', fontWeight: 700 }}>Tiempo:</span>
+                      <input
+                        type="number"
+                        min={1}
+                        max={180}
+                        value={ex.durationMin}
+                        onChange={e => updateExercise(ex.key, 'durationMin', Math.max(1, parseInt(e.target.value) || 1))}
+                        style={{ width: '42px', padding: '3px 4px', fontSize: '0.8rem', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '4px', color: '#fff', textAlign: 'center', fontWeight: 800 }}
+                      />
+                      <span style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)' }}>min</span>
+                    </div>
+
+                    <span style={{ color: 'rgba(255,255,255,0.15)', fontSize: '0.8rem' }}>•</span>
+
+                    {/* RPE Effort */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <span style={{ fontSize: '0.72rem', color: 'var(--color-text-muted)', fontWeight: 700 }}>Esfuerzo:</span>
+                      <select
+                        value={ex.rpe || ''}
+                        onChange={e => updateExercise(ex.key, 'rpe', e.target.value)}
+                        style={{
+                          padding: '3px 8px',
+                          fontSize: '0.75rem',
+                          background: '#0d1821',
+                          border: '1px solid rgba(255, 255, 255, 0.15)',
+                          borderRadius: '6px',
+                          color: 'var(--color-gold)',
+                          fontWeight: 700,
+                          cursor: 'pointer',
+                        }}
+                      >
+                        <option value="">—</option>
+                        {[10, 9, 8, 7, 6, 5, 4, 3, 2, 1].map(v => (
+                          <option key={v} value={v}>RPE {v}/10</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+
+                  {/* Tactical Drills / Playbook */}
+                  {ex.drills.length > 0 && (
+                    <div style={{ marginTop: '10px', padding: '8px 12px', background: 'rgba(255, 255, 255, 0.015)', borderRadius: '8px', borderLeft: `3px solid ${activeColor}` }}>
+                      <div style={{ fontSize: '0.68rem', textTransform: 'uppercase', letterSpacing: '0.5px', color: 'var(--color-text-muted)', fontWeight: 700, marginBottom: '4px' }}>
+                        Puntos Clave del Ejercicio:
+                      </div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                        {ex.drills.map((d, di) => (
+                          <div key={di} style={{ fontSize: '0.74rem', color: 'var(--color-text-muted)', display: 'flex', alignItems: 'flex-start', gap: '6px' }}>
+                            <span style={{ color: activeColor }}>🏉</span>
+                            <span>{d}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
 
-        <button onClick={handleSave} disabled={saving || completedCount === 0}
+        {/* Save Session CTA */}
+        <button
+          type="button"
+          onClick={handleSave}
+          disabled={saving || completedCount === 0}
           className="btn-neon"
           style={{
-            width: '100%', justifyContent: 'center', padding: '10px', fontSize: '0.82rem', marginTop: '12px',
-            opacity: (saving || completedCount === 0) ? 0.5 : 1,
-          }}>
-          {saving ? 'Guardando...' : completedCount === 0
-            ? '✅ Marca ejercicios para guardar'
-            : `💾 Guardar Entreno (${completedCount} ejercicios)`}
+            width: '100%',
+            justifyContent: 'center',
+            padding: '14px',
+            fontSize: '0.9rem',
+            fontWeight: 800,
+            marginTop: '16px',
+            borderRadius: '12px',
+            opacity: (saving || completedCount === 0) ? 0.45 : 1,
+            cursor: (saving || completedCount === 0) ? 'not-allowed' : 'pointer',
+            boxShadow: completedCount > 0 ? '0 0 24px rgba(0, 230, 118, 0.35)' : 'none',
+          }}
+        >
+          {saving
+            ? '⏳ Guardando sesión...'
+            : completedCount === 0
+            ? '⚡ Marca los ejercicios completados para guardar sesión'
+            : `💾 Guardar Sesión (${completedCount} ${completedCount === 1 ? 'ejercicio' : 'ejercicios'} listos)`}
         </button>
       </div>
 

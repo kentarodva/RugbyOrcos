@@ -96,12 +96,27 @@ function PlayerAgendaTab({
                 >
                   {/* Team Orcos */}
                   <div style={{ textAlign: 'center' }}>
-                    <div style={{ fontSize: '2.4rem', marginBottom: '4px' }}>🐗</div>
+                    <img
+                      src="/assets/orcos_official.png"
+                      alt="Orcos Rugby Club"
+                      style={{
+                        width: '64px',
+                        height: '64px',
+                        objectFit: 'contain',
+                        borderRadius: '14px',
+                        background: '#ffffff',
+                        padding: '4px',
+                        margin: '0 auto 8px',
+                        display: 'block',
+                        boxShadow: '0 0 20px rgba(0, 230, 118, 0.35)',
+                        border: '2px solid rgba(0, 230, 118, 0.6)',
+                      }}
+                    />
                     <div style={{ fontFamily: 'Outfit', fontWeight: 900, fontSize: '1.15rem', color: '#fff' }}>
-                      Rugby Orcos
+                      Orcos Rugby Club
                     </div>
                     <div style={{ fontSize: '0.7rem', color: 'var(--color-primary)', fontWeight: 700 }}>
-                      Corozal, Sucre
+                      Corozal, Sucre (Local)
                     </div>
                   </div>
 
@@ -109,36 +124,51 @@ function PlayerAgendaTab({
                   <div style={{ textAlign: 'center' }}>
                     <div
                       style={{
-                        width: '42px',
-                        height: '42px',
+                        width: '44px',
+                        height: '44px',
                         borderRadius: '50%',
-                        background: 'linear-gradient(135deg, rgba(255, 215, 64, 0.25) 0%, rgba(255, 23, 68, 0.3) 100%)',
-                        border: '1px solid rgba(255, 215, 64, 0.5)',
+                        background: 'linear-gradient(135deg, rgba(255, 215, 64, 0.3) 0%, rgba(255, 23, 68, 0.35) 100%)',
+                        border: '2px solid rgba(255, 215, 64, 0.7)',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
                         fontWeight: 900,
-                        fontSize: '0.9rem',
+                        fontSize: '0.95rem',
                         color: 'var(--color-gold)',
                         margin: '0 auto 6px',
-                        boxShadow: '0 0 16px rgba(255, 215, 64, 0.2)',
+                        boxShadow: '0 0 18px rgba(255, 215, 64, 0.3)',
                       }}
                     >
                       VS
                     </div>
-                    <span style={{ fontSize: '0.65rem', color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '1px' }}>
-                      Cotejo Oficial
+                    <span style={{ fontSize: '0.65rem', color: 'var(--color-gold)', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 700 }}>
+                      Clásico Sucreño
                     </span>
                   </div>
 
                   {/* Rival */}
                   <div style={{ textAlign: 'center' }}>
-                    <div style={{ fontSize: '2.4rem', marginBottom: '4px' }}>🐆</div>
+                    <img
+                      src={f.opponent?.toLowerCase().includes('guepardo') ? '/assets/guepardos_logo.png' : '/assets/orcos_logo.png'}
+                      alt={f.opponent}
+                      style={{
+                        width: '64px',
+                        height: '64px',
+                        objectFit: 'contain',
+                        borderRadius: '14px',
+                        background: '#ffffff',
+                        padding: '4px',
+                        margin: '0 auto 8px',
+                        display: 'block',
+                        boxShadow: '0 0 20px rgba(255, 61, 0, 0.35)',
+                        border: '2px solid rgba(255, 61, 0, 0.6)',
+                      }}
+                    />
                     <div style={{ fontFamily: 'Outfit', fontWeight: 900, fontSize: '1.15rem', color: '#fff' }}>
                       {f.opponent}
                     </div>
-                    <div style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)' }}>
-                      Club Rival
+                    <div style={{ fontSize: '0.7rem', color: '#ff7043', fontWeight: 700 }}>
+                      Sincelejo, Sucre (Visitante)
                     </div>
                   </div>
                 </div>
