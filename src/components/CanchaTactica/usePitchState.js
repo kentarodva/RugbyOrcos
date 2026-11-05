@@ -8,6 +8,7 @@ import {
   deleteCustomTactic,
   fetchMatchStatsByPlayer,
   createCustomTacticsChannel,
+  removeRealtimeChannel,
 } from '../../data/supabaseApi';
 import { autoAssignLineup } from '../../engine/tacticAssignmentEngine';
 
@@ -102,7 +103,8 @@ export function usePitchState(activeTeam) {
     }
 
     if (channelRef.current) {
-      channelRef.current.unsubscribe();
+      removeRealtimeChannel(channelRef.current);
+      channelRef.current = null;
     }
     channelRef.current = createCustomTacticsChannel(teamCat, async () => {
       const refreshed = await fetchCustomTactics(teamCat);
@@ -113,7 +115,8 @@ export function usePitchState(activeTeam) {
   useEffect(() => {
     return () => {
       if (channelRef.current) {
-        channelRef.current.unsubscribe();
+        removeRealtimeChannel(channelRef.current);
+        channelRef.current = null;
       }
     };
   }, []);

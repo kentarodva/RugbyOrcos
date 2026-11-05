@@ -557,15 +557,31 @@ export async function fetchMatchStatsByPlayer(playerIds, filters = {}, signal) {
 // ─── Realtime Channel ────────────────────────────────────────────
 
 export function createCustomTacticsChannel(teamCategory, callback) {
-  const channel = supabase
-    .channel('custom_tactics_realtime')
-    .on('postgres_changes',
-      { event: '*', schema: 'public', table: 'custom_tactics' },
-      () => { callback(); }
-    )
-    .subscribe();
+  try {
+    const channelId = `tactics_${String(teamCategory || 'all').replace(/[^a-zA-Z0-9]/g, '_')}_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
+    const channel = supabase
+      .channel(channelId)
+      .on('postgres_changes',
+        { event: '*', schema: 'public', table: 'custom_tactics' },
+        () => {
+          try { callback(); } catch { /* callback seguro */ }
+        }
+      )
+      .subscribe();
 
-  return channel;
+    return channel;
+  } catch {
+    return null;
+  }
+}
+
+export function removeRealtimeChannel(channel) {
+  if (!channel) return;
+  try {
+    supabase.removeChannel(channel);
+  } catch {
+    // Silencioso - canal ya removido
+  }
 }
 
 // ─── Transforms ──────────────────────────────────────────────────

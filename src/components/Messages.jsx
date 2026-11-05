@@ -100,8 +100,9 @@ function Messages() {
     loadAnnouncements();
     loadReactions();
 
+    const channelId = `messages_${user?.id || 'anon'}_${Date.now()}`;
     const channel = supabase
-      .channel('messages_channel')
+      .channel(channelId)
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, payload => {
         if (payload.new.receiver_id === user.id || payload.new.sender_id === user.id) {
           loadConversations();
