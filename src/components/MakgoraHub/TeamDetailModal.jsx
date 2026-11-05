@@ -5,11 +5,13 @@ import { useToast } from '../../context/ToastContext.jsx';
 import TeamCrest from '../common/TeamCrest';
 import CrestUploadButton from '../common/CrestUploadButton';
 import { clanCrestUrl } from './TeamsGrid';
+import { RUGBY_POSITIONS, positionName } from '../../utils/rugbyPositions';
 
-const FORWARD_WORDS = ['pilar', 'pilier', 'talonador', 'hooker', 'segunda', 'ala', 'flanker', 'octavo', 'numero 8'];
+// No 'ala': in Spanish that is the wing (a back). Flankers are 'flanker' / 'tercera'.
+const FORWARD_WORDS = ['pilar', 'pilier', 'talonador', 'hooker', 'segunda', 'tercera', 'flanker', 'octavo', 'numero 8', 'n8'];
 const fold = (s) => (s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
 
-/** 'forward' | 'back' | null — position_id (1-15) wins, then the free-text position. */
+/** 'forward' | 'back' | null. position_id (1-15) wins, then the free-text position. */
 export function positionLine(p) {
   const id = Number(p.position_id);
   if (id >= 1 && id <= 8) return 'forward';
@@ -19,24 +21,41 @@ export function positionLine(p) {
   return FORWARD_WORDS.some(w => pos.includes(w)) ? 'forward' : 'back';
 }
 
-function PlayerChips({ title, list, color }) {
+function PlayerChips({ title, list, color, onPick }) {
   if (list.length === 0) return null;
   return (
     <div style={{ marginBottom: '14px' }}>
       <p style={{ fontSize: '0.68rem', fontWeight: 800, letterSpacing: '0.08em', color, margin: '0 0 6px' }}>{title} · {list.length}</p>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-        {list.map(p => (
-          <span key={p.id} style={{ fontSize: '0.78rem', color: 'var(--color-text)', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', padding: '5px 10px', borderRadius: '8px' }}>
-            {p.first_name} {p.last_name}
-            {p.jersey_number && <span style={{ color: 'var(--color-gold)', marginLeft: '5px', fontWeight: 700 }}>#{p.jersey_number}</span>}
-          </span>
-        ))}
+        {list.map(p => {
+          const label = positionName(p.position_id) || p.position;
+          const chipStyle = {
+            fontSize: '0.78rem', color: 'var(--color-text)', background: 'rgba(255,255,255,0.05)',
+            border: '1px solid rgba(255,255,255,0.08)', padding: '5px 10px', borderRadius: '8px',
+          };
+          const content = (
+            <>
+              {p.first_name} {p.last_name}
+              {p.jersey_number && <span style={{ color: 'var(--color-gold)', marginLeft: '5px', fontWeight: 700 }}>#{p.jersey_number}</span>}
+            </>
+          );
+          return onPick ? (
+            <button key={p.id} type="button" onClick={() => onPick(p)} title={label || undefined}
+              aria-label={`Editar posición y dorsal de ${p.first_name} ${p.last_name}`}
+              style={{ ...chipStyle, cursor: 'pointer', minHeight: '36px', display: 'inline-flex', alignItems: 'center', gap: '2px' }}>
+              {content}
+              <Pencil size={11} aria-hidden="true" style={{ marginLeft: '6px', opacity: 0.5 }} />
+            </button>
+          ) : (
+            <span key={p.id} title={label || undefined} style={chipStyle}>{content}</span>
+          );
+        })}
       </div>
     </div>
   );
 }
 
-export function TeamDetailModal({ team, onClose, canEdit = false, onChanged }) {
+export function TeamDetailModal({ team, onClose, canEdit = false, isChief = false, onChanged }) {
   const { showToast } = useToast();
   const [players, setPlayers] = useState([]);
   const [tournamentHistory, setTournamentHistory] = useState([]);
@@ -44,6 +63,8 @@ export function TeamDetailModal({ team, onClose, canEdit = false, onChanged }) {
   const [motto, setMotto] = useState('');
   const [color, setColor] = useState('#00e676');
   const [saving, setSaving] = useState(false);
+  const [editPlayer, setEditPlayer] = useState(null); // { id, name, positionId, jersey }
+  const [reloadKey, setReloadKey] = useState(0);
   const teamId = team?.id;
   const isExternal = team?.is_external;
 
@@ -63,7 +84,7 @@ export function TeamDetailModal({ team, onClose, canEdit = false, onChanged }) {
       .limit(5)
       .then(({ data }) => { if (alive && data) setTournamentHistory(data.filter(t => t.winner_team_id === teamId || t.status === 'en_curso')); });
     return () => { alive = false; };
-  }, [teamId, isExternal]);
+  }, [teamId, isExternal, reloadKey]);
 
   useEffect(() => {
     const onKey = (e) => { if (e.key === 'Escape') onClose(); };
@@ -77,29 +98,46 @@ export function TeamDetailModal({ team, onClose, canEdit = false, onChanged }) {
 
   const startEdit = () => { setMotto(team.motto || ''); setColor(teamColor); setEditing(true); };
 
+  // All writes go through SECURITY DEFINER RPCs (migration 75): the server checks staff / clan chief.
   const saveDetails = async () => {
     setSaving(true);
-    const { data, error } = await supabase.from('makgora_teams')
-      .update({ motto: motto.trim() || null, emblem_color: color })
-      .eq('id', team.id)
-      .select('id');
+    const { error } = await supabase.rpc('makgora_update_clan', { p_team: team.id, p_changes: { motto: motto.trim() || null, emblem_color: color } });
     setSaving(false);
-    if (error || !data?.length) { showToast(error?.message || 'No tienes permiso para editar este clan.', 'error'); return; }
+    if (error) { showToast(error.message || 'No tienes permiso para editar este clan.', 'error'); return; }
     showToast('Clan actualizado', 'success');
     setEditing(false);
     onChanged?.();
   };
 
   const saveCrest = async (url) => {
-    const { data, error } = await supabase.from('makgora_teams').update({ crest_url: url }).eq('id', team.id).select('id');
-    if (error) throw error;
-    if (!data?.length) throw new Error('No tienes permiso para cambiar este escudo.');
+    const { error } = await supabase.rpc('makgora_update_clan', { p_team: team.id, p_changes: { crest_url: url } });
+    if (error) throw new Error(error.message || 'No tienes permiso para cambiar este escudo.');
     onChanged?.();
+  };
+
+  const pickPlayer = (p) => setEditPlayer({
+    id: p.id, name: `${p.first_name} ${p.last_name}`,
+    positionId: p.position_id ? String(p.position_id) : '', jersey: p.jersey_number ? String(p.jersey_number) : '',
+  });
+
+  const savePlayer = async () => {
+    setSaving(true);
+    const { error } = await supabase.rpc('makgora_update_player', {
+      p_player: editPlayer.id,
+      p_position_id: editPlayer.positionId ? Number(editPlayer.positionId) : null,
+      p_jersey: editPlayer.jersey ? Number(editPlayer.jersey) : null,
+    });
+    setSaving(false);
+    if (error) { showToast(error.message || 'No se pudo guardar.', 'error'); return; }
+    showToast(`${editPlayer.name} actualizado`, 'success');
+    setEditPlayer(null);
+    setReloadKey(k => k + 1);
   };
 
   const forwards = players.filter(p => positionLine(p) === 'forward');
   const backs = players.filter(p => positionLine(p) === 'back');
   const unassigned = players.filter(p => positionLine(p) === null);
+  const onPick = canEdit ? pickPlayer : null;
 
   return (
     <div className="modal-overlay" onClick={onClose}>
@@ -123,6 +161,11 @@ export function TeamDetailModal({ team, onClose, canEdit = false, onChanged }) {
             {isExternal && <span style={{ fontSize: '0.65rem', padding: '2px 8px', borderRadius: '6px', background: 'rgba(255,179,0,0.1)', color: '#ffb300', marginLeft: '8px', verticalAlign: 'middle' }}>Invitado</span>}
           </h3>
           {team.rpg_name && team.name !== team.rpg_name && <p style={{ color: 'var(--color-text-muted)', fontSize: '0.8rem', margin: '4px 0 0' }}>{team.name}</p>}
+          {isChief && (
+            <p style={{ display: 'inline-block', margin: '8px 0 0', padding: '2px 10px', borderRadius: '999px', fontSize: '0.68rem', fontWeight: 800, color: '#ffd700', background: 'rgba(255,215,0,0.12)', border: '1px solid rgba(255,215,0,0.35)' }}>
+              👑 Eres jefe de este clan
+            </p>
+          )}
           {team.motto && !editing && <p style={{ color: teamColor, fontStyle: 'italic', fontSize: '0.85rem', margin: '8px 0 0' }}>«{team.motto}»</p>}
 
           {canEdit && !editing && (
@@ -174,9 +217,32 @@ export function TeamDetailModal({ team, onClose, canEdit = false, onChanged }) {
           ) : (
             <>
               <p style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--color-text)', margin: '0 0 12px' }}>Guerreros del clan ({players.length})</p>
-              <PlayerChips title="DELANTEROS" list={forwards} color="#ffb300" />
-              <PlayerChips title="TRES CUARTOS" list={backs} color="#00e676" />
-              <PlayerChips title="SIN POSICIÓN ASIGNADA" list={unassigned} color="var(--color-text-muted)" />
+              {canEdit && !editPlayer && (
+                <p style={{ fontSize: '0.72rem', color: 'var(--color-text-muted)', margin: '-6px 0 12px' }}>Toca un guerrero para asignar su posición y dorsal.</p>
+              )}
+              {editPlayer && (
+                <div role="group" aria-label={`Editar ${editPlayer.name}`}
+                  style={{ display: 'grid', gap: '10px', padding: '12px', marginBottom: '14px', borderRadius: '12px', background: 'rgba(255,255,255,0.04)', border: `1px solid ${teamColor}55` }}>
+                  <strong style={{ fontSize: '0.85rem', color: 'var(--color-text)' }}>{editPlayer.name}</strong>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1fr) 84px', gap: '8px' }}>
+                    <select aria-label="Posición" value={editPlayer.positionId} onChange={e => setEditPlayer({ ...editPlayer, positionId: e.target.value })}
+                      className="form-select" style={{ minHeight: '44px', fontSize: '0.85rem' }}>
+                      <option value="">Sin posición</option>
+                      {RUGBY_POSITIONS.map(pos => <option key={pos.id} value={pos.id}>{pos.id}. {pos.name}</option>)}
+                    </select>
+                    <input aria-label="Dorsal" type="number" inputMode="numeric" min="1" max="99" placeholder="#" value={editPlayer.jersey}
+                      onChange={e => setEditPlayer({ ...editPlayer, jersey: e.target.value })}
+                      className="form-input" style={{ minHeight: '44px', fontSize: '0.9rem', textAlign: 'center' }} />
+                  </div>
+                  <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+                    <button type="button" onClick={() => setEditPlayer(null)} className="btn-outline" style={{ minHeight: '44px', padding: '0 16px' }}>Cancelar</button>
+                    <button type="button" onClick={savePlayer} disabled={saving} className="btn-neon" style={{ minHeight: '44px', padding: '0 18px' }}>{saving ? 'Guardando…' : 'Guardar guerrero'}</button>
+                  </div>
+                </div>
+              )}
+              <PlayerChips title="DELANTEROS" list={forwards} color="#ffb300" onPick={onPick} />
+              <PlayerChips title="TRES CUARTOS" list={backs} color="#00e676" onPick={onPick} />
+              <PlayerChips title="SIN POSICIÓN ASIGNADA" list={unassigned} color="var(--color-text-muted)" onPick={onPick} />
             </>
           )}
         </div>

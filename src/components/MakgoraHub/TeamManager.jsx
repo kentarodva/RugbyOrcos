@@ -5,8 +5,9 @@ import { useToast } from '../../context/ToastContext.jsx';
 import TeamCrest from '../common/TeamCrest';
 import CrestUploadButton from '../common/CrestUploadButton';
 import { clanCrestUrl } from './TeamsGrid';
+import { ClanChiefsRow } from './ClanChiefsRow';
 
-export function TeamManager({ teams, onTeamsChanged }) {
+export function TeamManager({ teams, onTeamsChanged, players = [], chiefs = [], onChiefsChanged, canAssignChiefs = false }) {
   const { showToast } = useToast();
   const [newName, setNewName] = useState('');
   const [newRpgName, setNewRpgName] = useState('');
@@ -104,6 +105,7 @@ export function TeamManager({ teams, onTeamsChanged }) {
                   </div>
                   <CrestUploadButton kind="clans" id={t.id} currentUrl={t.crest_url} compact onUploaded={(url) => handleCrest(t.id, url)} />
                   <button type="button" onClick={() => startEdit(t, '#00e676')} className="btn-outline" style={{ padding: '4px 10px', fontSize: '0.68rem', minHeight: '32px' }}>Editar</button>
+                  <ClanChiefsRow team={t} players={players} chiefs={chiefs} canAssign={canAssignChiefs} onChanged={onChiefsChanged} />
                 </>
               )}
             </div>

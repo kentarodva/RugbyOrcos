@@ -5,6 +5,7 @@ import { wrapCatch } from '../../utils/errorHandler';
 import { ClubContext } from '../../context/ClubContext.jsx';
 import { useToast } from '../../context/ToastContext.jsx';
 import { useDataListener } from '../../context/hooks/useDataListener.js';
+import { useAuth } from '../../context/AuthContext.jsx';
 
 const emitChange = (table, action, payload = {}) => {
   window.dispatchEvent(new CustomEvent('data:changed', {
@@ -15,6 +16,8 @@ const emitChange = (table, action, payload = {}) => {
 export function useMakgoraState() {
   const { showToast } = useToast();
   const { players, loans, requestLoan, updateLoanStatus, refreshMakgoraTeams } = useContext(ClubContext);
+  const { user } = useAuth();
+  const [chiefs, setChiefs] = useState([]);
   const [tab, setTab] = useState('teams');
   const [teams, setTeams] = useState([]);
   const [tournaments, setTournaments] = useState([]);
@@ -32,19 +35,18 @@ export function useMakgoraState() {
   useEffect(() => { activeTournamentRef.current = activeTournament; }, [activeTournament]);
 
   const checkExpiredLoans = useCallback(async () => {
-    const today = new Date().toISOString().split('T')[0];
-    const { data: expired } = await supabase.from('player_loans')
-      .select('id, players(first_name, last_name)')
-      .eq('status', 'approved')
-      .lt('end_date', today);
-    if (expired && expired.length > 0) {
-      const ids = expired.map(l => l.id);
-      await supabase.from('player_loans')
-        .update({ status: 'returned', updated_at: new Date().toISOString() })
-        .in('id', ids);
-      showToast(`${expired.length} préstamo(s) vencido(s) auto-devuelto(s)`, 'info');
-    }
+    // Server-side (migration 75): works for every role, not just whoever passes RLS.
+    const { data: returned } = await supabase.rpc('makgora_return_expired_loans');
+    if (returned > 0) showToast(`${returned} préstamo(s) vencido(s) auto-devuelto(s)`, 'info');
   }, [showToast]);
+
+  // Clan chiefs (migration 75). Fails soft: before the migration everyone simply has no clan.
+  const loadChiefs = useCallback(async () => {
+    const { data, error } = await supabase.from('makgora_team_staff')
+      .select('id, team_id, user_id, player_id, role')
+      .order('created_at');
+    setChiefs(error || !data ? [] : data);
+  }, []);
 
   const loadTeams = useCallback(async () => {
     const { data } = await supabase.from('makgora_teams').select('*').order('sort_order');
@@ -66,8 +68,9 @@ export function useMakgoraState() {
   useEffect(() => {
     loadTeams();
     loadTournaments();
+    loadChiefs();
     checkExpiredLoans();
-  }, [loadTeams, loadTournaments, checkExpiredLoans]);
+  }, [loadTeams, loadTournaments, loadChiefs, checkExpiredLoans]);
 
   useDataListener('tournaments', () => loadTournaments());
   useDataListener('tournament_matches', () => {
@@ -356,7 +359,8 @@ export function useMakgoraState() {
   const handleUpdateLoanStatus = useCallback(async (loanId, status) => {
     const result = await updateLoanStatus(loanId, status);
     if (result.error) { showToast(result.error, 'error'); return; }
-    showToast('Prestamo ' + (status === 'approved' ? 'aprobado' : status === 'rejected' ? 'rechazado' : 'devuelto') + '.', 'success');
+    const label = { approved: 'aprobado', rejected: 'rechazado', returned: 'devuelto', cancelled: 'cancelado' }[status] || status;
+    showToast(`Préstamo ${label}.`, 'success');
   }, [updateLoanStatus, showToast]);
 
   const handleStartTournament = useCallback(async (tournamentId) => {
@@ -400,6 +404,9 @@ export function useMakgoraState() {
     tab, setTab,
     teams,
     loadTeams,
+    chiefs,
+    loadChiefs,
+    myClanIds: chiefs.filter(c => c.user_id === user?.id).map(c => c.team_id),
     clanRecords,
     tournaments,
     activeTournament, setActiveTournament,

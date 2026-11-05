@@ -27,40 +27,27 @@ export function useLoans(user) {
     };
   }, [user?.id]);
 
-  const requestLoan = useCallback(async (playerId, toTeamId, fromTeamId, tournamentId, days, reason) => {
+  // Loans go through SECURITY DEFINER RPCs (migration 75): the server checks staff / clan chief.
+  const refresh = useCallback(async () => {
+    const { data } = await apisupabase.fetchLoans();
+    if (data) setLoans(data);
+  }, []);
+
+  const requestLoan = useCallback(async (playerId, toTeamId, _fromTeamId, tournamentId, days, reason) => {
     if (!user?.id) return { error: 'No autenticado.' };
-    const startDate = new Date().toISOString().split('T')[0];
-    const endDate = new Date(Date.now() + days * 86400000).toISOString().split('T')[0];
-    try {
-      const { error } = await apisupabase.createLoan({
-        user_id: user.id,
-        player_id: playerId,
-        from_team_id: fromTeamId || null,
-        to_team_id: toTeamId,
-        tournament_id: tournamentId || null,
-        start_date: startDate,
-        end_date: endDate,
-        reason: reason || null,
-        status: 'pending',
-      });
-      if (error) return { error: error.message };
-      const { data } = await apisupabase.fetchLoans();
-      if (data) { setLoans(data); }
-      return { success: true };
-    } catch (err) {
-      return { error: err.message };
-    }
-  }, [user]);
+    const { error } = await supabase.rpc('makgora_request_loan', {
+      p_player: playerId, p_to_team: toTeamId, p_days: Number(days), p_reason: reason || null, p_tournament: tournamentId || null,
+    });
+    if (error) return { error: error.message };
+    await refresh();
+    return { success: true };
+  }, [user, refresh]);
 
   const updateLoanStatus = useCallback(async (loanId, status) => {
-    try {
-      const { error } = await apisupabase.updateLoanStatus(loanId, status);
-      if (error) return { error: error.message };
-      setLoans(prev => prev.map(l => l.id === loanId ? { ...l, status, updated_at: new Date().toISOString() } : l));
-      return { success: true };
-    } catch (err) {
-      return { error: err.message };
-    }
+    const { error } = await supabase.rpc('makgora_respond_loan', { p_loan: loanId, p_status: status });
+    if (error) return { error: error.message };
+    setLoans(prev => prev.map(l => l.id === loanId ? { ...l, status, updated_at: new Date().toISOString() } : l));
+    return { success: true };
   }, []);
 
   return { loans, setLoans, requestLoan, updateLoanStatus };

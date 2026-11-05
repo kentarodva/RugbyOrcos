@@ -2,22 +2,28 @@ import React from 'react';
 import { LoanForm } from './LoanForm';
 import { LoanCard } from './LoanCard';
 
-export function LoanList({ loans, players, teams, showLoanForm, loanForm, setLoanForm, onToggleForm, onSubmit, onApprove, onReject, onReturn }) {
+export function LoanList({ loans, players, teams, showLoanForm, loanForm, setLoanForm, onToggleForm, onSubmit, onApprove, onReject, onReturn, onCancel, isStaff = false, myClanIds = [] }) {
+  const canRequest = isStaff || myClanIds.length > 0;
+  // A chief requests players from OTHER clans, for one of their own clans.
+  const formTeams = isStaff ? teams : teams.filter(t => myClanIds.includes(t.id));
+  const formPlayers = isStaff ? players : players.filter(p => !myClanIds.includes(p.makgora_team_id));
   return (
     <div className="animated-fade" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <h3 style={{ color: 'var(--color-gold)', fontSize: '1rem', fontWeight: 700, fontFamily: 'Outfit' }}>
           Préstamos de Guerreros
         </h3>
-        <button onClick={onToggleForm} className="btn-neon" style={{ padding: '8px 14px', fontSize: '0.8rem' }}>
-          {showLoanForm ? 'Cancelar' : '+ Solicitar Prestamo'}
-        </button>
+        {canRequest && (
+          <button onClick={onToggleForm} className="btn-neon" style={{ padding: '8px 14px', fontSize: '0.8rem' }}>
+            {showLoanForm ? 'Cancelar' : '+ Solicitar préstamo'}
+          </button>
+        )}
       </div>
 
-      {showLoanForm && (
+      {showLoanForm && canRequest && (
         <LoanForm
-          players={players}
-          teams={teams}
+          players={formPlayers}
+          teams={formTeams}
           loanForm={loanForm}
           setLoanForm={setLoanForm}
           onSubmit={onSubmit}
@@ -39,6 +45,10 @@ export function LoanList({ loans, players, teams, showLoanForm, loanForm, setLoa
               onApprove={onApprove}
               onReject={onReject}
               onReturn={onReturn}
+              onCancel={onCancel}
+              canRespond={isStaff || myClanIds.includes(loan.from_team_id)}
+              canReturn={isStaff || myClanIds.includes(loan.from_team_id) || myClanIds.includes(loan.to_team_id)}
+              canCancel={isStaff || myClanIds.includes(loan.to_team_id)}
             />
           ))}
         </div>

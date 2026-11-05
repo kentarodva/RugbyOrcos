@@ -1,7 +1,7 @@
 import React from 'react';
 import { LOAN_STATUS_COLORS, LOAN_STATUS_LABELS } from './constants';
 
-export function LoanCard({ loan, teams, onApprove, onReject, onReturn }) {
+export function LoanCard({ loan, teams, onApprove, onReject, onReturn, onCancel, canRespond = false, canReturn = false, canCancel = false }) {
   const p = loan.players;
   const statusColor = LOAN_STATUS_COLORS[loan.status] || '#9e9e9e';
   const statusLabel = LOAN_STATUS_LABELS[loan.status] || loan.status;
@@ -36,19 +36,24 @@ export function LoanCard({ loan, teams, onApprove, onReject, onReturn }) {
           {loan.reason && <span> • {loan.reason}</span>}
         </div>
       </div>
-      {loan.status === 'pending' && (
-        <div style={{ display: 'flex', gap: '6px' }}>
-          <button onClick={() => onApprove(loan.id)}
+      {loan.status === 'pending' && (canRespond || canCancel) && (
+        <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+          {canRespond && <button onClick={() => onApprove(loan.id)}
             className="btn-outline" style={{ padding: '4px 10px', fontSize: '0.7rem', borderColor: 'var(--color-primary)', color: 'var(--color-primary)' }}>
             ✓ Aprobar
-          </button>
-          <button onClick={() => onReject(loan.id)}
+          </button>}
+          {canRespond && <button onClick={() => onReject(loan.id)}
             className="btn-outline" style={{ padding: '4px 10px', fontSize: '0.7rem', borderColor: 'var(--color-red)', color: 'var(--color-red)' }}>
             ✗ Rechazar
-          </button>
+          </button>}
+          {canCancel && !canRespond && onCancel && (
+            <button onClick={() => onCancel(loan.id)} className="btn-outline" style={{ padding: '4px 10px', fontSize: '0.7rem' }}>
+              Cancelar solicitud
+            </button>
+          )}
         </div>
       )}
-      {loan.status === 'approved' && (
+      {loan.status === 'approved' && canReturn && (
         <button onClick={() => onReturn(loan.id)}
           className="btn-outline" style={{ padding: '4px 10px', fontSize: '0.7rem' }}>
           ↩ Devolver

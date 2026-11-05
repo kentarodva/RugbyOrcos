@@ -22,6 +22,8 @@ function MakgoraHub() {
   const state = useMakgoraState();
   const { hasPermission } = useContext(ClubContext);
   const canEditTeams = !!hasPermission?.('manage_players');
+  const isTournamentAdmin = !!hasPermission?.('admin_panel');
+  const canManageTeam = (teamId) => canEditTeams || state.myClanIds.includes(teamId);
   const [showStats, setShowStats] = useState(false);
   const [showH2H, setShowH2H] = useState(false);
   const [statsMatch, setStatsMatch] = useState(null);
@@ -44,9 +46,11 @@ function MakgoraHub() {
         {TABS.map(t => (
           <button key={t.id} onClick={() => { state.setTab(t.id); state.setActiveTournament(null); }} className={state.tab === t.id ? 'btn-neon' : 'btn-outline'} style={{ padding: '8px 16px', fontSize: '0.85rem' }}>{t.label}</button>
         ))}
-        <button onClick={() => state.setTab('teams-manager')} className={state.tab === 'teams-manager' ? 'btn-neon' : 'btn-outline'} style={{ padding: '8px 16px', fontSize: '0.85rem', color: 'var(--color-gold)', borderColor: 'var(--color-gold)' }}>
-          Gestión Equipos
-        </button>
+        {canEditTeams && (
+          <button onClick={() => state.setTab('teams-manager')} className={state.tab === 'teams-manager' ? 'btn-neon' : 'btn-outline'} style={{ padding: '8px 16px', fontSize: '0.85rem', color: 'var(--color-gold)', borderColor: 'var(--color-gold)' }}>
+            Gestión Equipos
+          </button>
+        )}
         <button onClick={() => state.setTab('champions')} className={state.tab === 'champions' ? 'btn-neon' : 'btn-outline'} style={{ padding: '8px 16px', fontSize: '0.85rem', color: 'var(--color-gold)', borderColor: 'var(--color-gold)' }}>
           Campeones
         </button>
@@ -66,7 +70,8 @@ function MakgoraHub() {
       )}
 
       {state.tab === 'teams-manager' && (
-        <TeamManager teams={state.teams} onTeamsChanged={() => state.loadTeams()} />
+        <TeamManager teams={state.teams} onTeamsChanged={() => state.loadTeams()}
+          players={state.players} chiefs={state.chiefs} onChiefsChanged={state.loadChiefs} canAssignChiefs={isTournamentAdmin} />
       )}
 
       {state.tab === 'tournaments' && (
@@ -142,6 +147,9 @@ function MakgoraHub() {
           onApprove={(id) => state.handleUpdateLoanStatus(id, 'approved')}
           onReject={(id) => state.handleUpdateLoanStatus(id, 'rejected')}
           onReturn={(id) => state.handleUpdateLoanStatus(id, 'returned')}
+          onCancel={(id) => state.handleUpdateLoanStatus(id, 'cancelled')}
+          isStaff={canEditTeams}
+          myClanIds={state.myClanIds}
         />
       )}
 
@@ -178,7 +186,8 @@ function MakgoraHub() {
       {detailTeam && (
         <TeamDetailModal
           team={state.teams.find(t => t.id === detailTeam)}
-          canEdit={canEditTeams}
+          canEdit={!!detailTeam && canManageTeam(detailTeam)}
+          isChief={state.myClanIds.includes(detailTeam)}
           onChanged={state.loadTeams}
           onClose={() => setDetailTeam(null)}
         />
