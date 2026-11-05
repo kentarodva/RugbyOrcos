@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
+import { ClubContext } from '../../context/ClubContext';
 import { useMakgoraState } from './useMakgoraState';
 import { TABS } from './constants';
 import { TeamsGrid } from './TeamsGrid';
@@ -19,6 +20,8 @@ import ChampionsHistory from './ChampionsHistory';
 
 function MakgoraHub() {
   const state = useMakgoraState();
+  const { hasPermission } = useContext(ClubContext);
+  const canEditTeams = !!hasPermission?.('manage_players');
   const [showStats, setShowStats] = useState(false);
   const [showH2H, setShowH2H] = useState(false);
   const [statsMatch, setStatsMatch] = useState(null);
@@ -59,7 +62,7 @@ function MakgoraHub() {
       </div>
 
       {state.tab === 'teams' && (
-        <TeamsGrid teams={state.teams} records={state.clanRecords} players={state.players} onTeamClick={(t) => setDetailTeam(t)} />
+        <TeamsGrid teams={state.teams} records={state.clanRecords} players={state.players} onTeamClick={(t) => setDetailTeam(t.id)} />
       )}
 
       {state.tab === 'teams-manager' && (
@@ -173,7 +176,12 @@ function MakgoraHub() {
       )}
 
       {detailTeam && (
-        <TeamDetailModal team={detailTeam} onClose={() => setDetailTeam(null)} />
+        <TeamDetailModal
+          team={state.teams.find(t => t.id === detailTeam)}
+          canEdit={canEditTeams}
+          onChanged={state.loadTeams}
+          onClose={() => setDetailTeam(null)}
+        />
       )}
     </div>
   );

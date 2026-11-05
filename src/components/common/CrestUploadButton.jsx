@@ -20,8 +20,14 @@ export default function CrestUploadButton({ kind, id, currentUrl, onUploaded, co
       showToast('Escudo actualizado.', 'success');
     } catch (err) {
       const msg = String(err?.message || '');
-      const notReady = /bucket|not found|row-level|policy/i.test(msg);
-      showToast(notReady ? 'El almacenamiento de escudos aún no está activado (falta aplicar la migración 73).' : (msg || 'No se pudo subir el escudo.'), 'error');
+      const denied = /row-level|policy|unauthorized|permission/i.test(msg);
+      const noBucket = /bucket not found/i.test(msg);
+      showToast(
+        denied ? 'Solo el staff puede cambiar escudos.'
+          : noBucket ? 'El almacenamiento de escudos no está activado (migración 73).'
+          : (msg || 'No se pudo subir el escudo.'),
+        'error',
+      );
     } finally {
       setBusy(false);
     }

@@ -399,6 +399,7 @@ export function useMakgoraState() {
   return {
     tab, setTab,
     teams,
+    loadTeams,
     clanRecords,
     tournaments,
     activeTournament, setActiveTournament,

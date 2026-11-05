@@ -34,7 +34,7 @@ export function TeamManager({ teams, onTeamsChanged }) {
     if (error) { showToast(error.message, 'error'); return; }
     showToast(`Equipo "${newName}" creado`, 'success');
     setNewName(''); setNewRpgName(''); setNewColor('#00e676');
-    onTeamsChanged();
+    onTeamsChanged?.();
   };
 
   const startEdit = (t, fallbackColor) => {
@@ -46,17 +46,18 @@ export function TeamManager({ teams, onTeamsChanged }) {
     const changes = { name: editName.trim(), rpg_name: editRpgName.trim() || null, emblem_color: editColor };
     // motto column arrives with migration 73: only send it when it actually changed.
     if (editMotto.trim() !== (team.motto || '')) changes.motto = editMotto.trim() || null;
-    const { error } = await supabase.from('makgora_teams').update(changes).eq('id', team.id);
-    if (error) { showToast(error.message, 'error'); return; }
+    const { data, error } = await supabase.from('makgora_teams').update(changes).eq('id', team.id).select('id');
+    if (error || !data?.length) { showToast(error?.message || 'No tienes permiso para editar este equipo.', 'error'); return; }
     showToast('Equipo actualizado', 'success');
     setEditing(null);
-    onTeamsChanged();
+    onTeamsChanged?.();
   };
 
   const handleCrest = async (teamId, url) => {
-    const { error } = await supabase.from('makgora_teams').update({ crest_url: url }).eq('id', teamId);
+    const { data, error } = await supabase.from('makgora_teams').update({ crest_url: url }).eq('id', teamId).select('id');
     if (error) throw error;
-    onTeamsChanged();
+    if (!data?.length) throw new Error('No tienes permiso para cambiar este escudo.');
+    onTeamsChanged?.();
   };
 
   const editRow = (t) => (
@@ -75,7 +76,7 @@ export function TeamManager({ teams, onTeamsChanged }) {
     const { error } = await supabase.from('makgora_teams').delete().eq('id', teamId);
     if (error) { showToast(error.message, 'error'); return; }
     showToast('Equipo eliminado', 'success');
-    onTeamsChanged();
+    onTeamsChanged?.();
   };
 
   return (
