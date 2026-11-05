@@ -2,6 +2,8 @@
 // Genera silbatos de árbitro hiperrealistas (estilo Fox40 Classic) y bocinas de partido
 // 100% nativo, sin dependencias externas ni archivos de audio pesados, funciona offline.
 
+import { vibrateWhistle, vibrateTry } from './haptics';
+
 let audioCtx = null;
 
 function getAudioContext() {
@@ -79,6 +81,11 @@ function playWhistleTone(ctx, startTime, duration = 0.4, gainLevel = 0.3) {
  * - 'fulltime': Tres pitazos oficiales (corto, corto, largo final)
  */
 export function playRugbyWhistle(type = 'kickoff') {
+  if (type === 'try') {
+    vibrateTry();
+  } else {
+    vibrateWhistle();
+  }
   if (!isSoundEnabled()) return;
   const ctx = getAudioContext();
   if (!ctx) return;

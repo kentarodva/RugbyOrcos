@@ -5,6 +5,7 @@ import { supabase } from '../../supabaseClient.js';
 import { wrapCatch } from '../../utils/errorHandler';
 import { useQueryParams } from '../../utils/useQueryParams';
 import { printRoster } from '../../utils/exportPdf.js';
+import { downloadRosterCsv } from '../../utils/exportRosterCsv';
 import { useToast } from '../../context/ToastContext';
 import { useRegisterSearchHandler, useRegisterAddPlayerHandler } from '../../utils/keyboardShortcuts';
 import { useTeamPlayers } from '../../context/hooks/useFilterByView';
@@ -239,6 +240,7 @@ function Roster() {
           onMakgoraFilterChange={setMakgoraFilter}
           onAdd={() => setShowAddModal(true)}
           onPrint={handlePrint}
+          onExportCsv={() => downloadRosterCsv(filteredPlayers, divisionView || 'Orcos_Rugby_Club')}
           onToggleBulk={handleToggleBulk}
           bulkMode={bulkMode}
           searchInputRef={searchInputRef}

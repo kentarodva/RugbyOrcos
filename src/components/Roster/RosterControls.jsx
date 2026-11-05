@@ -1,7 +1,7 @@
 import React from 'react';
 import { KeyRound } from 'lucide-react';
 
-function RosterControls({ search, onSearchChange, divisionView, onDivisionViewChange, teams, makgoraFilter, onMakgoraFilterChange, onAdd, onPrint, onToggleBulk, bulkMode, searchInputRef, onCompare, showDeleted, onToggleDeleted, onBulkCredentials }) {
+function RosterControls({ search, onSearchChange, divisionView, onDivisionViewChange, teams, makgoraFilter, onMakgoraFilterChange, onAdd, onPrint, onExportCsv, onToggleBulk, bulkMode, searchInputRef, onCompare, showDeleted, onToggleDeleted, onBulkCredentials }) {
   return (
     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '15px' }}>
       <div style={{ display: 'flex', gap: '10px', flex: 1, maxWidth: '700px', flexWrap: 'wrap' }}>
@@ -71,6 +71,16 @@ function RosterControls({ search, onSearchChange, divisionView, onDivisionViewCh
         <button onClick={onPrint} className="btn-outline" style={{ padding: '8px 14px', fontSize: '0.8rem' }}>
           Imprimir
         </button>
+        {onExportCsv && (
+          <button
+            onClick={onExportCsv}
+            className="btn-outline"
+            style={{ padding: '8px 14px', fontSize: '0.8rem', color: '#00e676', borderColor: 'rgba(0, 230, 118, 0.4)', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+            title="Exportar nómina oficial en CSV/Excel para planillas de torneo"
+          >
+            📊 Planilla Torneo
+          </button>
+        )}
         {onBulkCredentials && (
           <button
             onClick={onBulkCredentials}

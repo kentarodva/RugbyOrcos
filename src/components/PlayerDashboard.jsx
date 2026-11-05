@@ -327,17 +327,18 @@ function PlayerDashboard() {
     }
   };
 
-  const handleExportPlayerCard = async () => {
+  const handleExportPlayerCard = async (quality = 'standard') => {
     if (!player) return;
-    setCardStatus('Generando Ficha...');
+    const is4k = quality === '4k';
+    setCardStatus(is4k ? 'Generando Ficha 4K...' : 'Generando Ficha HD...');
     try {
-      const res = await copyOrDownloadPlayerCard(player, 'Rugby Orcos Negros Club');
+      const res = await copyOrDownloadPlayerCard(player, 'Rugby Orcos Negros Club', { quality });
       if (res?.copied) {
-        setCardStatus('✅ Ficha copiada + PNG');
-        showToast('Ficha de Guerrero copiada al portapapeles y descargada en PNG.', 'success');
+        setCardStatus(is4k ? '✅ Ficha 4K Copiada' : '✅ Ficha Copiada');
+        showToast(is4k ? 'Ficha Ultra 4K de Guerrero copiada y descargada.' : 'Ficha de Guerrero copiada y descargada.', 'success');
       } else {
-        setCardStatus('✅ Ficha descargada');
-        showToast('Ficha de Guerrero descargada con éxito.', 'success');
+        setCardStatus(is4k ? '✅ Ficha 4K Descargada' : '✅ Ficha Descargada');
+        showToast(is4k ? 'Ficha Ultra 4K de Guerrero descargada con éxito.' : 'Ficha de Guerrero descargada con éxito.', 'success');
       }
     } catch {
       setCardStatus('⚠️ Error al generar');
@@ -384,7 +385,7 @@ function PlayerDashboard() {
       <main className="flex-1 overflow-y-auto p-6 min-h-0">
         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', marginBottom: '14px', flexWrap: 'wrap' }}>
           <button
-            onClick={handleExportPlayerCard}
+            onClick={() => handleExportPlayerCard('standard')}
             className="btn-outline"
             style={{
               padding: '6px 14px',
@@ -398,7 +399,25 @@ function PlayerDashboard() {
             }}
             title="Genera tu Ficha de Guerrero RPG oficial en HD para descargar y compartir en Instagram Stories / WhatsApp"
           >
-            🎴 {cardStatus || 'Ficha de Guerrero HD'}
+            🎴 {cardStatus.includes('4K') ? 'Ficha HD' : (cardStatus || 'Ficha HD')}
+          </button>
+
+          <button
+            onClick={() => handleExportPlayerCard('4k')}
+            className="btn-outline"
+            style={{
+              padding: '6px 14px',
+              fontSize: '0.78rem',
+              fontWeight: 800,
+              borderColor: 'rgba(0, 230, 118, 0.45)',
+              color: 'var(--color-primary)',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+            }}
+            title="Genera tu Ficha de Guerrero RPG en resolución ULTRA 4K (2400x2400px con tu foto local)"
+          >
+            💎 Ficha 4K Ultra
           </button>
 
           <button

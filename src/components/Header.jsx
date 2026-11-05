@@ -20,6 +20,7 @@ import { isAnyAIConfigured } from '../engine/multiProviderCoach';
 import NavBar from './NavBar';
 import NotificationsButton from './Notifications/NotificationsButton';
 import { OrcosShieldSVG } from './common/OrcosEmblem';
+import { NetworkBadge } from './NetworkBadge';
 
 export default function Header({
   sidebarOpen,
@@ -190,6 +191,7 @@ export default function Header({
               )}
             </span>
             {renderSyncBadge()}
+            <NetworkBadge />
           </div>
         </div>
       </div>

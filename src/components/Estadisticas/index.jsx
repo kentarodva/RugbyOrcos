@@ -15,6 +15,7 @@ import Cobertura from './Cobertura';
 import EquiposTab from './EquiposTab';
 import Atributos from './Atributos';
 import AwardsHall from '../AwardsHall';
+import { LeaderboardTab } from './LeaderboardTab';
 import EstadisticasSkeleton from '../Skeletons/EstadisticasSkeleton';
 import { getUpcomingBirthdays } from '../../services/statsService';
 
@@ -122,7 +123,10 @@ function Estadisticas() {
         )}
         <Tabs tabs={TABS} active={activeTab} onChange={setActiveTab} />
         {activeTab === 'salon' ? (
-          <AwardsHall />
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+            <LeaderboardTab players={players} />
+            <AwardsHall />
+          </div>
         ) : filteredPlayers.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '30px', color: 'var(--text-muted)', fontSize: '0.82rem' }}>No hay jugadores que coincidan con los filtros actuales.</div>
         ) : (

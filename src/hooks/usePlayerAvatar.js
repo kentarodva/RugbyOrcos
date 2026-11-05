@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { supabase } from '../supabaseClient.js';
 import { handleError } from '../utils/errorHandler';
+import { saveLocal4kPhoto, deleteLocal4kPhoto, createCloudThumbnail } from '../utils/localPhotoStorage';
 
 export function usePlayerAvatar(player, updatePlayer) {
   const [uploading, setUploading] = useState(false);
@@ -20,29 +21,45 @@ export function usePlayerAvatar(player, updatePlayer) {
     if (!file || !player?.id) return;
     setUploading(true);
     try {
-      const ext = 'webp';
-      const filePath = `${player.id}.${ext}`;
+      // 1. Guardar copia maestra en resolución original/4K en IndexedDB local
+      await saveLocal4kPhoto(player.id, file);
 
-      if (photoUrl) {
-        const oldPath = photoUrl.split('/').pop().split('?')[0];
-        await supabase.storage.from('player-avatars').remove([oldPath]);
+      // 2. Generar miniatura optimizada para la nube
+      let finalPhotoUrl = null;
+      try {
+        finalPhotoUrl = await createCloudThumbnail(file, 400, 0.82);
+      } catch {
+        // Fallback
       }
 
-      const { error: uploadError } = await supabase.storage
-        .from('player-avatars')
-        .upload(filePath, file, { upsert: true, contentType: `image/${ext}` });
-      if (uploadError) throw uploadError;
+      // 3. Intento de subida a Supabase Storage (si bucket está activo)
+      try {
+        const ext = 'webp';
+        const filePath = `${player.id}.${ext}`;
 
-      const { data: { publicUrl } } = supabase.storage
-        .from('player-avatars')
-        .getPublicUrl(filePath);
+        if (photoUrl && photoUrl.includes('player-avatars')) {
+          const oldPath = photoUrl.split('/').pop().split('?')[0];
+          await supabase.storage.from('player-avatars').remove([oldPath]);
+        }
 
-      const bustedUrl = publicUrl + '?t=' + Date.now();
+        const { error: uploadError } = await supabase.storage
+          .from('player-avatars')
+          .upload(filePath, file, { upsert: true, contentType: `image/${ext}` });
+
+        if (!uploadError) {
+          const { data: { publicUrl } } = supabase.storage
+            .from('player-avatars')
+            .getPublicUrl(filePath);
+          finalPhotoUrl = publicUrl + '?t=' + Date.now();
+        }
+      } catch {
+        // Usa la miniatura base64 local en caso de fallo de red/storage
+      }
 
       await updatePlayer({
         ...player,
         avatar_id: null,
-        photo_url: bustedUrl,
+        photo_url: finalPhotoUrl || player.photo_url,
       });
     } catch (err) {
       handleError(err, 'usePlayerAvatar.setPhoto', { notifyUser: true });
@@ -53,7 +70,8 @@ export function usePlayerAvatar(player, updatePlayer) {
 
   const clearPhoto = async () => {
     try {
-      if (photoUrl) {
+      await deleteLocal4kPhoto(player?.id);
+      if (photoUrl && photoUrl.includes('player-avatars')) {
         const urlParts = photoUrl.split('/');
         const fileName = urlParts[urlParts.length - 1];
         const filePath = fileName.split('?')[0];

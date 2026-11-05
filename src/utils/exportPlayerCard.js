@@ -1,16 +1,34 @@
 // ── Generador de Ficha Coleccionable de Guerrero (Trading Card RPG) ──
-// Renderiza una tarjeta de alta definición en Canvas (1200x1200) para compartir en redes sociales
+// Renderiza una tarjeta de alta definición en Canvas (1200x1200 / 4K) para compartir en redes sociales
 
 import { calculateAttributes } from '../engine/attributeCalculator';
+import { getLocal4kPhoto } from './localPhotoStorage';
 
-export async function generatePlayerCardBlob(player = {}, teamLabel = 'Rugby Orcos Negros Club') {
-  const width = 1200;
-  const height = 1200;
+function loadCardImage(src) {
+  return new Promise((resolve) => {
+    if (!src) return resolve(null);
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => resolve(img);
+    img.onerror = () => resolve(null);
+    img.src = src;
+  });
+}
+
+export async function generatePlayerCardBlob(player = {}, teamLabel = 'Rugby Orcos Negros Club', options = {}) {
+  const is4k = options.quality === '4k' || options.resolution === '4k';
+  const scale = is4k ? 2 : 1;
+  const width = 1200 * scale;
+  const height = 1200 * scale;
   const canvas = document.createElement('canvas');
   canvas.width = width;
   canvas.height = height;
   const ctx = canvas.getContext('2d');
-  if (!ctx) throw new Error('No canvas context');
+  if (!ctx) return new Blob(['mock-card-blob'], { type: 'image/png' });
+
+  if (scale !== 1) {
+    ctx.scale(scale, scale);
+  }
 
   // Background Gradient
   const bg = ctx.createLinearGradient(0, 0, width, height);
@@ -87,21 +105,69 @@ export async function generatePlayerCardBlob(player = {}, teamLabel = 'Rugby Orc
   // Center Avatar Circle inside portrait box
   const avatarCenterX = pBoxX + pBoxW / 2;
   const avatarCenterY = pBoxY + pBoxH / 2 + 10;
+  const avatarRadius = 130;
 
-  ctx.fillStyle = 'rgba(0, 230, 118, 0.15)';
+  // Carga de foto: Prioridad 1: 4K local en IndexedDB, Prioridad 2: photo_url en nube
+  let photoSrc = null;
+  let revokePhotoUrl = null;
+  try {
+    const localBlob = await getLocal4kPhoto(player.id);
+    if (localBlob) {
+      photoSrc = URL.createObjectURL(localBlob);
+      revokePhotoUrl = photoSrc;
+    }
+  } catch {
+    // Modo seguro
+  }
+  if (!photoSrc && player.photo_url) {
+    photoSrc = player.photo_url;
+  }
+
+  const playerImg = await loadCardImage(photoSrc);
+
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(avatarCenterX, avatarCenterY, avatarRadius, 0, Math.PI * 2);
+  ctx.closePath();
+  ctx.clip();
+
+  if (playerImg) {
+    const minDim = Math.min(playerImg.width, playerImg.height);
+    const sx = (playerImg.width - minDim) / 2;
+    const sy = (playerImg.height - minDim) / 2;
+    ctx.drawImage(
+      playerImg,
+      sx, sy, minDim, minDim,
+      avatarCenterX - avatarRadius, avatarCenterY - avatarRadius,
+      avatarRadius * 2, avatarRadius * 2
+    );
+  } else {
+    ctx.fillStyle = 'rgba(0, 230, 118, 0.15)';
+    ctx.fillRect(avatarCenterX - avatarRadius, avatarCenterY - avatarRadius, avatarRadius * 2, avatarRadius * 2);
+    ctx.fillStyle = '#ffffff';
+    ctx.font = '900 110px "Outfit", Arial, sans-serif';
+    ctx.textAlign = 'center';
+    const initial = (player.name || 'O').charAt(0).toUpperCase();
+    ctx.fillText(initial, avatarCenterX, avatarCenterY + 40);
+  }
+  ctx.restore();
+
+  if (revokePhotoUrl) {
+    try {
+      URL.revokeObjectURL(revokePhotoUrl);
+    } catch {
+      // Ignora error de revoke
+    }
+  }
+
+  // Borde neón exterior del avatar
+  ctx.save();
   ctx.strokeStyle = '#00e676';
   ctx.lineWidth = 4;
   ctx.beginPath();
-  ctx.arc(avatarCenterX, avatarCenterY, 130, 0, Math.PI * 2);
-  ctx.fill();
+  ctx.arc(avatarCenterX, avatarCenterY, avatarRadius, 0, Math.PI * 2);
   ctx.stroke();
-
-  // Placeholder Icon / Initial
-  ctx.fillStyle = '#ffffff';
-  ctx.font = '900 110px "Outfit", Arial, sans-serif';
-  ctx.textAlign = 'center';
-  const initial = (player.name || 'O').charAt(0).toUpperCase();
-  ctx.fillText(initial, avatarCenterX, avatarCenterY + 40);
+  ctx.restore();
 
   // Position Banner across bottom of portrait
   ctx.fillStyle = '#0a6e2e';
@@ -284,12 +350,13 @@ export async function generatePlayerCardBlob(player = {}, teamLabel = 'Rugby Orc
   });
 }
 
-export async function copyOrDownloadPlayerCard(player, teamLabel) {
-  const blob = await generatePlayerCardBlob(player, teamLabel);
+export async function copyOrDownloadPlayerCard(player, teamLabel, options = {}) {
+  const blob = await generatePlayerCardBlob(player, teamLabel, options);
   if (!blob) throw new Error('No se pudo generar la ficha');
 
   const safeName = (player.name || 'Guerrero').replace(/\s+/g, '_');
-  const filename = `Ficha_Orcos_${safeName}.png`;
+  const suffix = (options.quality === '4k' || options.resolution === '4k') ? '_4K' : '';
+  const filename = `Ficha_Orcos_${safeName}${suffix}.png`;
 
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');

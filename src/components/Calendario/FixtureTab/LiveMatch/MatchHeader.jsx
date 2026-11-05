@@ -3,7 +3,7 @@ import MatchTimer from './MatchTimer';
 import { buildMatchWhatsAppText, copyOrDownloadMatchBanner } from '../../../../utils/exportMatchBanner';
 import { playRugbyWhistle, isSoundEnabled, setSoundEnabled } from '../../../../utils/rugbyAudio';
 
-function MatchHeader({ liveMatch, liveEvents, onPause, onResume, onEnd, onClose, onDelete }) {
+function MatchHeader({ liveMatch, liveEvents, onPause, onResume, onEnd, onClose, onDelete, onOpenThirdTime }) {
   const [copyStatus, setCopyStatus] = useState('');
   const [bannerStatus, setBannerStatus] = useState('');
   const [soundOn, setSoundOn] = useState(() => isSoundEnabled());
@@ -200,6 +200,23 @@ function MatchHeader({ liveMatch, liveEvents, onPause, onResume, onEnd, onClose,
         >
           📸 {bannerStatus || 'Placa HD Marcador'}
         </button>
+
+        {onOpenThirdTime && (
+          <button
+            onClick={onOpenThirdTime}
+            className="btn-outline"
+            style={{
+              fontSize: '0.75rem',
+              padding: '8px 14px',
+              fontWeight: 800,
+              borderColor: 'rgba(255, 215, 64, 0.5)',
+              color: 'var(--color-gold)',
+            }}
+            title="Elegir MVP Orcos y MVP Rival, y generar la placa oficial de honor del Tercer Tiempo"
+          >
+            🍻 Tercer Tiempo & MVP
+          </button>
+        )}
       </div>
     </div>
   );

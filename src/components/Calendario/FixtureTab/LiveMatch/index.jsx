@@ -6,6 +6,7 @@ import LiveScorer from './LiveScorer';
 import EventTimeline from './EventTimeline';
 import LivePlayerStats from './LivePlayerStats';
 import { playRugbyWhistle } from '../../../../utils/rugbyAudio';
+import { ThirdTimeModal } from '../../../CanchaTactica/ThirdTimeModal';
 
 function LiveMatch({
   liveMatch: initialMatch,
@@ -25,6 +26,7 @@ function LiveMatch({
   const [loading, setLoading] = useState(true);
   const [consolidating, setConsolidating] = useState(false);
   const [opponentName, setOpponentName] = useState('');
+  const [showThirdTime, setShowThirdTime] = useState(false);
   const channelsRef = useRef([]);
 
   const fetchEvents = useCallback(async (matchId) => {
@@ -179,7 +181,25 @@ function LiveMatch({
         onEnd={handleEnd}
         onClose={onClose}
         onDelete={onDelete}
+        onOpenThirdTime={() => setShowThirdTime(true)}
       />
+
+      {showThirdTime && (
+        <ThirdTimeModal
+          match={{
+            id: liveMatch?.id,
+            rival: liveMatch?.opponent_name || opponentName || 'Rival Visitante',
+            score_orcos: liveMatch?.orcos_score || 0,
+            score_rival: liveMatch?.opponent_score || 0,
+            third_time: liveMatch?.third_time,
+          }}
+          squad={players || []}
+          onSaveThirdTime={(_id, data) => {
+            setLiveMatch(prev => ({ ...(prev || {}), third_time: data }));
+          }}
+          onClose={() => setShowThirdTime(false)}
+        />
+      )}
 
       {(liveMatch?.status === 'live' || liveMatch?.status === 'paused') && (
         <LiveScorer
