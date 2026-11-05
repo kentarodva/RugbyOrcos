@@ -1,6 +1,8 @@
 // ── Generador de Ficha Coleccionable de Guerrero (Trading Card RPG) ──
 // Renderiza una tarjeta de alta definición en Canvas (1200x1200) para compartir en redes sociales
 
+import { calculateAttributes } from '../engine/attributeCalculator';
+
 export async function generatePlayerCardBlob(player = {}, teamLabel = 'Rugby Orcos Negros Club') {
   const width = 1200;
   const height = 1200;
@@ -143,17 +145,41 @@ export async function generatePlayerCardBlob(player = {}, teamLabel = 'Rugby Orc
   ctx.restore();
 
   // Attribute Bars Section
+  const calculated = calculateAttributes(player);
+  const playerAttrs = player.attributes || {};
+  const forceVal = player.fuerza || playerAttrs.force || calculated.force || 75;
+  const tackleVal = player.placaje || playerAttrs.tackle || calculated.tackle || 75;
+  const staminaVal = player.resistencia || playerAttrs.stamina || calculated.stamina || 70;
+  const speedVal = player.velocidad || playerAttrs.speed || calculated.speed || 70;
+  const techniqueVal = player.pase || playerAttrs.technique || calculated.technique || 72;
+  const overallVal = player.ovr || calculated.overall || Math.round((forceVal + tackleVal + staminaVal + speedVal + techniqueVal) / 5);
+
   ctx.fillStyle = '#ffd740';
   ctx.font = '900 22px "Outfit", Arial, sans-serif';
   ctx.textAlign = 'left';
   ctx.fillText('ESTADÍSTICAS & ATRIBUTOS DE COMBATE', rightX, 360);
 
+  // Overall OVR Pill
+  ctx.save();
+  ctx.fillStyle = 'rgba(0, 230, 118, 0.25)';
+  ctx.strokeStyle = '#00e676';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.roundRect(rightX + 440, 336, 100, 32, 16);
+  ctx.fill();
+  ctx.stroke();
+  ctx.fillStyle = '#00e676';
+  ctx.font = '900 16px monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText(`OVR ${overallVal}`, rightX + 490, 358);
+  ctx.restore();
+
   const attributes = [
-    { label: 'Fuerza & Scrums', val: player.fuerza || 85, color: '#00e676' },
-    { label: 'Tackles & Contacto', val: player.placaje || 90, color: '#00e676' },
-    { label: 'Resistencia Aeróbica', val: player.resistencia || 80, color: '#ffd740' },
-    { label: 'Velocidad & Evasión', val: player.velocidad || 78, color: '#ffd740' },
-    { label: 'Manejo de Balón & Pases', val: player.pase || 82, color: '#38bdf8' },
+    { label: 'Fuerza & Scrums', val: forceVal, color: '#00e676' },
+    { label: 'Tackles & Contacto', val: tackleVal, color: '#00e676' },
+    { label: 'Resistencia Aeróbica', val: staminaVal, color: '#ffd740' },
+    { label: 'Velocidad & Evasión', val: speedVal, color: '#ffd740' },
+    { label: 'Manejo de Balón & Pases', val: techniqueVal, color: '#38bdf8' },
   ];
 
   let attrY = 405;
