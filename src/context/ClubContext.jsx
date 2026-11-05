@@ -4,7 +4,7 @@ import { supabase } from '../supabaseClient.js';
 import { loadSettings } from '../data/clubSettings';
 import { wrapCatch } from '../utils/errorHandler';
 import { registerWebPush } from '../utils/pushNotifications';
-import { CLUBS, CLUBS_LABELS, SYSTEM_ROLES, SYSTEM_ROLES_LABELS, RPG_ROLES, SUPER_ROLES, DIVISIONES, DIVISIONES_LABELS, EQUIPOS, EQUIPOS_LABELS, MAKGORA_TEAMS, getRpgRole } from './constants';
+import { CLUBS, CLUBS_LABELS, SYSTEM_ROLES, SYSTEM_ROLES_LABELS, RPG_ROLES, SUPER_ROLES, DIVISIONES, DIVISIONES_LABELS, EQUIPOS, EQUIPOS_LABELS, MAKGORA_TEAMS, getRpgRole, formatTeamCategory } from './constants';
 import {
   usePermissions,
   useClubs,
@@ -29,7 +29,7 @@ import {
 export {
   CLUBS, CLUBS_LABELS, SYSTEM_ROLES, SYSTEM_ROLES_LABELS,
   RPG_ROLES, SUPER_ROLES, DIVISIONES, DIVISIONES_LABELS,
-  EQUIPOS, EQUIPOS_LABELS, MAKGORA_TEAMS, getRpgRole
+  EQUIPOS, EQUIPOS_LABELS, MAKGORA_TEAMS, getRpgRole, formatTeamCategory
 };
 
 export const ClubContext = React.createContext();

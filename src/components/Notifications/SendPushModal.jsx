@@ -3,13 +3,14 @@ import { createPortal } from 'react-dom';
 import { ClubContext } from '../../context/ClubContext';
 import { supabase } from '../../supabaseClient';
 import { useToast } from '../../context/ToastContext';
+import { formatTeamCategory } from '../../context/constants';
 
 const CATEGORIES = [
   { value: '', label: 'Todas las categorías' },
   { value: 'orcos_masculina_mayor', label: 'Masculina Mayor' },
   { value: 'orcos_femenina_mayor', label: 'Femenina Mayor' },
-  { value: 'orcos_juveniles_masculina', label: 'Juvenil Masculino' },
-  { value: 'orcos_juveniles_femenina', label: 'Juvenil Femenino' },
+  { value: 'orcos_juveniles_masculina', label: 'Juveniles Masculina' },
+  { value: 'orcos_juveniles_femenina', label: 'Juveniles Femenina' },
 ];
 
 const POSITIONS = [
@@ -206,7 +207,7 @@ export default function SendPushModal({ onClose }) {
                   <input type="checkbox" checked={selectedIds.has(p.id)} onChange={() => togglePlayer(p.id)} style={{ accentColor: 'var(--color-primary)' }} />
                   <span style={{ fontWeight: 600, flex: 1 }}>{p.name}</span>
                   {p.posicion && <span style={{ color: 'var(--color-text-muted)', fontSize: '0.75rem' }}>{p.posicion}</span>}
-                  {p.teamCategory && <span style={{ color: 'var(--color-text-muted)', fontSize: '0.7rem' }}>{p.teamCategory.replace('orcos_', '')}</span>}
+                  {p.teamCategory && <span style={{ color: 'var(--color-text-muted)', fontSize: '0.7rem' }}>{formatTeamCategory(p.teamCategory)}</span>}
                 </label>
               ))
             )}

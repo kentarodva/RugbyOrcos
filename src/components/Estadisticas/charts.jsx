@@ -8,6 +8,16 @@ export const CAT_COLORS = {
   femenina_mayor: '#ff4081',
   juveniles_masculina: '#448aff',
   juveniles_femenina: '#ce93d8',
+  'Masculina Mayor': '#00e676',
+  'Femenina Mayor': '#ff4081',
+  'Juveniles Masculina': '#448aff',
+  'Juveniles Femenina': '#ce93d8',
+  'Juvenil Masculino': '#448aff',
+  'Juvenil Femenino': '#ce93d8',
+  'Sin Categoría': '#9e9e9e',
+  sin_categoria: '#9e9e9e',
+  Otros: '#ffab40',
+  otros: '#ffab40',
 };
 
 export const STATUS_COLORS = { activo: '#00e676', lesionado: '#ff5252', suspendido: '#ffd740', inactivo: '#757575' };
@@ -134,9 +144,9 @@ export function HorizontalBar({ data, title, subtitle, color = '#448aff', height
       {subtitle && <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', marginBottom: '10px' }}>{subtitle}</p>}
       <div style={{ width: '100%', height: Math.max(data.length * height + 20, 60) }}>
         <ResponsiveContainer width="100%" height="100%">
-          <ReBarChart data={data} layout="vertical" margin={{ top: 0, right: 30, left: 95, bottom: 0 }} barCategoryGap={6}>
+          <ReBarChart data={data} layout="vertical" margin={{ top: 0, right: 30, left: 135, bottom: 0 }} barCategoryGap={6}>
             <XAxis type="number" hide />
-            <YAxis type="category" dataKey="label" tick={AXIS_TICK} width={90} />
+            <YAxis type="category" dataKey="label" tick={AXIS_TICK} width={130} />
             <Tooltip content={makeBarTooltip(suffix)} />
             <Bar dataKey="value" radius={[0, 4, 4, 0]} maxBarSize={height - 8} animationDuration={500}>
               {data.map((d, i) => <Cell key={i} fill={d.color || color} />)}

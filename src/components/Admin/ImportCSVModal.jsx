@@ -1,6 +1,7 @@
 import React, { useCallback, useState, useRef, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { parseCSV } from '../../utils/csvImport.js';
+import { formatTeamCategory } from '../../context/constants';
 
 function ImportCSVModal({ onClose, onImport, makgoraTeams }) {
   const [preview, setPreview] = useState(null);
@@ -178,7 +179,7 @@ function ImportCSVModal({ onClose, onImport, makgoraTeams }) {
                   borderRadius: '12px',
                   margin: '2px 4px 2px 0',
                 }}>
-                  {cat.replace('orcos_', '')}: {count}
+                  {formatTeamCategory(cat)}: {count}
                 </span>
               ))}
             </div>
@@ -214,7 +215,7 @@ function ImportCSVModal({ onClose, onImport, makgoraTeams }) {
                       <td style={{ padding: '3px 6px', color: 'var(--text-primary)', whiteSpace: 'nowrap' }}>{p.first_name} {p.last_name}</td>
                       <td style={{ padding: '3px 6px', color: 'var(--text-secondary)' }}>{p.document_type || '-'}</td>
                       <td style={{ padding: '3px 6px', color: 'var(--text-secondary)', whiteSpace: 'nowrap' }}>{p.document_number}</td>
-                      <td style={{ padding: '3px 6px', color: 'var(--text-secondary)', whiteSpace: 'nowrap' }}>{p.team_category?.replace('orcos_', '')}</td>
+                      <td style={{ padding: '3px 6px', color: 'var(--text-secondary)', whiteSpace: 'nowrap' }}>{formatTeamCategory(p.team_category)}</td>
                       <td style={{ padding: '3px 6px', color: 'var(--text-secondary)', whiteSpace: 'nowrap' }}>
                         {makgoraTeams?.find(t => t.id === p.makgora_team_id)?.rpg_name || '-'}
                       </td>

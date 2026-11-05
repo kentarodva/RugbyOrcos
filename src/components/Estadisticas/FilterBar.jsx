@@ -21,8 +21,8 @@ export default function FilterBar({ filters, onChange, uniqueEps, searchInputRef
           <option value="">Categoría</option>
           <option value="orcos_masculina_mayor">Masculina Mayor</option>
           <option value="orcos_femenina_mayor">Femenina Mayor</option>
-          <option value="orcos_juveniles_masculina">Juvenil Masculino</option>
-          <option value="orcos_juveniles_femenina">Juvenil Femenino</option>
+          <option value="orcos_juveniles_masculina">Juveniles Masculina</option>
+          <option value="orcos_juveniles_femenina">Juveniles Femenina</option>
         </select>
         <select value={filters.rol} onChange={e => set({ rol: e.target.value })} className="form-select" style={selStyle}>
           <option value="">Rol</option>

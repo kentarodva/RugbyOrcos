@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import { ScatterChart, Scatter, ZAxis, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { HorizontalBar, ScatterTooltip, AXIS_TICK, CAT_COLORS } from './charts.jsx';
+import { formatTeamCategory } from '../../context/constants';
 import {
   getPhysicalAveragesByCategory, getPhysicalByPosition, getIMCByCategory,
   getWeightBuckets, getHeightBuckets, getIMCClassification,
@@ -46,7 +47,7 @@ export default function Fisico({ players }) {
       weight: p.weight,
       height: p.height,
       name: p.name,
-      categoria: (p.teamCategory || '').replace('orcos_', '') || 'otros',
+      categoria: formatTeamCategory(p.teamCategory || 'otros'),
     }));
   }, [players]);
 

@@ -49,12 +49,40 @@ export const DIVISIONES = {
   JUVENILES_FEMENINA: 'juveniles_femenina'
 };
 
+export const DIVISION_DISPLAY_NAMES = {
+  orcos_masculina_mayor: 'Masculina Mayor',
+  masculina_mayor: 'Masculina Mayor',
+  orcos_juveniles_masculina: 'Juveniles Masculina',
+  juveniles_masculina: 'Juveniles Masculina',
+  orcos_femenina_mayor: 'Femenina Mayor',
+  femenina_mayor: 'Femenina Mayor',
+  orcos_juveniles_femenina: 'Juveniles Femenina',
+  juveniles_femenina: 'Juveniles Femenina',
+  sin_categoria: 'Sin Categoría',
+  otros: 'Otros',
+};
+
 export const DIVISIONES_LABELS = {
   [DIVISIONES.MASCULINA_MAYOR]: 'Masculina Mayor',
   [DIVISIONES.FEMENINA_MAYOR]: 'Femenina Mayor',
-  [DIVISIONES.JUVENILES_MASCULINA]: 'Juveniles Masculino',
-  [DIVISIONES.JUVENILES_FEMENINA]: 'Juveniles Femenino'
+  [DIVISIONES.JUVENILES_MASCULINA]: 'Juveniles Masculina',
+  [DIVISIONES.JUVENILES_FEMENINA]: 'Juveniles Femenina',
+  orcos_masculina_mayor: 'Masculina Mayor',
+  orcos_femenina_mayor: 'Femenina Mayor',
+  orcos_juveniles_masculina: 'Juveniles Masculina',
+  orcos_juveniles_femenina: 'Juveniles Femenina',
 };
+
+export function formatTeamCategory(cat) {
+  if (!cat) return 'Sin Categoría';
+  if (DIVISION_DISPLAY_NAMES[cat]) return DIVISION_DISPLAY_NAMES[cat];
+  const cleaned = String(cat).replace(/^orcos_/, '');
+  if (DIVISION_DISPLAY_NAMES[cleaned]) return DIVISION_DISPLAY_NAMES[cleaned];
+  return cleaned
+    .split('_')
+    .map(w => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(' ');
+}
 
 export const MAKGORA_TEAMS = [
   { id: 'orcos', name: 'Orcos', label: 'Orcos Negros (Horda Primigenia)' },

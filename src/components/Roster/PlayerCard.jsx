@@ -2,7 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { PlayerPhoto } from '../PlayerPhoto';
 import getPlayerBadges from './PlayerBadges';
-import { DIVISIONES_LABELS } from '../../context/ClubContext';
+import { formatTeamCategory } from '../../context/ClubContext';
 
 function PlayerCard({ player, onClick, activeLoans, makgoraTeams, bulkMode, isSelected, onSelect, viewMode }) {
   const isCoach = player.rol === 'Entrenador';
@@ -96,7 +96,7 @@ function PlayerCard({ player, onClick, activeLoans, makgoraTeams, bulkMode, isSe
         )}
         {viewMode === 'makgora' && player.teamCategory && (
           <span className="badge" style={{ background: 'rgba(64,196,255,0.08)', border: '1px solid var(--color-blue)', color: 'var(--color-blue)', fontWeight: 600 }}>
-            {DIVISIONES_LABELS[player.teamCategory] || player.teamCategory.replace('orcos_', '')}
+            {formatTeamCategory(player.teamCategory)}
           </span>
         )}
       </div>

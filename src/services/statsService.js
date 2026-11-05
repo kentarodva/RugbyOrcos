@@ -1,3 +1,5 @@
+import { formatTeamCategory } from '../context/constants';
+
 export function getAgeDistribution(players) {
   const buckets = { '14-17': 0, '18-22': 0, '23-27': 0, '28-32': 0, '33-40': 0, '40+': 0 };
   for (const p of players) {
@@ -16,7 +18,7 @@ export function getAgeDistribution(players) {
 export function getCategoryDistribution(players) {
   const m = {};
   for (const p of players) {
-    const c = (p.teamCategory || 'sin_categoria').replace('orcos_', '');
+    const c = formatTeamCategory(p.teamCategory || 'sin_categoria');
     m[c] = (m[c] || 0) + 1;
   }
   return Object.entries(m).map(([label, value]) => ({ label, value })).sort((a, b) => b.value - a.value);
@@ -80,7 +82,7 @@ export function getAgeByPositionMatrix(players) {
 export function getPhysicalAveragesByCategory(players) {
   const m = {};
   for (const p of players) {
-    const c = (p.teamCategory || 'otros').replace('orcos_', '');
+    const c = formatTeamCategory(p.teamCategory || 'otros');
     if (!m[c]) m[c] = { weights: [], heights: [] };
     if (p.weight) m[c].weights.push(p.weight);
     if (p.height) m[c].heights.push(p.height);
@@ -115,7 +117,7 @@ export function getIMCByCategory(players) {
   const m = {};
   for (const p of players) {
     if (!p.weight || !p.height) continue;
-    const c = (p.teamCategory || 'otros').replace('orcos_', '');
+    const c = formatTeamCategory(p.teamCategory || 'otros');
     const bmi = p.weight / (p.height * p.height);
     if (!m[c]) m[c] = [];
     m[c].push(bmi);
@@ -180,7 +182,7 @@ export function getHealthSummary(players) {
 export function getFracturesByCategory(players) {
   const m = {};
   for (const p of players) {
-    const c = (p.teamCategory || 'otros').replace('orcos_', '');
+    const c = formatTeamCategory(p.teamCategory || 'otros');
     if (!m[c]) m[c] = { total: 0, fractures: 0 };
     m[c].total++;
     if (p.had_fractures) m[c].fractures++;

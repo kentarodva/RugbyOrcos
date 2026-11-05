@@ -13,6 +13,7 @@ import SaveTacticModal from './SaveTacticModal';
 import TacticFiltersModal from './TacticFiltersModal';
 import { copyOrDownloadTacticalImage, buildLineupWhatsAppText } from '../../utils/exportPitchImage';
 import { copyToClipboard } from '../../utils/whatsappUtils';
+import { formatTeamCategory } from '../../context/constants';
 
 function CanchaTactica() {
   const { players, activeTeam, futureFixtures, makgoraTeams = [], viewMode, makgoraTeamId } = React.useContext(ClubContext);
@@ -151,7 +152,7 @@ function CanchaTactica() {
       const mt = makgoraTeams.find(x => String(x.id) === String(mId));
       return `Clan Mak'Gora: ${mt?.rpg_name || mt?.name || mId}`;
     }
-    return `División: ${boardScope}`;
+    return `División: ${formatTeamCategory(boardScope)}`;
   }, [nextMatch, selectedMatchId, boardScope, makgoraTeams]);
 
   const handleExportBroadcastImage = async () => {
@@ -213,7 +214,7 @@ function CanchaTactica() {
                 >
                   <optgroup label="Divisiones Oficiales">
                     {teamCategories.map(tc => (
-                      <option key={tc} value={tc}>{tc}</option>
+                      <option key={tc} value={tc}>{formatTeamCategory(tc)}</option>
                     ))}
                   </optgroup>
                   {makgoraTeams.length > 0 && (
