@@ -1,7 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import MatchTimer from './MatchTimer';
+import { buildMatchWhatsAppText, copyOrDownloadMatchBanner } from '../../../../utils/exportMatchBanner';
 
 function MatchHeader({ liveMatch, liveEvents, onPause, onResume, onEnd, onClose, onDelete }) {
+  const [copyStatus, setCopyStatus] = useState('');
+  const [bannerStatus, setBannerStatus] = useState('');
+
   const status = liveMatch?.status || 'finished';
   const score = (() => {
     let orcos = liveMatch?.orcos_score || 0, opponent = liveMatch?.opponent_score || 0;
@@ -14,6 +18,62 @@ function MatchHeader({ liveMatch, liveEvents, onPause, onResume, onEnd, onClose,
   })();
 
   const opponentName = liveMatch?.opponent_name || 'Rival';
+
+  // Calculate approximate match minute
+  const currentMinute = (() => {
+    const acc = liveMatch?.elapsed_seconds || 0;
+    if (status === 'paused' || status === 'finished') {
+      return Math.floor(acc / 60);
+    }
+    if (liveMatch?.started_at) {
+      const start = new Date(liveMatch.started_at).getTime();
+      const delta = Math.max(0, Math.floor((Date.now() - start) / 1000));
+      return Math.floor((acc + delta) / 60);
+    }
+    return Math.floor(acc / 60);
+  })();
+
+  const handleShareWhatsApp = async () => {
+    const text = buildMatchWhatsAppText({
+      liveMatch,
+      liveEvents,
+      score,
+      status,
+      currentMinute,
+    });
+    try {
+      if (navigator.clipboard) {
+        await navigator.clipboard.writeText(text);
+        setCopyStatus('✅ Marcador copiado');
+      } else {
+        setCopyStatus('⚠️ Error portapapeles');
+      }
+    } catch {
+      setCopyStatus('⚠️ No se pudo copiar');
+    }
+    setTimeout(() => setCopyStatus(''), 3000);
+  };
+
+  const handleExportBanner = async () => {
+    setBannerStatus('Generando Placa...');
+    try {
+      const res = await copyOrDownloadMatchBanner({
+        liveMatch,
+        liveEvents,
+        score,
+        status,
+        currentMinute,
+      });
+      if (res?.copied) {
+        setBannerStatus('✅ Placa copiada + descargada');
+      } else {
+        setBannerStatus('✅ Placa PNG descargada');
+      }
+    } catch {
+      setBannerStatus('⚠️ Error placa');
+    }
+    setTimeout(() => setBannerStatus(''), 4000);
+  };
 
   return (
     <div className="glass-panel" style={{ padding: '20px', textAlign: 'center', position: 'relative' }}>
@@ -61,7 +121,8 @@ function MatchHeader({ liveMatch, liveEvents, onPause, onResume, onEnd, onClose,
         </div>
       </div>
 
-      <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', marginTop: '10px' }}>
+      {/* Action Controls & WhatsApp Sharing */}
+      <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', flexWrap: 'wrap', marginTop: '12px' }}>
         {status === 'live' && (
           <button onClick={onPause} className="btn-outline" style={{ fontSize: '0.75rem', padding: '8px 16px' }}>
             ⏸ Pausar
@@ -77,6 +138,34 @@ function MatchHeader({ liveMatch, liveEvents, onPause, onResume, onEnd, onClose,
             ⏹ Finalizar
           </button>
         )}
+
+        <button
+          onClick={handleShareWhatsApp}
+          className="btn-outline"
+          style={{
+            fontSize: '0.75rem',
+            padding: '8px 14px',
+            borderColor: 'rgba(0, 230, 118, 0.4)',
+            color: 'var(--color-primary)',
+            fontWeight: 800,
+          }}
+          title="Copiar marcador formateado con puntos para enviar al grupo de WhatsApp"
+        >
+          📢 {copyStatus || 'Compartir Marcador WA'}
+        </button>
+
+        <button
+          onClick={handleExportBanner}
+          className="btn-primary"
+          style={{
+            fontSize: '0.75rem',
+            padding: '8px 14px',
+            fontWeight: 800,
+          }}
+          title="Generar y descargar la placa gráfica HD 1200x630 de transmisión oficial para redes y WhatsApp"
+        >
+          📸 {bannerStatus || 'Placa HD Marcador'}
+        </button>
       </div>
     </div>
   );

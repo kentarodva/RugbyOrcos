@@ -1,3 +1,4 @@
+import { printOfficialMatchSheet } from '../../../utils/exportPdf';
 import { useState, useMemo } from 'react';
 
 function MatchSquadModal({ fixture, players, onSave, onClose, showToast }) {
@@ -50,6 +51,24 @@ function MatchSquadModal({ fixture, players, onSave, onClose, showToast }) {
   const removeFromSquad = (playerId) => {
     setStartingXV(prev => prev.filter(id => id !== playerId));
     setSubstitutes(prev => prev.filter(id => id !== playerId));
+  };
+
+  
+  const handlePrintOfficialSheet = () => {
+    const lineupMap = {};
+    startingXV.forEach((pid, idx) => {
+      lineupMap[idx + 1] = pid;
+    });
+    substitutes.forEach((pid, idx) => {
+      lineupMap[16 + idx] = pid;
+    });
+    printOfficialMatchSheet({
+      match: fixture,
+      lineup: lineupMap,
+      players,
+      teamLabel: 'Rugby Orcos Negros Club',
+      division: fixture.division || 'Masculina Mayor',
+    });
   };
 
   const getPlayerName = (id) => players.find(p => p.id === id)?.name || id;
@@ -156,6 +175,9 @@ function MatchSquadModal({ fixture, players, onSave, onClose, showToast }) {
         </div>
 
         <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
+          <button onClick={handlePrintOfficialSheet} className="btn-outline" style={{ padding: '8px 16px', fontSize: '0.8rem', borderColor: 'rgba(59, 130, 246, 0.45)', color: '#60a5fa' }} title="Generar Planilla Oficial de Partido para la Mesa Técnica">
+            📄 Planilla PDF FCR
+          </button>
           <button onClick={onClose} className="btn-outline" style={{ padding: '8px 20px', fontSize: '0.8rem' }}>
             Cancelar
           </button>

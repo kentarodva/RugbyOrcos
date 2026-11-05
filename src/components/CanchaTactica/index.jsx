@@ -14,6 +14,7 @@ import TacticFiltersModal from './TacticFiltersModal';
 import { copyOrDownloadTacticalImage, buildLineupWhatsAppText } from '../../utils/exportPitchImage';
 import { copyToClipboard } from '../../utils/whatsappUtils';
 import { formatTeamCategory } from '../../context/constants';
+import { printOfficialMatchSheet } from '../../utils/exportPdf';
 
 function CanchaTactica() {
   const { players, activeTeam, futureFixtures, makgoraTeams = [], viewMode, makgoraTeamId } = React.useContext(ClubContext);
@@ -181,6 +182,17 @@ function CanchaTactica() {
     });
   };
 
+  const handlePrintOfficialPdf = () => {
+    const division = formatTeamCategory(effectiveScope) || 'Masculina Mayor';
+    printOfficialMatchSheet({
+      match: nextMatch || {},
+      lineup,
+      players: teamPlayers,
+      teamLabel: 'Rugby Orcos Negros Club',
+      division,
+    });
+  };
+
   const handleCopyLineupWhatsApp = async () => {
     const text = buildLineupWhatsAppText({
       title: boardTitle,
@@ -300,6 +312,7 @@ function CanchaTactica() {
             onToggleBall={() => setShowBall(prev => !prev)}
             onExportImage={handleExportBroadcastImage}
             onCopyWhatsAppText={handleCopyLineupWhatsApp}
+            onPrintOfficialPdf={handlePrintOfficialPdf}
           />
 
           <PitchField

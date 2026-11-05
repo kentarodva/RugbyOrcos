@@ -228,7 +228,7 @@ export const ClubProvider = ({ children }) => {
     players, schedule, championships, finances, inventory, fixtures, rivals, futureFixtures,
     activeTeam, setPlayers, setSchedule, setChampionships, setFinances, setInventory, setFixtures, setActiveTeam,
     sendLocalNotification, normalizePlayer,
-    { setRivals, setFutureFixtures, pushPlayerToSupabase, pushEntityToSupabase }
+    { setRivals, setFutureFixtures, pushPlayerToSupabase, pushEntityToSupabase, loans, setLoans }
   );
 
   const handleMembershipPayment = async (playerId, amount) => {

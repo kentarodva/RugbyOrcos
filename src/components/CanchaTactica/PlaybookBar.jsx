@@ -22,6 +22,7 @@ function PlaybookBar({
   onToggleBall,
   onExportImage,
   onCopyWhatsAppText,
+  onPrintOfficialPdf,
 }) {
   const [exportStatus, setExportStatus] = useState('');
   const [copyStatus, setCopyStatus] = useState('');
@@ -157,6 +158,25 @@ function PlaybookBar({
             title="Genera una imagen HD estilo TV con cancha, flechas y alineación XV (se copia para pegar en WhatsApp y se descarga)"
           >
             📸 {exportStatus || 'Imagen TV para WhatsApp'}
+          </button>
+
+          <button
+            type="button"
+            onClick={onPrintOfficialPdf}
+            className="btn-outline"
+            style={{
+              padding: '6px 10px',
+              fontSize: '0.75rem',
+              fontWeight: 800,
+              borderColor: 'rgba(59, 130, 246, 0.45)',
+              color: '#60a5fa',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+            }}
+            title="Genera e imprime la Planilla Oficial de Partido en PDF para la Federación / Mesa Técnica"
+          >
+            📄 Planilla PDF FCR
           </button>
 
           <button
