@@ -3,6 +3,9 @@ import { ClubContext } from '../context/ClubContext';
 import { useTeamPlayers } from '../context/hooks/useFilterByView';
 import { useToast } from '../context/ToastContext';
 import { formatLocalDate } from '../utils/dates.js';
+import TeamCrest from './common/TeamCrest';
+import CrestUploadButton from './common/CrestUploadButton';
+import { resolveCrestUrl } from '../utils/crests';
 
 function Rivales() {
   const { rivals, addRival, updateRival, deleteRival, activeTeam } = useContext(ClubContext);
@@ -220,9 +223,10 @@ function Rivales() {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '15px' }}>
           {rivals.map(rival => (
             <div key={rival.id} className="glass-panel" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                <div>
-                  <h4 style={{ fontSize: '1.1rem', fontWeight: 800, fontFamily: 'Outfit' }}>🛡️ {rival.name}</h4>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '12px' }}>
+                <TeamCrest url={resolveCrestUrl(rival)} name={rival.name} color="#ff7043" size={56} />
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <h4 style={{ fontSize: '1.1rem', fontWeight: 800, fontFamily: 'Outfit' }}>{rival.name}</h4>
                   {rival.colors && (
                     <span style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
                       🎨 {rival.colors}
@@ -267,13 +271,17 @@ function Rivales() {
                   📝 {rival.notes}
                 </div>
               )}
-              <button
-                onClick={() => generateWhatsAppRivalLink(rival)}
-                className="btn-outline"
-                style={{ padding: '6px 10px', fontSize: '0.7rem', alignSelf: 'flex-start', borderColor: 'var(--color-primary)' }}
-              >
-                📤 Compartir Ficha (WhatsApp)
-              </button>
+              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                <CrestUploadButton kind="rivals" id={rival.id} currentUrl={rival.crestUrl} compact
+                  onUploaded={(url) => updateRival({ ...rival, crestUrl: url })} />
+                <button
+                  onClick={() => generateWhatsAppRivalLink(rival)}
+                  className="btn-outline"
+                  style={{ padding: '6px 10px', fontSize: '0.7rem', borderColor: 'var(--color-primary)' }}
+                >
+                  📤 Compartir Ficha (WhatsApp)
+                </button>
+              </div>
             </div>
           ))}
         </div>

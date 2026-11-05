@@ -235,11 +235,11 @@ function Login() {
             }}
           >
             <img
-              src="/assets/orcos_logo.png"
+              src="/assets/orcos_crest_light.png"
               alt="Rugby Orcos Negros"
               style={{
-                width: '76px',
-                height: '76px',
+                width: '80px',
+                height: '80px',
                 objectFit: 'contain',
                 filter: 'drop-shadow(0 0 14px var(--color-primary-glow))',
               }}
@@ -248,7 +248,7 @@ function Login() {
 
           <div style={{ textAlign: 'center' }}>
             <h1 className="neon-text-primary" style={{ fontSize: '1.55rem', fontWeight: 900, letterSpacing: '0.8px' }}>
-              RUGBY ORCOS NEGROS
+              ORCOS RUGBY CLUB
             </h1>
             <div
               style={{
@@ -449,7 +449,7 @@ function Login() {
                     setCredential(e.target.value);
                     setError('');
                   }}
-                  placeholder={showRegister ? 'tu@email.com' : 'Email de staff o usuario de guerrero'}
+                  placeholder={showRegister ? 'tu@email.com' : 'Usuario o email'}
                   style={inputWithIconS(!!(error && !credential))}
                   autoFocus
                   disabled={loading}

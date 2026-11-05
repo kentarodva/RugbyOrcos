@@ -59,7 +59,7 @@ function MakgoraHub() {
       </div>
 
       {state.tab === 'teams' && (
-        <TeamsGrid teams={state.teams} onTeamClick={(t) => setDetailTeam(t)} />
+        <TeamsGrid teams={state.teams} records={state.clanRecords} players={state.players} onTeamClick={(t) => setDetailTeam(t)} />
       )}
 
       {state.tab === 'teams-manager' && (

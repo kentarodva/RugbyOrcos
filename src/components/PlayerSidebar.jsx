@@ -173,7 +173,7 @@ export default function PlayerSidebar({ player, activeTab, onTabChange, onOpenAv
                     border: '1px solid rgba(255, 215, 64, 0.3)',
                   }}
                 >
-                  #{player.camiseta ?? '—'} · {player.posicion || 'Pilar'}
+                  {(player.camiseta ?? player.position_id) != null ? `#${player.camiseta ?? player.position_id} · ` : ""}{player.posicion || "Sin posición"}
                 </span>
               </div>
             </div>

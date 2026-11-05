@@ -33,17 +33,17 @@
 
 :root {
   /* Color Tokens — Dark Theme (default) */
-  --bg-dark: #07090e;
-  --bg-surface: rgba(15, 22, 36, 0.7);
-  --bg-surface-solid: #0f1624;
+  --bg-dark: #0a0f18;
+  --bg-surface: rgba(14, 24, 36, 0.72);
+  --bg-surface-solid: #0e1824;
   --bg-input: #1b2438;
   
   --color-primary: #00e676;
   --color-primary-glow: rgba(0, 230, 118, 0.25);
   --color-primary-dark: #00b359;
   
-  --color-gold: #ffb300;
-  --color-gold-glow: rgba(255, 179, 0, 0.2);
+  --color-gold: #ffd700;
+  --color-gold-glow: rgba(255, 215, 0, 0.2);
   
   --color-red: #ff3d00;
   --color-red-glow: rgba(255, 61, 0, 0.25);

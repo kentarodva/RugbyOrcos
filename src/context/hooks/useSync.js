@@ -120,7 +120,9 @@ export function useSyncPush(user) {
           ...(r.squad !== undefined ? { squad: r.squad } : {})
         }),
         rivals: (r) => ({
-          id: r.id, name: r.name, colors: r.colors, contact: r.contact, notes: r.notes
+          id: r.id, name: r.name, colors: r.colors, contact: r.contact, notes: r.notes,
+          // Only sent once a crest exists, so saves keep working before migration 73 is applied.
+          ...(r.crestUrl ? { crest_url: r.crestUrl } : {})
         }),
         futureFixtures: (r) => ({
           id: r.id, opponent: r.opponent, date: r.date,
@@ -392,7 +394,7 @@ export function useSyncPull(
         if (appData.rivals) {
           const mapped = appData.rivals.map(r => ({
             id: r.id, name: r.name, colors: r.colors,
-            contact: r.contact, notes: r.notes
+            contact: r.contact, notes: r.notes, crestUrl: r.crest_url || null
           }));
           setRivals(mapped);
         } else { setRivals([]); }

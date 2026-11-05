@@ -27,6 +27,11 @@ import PositionSelect from './Roster/PositionSelect';
 import { copyOrDownloadPlayerCard } from '../utils/exportPlayerCard';
 import { printCertificateOfAffiliation } from '../utils/exportPdf';
 import { lazyWithRetry } from '../utils/lazyWithRetry';
+import { useIsMobile } from '../hooks/useIsMobile';
+import PlayerBottomNav from './PlayerBottomNav';
+import { PlayerPhoto } from './PlayerPhoto';
+
+const normalizeName = (s) => (s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/\s+/g, ' ').trim();
 
 const PlayerProgressTab = lazyWithRetry(() => import('./PlayerProgressTab'));
 const AIChat = lazyWithRetry(() => import('./AIChat'));
@@ -36,7 +41,9 @@ function PlayerDashboard() {
   const { profile, user, signOut } = useAuth();
   const { showToast } = useToast();
 
-  const [activeTab, setActiveTab] = useState('perfil');
+  const isMobile = useIsMobile();
+  const isPlayerAccount = profile?.system_role === 'jugador';
+  const [activeTab, setActiveTab] = useState('agenda');
   const [showAvatarPicker, setShowAvatarPicker] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [showTickets, setShowTickets] = useState(false);
@@ -57,23 +64,22 @@ function PlayerDashboard() {
     lifts: { squat: '', bench: '', deadlift: '' },
   });
 
-  const [adminSelectedPlayerId, setAdminSelectedPlayerId] = useState('edc12780-3218-4edb-a6ad-6c5cce3fb3b5');
+  // Staff-only manual pick (Mi Ficha from the admin panel). Never preselected, never offered to player accounts.
+  const [adminSelectedPlayerId, setAdminSelectedPlayerId] = useState('');
 
-  const player = (adminSelectedPlayerId ? players.find(p => p.id === adminSelectedPlayerId) : null)
-    ?? players.find(p => p.userId && user?.id && p.userId === user.id)
+  const ownPlayer = players.find(p => p.userId && user?.id && p.userId === user.id)
     ?? players.find(p => {
       if (user?.email) {
         const uEmail = user.email.toLowerCase();
         if (p.contacto?.email && p.contacto.email.toLowerCase() === uEmail) return true;
         if (p.email && p.email.toLowerCase() === uEmail) return true;
       }
-      if (profile?.display_name && p.name) {
-        const pName = p.name.toLowerCase();
-        const dName = profile.display_name.toLowerCase();
-        if (pName === dName || pName.includes(dName) || dName.includes(pName)) return true;
-      }
-      return false;
+      // Exact (accent/case-insensitive) name match only: partial matches could open another player's data.
+      return !!(profile?.display_name && p.name && normalizeName(p.name) === normalizeName(profile.display_name));
     });
+
+  const player = (!isPlayerAccount && adminSelectedPlayerId ? players.find(p => p.id === adminSelectedPlayerId) : null) ?? ownPlayer;
+  const jersey = player ? (player.camiseta ?? player.jerseyNumber ?? player.position_id ?? null) : null;
 
   useEffect(() => {
     if (!showSetup) return;
@@ -386,6 +392,29 @@ function PlayerDashboard() {
     });
   };
 
+  if (!player && players.length === 0) {
+    return (
+      <div role="status" aria-label="Cargando tu ficha" style={{ padding: '24px 16px', maxWidth: '720px', margin: '0 auto', width: '100%' }}>
+        <Skeleton rows={4} />
+      </div>
+    );
+  }
+
+  if (!player && isPlayerAccount) {
+    return (
+      <div style={{ padding: '60px 20px', textAlign: 'center', maxWidth: '440px', margin: '0 auto' }}>
+        <img src="/assets/orcos_crest_light.png" alt="" width={88} height={88} style={{ marginBottom: '14px' }} />
+        <h2 style={{ color: '#fff', fontFamily: 'Outfit', fontWeight: 900, marginBottom: '8px' }}>Tu ficha aún no está vinculada</h2>
+        <p style={{ color: 'var(--color-text-muted)', fontSize: '0.88rem', lineHeight: 1.6, marginBottom: '20px' }}>
+          Pide al staff que vincule tu usuario en <strong>Roster → Forjar Credenciales</strong>. En cuanto lo hagan, verás aquí tu entreno, partidos y estado físico.
+        </p>
+        {signOut && (
+          <button type="button" onClick={signOut} className="btn-outline" style={{ padding: '12px 20px', fontSize: '0.85rem' }}>Cerrar sesión</button>
+        )}
+      </div>
+    );
+  }
+
   if (!player) {
     return (
       <div style={{ padding: '60px 20px', textAlign: 'center', maxWidth: '480px', margin: '0 auto' }}>
@@ -394,7 +423,7 @@ function PlayerDashboard() {
           Selecciona tu Guerrero
         </h2>
         <p style={{ color: 'var(--color-text-muted)', fontSize: '0.85rem', marginBottom: '20px' }}>
-          Tu cuenta no está vinculada automáticamente por ID. Selecciona tu ficha para ver tu panel de guerrero:
+          Vista de staff: elige un guerrero para ver su panel tal como lo ve el jugador.
         </p>
         <select
           value={adminSelectedPlayerId}
@@ -416,149 +445,103 @@ function PlayerDashboard() {
     );
   }
 
+  const cardBusy = cardStatus.startsWith('Generando');
+  const cardActions = (
+    <div className="glass-panel" style={{ padding: '14px 16px', borderRadius: '16px', marginBottom: '16px' }}>
+      <div style={{ fontSize: '0.68rem', textTransform: 'uppercase', letterSpacing: '0.6px', color: 'var(--color-text-muted)', fontWeight: 800, marginBottom: '10px' }}>
+        Descargas oficiales
+      </div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: '8px' }}>
+        <button type="button" onClick={() => handleExportPlayerCard('standard')} disabled={cardBusy} className="btn-outline"
+          style={{ minHeight: '48px', padding: '6px 4px', justifyContent: 'center', fontSize: '0.76rem', whiteSpace: 'nowrap', fontWeight: 800, borderColor: 'rgba(255,215,0,0.45)', color: '#ffd700' }}>
+          🎴 Ficha HD
+        </button>
+        <button type="button" onClick={() => handleExportPlayerCard('4k')} disabled={cardBusy} className="btn-outline"
+          style={{ minHeight: '48px', padding: '6px 4px', justifyContent: 'center', fontSize: '0.76rem', whiteSpace: 'nowrap', fontWeight: 800, borderColor: 'rgba(0,230,118,0.45)', color: '#00e676' }}>
+          💎 Ficha 4K
+        </button>
+        <button type="button" onClick={handlePrintPazYSalvo} className="btn-outline"
+          style={{ minHeight: '48px', padding: '6px 4px', justifyContent: 'center', fontSize: '0.76rem', whiteSpace: 'nowrap', fontWeight: 800, borderColor: 'rgba(255,255,255,0.18)', color: '#e6edf5' }}>
+          📜 Paz y Salvo
+        </button>
+      </div>
+      {cardStatus && <p role="status" style={{ fontSize: '0.74rem', color: 'var(--color-text-muted)', margin: '8px 0 0' }}>{cardStatus}</p>}
+    </div>
+  );
+
+  const jerseyLabel = `${jersey != null ? `#${jersey} · ` : ''}${player.posicion || 'Sin posición'}`;
+
   return (
     <div
       className="flex h-full min-h-0"
       style={{
-        background: 'radial-gradient(ellipse at top, rgba(14, 27, 43, 0.98) 0%, rgba(6, 12, 20, 1) 100%)',
-        minHeight: 'calc(100vh - 75px)',
+        background: 'radial-gradient(ellipse at top, rgba(14, 24, 36, 0.98) 0%, #0a0f18 100%)',
+        minHeight: isMobile ? '100dvh' : 'calc(100vh - 75px)',
       }}
     >
-      <motion.aside
-        animate={{ width: sidebarCollapsed ? 64 : 260 }}
-        transition={{ duration: 0.25, ease: 'easeInOut' }}
-        className="shrink-0 overflow-hidden"
-      >
-        <PlayerSidebar
-          player={player}
-          activeTab={activeTab}
-          onTabChange={setActiveTab}
-          onOpenAvatarPicker={() => setShowAvatarPicker(true)}
-          collapsed={sidebarCollapsed}
-          onToggleCollapse={() => setSidebarCollapsed(c => !c)}
-          onSignOut={signOut}
-        />
-      </motion.aside>
+      {!isMobile && (
+        <motion.aside
+          animate={{ width: sidebarCollapsed ? 64 : 260 }}
+          transition={{ duration: 0.25, ease: 'easeInOut' }}
+          className="shrink-0 overflow-hidden"
+        >
+          <PlayerSidebar
+            player={player}
+            activeTab={activeTab}
+            onTabChange={setActiveTab}
+            onOpenAvatarPicker={() => setShowAvatarPicker(true)}
+            collapsed={sidebarCollapsed}
+            onToggleCollapse={() => setSidebarCollapsed(c => !c)}
+            onSignOut={signOut}
+          />
+        </motion.aside>
+      )}
 
-      <main className="flex-1 overflow-y-auto p-6 min-h-0">
-        {/* Warrior Command Top Bar */}
-        <div
+      <main className="flex-1 overflow-y-auto min-h-0" style={{
+        minWidth: 0,
+        padding: isMobile ? '12px 14px calc(96px + env(safe-area-inset-bottom, 0px))' : '24px',
+      }}>
+        {/* Warrior header */}
+        <header
           style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            marginBottom: '16px',
-            flexWrap: 'wrap',
-            gap: '12px',
-            padding: '12px 18px',
-            background: 'rgba(10, 18, 30, 0.75)',
-            border: '1px solid rgba(0, 230, 118, 0.2)',
-            borderRadius: '14px',
-            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.35)',
+            display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px',
+            padding: isMobile ? '10px 12px' : '12px 18px',
+            background: 'rgba(14, 24, 36, 0.8)', border: '1px solid rgba(255, 255, 255, 0.07)',
+            borderRadius: '16px', boxShadow: '0 4px 20px rgba(0, 0, 0, 0.35)',
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <span style={{ fontSize: '1.4rem' }}>🐗</span>
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span style={{ fontFamily: 'Outfit', fontWeight: 900, fontSize: '0.95rem', color: '#fff' }}>
-                  {player.name}
-                </span>
-                <span className="pro-chip pro-chip-success" style={{ fontSize: '0.65rem' }}>
-                  #{player.jerseyNumber || 1} · {player.posicion || 'Pilar'}
-                </span>
-              </div>
-              <div style={{ fontSize: '0.68rem', color: 'var(--color-text-muted)' }}>
-                Fortaleza Orcos Rugby Club &middot; Corozal, Sucre
-              </div>
+          {isMobile && (
+            <button type="button" onClick={() => setShowAvatarPicker(true)} aria-label="Cambiar foto o avatar"
+              style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', borderRadius: '50%', flexShrink: 0 }}>
+              <PlayerPhoto player={player} size={44} />
+            </button>
+          )}
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontFamily: 'Outfit', fontWeight: 900, fontSize: isMobile ? '1rem' : '1.05rem', color: '#fff', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              {player.name}
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '2px', flexWrap: 'wrap' }}>
+              <span style={{ fontSize: '0.7rem', fontWeight: 800, color: '#00e676' }}>{jerseyLabel}</span>
+              {!isMobile && (
+                <span style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)' }}>· Orcos Rugby Club · Corozal, Sucre</span>
+              )}
             </div>
           </div>
+          <img src="/assets/orcos_crest_light.png" alt="Orcos Rugby Club" width={isMobile ? 38 : 44} height={isMobile ? 38 : 44} style={{ flexShrink: 0, objectFit: 'contain' }} />
+        </header>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-            <button
-              onClick={() => handleExportPlayerCard('standard')}
-              className="btn-outline"
-              style={{
-                padding: '6px 12px',
-                fontSize: '0.74rem',
-                fontWeight: 800,
-                borderColor: 'rgba(255, 215, 64, 0.45)',
-                color: 'var(--color-gold)',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '5px',
-              }}
-              title="Genera tu Ficha de Guerrero RPG oficial en HD"
-            >
-              🎴 {cardStatus.includes('4K') ? 'Ficha HD' : (cardStatus || 'Ficha HD')}
-            </button>
-
-            <button
-              onClick={() => handleExportPlayerCard('4k')}
-              className="btn-outline"
-              style={{
-                padding: '6px 12px',
-                fontSize: '0.74rem',
-                fontWeight: 800,
-                borderColor: 'rgba(0, 230, 118, 0.45)',
-                color: 'var(--color-primary)',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '5px',
-              }}
-              title="Genera tu Ficha de Guerrero RPG en resolución ULTRA 4K"
-            >
-              💎 Ficha 4K
-            </button>
-
-            <button
-              onClick={handlePrintPazYSalvo}
-              className="btn-outline"
-              style={{
-                padding: '6px 12px',
-                fontSize: '0.74rem',
-                fontWeight: 800,
-                borderColor: 'rgba(0, 230, 118, 0.35)',
-                color: 'var(--color-primary)',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '5px',
-              }}
-              title="Certificado Oficial de Afiliación y Paz y Salvo en PDF"
-            >
-              📜 Paz y Salvo PDF
-            </button>
-
-            {signOut && (
-              <button
-                onClick={signOut}
-                className="btn-outline"
-                style={{
-                  padding: '6px 14px',
-                  fontSize: '0.74rem',
-                  fontWeight: 800,
-                  borderColor: 'rgba(239, 68, 68, 0.4)',
-                  color: '#ff5252',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                }}
-                title="Cerrar sesión de Guerrero"
-              >
-                🚪 Cerrar Sesión
-              </button>
-            )}
-          </div>
-        </div>
-
-        <StatsHeroCards
-          player={player}
-          nextMatch={myUpcomingMatches?.[0] || null}
-          hasActivePlan={!!myTrainingPlan}
-        />
+        {(!isMobile || activeTab === 'agenda') && (
+          <StatsHeroCards
+            player={player}
+            nextMatch={myUpcomingMatches?.[0] || null}
+            hasActivePlan={!!myTrainingPlan}
+            compact={isMobile}
+          />
+        )}
         <AnimatePresence mode="wait">
           {activeTab === 'perfil' && (
             <motion.div key="perfil" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={{ duration: 0.2 }}>
+              {cardActions}
               <PlayerProfileTab
                 player={player}
                 players={players}
@@ -654,6 +637,10 @@ function PlayerDashboard() {
           )}
         </AnimatePresence>
       </main>
+
+      {isMobile && (
+        <PlayerBottomNav activeTab={activeTab} onTabChange={(t) => { setActiveTab(t); window.scrollTo?.(0, 0); }} onSignOut={signOut} />
+      )}
 
       {selectedEvent && (
         <EventDetailModal

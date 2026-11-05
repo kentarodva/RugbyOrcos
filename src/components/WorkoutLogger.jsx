@@ -1,21 +1,62 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
+import { Timer, PlayCircle } from 'lucide-react';
 import { useToast } from '../context/ToastContext';
 import { completePlan } from '../engine/trainingPlanService';
 import { analyzeProgress } from '../engine/progressCoach';
+import RestTimer, { REST_PRESETS, formatRest } from './workout/RestTimer';
+import SetTable from './workout/SetTable';
+import TechniqueSheet from './workout/TechniqueSheet';
+import { buildInitialSets, findPreviousSets, summarizeSets } from './workout/setLogs';
 
 const CATEGORY_LABELS = { campo: 'Campo', gym: 'Gimnasio', recuperacion: 'Recuperación' };
-const EMPTY_SERIES = { completed: false, sets: 3, reps: 10, weight: '' };
+const LOAD_CATEGORIES = new Set(['gym', 'crossfit']);
+const TRACKED_FIELDS = ['completed', 'sets', 'warmupSets', 'reps', 'weight', 'durationMin', 'rpe', 'setLogs'];
+
+const stepBtn = {
+  width: '44px', height: '44px', borderRadius: '12px', background: 'rgba(255,255,255,0.08)',
+  border: '1px solid rgba(255,255,255,0.1)', color: '#fff', cursor: 'pointer', fontSize: '1.1rem',
+  fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+};
+const numInput = {
+  width: '44px', minWidth: 0, padding: 0, height: '44px', fontSize: '0.95rem', background: 'rgba(255,255,255,0.06)',
+  border: '1px solid rgba(255,255,255,0.1)', borderRadius: '10px', color: '#fff', textAlign: 'center', fontWeight: 800,
+};
+
+function Stepper({ label, value, onChange, min, max, step = 1, color = '#fff', suffix, inputMode = 'numeric', placeholder, decLabel, incLabel }) {
+  const num = Number(value) || 0;
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+      <span style={{ fontSize: '0.66rem', textTransform: 'uppercase', letterSpacing: '0.5px', color, fontWeight: 800 }}>{label}</span>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
+        <button type="button" aria-label={decLabel || `Restar ${label}`} style={stepBtn}
+          onClick={() => onChange(step === 1 ? Math.max(min, num - 1) : -step)}>−</button>
+        <input type="text" inputMode={inputMode} aria-label={label} value={value} placeholder={placeholder}
+          onFocus={e => e.target.select()}
+          onChange={e => onChange(e.target.value, true)} style={{ ...numInput, color }} />
+        <button type="button" aria-label={incLabel || `Sumar ${label}`} style={stepBtn}
+          onClick={() => onChange(step === 1 ? Math.min(max, num + 1) : step)}>+</button>
+        {suffix && <span style={{ fontSize: '0.72rem', color: 'var(--color-text-muted)', fontWeight: 700 }}>{suffix}</span>}
+      </div>
+    </div>
+  );
+}
 
 function WorkoutLogger({ player, logWorkout, myTrainingPlan, onOpenBuilder, onGeneratePlan, generatingPlan }) {
   const { showToast } = useToast();
   const [exercises, setExercises] = useState({});
+  const [restPreset, setRestPreset] = useState(90);
+  const [rest, setRest] = useState(null); // { endsAt, total, label }
+  const [techEx, setTechEx] = useState(null);
   const [saving, setSaving] = useState(false);
-  const [activeCategory, setActiveCategory] = useState('campo');
+  const [selectedCategory, setActiveCategory] = useState('campo');
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
   const [feedback, setFeedback] = useState({ rating: 3, comment: '' });
 
   const plan = myTrainingPlan?.plan;
-  const categories = plan ? Object.entries(plan).filter(([, list]) => list.length > 0) : [];
+  const isExerciseList = (list) => Array.isArray(list) && list.length > 0 && list.every(x => x && typeof x === 'object' && x.name);
+  const categories = plan ? Object.entries(plan).filter(([, list]) => isExerciseList(list)) : [];
+  // Fall back to the first non-empty category so a gym-only plan never opens on an empty 'campo' tab.
+  const activeCategory = plan?.[selectedCategory]?.length ? selectedCategory : (categories[0]?.[0] || selectedCategory);
 
   const currentExercises = useMemo(() => {
     if (!plan) return [];
@@ -34,6 +75,10 @@ function WorkoutLogger({ player, logWorkout, myTrainingPlan, onOpenBuilder, onGe
         fromAI: ex.fromAI,
         completed: saved?.completed ?? false,
         sets: saved?.sets ?? ex.sets ?? 3,
+        warmupSets: saved?.warmupSets ?? ex.warmupSets ?? 0,
+        exerciseId: ex.id || null,
+        code: ex.code || null,
+        setLogs: saved?.setLogs ?? null,
         reps: saved?.reps ?? ex.reps ?? 10,
         weight: saved?.weight ?? ex.weight ?? '',
         rpe: saved?.rpe ?? 8,
@@ -41,19 +86,39 @@ function WorkoutLogger({ player, logWorkout, myTrainingPlan, onOpenBuilder, onGe
     });
   }, [plan, activeCategory, exercises]);
 
-  const updateExercise = (key, field, value) => {
-    setExercises(prev => ({
-      ...prev,
-      [key]: { ...prev[key], ...EMPTY_SERIES, ...prev[key], [field]: value },
-    }));
+  // Seed from the values on screen so the plan's prescription (e.g. 5x5) is kept when editing one field.
+  const updateExercise = (ex, field, value) => {
+    setExercises(prev => {
+      const base = Object.fromEntries(TRACKED_FIELDS.map(f => [f, ex[f]]));
+      return { ...prev, [ex.key]: { ...base, ...prev[ex.key], [field]: value } };
+    });
   };
+
+  // Per-set rows: the exercise counts as done as soon as one set is ticked (Hevy behaviour).
+  const updateSets = (ex, setLogs) => {
+    setExercises(prev => {
+      const base = Object.fromEntries(TRACKED_FIELDS.map(f => [f, ex[f]]));
+      return { ...prev, [ex.key]: { ...base, ...prev[ex.key], setLogs, completed: setLogs.some(r => r.done) } };
+    });
+  };
+
+  const startRest = (label) => setRest({ endsAt: Date.now() + restPreset * 1000, total: restPreset, label });
+  const adjustRest = (delta) => setRest(r => r && ({
+    ...r,
+    endsAt: Math.max(Date.now(), r.endsAt + delta * 1000),
+    total: Math.max(1, r.total + delta),
+  }));
+  const finishRest = useCallback(() => {
+    showToast('¡Descanso terminado! A por la siguiente serie 💪', 'success');
+    setRest(null);
+  }, [showToast]);
 
   const completedCount = currentExercises.filter(e => e.completed).length;
   const totalCount = currentExercises.length;
 
   const allExercisesCount = useMemo(() => {
     if (!plan) return 0;
-    return Object.values(plan).reduce((s, list) => s + list.length, 0);
+    return Object.values(plan).filter(isExerciseList).reduce((s, list) => s + list.length, 0);
   }, [plan]);
 
   const allCompletedCount = useMemo(() => {
@@ -78,9 +143,16 @@ function WorkoutLogger({ player, logWorkout, myTrainingPlan, onOpenBuilder, onGe
             exerciseId: ex?.id || null,
             name: ex?.name || key,
             category: cat,
-            sets: v.sets || 0,
-            reps: v.reps || 0,
-            weight: v.weight ? Number(v.weight) : null,
+            ...(v.setLogs ? (() => {
+              const sum = summarizeSets(v.setLogs);
+              return { sets: sum.sets, warmupSets: sum.warmupSets, reps: sum.reps, weight: sum.weight,
+                setLogs: v.setLogs.filter(r => r.done).map(r => ({ type: r.type, weight: Number(r.weight) || 0, reps: Number(r.reps) || 0, done: true })) };
+            })() : {
+              sets: v.sets || 0,
+              warmupSets: v.warmupSets || 0,
+              reps: v.reps || 0,
+              weight: v.weight ? Number(v.weight) : null,
+            }),
             durationMin: v.durationMin ? Number(v.durationMin) : null,
             rpe: v.rpe ? Number(v.rpe) : null,
           };
@@ -92,7 +164,8 @@ function WorkoutLogger({ player, logWorkout, myTrainingPlan, onOpenBuilder, onGe
         planId: myTrainingPlan?.id || null,
       });
 
-      const prevLogs = (player.workoutLog || []).filter(w => w.type === activeCategory).slice(-1);
+      // Logs store the category under `category` (new) or `type` (legacy).
+      const prevLogs = (player.workoutLog || []).filter(w => (w.type || w.category) === activeCategory).slice(-1);
       const prevExercises = prevLogs.length > 0 ? (prevLogs[0].exerciseLogs || prevLogs[0].ejercicios || []) : [];
       const analysis = analyzeProgress(loggedExercises, prevExercises);
       let msg = `Entreno de ${CATEGORY_LABELS[activeCategory] || activeCategory} guardado (${loggedExercises.length} ejercicios).`;
@@ -259,7 +332,7 @@ function WorkoutLogger({ player, logWorkout, myTrainingPlan, onOpenBuilder, onGe
       </div>
 
       {/* Main Exercises Panel */}
-      <div className="glass-panel" style={{ padding: '20px', borderRadius: '16px' }}>
+      <div className="glass-panel" style={{ padding: 'clamp(12px, 3vw, 20px)', borderRadius: '16px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <span style={{ fontSize: '1.2rem' }}>{categoryIcons[activeCategory] || '🏉'}</span>
@@ -270,6 +343,19 @@ function WorkoutLogger({ player, logWorkout, myTrainingPlan, onOpenBuilder, onGe
           <span style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', fontWeight: 600 }}>
             {completedCount} de {totalCount} completados
           </span>
+        </div>
+
+        <div role="group" aria-label="Duración del descanso entre series" style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '12px', flexWrap: 'wrap' }}>
+          <span style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)', fontWeight: 700 }}>Descanso:</span>
+          {REST_PRESETS.map(s => (
+            <button key={s} type="button" aria-pressed={restPreset === s} onClick={() => setRestPreset(s)}
+              style={{ minWidth: '52px', height: '36px', borderRadius: '10px', fontSize: '0.75rem', fontWeight: 800, cursor: 'pointer',
+                border: `1px solid ${restPreset === s ? '#00e676' : 'rgba(255,255,255,0.1)'}`,
+                background: restPreset === s ? 'rgba(0,230,118,0.15)' : 'rgba(255,255,255,0.03)',
+                color: restPreset === s ? '#00e676' : 'var(--color-text-muted)' }}>
+              {formatRest(s)}
+            </button>
+          ))}
         </div>
 
         {totalCount > 0 && (
@@ -294,12 +380,14 @@ function WorkoutLogger({ player, logWorkout, myTrainingPlan, onOpenBuilder, onGe
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             {currentExercises.map((ex) => {
               const activeColor = (categoryColors[activeCategory] || {}).color || 'var(--color-primary)';
+              // Field drills / recovery don't use load or warm-up sets: hide those controls unless the plan prescribes a load.
+              const isLoad = LOAD_CATEGORIES.has(activeCategory) || !!ex.oneRMWeight || ex.weight !== '';
               return (
                 <div
                   key={ex.key}
                   style={{
-                    padding: '16px',
-                    borderRadius: '12px',
+                    padding: 'clamp(12px, 3vw, 16px)',
+                    borderRadius: '14px',
                     background: ex.completed ? 'rgba(0, 230, 118, 0.05)' : 'rgba(255, 255, 255, 0.02)',
                     border: `1.5px solid ${ex.completed ? 'rgba(0, 230, 118, 0.35)' : 'rgba(255, 255, 255, 0.07)'}`,
                     boxShadow: ex.completed ? '0 0 16px rgba(0, 230, 118, 0.1)' : 'none',
@@ -311,7 +399,7 @@ function WorkoutLogger({ player, logWorkout, myTrainingPlan, onOpenBuilder, onGe
                     <div style={{ flex: 1 }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
                         <span
-                          onClick={() => updateExercise(ex.key, 'completed', !ex.completed)}
+                          onClick={() => updateExercise(ex, 'completed', !ex.completed)}
                           style={{
                             fontSize: '0.92rem',
                             fontWeight: 800,
@@ -348,14 +436,20 @@ function WorkoutLogger({ player, logWorkout, myTrainingPlan, onOpenBuilder, onGe
                       )}
                     </div>
 
+                    <button type="button" onClick={() => setTechEx(ex)} aria-label={`Ver técnica de ${ex.name}`} title="Ver técnica"
+                      style={{ width: '44px', height: '44px', flexShrink: 0, borderRadius: '12px', border: '1px solid rgba(56,189,248,0.35)', background: 'rgba(56,189,248,0.1)', color: '#38bdf8', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <PlayCircle size={22} aria-hidden="true" />
+                    </button>
+
                     {/* Big Action Check Button */}
                     <button
                       type="button"
-                      onClick={() => updateExercise(ex.key, 'completed', !ex.completed)}
+                      onClick={() => updateExercise(ex, 'completed', !ex.completed)}
                       style={{
+                        minHeight: '44px',
                         padding: '8px 16px',
-                        borderRadius: '10px',
-                        fontSize: '0.78rem',
+                        borderRadius: '12px',
+                        fontSize: '0.8rem',
                         fontWeight: 800,
                         cursor: 'pointer',
                         border: 'none',
@@ -386,84 +480,47 @@ function WorkoutLogger({ player, logWorkout, myTrainingPlan, onOpenBuilder, onGe
                       marginTop: '12px',
                       flexWrap: 'wrap',
                       background: 'rgba(0, 0, 0, 0.35)',
-                      padding: '8px 14px',
+                      padding: '10px',
                       borderRadius: '10px',
                       border: '1px solid rgba(255, 255, 255, 0.05)',
                     }}
                   >
-                    {/* Series with Steppers */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                      <span style={{ fontSize: '0.72rem', color: 'var(--color-text-muted)', fontWeight: 700 }}>Series:</span>
-                      <button
-                        type="button"
-                        onClick={() => updateExercise(ex.key, 'sets', Math.max(1, (ex.sets || 1) - 1))}
-                        style={{ width: '22px', height: '22px', borderRadius: '4px', background: 'rgba(255,255,255,0.08)', border: 'none', color: '#fff', cursor: 'pointer', fontSize: '0.8rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                      >
-                        -
-                      </button>
-                      <input
-                        type="number"
-                        min={1}
-                        max={20}
-                        value={ex.sets}
-                        onChange={e => updateExercise(ex.key, 'sets', Math.max(1, parseInt(e.target.value) || 1))}
-                        style={{ width: '36px', padding: '3px 2px', fontSize: '0.8rem', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '4px', color: '#fff', textAlign: 'center', fontWeight: 800 }}
+                    {isLoad && (
+                      <SetTable
+                        sets={ex.setLogs || buildInitialSets({ warmupSets: ex.warmupSets, sets: ex.sets, reps: ex.reps, weight: ex.weight })}
+                        previous={findPreviousSets(player?.workoutLog || [], { exerciseId: ex.exerciseId, name: ex.name })}
+                        suggestedWeight={ex.oneRMWeight}
+                        onChange={(rows) => updateSets(ex, rows)}
+                        onSetDone={(type) => { if (type !== 'warmup') startRest(ex.name); }}
                       />
-                      <button
-                        type="button"
-                        onClick={() => updateExercise(ex.key, 'sets', Math.min(20, (ex.sets || 1) + 1))}
-                        style={{ width: '22px', height: '22px', borderRadius: '4px', background: 'rgba(255,255,255,0.08)', border: 'none', color: '#fff', cursor: 'pointer', fontSize: '0.8rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                      >
-                        +
+                    )}
+
+                    {/* Field / recovery drills: simple touch steppers (44px targets) */}
+                    {!isLoad && (
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(138px, 1fr))', gap: '12px 8px', width: '100%' }}>
+                        <Stepper label="Series" color="#00e676" value={ex.sets} min={1} max={20}
+                          decLabel="Restar serie" incLabel="Sumar serie"
+                          onChange={(v, typed) => updateExercise(ex, 'sets', typed ? Math.min(20, Math.max(1, parseInt(v) || 1)) : v)} />
+                        <Stepper label="Reps" value={ex.reps} min={1} max={100}
+                          onChange={(v, typed) => updateExercise(ex, 'reps', typed ? Math.min(100, Math.max(1, parseInt(v) || 1)) : v)} />
+                      </div>
+                    )}
+
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', width: '100%' }}>
+                      <span style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--color-text-muted)' }}>
+                        {isLoad ? (() => {
+                          const sum = summarizeSets(ex.setLogs || []);
+                          return sum.sets + sum.warmupSets === 0
+                            ? 'Toca ✓ al terminar cada serie'
+                            : <><span style={{ color: '#00e676' }}>{sum.sets} efectivas</span>{sum.warmupSets > 0 && <> · <span style={{ color: '#ff9800' }}>{sum.warmupSets} calent.</span></>}{sum.weight && <> · máx <span style={{ color: '#ffd700' }}>{sum.weight} kg</span></>}</>;
+                        })() : <span style={{ color: '#00e676' }}>{ex.sets} × {ex.reps}</span>}
+                      </span>
+                      <button type="button" onClick={() => startRest(ex.name)}
+                        aria-label={`Iniciar descanso de ${formatRest(restPreset)} para ${ex.name}`}
+                        style={{ marginLeft: 'auto', height: '44px', padding: '0 14px', borderRadius: '12px', border: '1px solid rgba(0,230,118,0.4)', background: 'rgba(0,230,118,0.1)', color: '#00e676', fontWeight: 800, fontSize: '0.78rem', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
+                        <Timer size={16} aria-hidden="true" /> Descanso {formatRest(restPreset)}
                       </button>
                     </div>
-
-                    <span style={{ color: 'rgba(255,255,255,0.15)', fontSize: '0.8rem' }}>•</span>
-
-                    {/* Reps with Steppers */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                      <span style={{ fontSize: '0.72rem', color: 'var(--color-text-muted)', fontWeight: 700 }}>Reps:</span>
-                      <button
-                        type="button"
-                        onClick={() => updateExercise(ex.key, 'reps', Math.max(1, (ex.reps || 1) - 1))}
-                        style={{ width: '22px', height: '22px', borderRadius: '4px', background: 'rgba(255,255,255,0.08)', border: 'none', color: '#fff', cursor: 'pointer', fontSize: '0.8rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                      >
-                        -
-                      </button>
-                      <input
-                        type="number"
-                        min={1}
-                        max={100}
-                        value={ex.reps}
-                        onChange={e => updateExercise(ex.key, 'reps', Math.max(1, parseInt(e.target.value) || 1))}
-                        style={{ width: '38px', padding: '3px 2px', fontSize: '0.8rem', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '4px', color: '#fff', textAlign: 'center', fontWeight: 800 }}
-                      />
-                      <button
-                        type="button"
-                        onClick={() => updateExercise(ex.key, 'reps', Math.min(100, (ex.reps || 1) + 1))}
-                        style={{ width: '22px', height: '22px', borderRadius: '4px', background: 'rgba(255,255,255,0.08)', border: 'none', color: '#fff', cursor: 'pointer', fontSize: '0.8rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                      >
-                        +
-                      </button>
-                    </div>
-
-                    <span style={{ color: 'rgba(255,255,255,0.15)', fontSize: '0.8rem' }}>•</span>
-
-                    {/* Weight */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                      <span style={{ fontSize: '0.72rem', color: 'var(--color-text-muted)', fontWeight: 700 }}>Peso:</span>
-                      <input
-                        type="number"
-                        min={0}
-                        value={ex.weight}
-                        onChange={e => updateExercise(ex.key, 'weight', e.target.value)}
-                        placeholder={ex.oneRMWeight ? String(ex.oneRMWeight) : '0'}
-                        style={{ width: '46px', padding: '3px 4px', fontSize: '0.8rem', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '4px', color: '#fff', textAlign: 'center', fontWeight: 800 }}
-                      />
-                      <span style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)' }}>kg</span>
-                    </div>
-
-                    <span style={{ color: 'rgba(255,255,255,0.15)', fontSize: '0.8rem' }}>•</span>
 
                     {/* Duration */}
                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
@@ -473,20 +530,18 @@ function WorkoutLogger({ player, logWorkout, myTrainingPlan, onOpenBuilder, onGe
                         min={1}
                         max={180}
                         value={ex.durationMin}
-                        onChange={e => updateExercise(ex.key, 'durationMin', Math.max(1, parseInt(e.target.value) || 1))}
+                        onChange={e => updateExercise(ex, 'durationMin', Math.max(1, parseInt(e.target.value) || 1))}
                         style={{ width: '42px', padding: '3px 4px', fontSize: '0.8rem', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '4px', color: '#fff', textAlign: 'center', fontWeight: 800 }}
                       />
                       <span style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)' }}>min</span>
                     </div>
-
-                    <span style={{ color: 'rgba(255,255,255,0.15)', fontSize: '0.8rem' }}>•</span>
 
                     {/* RPE Effort */}
                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                       <span style={{ fontSize: '0.72rem', color: 'var(--color-text-muted)', fontWeight: 700 }}>Esfuerzo:</span>
                       <select
                         value={ex.rpe || ''}
-                        onChange={e => updateExercise(ex.key, 'rpe', e.target.value)}
+                        onChange={e => updateExercise(ex, 'rpe', e.target.value)}
                         style={{
                           padding: '3px 8px',
                           fontSize: '0.75rem',
@@ -587,6 +642,13 @@ function WorkoutLogger({ player, logWorkout, myTrainingPlan, onOpenBuilder, onGe
             ))}
           </div>
         </div>
+      )}
+
+      {techEx && <TechniqueSheet exercise={techEx} onClose={() => setTechEx(null)} />}
+
+      {rest && (
+        <RestTimer endsAt={rest.endsAt} total={rest.total} label={rest.label}
+          onAdjust={adjustRest} onSkip={() => setRest(null)} onFinish={finishRest} />
       )}
 
       {showFeedbackModal && (

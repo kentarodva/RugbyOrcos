@@ -1,5 +1,6 @@
 import React from 'react';
 import { formatLocalDate } from '../../../utils/dates.js';
+import { getEventTypeMeta } from '../../../utils/eventTypes';
 import EventRsvp from './EventRsvp';
 
 function EventDetailModal({ event, onClose, players, rsvpList, myRsvp, onRsvp }) {
@@ -30,7 +31,7 @@ function EventDetailModal({ event, onClose, players, rsvpList, myRsvp, onRsvp })
           <div>
             <h3 style={{ fontSize: '1.3rem', fontWeight: 800, fontFamily: 'Outfit' }}>{event.title}</h3>
             <div style={{ fontSize: '0.78rem', color: 'var(--color-text-muted)', marginTop: '4px' }}>
-              {event.type === 'entrenamiento' ? 'Entrenamiento' : event.type === 'partido' ? 'Partido' : event.type === 'reunion' ? 'Reunion' : 'Otro'}
+              {getEventTypeMeta(event.type).emoji} {getEventTypeMeta(event.type).label}
             </div>
           </div>
           <button onClick={onClose} className="btn-outline" style={{ padding: '4px 10px', fontSize: '0.75rem' }}>

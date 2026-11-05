@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useCallback } from 'react';
+import { EVENT_TYPES, normalizeEventType } from '../../../utils/eventTypes';
 
 const DAYS = [
   { num: 1, label: 'Lun' },
@@ -18,7 +19,7 @@ function AgendaForm({ initialData, onClose, onSave, existingEvents, currentTeamC
     time: initialData?.time || '',
     location: initialData?.location || '',
     maps: initialData?.maps || '',
-    type: initialData?.type || 'entrenamiento',
+    type: normalizeEventType(initialData?.type),
     recurrence: initialData?.recurrence || 'none',
     recurrenceDays: initialData?.recurrenceDays || [1, 2, 3, 4, 5],
     recurrenceWeeks: initialData?.recurrenceWeeks || 4,
@@ -164,10 +165,7 @@ function AgendaForm({ initialData, onClose, onSave, existingEvents, currentTeamC
           <div className="form-group">
             <label>Tipo de Evento</label>
             <select value={form.type} onChange={set('type')} className="form-select">
-              <option value="entrenamiento">Entrenamiento</option>
-              <option value="partido">Partido</option>
-              <option value="reunion">Reunion</option>
-              <option value="otro">Otro</option>
+              {EVENT_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
             </select>
           </div>
           <div className="form-group">

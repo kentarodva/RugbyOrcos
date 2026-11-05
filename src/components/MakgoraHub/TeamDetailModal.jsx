@@ -1,20 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../supabaseClient.js';
-import { getAvatarPath } from '../../data/mythicalAvatars.js';
-
-const TEAM_CRESTS = [
-  { keys: ['orcos', 'horda'], avatar: 'dragon-head', gradient: 'linear-gradient(135deg, #0a3d1a, #00e676)' },
-  { keys: ['cuervos', 'cuervo'], avatar: 'raven', gradient: 'linear-gradient(135deg, #1a1a1a, #616161)' },
-  { keys: ['trolls', 'troll'], avatar: 'horned-helm', gradient: 'linear-gradient(135deg, #0a2a4a, #2196f3)' },
-  { keys: ['gargolas', 'gargola'], avatar: 'gargoyle', gradient: 'linear-gradient(135deg, #2a0a3a, #9c27b0)' },
-  { keys: ['pitbull'], avatar: 'wolf-head', gradient: 'linear-gradient(135deg, #3d1500, #ff6d00)' },
-  { keys: ['buffalos', 'bufalos', 'buffalo'], avatar: 'boar-tusks', gradient: 'linear-gradient(135deg, #2a1a0a, #795548)' },
-];
-
-function getCrest(team) {
-  const name = ((team.rpg_name || team.name || '') + ' ' + (team.name || '')).toLowerCase();
-  return TEAM_CRESTS.find(c => c.keys.some(k => name.includes(k))) || TEAM_CRESTS[0];
-}
+import TeamCrest from '../common/TeamCrest';
+import { clanCrestUrl } from './TeamsGrid';
 
 export function TeamDetailModal({ team, onClose }) {
   const [players, setPlayers] = useState([]);
@@ -45,7 +32,6 @@ export function TeamDetailModal({ team, onClose }) {
     if (data) setTournamentHistory(data.filter(t => t.winner_team_id === team.id || t.status === 'en_curso'));
   };
 
-  const crest = getCrest(team);
   const forwards = players.filter(p => ['Pilier', 'Hooker', 'Segunda', 'Ala', 'Octavo'].some(pos => (p.position || '').includes(pos)));
   const backs = players.filter(p => !['Pilier', 'Hooker', 'Segunda', 'Ala', 'Octavo'].some(pos => (p.position || '').includes(pos)));
 
@@ -53,16 +39,10 @@ export function TeamDetailModal({ team, onClose }) {
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content" onClick={e => e.stopPropagation()} style={{ maxWidth: '600px', maxHeight: '90vh', overflowY: 'auto' }}>
         <div style={{ textAlign: 'center', marginBottom: '20px' }}>
-          <div style={{
-            width: '80px', height: '80px', borderRadius: '50%',
-            background: crest.gradient,
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            margin: '0 auto 10px auto',
-            border: '2px solid ' + (team.emblem_color || '#00e676'),
-          }}>
-            <img src={getAvatarPath(crest.avatar)} alt={team.rpg_name || team.name}
-              style={{ width: '44px', height: '44px', filter: 'brightness(0) invert(1)' }} />
+          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '10px' }}>
+            <TeamCrest url={clanCrestUrl(team)} name={team.rpg_name || team.name} color={team.emblem_color || '#00e676'} size={96} rounded="18%" glow />
           </div>
+          {team.motto && <p style={{ color: team.emblem_color || '#00e676', fontStyle: 'italic', fontSize: '0.8rem', margin: '0 0 6px' }}>«{team.motto}»</p>}
           <h3 style={{ color: 'var(--color-gold)', fontFamily: 'Outfit', margin: 0 }}>
             {team.rpg_name || team.name}
             {isExternal && <span style={{ fontSize: '0.65rem', padding: '2px 8px', borderRadius: '6px', background: 'rgba(255,179,0,0.1)', color: '#ffb300', marginLeft: '8px', verticalAlign: 'middle' }}>Invitado</span>}

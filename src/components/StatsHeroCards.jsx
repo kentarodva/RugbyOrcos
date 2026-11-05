@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { ClipboardCheck, Calendar, Dumbbell } from 'lucide-react';
 import { OrcosWhistleIcon } from './common/OrcosIcons';
 
-export function StatsHeroCards({ player, nextMatch, hasActivePlan }) {
+export function StatsHeroCards({ player, nextMatch, hasActivePlan, compact = false }) {
   const attRate = player.attendance?.total > 0
     ? Math.round((player.attendance.present / player.attendance.total) * 100)
     : 0;
@@ -51,7 +51,7 @@ export function StatsHeroCards({ player, nextMatch, hasActivePlan }) {
   ];
 
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
+    <div className={`grid grid-cols-2 lg:grid-cols-4 ${compact ? 'gap-2 mb-4' : 'gap-3 mb-6'}`}>
       {cards.map((card, i) => (
         <motion.div
           key={card.label}
@@ -61,8 +61,9 @@ export function StatsHeroCards({ player, nextMatch, hasActivePlan }) {
           style={{
             background: card.bgGlow,
             border: `1px solid ${card.borderColor}`,
-            borderRadius: '12px',
-            padding: '16px',
+            borderRadius: '14px',
+            padding: compact ? '12px' : '16px',
+            minWidth: 0,
             backdropFilter: 'blur(8px)',
             boxShadow: '0 4px 20px rgba(0, 0, 0, 0.35)',
             display: 'flex',
@@ -78,7 +79,7 @@ export function StatsHeroCards({ player, nextMatch, hasActivePlan }) {
               {card.label}
             </span>
           </div>
-          <div style={{ fontSize: '1.45rem', fontWeight: 900, fontFamily: 'Outfit', color: card.color, lineHeight: 1.1 }}>
+          <div style={{ fontSize: compact ? '1.2rem' : '1.45rem', fontWeight: 900, fontFamily: 'Outfit', color: card.color, lineHeight: 1.1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
             {card.value}
           </div>
           <div style={{ fontSize: '0.72rem', color: '#cbd5e1', marginTop: '4px', fontWeight: 600 }}>

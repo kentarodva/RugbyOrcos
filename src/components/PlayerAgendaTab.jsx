@@ -1,6 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
+import { ClubContext } from '../context/ClubContext';
+import TeamCrest from './common/TeamCrest';
+import { findRivalForFixture, resolveCrestUrl } from '../utils/crests';
 import { Calendar, List, CheckCircle2, HelpCircle, XCircle, MapPin, Clock, Users } from 'lucide-react';
 import { formatLocalDate } from '../utils/dates';
+import { getEventTypeMeta } from '../utils/eventTypes';
 import WeeklyView from './Calendario/AgendaTab/WeeklyView';
 
 const AVAILABILITY_OPTIONS = [
@@ -20,6 +24,7 @@ function PlayerAgendaTab({
   onSetMatchAvailability,
 }) {
   const [showCalendarView, setShowCalendarView] = useState(false);
+  const { rivals = [] } = useContext(ClubContext) || {};
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
@@ -33,6 +38,9 @@ function PlayerAgendaTab({
             const availMap = f.availabilities || {};
             const myStatus = playerId ? availMap[playerId] : null;
             const goingCount = Object.values(availMap).filter(v => v === 'going').length;
+            const rival = findRivalForFixture(f, rivals) || { name: f.opponent };
+            const rivalCrest = resolveCrestUrl(rival);
+            const isClasico = /guepardo/i.test(f.opponent || '');
 
             return (
               <div
@@ -141,34 +149,42 @@ function PlayerAgendaTab({
                     >
                       VS
                     </div>
-                    <span style={{ fontSize: '0.65rem', color: 'var(--color-gold)', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 700 }}>
-                      Clásico Sucreño
-                    </span>
+                    {isClasico && (
+                      <span style={{ fontSize: '0.65rem', color: 'var(--color-gold)', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 700 }}>
+                        Clásico Sucreño
+                      </span>
+                    )}
                   </div>
 
                   {/* Rival */}
                   <div style={{ textAlign: 'center' }}>
-                    <img
-                      src={f.opponent?.toLowerCase().includes('guepardo') ? '/assets/guepardos_logo.png' : '/assets/orcos_logo.png'}
-                      alt={f.opponent}
-                      style={{
-                        width: '64px',
-                        height: '64px',
-                        objectFit: 'contain',
-                        borderRadius: '14px',
-                        background: '#ffffff',
-                        padding: '4px',
-                        margin: '0 auto 8px',
-                        display: 'block',
-                        boxShadow: '0 0 20px rgba(255, 61, 0, 0.35)',
-                        border: '2px solid rgba(255, 61, 0, 0.6)',
-                      }}
-                    />
+                    {rivalCrest ? (
+                      <img
+                        src={rivalCrest}
+                        alt={f.opponent}
+                        style={{
+                          width: '64px',
+                          height: '64px',
+                          objectFit: 'contain',
+                          borderRadius: '14px',
+                          background: '#ffffff',
+                          padding: '4px',
+                          margin: '0 auto 8px',
+                          display: 'block',
+                          boxShadow: '0 0 20px rgba(255, 61, 0, 0.35)',
+                          border: '2px solid rgba(255, 61, 0, 0.6)',
+                        }}
+                      />
+                    ) : (
+                      <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '8px' }}>
+                        <TeamCrest name={f.opponent} color="#ff7043" size={64} rounded="14px" glow />
+                      </div>
+                    )}
                     <div style={{ fontFamily: 'Outfit', fontWeight: 900, fontSize: '1.15rem', color: '#fff' }}>
                       {f.opponent}
                     </div>
                     <div style={{ fontSize: '0.7rem', color: '#ff7043', fontWeight: 700 }}>
-                      Sincelejo, Sucre (Visitante)
+                      {isClasico ? 'Sincelejo, Sucre (Visitante)' : 'Visitante'}
                     </div>
                   </div>
                 </div>
@@ -330,8 +346,8 @@ function PlayerAgendaTab({
                               🏉 Partido Oficial
                             </span>
                           ) : (
-                            <span className="pro-chip pro-chip-info" style={{ fontSize: '0.68rem', fontWeight: 800 }}>
-                              🏋️ Entrenamiento
+                            <span className={`pro-chip ${getEventTypeMeta(e.type).chip}`} style={{ fontSize: '0.68rem', fontWeight: 800 }}>
+                              {getEventTypeMeta(e.type).emoji} {getEventTypeMeta(e.type).label}
                             </span>
                           )}
 

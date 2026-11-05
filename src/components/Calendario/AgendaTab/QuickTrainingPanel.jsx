@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
+import { EVENT_TYPES } from '../../../utils/eventTypes';
 import { getSetting, setSetting, loadSettings } from '../../../data/clubSettings';
 
 const DAYS = [
@@ -276,10 +277,7 @@ function QuickTrainingPanel({ onCreate, existingLocations, currentTeamCategory, 
             <div className="form-group" style={{ margin: 0 }}>
               <label style={{ fontSize: '0.72rem' }}>Tipo</label>
               <select value={customType} onChange={(e) => setCustomType(e.target.value)} className="form-select" style={{ padding: '5px 8px', fontSize: '0.75rem' }}>
-                <option value="entrenamiento">Entrenamiento</option>
-                <option value="partido">Partido</option>
-                <option value="reunion">Reunion</option>
-                <option value="otro">Otro</option>
+                {EVENT_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
               </select>
             </div>
             <div className="form-group" style={{ margin: 0 }}>

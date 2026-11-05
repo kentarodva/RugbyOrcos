@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Dumbbell, Award, Edit3 } from 'lucide-react';
 import { useToast } from '../context/ToastContext';
+import { DIVISION_DISPLAY_NAMES } from '../context/constants';
 import {
   OrcosRugbyBallIcon,
   OrcosBattleAxeHPostsIcon,
@@ -214,7 +215,7 @@ export default function PlayerProfileTab({ player, _players, updatePlayer, _camp
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
               <OrcosWarBannerIcon size={20} color="var(--color-primary)" />
               <span style={{ fontSize: '0.72rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px', color: 'var(--color-primary)' }}>
-                RUGBY ORCOS NEGROS CLUB · COROZAL, SUCRE
+                ORCOS RUGBY CLUB · COROZAL, SUCRE
               </span>
             </div>
             <h1 style={{ fontSize: '1.6rem', fontWeight: 900, fontFamily: 'Outfit', color: '#fff', margin: 0, lineHeight: 1.1 }}>
@@ -222,10 +223,10 @@ export default function PlayerProfileTab({ player, _players, updatePlayer, _camp
             </h1>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '6px', flexWrap: 'wrap' }}>
               <span style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--color-gold)', background: 'rgba(255, 215, 64, 0.12)', border: '1px solid rgba(255, 215, 64, 0.3)', padding: '2px 8px', borderRadius: '4px' }}>
-                Posición: {player.posicion || 'Pilar Izquierdo'} #{player.camiseta ?? '1'}
+                {player.posicion || 'Sin posición'}{(player.camiseta ?? player.position_id) != null ? ` #${player.camiseta ?? player.position_id}` : ''}
               </span>
               <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-text-muted)' }}>
-                División: {player.teamCategory || 'Masculina Mayor'}
+                División: {DIVISION_DISPLAY_NAMES[player.teamCategory] || player.teamCategory || 'Sin categoría'}
               </span>
               {player.apodo && (
                 <span style={{ fontSize: '0.75rem', fontStyle: 'italic', color: '#38bdf8' }}>

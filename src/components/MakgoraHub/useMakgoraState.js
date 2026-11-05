@@ -1,5 +1,6 @@
 import { useState, useEffect, useContext, useCallback, useRef } from 'react';
 import { supabase } from '../../supabaseClient.js';
+import { aggregateClanRecords } from '../../utils/crests';
 import { wrapCatch } from '../../utils/errorHandler';
 import { ClubContext } from '../../context/ClubContext.jsx';
 import { useToast } from '../../context/ToastContext.jsx';
@@ -21,6 +22,7 @@ export function useMakgoraState() {
   const [showCreate, setShowCreate] = useState(false);
   const [form, setForm] = useState({ name: '', startDate: '', endDate: '', status: 'proximo' });
   const [standings, setStandings] = useState([]);
+  const [clanRecords, setClanRecords] = useState({});
   const [matches, setMatches] = useState([]);
   const [showLoanForm, setShowLoanForm] = useState(false);
   const [loanForm, setLoanForm] = useState({ playerId: '', toTeamId: '', reason: '', days: 7 });
@@ -50,6 +52,10 @@ export function useMakgoraState() {
       setTeams(data);
       refreshMakgoraTeams?.();
     }
+    // All-time record for clan banners (W-D-L, tries). Non-blocking: banners show 0-0-0 if it fails.
+    const { data: allStandings } = await supabase
+      .from('tournament_standings').select('team_id, played, won, drawn, lost, tries_for');
+    setClanRecords(aggregateClanRecords(allStandings || []));
   }, [refreshMakgoraTeams]);
 
   const loadTournaments = useCallback(async () => {
@@ -393,6 +399,7 @@ export function useMakgoraState() {
   return {
     tab, setTab,
     teams,
+    clanRecords,
     tournaments,
     activeTournament, setActiveTournament,
     showCreate, setShowCreate,

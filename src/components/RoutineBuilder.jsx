@@ -2,31 +2,34 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useToast } from '../context/ToastContext';
 import { persistPlan } from '../engine/trainingPlanService';
 import { getExerciseCatalog, getExerciseByCode } from '../services/trainingService';
+import { useIsMobile } from '../hooks/useIsMobile';
 import { CATEGORY_LABELS } from './TrainingHub/ExerciseIcon';
+import { MUSCLE_GROUPS, EQUIP_GROUPS, MUSCLE_LABELS, EQUIP_LABELS, filterCatalog } from './workout/catalogFilters';
 
 const CAT_COLORS = { calentamiento: '#f59e0b', campo: 'var(--color-primary)', gym: '#ef4444', crossfit: '#eab308', casa: '#22c55e', recuperacion: '#3b82f6', prevencion: '#a855f7' };
 
-const MUSCLE_LABELS = {
-  abductors: 'Abductores', abs: 'Abdominales', adductors: 'Aductores',
-  biceps: 'Bíceps', calves: 'Pantorrillas', 'cardiovascular system': 'Cardio',
-  delts: 'Hombros', forearms: 'Antebrazos', glutes: 'Glúteos',
-  hamstrings: 'Isquiotibiales', lats: 'Dorsales', 'levator scapulae': 'Elev. Escápula',
-  pectorals: 'Pectorales', quads: 'Cuádriceps', 'serratus anterior': 'Serrato',
-  spine: 'Espinales', traps: 'Trapecios', triceps: 'Tríceps', 'upper back': 'Espalda Alta',
-};
-
-const EQUIP_LABELS = {
-  assisted: 'Asistido', band: 'Banda', barbell: 'Barra', 'body weight': 'Peso Corp.',
-  'bosu ball': 'Bosu', cable: 'Polea', dumbbell: 'Mancuerna',
-  'elliptical machine': 'Elíptica', 'ez barbell': 'Barra EZ', hammer: 'Martillo',
-  kettlebell: 'Pesa Rusa', 'leverage machine': 'Máquina', 'medicine ball': 'Balón Med',
-  'olympic barbell': 'Barra Olímpica', 'resistance band': 'Banda Resist.', roller: 'Rodillo',
-  rope: 'Cuerda', 'skierg machine': 'Esquiador', 'sled machine': 'Trineo',
-  'smith machine': 'Smith', 'stability ball': 'Balón Estab.',
-  'stationary bike': 'Bici Fija', 'stepmill machine': 'Escaladora', tire: 'Llanta',
-  'trap bar': 'Barra Hex', 'upper body ergometer': 'Ergómetro', weighted: 'Lastrado',
-  'wheel roller': 'Rueda Abd.',
-};
+function FilterPills({ label, groups, value, onChange, color }) {
+  return (
+    <div role="group" aria-label={`Filtrar por ${label.toLowerCase()}`}
+      style={{ display: 'flex', gap: '6px', overflowX: 'auto', paddingBottom: '2px', scrollbarWidth: 'none', flexShrink: 0 }}>
+      {[{ id: 'all', label: `Todo ${label.toLowerCase()}` }, ...groups].map(g => {
+        const active = value === g.id;
+        return (
+          <button key={g.id} type="button" aria-pressed={active} onClick={() => onChange(active && g.id !== 'all' ? 'all' : g.id)}
+            style={{
+              flexShrink: 0, minHeight: '36px', padding: '0 12px', borderRadius: '999px', cursor: 'pointer', whiteSpace: 'nowrap',
+              fontSize: '0.74rem', fontWeight: 700,
+              border: `1px solid ${active ? color : 'rgba(255,255,255,0.12)'}`,
+              background: active ? `${color}22` : 'rgba(255,255,255,0.03)',
+              color: active ? color : 'var(--color-text-muted)',
+            }}>
+            {g.label}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
 
 const CATS = ['calentamiento', 'campo', 'gym', 'crossfit', 'casa', 'recuperacion', 'prevencion'];
 
@@ -40,6 +43,7 @@ export default function RoutineBuilder({ player, existingPlan, onSaved, onClose 
   const [saving, setSaving] = useState(false);
   const [page, setPage] = useState(1);
   const [fullPreview, setFullPreview] = useState(null);
+  const isMobile = useIsMobile();
 
   const [plan, setPlan] = useState(() => {
     const fromExisting = {};
@@ -53,25 +57,10 @@ export default function RoutineBuilder({ player, existingPlan, onSaved, onClose 
 
   useEffect(() => { setPage(1); }, [equipFilter, muscleFilter, search]);
 
-  const equipmentOptions = useMemo(() => {
-    const set = new Set(exercises.filter(e => e.equipment).map(e => e.equipment));
-    return ['all', ...[...set].sort()];
-  }, [exercises]);
-
-  const muscleOptions = useMemo(() => {
-    const targets = [...new Set(exercises.map(e => e.target_muscle).filter(Boolean))].sort();
-    return ['all', ...targets];
-  }, [exercises]);
-
-  const filtered = useMemo(() => {
-    return exercises.filter(e => {
-      if (equipFilter !== 'all' && e.equipment !== equipFilter) return false;
-      if (muscleFilter !== 'all' && e.target_muscle !== muscleFilter) return false;
-      if (!search.trim()) return true;
-      const q = search.toLowerCase();
-      return e.name_local.toLowerCase().includes(q) || e.name_technical.toLowerCase().includes(q) || (e.equipment || '').toLowerCase().includes(q) || (e.target_muscle || '').toLowerCase().includes(q);
-    });
-  }, [exercises, equipFilter, muscleFilter, search]);
+  const filtered = useMemo(
+    () => filterCatalog(exercises, { search, muscle: muscleFilter, equip: equipFilter }),
+    [exercises, equipFilter, muscleFilter, search],
+  );
 
   const totalPages = Math.ceil(filtered.length / 50) || 1;
   const safePage = Math.min(page, totalPages);
@@ -160,7 +149,7 @@ export default function RoutineBuilder({ player, existingPlan, onSaved, onClose 
         </div>
 
         {/* Two-column body */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', flex: 1, overflow: 'hidden', minHeight: 0 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gridTemplateRows: isMobile ? 'minmax(0, 3fr) minmax(0, 2fr)' : undefined, gap: '12px', flex: 1, overflow: 'hidden', minHeight: 0 }}>
 
           {/* LEFT - Catalog */}
           <div className="glass-panel" style={{ padding: '12px', display: 'flex', flexDirection: 'column', gap: '8px', overflow: 'hidden' }}>
@@ -168,24 +157,10 @@ export default function RoutineBuilder({ player, existingPlan, onSaved, onClose 
               📋 Catálogo <span style={{ fontSize: '0.6rem', color: 'var(--color-text-muted)', fontWeight: 400 }}>{filtered.length} ejercicios</span>
             </div>
 
-            <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
-              <input type="text" value={search} onChange={e => setSearch(e.target.value)} placeholder="🔍 Buscar..."
-                className="form-input" style={{ flex: 1, minWidth: '80px', fontSize: '0.7rem', padding: '5px 8px' }} />
-              <select value={equipFilter} onChange={e => setEquipFilter(e.target.value)}
-                className="form-select" style={{ fontSize: '0.65rem', padding: '4px 5px', minWidth: '85px' }}>
-                <option value="all">🔧 Equipo</option>
-                {equipmentOptions.filter(e => e !== 'all').map(eq => (
-                  <option key={eq} value={eq}>{EQUIP_LABELS[eq] || eq}</option>
-                ))}
-              </select>
-              <select value={muscleFilter} onChange={e => setMuscleFilter(e.target.value)}
-                className="form-select" style={{ fontSize: '0.65rem', padding: '4px 5px', minWidth: '95px' }}>
-                <option value="all">💪 Músculo</option>
-                {muscleOptions.filter(m => m !== 'all').map(m => (
-                  <option key={m} value={m}>{MUSCLE_LABELS[m] || m}</option>
-                ))}
-              </select>
-            </div>
+            <input type="search" value={search} onChange={e => setSearch(e.target.value)} placeholder="🔍 Buscar en español o inglés…"
+              aria-label="Buscar ejercicio" className="form-input" style={{ width: '100%', fontSize: '0.85rem', padding: '10px 12px', minHeight: '44px' }} />
+            <FilterPills label="Músculo" groups={MUSCLE_GROUPS} value={muscleFilter} onChange={setMuscleFilter} color="#00e676" />
+            <FilterPills label="Equipo" groups={EQUIP_GROUPS} value={equipFilter} onChange={setEquipFilter} color="#ffd700" />
 
             <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '3px', minHeight: 0 }}>
               {pageItems.length === 0 ? (

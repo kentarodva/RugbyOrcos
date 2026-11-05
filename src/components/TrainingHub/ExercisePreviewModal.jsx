@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { getExerciseByCode } from '../../services/trainingService';
+import { muscleLabel } from '../workout/catalogFilters';
 
 export default function ExercisePreviewModal({ exercise, onClose, onAddToRoutine }) {
   const [full, setFull] = useState(null);
@@ -17,10 +18,10 @@ export default function ExercisePreviewModal({ exercise, onClose, onAddToRoutine
   const instructions = ex.instructions || {};
   const instEs = typeof instructions === 'object' ? (instructions.es || instructions.en || '') : '';
 
-  const muscles = [];
-  if (ex.target_muscle) muscles.push(ex.target_muscle);
-  if (ex.muscle_group) muscles.push(ex.muscle_group);
-  const secondary = Array.isArray(ex.secondary_muscles) ? ex.secondary_muscles : [];
+  // Spanish labels, de-duplicated across primary and secondary lists.
+  const muscles = [...new Set([ex.target_muscle, ex.muscle_group].filter(Boolean).map(muscleLabel))];
+  const secondary = [...new Set((Array.isArray(ex.secondary_muscles) ? ex.secondary_muscles : []).map(muscleLabel))]
+    .filter(m => !muscles.includes(m));
 
   return (
     <div className="modal-overlay" onClick={onClose} style={{ zIndex: 1100 }}>
