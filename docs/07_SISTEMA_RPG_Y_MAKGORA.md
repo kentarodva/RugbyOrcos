@@ -60,14 +60,12 @@ flowchart TD
 
 ---
 
-## 3. Generador de Cromos RPG Coleccionables (`exportPlayerCard.js`)
+## 3. Generador de Cromos RPG Coleccionables y Fotos Maestras 4K (`exportPlayerCard.js` y `localPhotoStorage.js`)
 
-En el portal **Mi Ficha**, los guerreros pueden pulsar el botón **"Generar Ficha RPG"**:
-* Renderiza en un `<canvas>` HTML5 de **1200 x 1200 píxeles**.
-* Fondo degradado con textura de fibra de carbono y bordes dorados de prestigio.
-* Insignia de dorsal y avatar circular.
-* **Barra de Atributos:** Fuerza, Placaje, Resistencia, Velocidad y Pases en tiempo real.
-* **Píldora de OVR:** Muestra el promedio general de combate.
+En el portal **Mi Ficha**, los guerreros pueden pulsar los botones **"🎴 Ficha HD"** o **"💎 Ficha 4K Ultra"**:
+* **Almacenamiento Local 4K (IndexedDB):** La foto original en resolución máxima (Full HD / 4K) se guarda de forma 100% local en el dispositivo del jugador, garantizando privacidad y cero consumo de cuota en Supabase.
+* **Miniatura Sincronizada:** Se genera automáticamente una versión ligera (~25 KB) para el Roster del DT y compañeros.
+* **Renderizado Ultra HD:** El canvas compone a 2400x2400px o 1200x1200px con la foto real del guerrero con halo neón, barras de estadísticas y píldora dinámica de OVR.
 * Botón integrado para **Descargar PNG** o **Copiar Imagen Directa al Portapapeles**.
 
 ---

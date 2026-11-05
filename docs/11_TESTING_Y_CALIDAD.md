@@ -19,19 +19,19 @@ Volver a: [[00_INDICE_MAESTRO]] | Anterior: [[10_COACH_IA_Y_ENTRENAMIENTOS]]
 El proyecto cuenta con una cobertura integral garantizada por **Vitest**:
 
 ```mermaid
-pie title Distribución de las 67 Suites de Pruebas (626 Tests)
-    "Componentes de UI & Modales" : 22
+pie title Distribución de las 74 Suites de Pruebas (644 Tests)
+    "Componentes de UI & Modales" : 25
     "Hooks de Contexto & Estado" : 16
     "Motores de Dominio & IA" : 15
-    "Utilidades & Exportadores (PDF/Audio/Cards)" : 8
+    "Utilidades & Exportadores (PDF/Audio/Cards/CSV/Haptics/IndexedDB)" : 12
     "Esquemas & Seguridad" : 6
 ```
 
 ### Estadísticas de Ejecución
-* **Total de Suites:** 67 archivos de pruebas.
-* **Total de Tests:** 626 tests unitarios y de integración.
+* **Total de Suites:** 74 archivos de pruebas.
+* **Total de Tests:** 644 tests unitarios y de integración.
 * **Entorno de Simulación:** Happy-DOM ultraliviano para aislamiento en memoria.
-* **Tiempo Medio de Ejecución:** ~34 segundos en local.
+* **Tiempo Medio de Ejecución:** ~33 segundos en local.
 
 ---
 
