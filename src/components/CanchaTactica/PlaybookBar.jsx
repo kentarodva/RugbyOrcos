@@ -10,6 +10,10 @@ function PlaybookBar({
   onSelectPhase,
   isPlayingPlay = false,
   onTogglePlay,
+  playbackSpeed = '0.75x',
+  onSpeedChange,
+  onPrevPhase,
+  onNextPhase,
   onCaptureCustomPhase,
   onClearCustomPhases,
   showRivals = false,
@@ -95,7 +99,7 @@ function PlaybookBar({
             <optgroup label="Jugadas Animadas de Televisión (Explicación Paso a Paso)">
               {PRESET_TV_PLAYS.map(play => (
                 <option key={play.id} value={play.id}>
-                  {play.name} ({play.phases.length} fases)
+                  {play.name} [{play.category}] ({play.phases.length} fases)
                 </option>
               ))}
             </optgroup>
@@ -187,28 +191,93 @@ function PlaybookBar({
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
           {phases.length > 0 && (
-            <button
-              type="button"
-              onClick={onTogglePlay}
-              style={{
-                padding: '6px 14px',
-                borderRadius: '8px',
-                border: 'none',
-                background: isPlayingPlay ? '#ffb300' : 'var(--color-primary)',
-                color: '#04080e',
-                fontWeight: 900,
-                fontSize: '0.76rem',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px',
-                boxShadow: isPlayingPlay
-                  ? '0 0 14px rgba(255, 179, 0, 0.45)'
-                  : '0 0 14px rgba(0, 230, 118, 0.35)',
-              }}
-            >
-              {isPlayingPlay ? '⏸️ Pausar Animación TV' : '▶️ Reproducir Jugada TV'}
-            </button>
+            <>
+              <button
+                type="button"
+                onClick={onPrevPhase}
+                disabled={phases.length <= 1}
+                className="btn-outline"
+                style={{
+                  padding: '5px 9px',
+                  borderRadius: '6px',
+                  fontSize: '0.74rem',
+                  fontWeight: 900,
+                  borderColor: 'rgba(255,255,255,0.2)',
+                  color: '#fff',
+                }}
+                title="Paso anterior (Fase anterior)"
+              >
+                ⏮️
+              </button>
+
+              <button
+                type="button"
+                onClick={onTogglePlay}
+                style={{
+                  padding: '6px 14px',
+                  borderRadius: '8px',
+                  border: 'none',
+                  background: isPlayingPlay ? '#ffb300' : 'var(--color-primary)',
+                  color: '#04080e',
+                  fontWeight: 900,
+                  fontSize: '0.76rem',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  boxShadow: isPlayingPlay
+                    ? '0 0 14px rgba(255, 179, 0, 0.45)'
+                    : '0 0 14px rgba(0, 230, 118, 0.35)',
+                }}
+              >
+                {isPlayingPlay ? '⏸️ Pausar Animación' : '▶️ Reproducir TV'}
+              </button>
+
+              <button
+                type="button"
+                onClick={onNextPhase}
+                disabled={phases.length <= 1}
+                className="btn-outline"
+                style={{
+                  padding: '5px 9px',
+                  borderRadius: '6px',
+                  fontSize: '0.74rem',
+                  fontWeight: 900,
+                  borderColor: 'rgba(255,255,255,0.2)',
+                  color: '#fff',
+                }}
+                title="Siguiente paso (Siguiente fase)"
+              >
+                ⏭️
+              </button>
+            </>
+          )}
+
+          {/* Speed Selector */}
+          {phases.length > 0 && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginLeft: '4px' }}>
+              <span style={{ fontSize: '0.68rem', color: 'var(--color-text-muted)', fontWeight: 800 }}>VEL:</span>
+              <select
+                value={playbackSpeed}
+                onChange={(e) => onSpeedChange?.(e.target.value)}
+                className="form-select"
+                style={{
+                  padding: '4px 8px',
+                  fontSize: '0.72rem',
+                  fontWeight: 800,
+                  width: 'auto',
+                  background: 'rgba(10, 20, 32, 0.85)',
+                  borderColor: 'rgba(0, 230, 118, 0.4)',
+                  color: '#ffd740',
+                }}
+                title="Velocidad de reproducción de la animación de pizarra"
+              >
+                <option value="0.5x">🐢 0.5x Lento</option>
+                <option value="0.75x">📺 0.75x Pausado TV (Recomendado)</option>
+                <option value="1x">⚡ 1x Normal</option>
+                <option value="1.5x">🚀 1.5x Rápido</option>
+              </select>
+            </div>
           )}
 
           {phases.map((ph, idx) => {
@@ -227,6 +296,7 @@ function PlaybookBar({
                   background: isCurrent ? 'rgba(0, 230, 118, 0.22)' : 'rgba(255,255,255,0.05)',
                   border: isCurrent ? '1.5px solid var(--color-primary)' : '1px solid rgba(255,255,255,0.12)',
                   color: isCurrent ? '#fff' : 'var(--color-text-muted)',
+                  boxShadow: isCurrent ? '0 0 10px rgba(0, 230, 118, 0.4)' : 'none',
                 }}
               >
                 Fase {idx + 1}

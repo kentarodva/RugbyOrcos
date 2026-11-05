@@ -1,7 +1,7 @@
 import React from 'react';
 import { POS_ABREVIATIONS } from './constants';
 
-function PositionNode({ pos, player, isDraggingThis, isAnimating = false, onStartDrag, onEndDrag }) {
+function PositionNode({ pos, player, isDraggingThis, isAnimating = false, animDuration = 1.9, onStartDrag, onEndDrag }) {
   const isForward = pos.id <= 8;
   const isReserve = pos.name.includes('Reserva');
   const departmentColor = isReserve
@@ -31,7 +31,7 @@ function PositionNode({ pos, player, isDraggingThis, isAnimating = false, onStar
         transition: isDraggingThis
           ? 'none'
           : isAnimating
-            ? 'left 1.15s cubic-bezier(0.22, 1, 0.36, 1), top 1.15s cubic-bezier(0.22, 1, 0.36, 1)'
+            ? `left ${animDuration}s cubic-bezier(0.22, 1, 0.36, 1), top ${animDuration}s cubic-bezier(0.22, 1, 0.36, 1)`
             : 'left 0.12s ease-out, top 0.12s ease-out'
       }}
     >

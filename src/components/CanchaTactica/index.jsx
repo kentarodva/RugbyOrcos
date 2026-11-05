@@ -74,6 +74,9 @@ function CanchaTactica() {
     activePhaseIndex,
     activePhaseInfo,
     isPlayingPlay, setIsPlayingPlay,
+    playbackSpeed, setPlaybackSpeed,
+    animDuration,
+    handlePrevPhase, handleNextPhase,
     isAnimating,
     handleSelectPresetPlay,
     handleSelectPhase,
@@ -285,6 +288,10 @@ function CanchaTactica() {
             onSelectPhase={handleSelectPhase}
             isPlayingPlay={isPlayingPlay}
             onTogglePlay={() => setIsPlayingPlay(prev => !prev)}
+            playbackSpeed={playbackSpeed}
+            onSpeedChange={setPlaybackSpeed}
+            onPrevPhase={handlePrevPhase}
+            onNextPhase={handleNextPhase}
             onCaptureCustomPhase={handleCaptureCustomPhase}
             onClearCustomPhases={handleExitPlaybook}
             showRivals={showRivals}
@@ -314,6 +321,7 @@ function CanchaTactica() {
             highlightZone={highlightZone}
             activePhaseInfo={activePhaseInfo}
             isAnimating={isAnimating}
+            animDuration={animDuration}
             onStartDrag={handleStartDrag}
             onDragMove={boundDragMove}
             onEndDrag={handleEndDrag}

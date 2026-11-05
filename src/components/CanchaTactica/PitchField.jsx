@@ -21,6 +21,7 @@ function PitchField({
   highlightZone = null,
   activePhaseInfo = null,
   isAnimating = false,
+  animDuration = 1.9,
   onStartDrag,
   onDragMove,
   onEndDrag
@@ -120,6 +121,7 @@ function PitchField({
         highlightZone={highlightZone}
         activePhaseInfo={activePhaseInfo}
         isAnimating={isAnimating}
+        animDuration={animDuration}
         draggingId={draggingId}
         onStartDrag={onStartDrag}
         onEndDrag={onEndDrag}
@@ -137,6 +139,7 @@ function PitchField({
             player={player}
             isDraggingThis={isDraggingThis}
             isAnimating={isAnimating}
+            animDuration={animDuration}
             onStartDrag={onStartDrag}
             onEndDrag={onEndDrag}
           />

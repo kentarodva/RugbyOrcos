@@ -12,6 +12,13 @@ import {
 } from '../../data/supabaseApi';
 import { autoAssignLineup } from '../../engine/tacticAssignmentEngine';
 
+export const PLAYBACK_SPEEDS = {
+  '0.5x': { id: '0.5x', label: '0.5x Lento (Didáctico)', interval: 5600, duration: 2.5 },
+  '0.75x': { id: '0.75x', label: '0.75x Pausado TV', interval: 4400, duration: 1.9 },
+  '1x': { id: '1x', label: '1x Normal', interval: 3200, duration: 1.3 },
+  '1.5x': { id: '1.5x', label: '1.5x Rápido', interval: 2200, duration: 0.9 },
+};
+
 export function usePitchState(activeTeam) {
   const [lineup, setLineup] = useState({});
   const [tacticalNotes, setTacticalNotes] = useState('');
@@ -36,6 +43,10 @@ export function usePitchState(activeTeam) {
   const [activePhaseIndex, setActivePhaseIndex] = useState(0);
   const [isPlayingPlay, setIsPlayingPlay] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
+  const [playbackSpeed, setPlaybackSpeed] = useState('0.75x');
+
+  const currentSpeedConfig = PLAYBACK_SPEEDS[playbackSpeed] || PLAYBACK_SPEEDS['0.75x'];
+  const animDuration = currentSpeedConfig.duration;
 
   const [draggingId, setDraggingId] = useState(null);
   const [dragStartPos, setDragStartPos] = useState(null);
@@ -400,14 +411,29 @@ export function usePitchState(activeTeam) {
     setHighlightZone(null);
   }, []);
 
+  const handlePrevPhase = useCallback(() => {
+    if (phases.length <= 1) return;
+    setIsPlayingPlay(false);
+    const prevIdx = (activePhaseIndex - 1 + phases.length) % phases.length;
+    applyPhaseData(phases, prevIdx, pitchOrientation);
+  }, [phases, activePhaseIndex, applyPhaseData, pitchOrientation]);
+
+  const handleNextPhase = useCallback(() => {
+    if (phases.length <= 1) return;
+    setIsPlayingPlay(false);
+    const nextIdx = (activePhaseIndex + 1) % phases.length;
+    applyPhaseData(phases, nextIdx, pitchOrientation);
+  }, [phases, activePhaseIndex, applyPhaseData, pitchOrientation]);
+
   useEffect(() => {
     if (!isPlayingPlay || phases.length <= 1) return undefined;
+    const intervalMs = currentSpeedConfig.interval;
     const timer = setTimeout(() => {
       const nextIdx = (activePhaseIndex + 1) % phases.length;
       applyPhaseData(phases, nextIdx, pitchOrientation);
-    }, 2800);
+    }, intervalMs);
     return () => clearTimeout(timer);
-  }, [isPlayingPlay, phases, activePhaseIndex, applyPhaseData, pitchOrientation]);
+  }, [isPlayingPlay, phases, activePhaseIndex, applyPhaseData, pitchOrientation, currentSpeedConfig.interval]);
 
   const handleStartDrag = useCallback((e, posId) => {
     if (!e || posId === null) {
@@ -512,9 +538,13 @@ export function usePitchState(activeTeam) {
     activePhaseIndex,
     activePhaseInfo,
     isPlayingPlay, setIsPlayingPlay,
+    playbackSpeed, setPlaybackSpeed,
+    animDuration,
     isAnimating,
     handleSelectPresetPlay,
     handleSelectPhase,
+    handlePrevPhase,
+    handleNextPhase,
     handleCaptureCustomPhase,
     handleExitPlaybook,
     draggingId, dragStartPos, hasDragged,

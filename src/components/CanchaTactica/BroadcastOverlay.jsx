@@ -14,6 +14,7 @@ function BroadcastOverlay({
   highlightZone = null,
   activePhaseInfo = null,
   isAnimating = false,
+  animDuration = 1.9,
   draggingId = null,
   onStartDrag,
   onEndDrag,
@@ -276,7 +277,7 @@ function BroadcastOverlay({
               transition: isDraggingThis
                 ? 'none'
                 : isAnimating
-                  ? 'left 1.15s cubic-bezier(0.22, 1, 0.36, 1), top 1.15s cubic-bezier(0.22, 1, 0.36, 1)'
+                  ? `left ${animDuration}s cubic-bezier(0.22, 1, 0.36, 1), top ${animDuration}s cubic-bezier(0.22, 1, 0.36, 1)`
                   : 'left 0.25s ease-out, top 0.25s ease-out',
             }}
           >
@@ -305,7 +306,7 @@ function BroadcastOverlay({
             transition: draggingId === 'BALL'
               ? 'none'
               : isAnimating
-                ? 'left 1.05s cubic-bezier(0.22, 1, 0.36, 1), top 1.05s cubic-bezier(0.22, 1, 0.36, 1)'
+                ? `left ${Math.max(0.7, animDuration - 0.25)}s cubic-bezier(0.22, 1, 0.36, 1), top ${Math.max(0.7, animDuration - 0.25)}s cubic-bezier(0.22, 1, 0.36, 1)`
                 : 'left 0.22s ease-out, top 0.22s ease-out',
           }}
         >
@@ -390,6 +391,18 @@ function BroadcastOverlay({
               {activePhaseInfo.description}
             </div>
           )}
+          {/* Phase Progress Bar */}
+          <div style={{ width: '100%', height: '3px', background: 'rgba(255, 255, 255, 0.12)', borderRadius: '2px', overflow: 'hidden', marginTop: '4px' }}>
+            <div
+              style={{
+                height: '100%',
+                width: `${((activePhaseInfo.index + 1) / activePhaseInfo.total) * 100}%`,
+                background: 'linear-gradient(90deg, var(--color-primary) 0%, #ffd740 100%)',
+                boxShadow: '0 0 8px var(--color-primary)',
+                transition: `width ${animDuration}s cubic-bezier(0.22, 1, 0.36, 1)`,
+              }}
+            />
+          </div>
         </div>
       )}
     </>
