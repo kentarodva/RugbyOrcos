@@ -243,18 +243,18 @@ function App() {
         >Cargando modulo...</motion.div>}>
         {activeTab === 'dashboard' && <motion.div key="dashboard" variants={tabVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.25, ease: 'easeOut' }}><Dashboard onNavigate={setActiveTab} /></motion.div>}
         {activeTab === 'mi_ficha' && <motion.div key="mi_ficha" variants={tabVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.25, ease: 'easeOut' }}><PlayerDashboard /></motion.div>}
-        {activeTab === 'roster' && hasPermission('manage_players') && <motion.div key="roster" variants={tabVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.25, ease: 'easeOut' }}><Roster /></motion.div>}
+        {activeTab === 'roster' && <motion.div key="roster" variants={tabVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.25, ease: 'easeOut' }}><Roster /></motion.div>}
         {activeTab === 'estadisticas' && <motion.div key="estadisticas" variants={tabVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.25, ease: 'easeOut' }}><Estadisticas /></motion.div>}
-        {activeTab === 'cancha' && hasPermission('manage_tactics') && <motion.div key="cancha" variants={tabVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.25, ease: 'easeOut' }}><CanchaTactica /></motion.div>}
-        {activeTab === 'tribunal' && hasPermission('manage_discipline') && <motion.div key="tribunal" variants={tabVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.25, ease: 'easeOut' }}><Tribunal /></motion.div>}
+        {activeTab === 'cancha' && <motion.div key="cancha" variants={tabVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.25, ease: 'easeOut' }}><CanchaTactica /></motion.div>}
+        {activeTab === 'tribunal' && <motion.div key="tribunal" variants={tabVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.25, ease: 'easeOut' }}><Tribunal /></motion.div>}
         {activeTab === 'awards' && <motion.div key="awards" variants={tabVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.25, ease: 'easeOut' }}><AwardsHall /></motion.div>}
         {activeTab === 'makgora' && <motion.div key="makgora" variants={tabVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.25, ease: 'easeOut' }}><MakgoraHub /></motion.div>}
-        {activeTab === 'calendario' && hasPermission('manage_schedule') && <motion.div key="calendario" variants={tabVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.25, ease: 'easeOut' }}><Calendario /></motion.div>}
+        {activeTab === 'calendario' && <motion.div key="calendario" variants={tabVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.25, ease: 'easeOut' }}><Calendario /></motion.div>}
         {activeTab === 'invitaciones' && <motion.div key="invitaciones" variants={tabVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.25, ease: 'easeOut' }}><Invitaciones /></motion.div>}
-        {activeTab === 'finanzas' && hasPermission('manage_finances') && <motion.div key="finanzas" variants={tabVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.25, ease: 'easeOut' }}><Finanzas /></motion.div>}
-        {activeTab === 'entrenamientos' && hasPermission('manage_training') && <motion.div key="entrenamientos" variants={tabVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.25, ease: 'easeOut' }}><TrainingHub /></motion.div>}
+        {activeTab === 'finanzas' && <motion.div key="finanzas" variants={tabVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.25, ease: 'easeOut' }}><Finanzas /></motion.div>}
+        {activeTab === 'entrenamientos' && <motion.div key="entrenamientos" variants={tabVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.25, ease: 'easeOut' }}><TrainingHub /></motion.div>}
         {activeTab === 'messages' && <motion.div key="messages" variants={tabVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.25, ease: 'easeOut' }}><Messages /></motion.div>}
-        {activeTab === 'ia' && hasPermission('config_ai') && <motion.div key="ia" variants={tabVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.25, ease: 'easeOut' }}><AIChat /></motion.div>}
+        {activeTab === 'ia' && <motion.div key="ia" variants={tabVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.25, ease: 'easeOut' }}><AIChat /></motion.div>}
         </Suspense>
         </ErrorBoundary>
         </AnimatePresence>

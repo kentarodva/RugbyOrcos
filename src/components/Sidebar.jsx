@@ -22,7 +22,7 @@ export const ALL_GROUPS = [
     label: 'JUGADORES',
     tabs: [
       { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-      { id: 'roster', label: 'Guerreros', perm: 'manage_players', icon: Users },
+      { id: 'roster', label: 'Guerreros', icon: Users },
       { id: 'estadisticas', label: 'Estadísticas', icon: BarChart3 },
       { id: 'mi_ficha', label: 'Mi Ficha', icon: Shield },
     ],
@@ -30,24 +30,24 @@ export const ALL_GROUPS = [
   {
     label: 'CLUB',
     tabs: [
-      { id: 'calendario', label: 'Agenda', perm: 'manage_schedule', icon: Calendar },
-      { id: 'entrenamientos', label: 'Entrenos', perm: 'manage_training', icon: Dumbbell },
-      { id: 'finanzas', label: 'Finanzas', perm: 'manage_finances', icon: Wallet },
-      { id: 'tribunal', label: 'Tribunal', perm: 'manage_discipline', icon: Scale },
+      { id: 'calendario', label: 'Agenda', icon: Calendar },
+      { id: 'entrenamientos', label: 'Entrenos', icon: Dumbbell },
+      { id: 'finanzas', label: 'Finanzas', icon: Wallet },
+      { id: 'tribunal', label: 'Tribunal', icon: Scale },
     ],
   },
   {
     label: 'COMPETICIÓN',
     tabs: [
       { id: 'makgora', label: "Mak'Gora", icon: Swords },
-      { id: 'cancha', label: 'Pizarra XV', perm: 'manage_tactics', icon: Compass },
+      { id: 'cancha', label: 'Pizarra XV', icon: Compass },
     ],
   },
   {
     label: 'COMUNICACIÓN',
     tabs: [
       { id: 'messages', label: 'Mensajes', icon: MessageSquare },
-      { id: 'ia', label: 'Coach IA', perm: 'config_ai', icon: Bot },
+      { id: 'ia', label: 'Coach IA', icon: Bot },
     ],
   },
 ];

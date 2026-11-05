@@ -38,7 +38,6 @@ function Dashboard({ onNavigate }) {
     makgoraTeamId,
     finances,
     schedule,
-    hasPermission,
   } = useContext(ClubContext);
   const { showToast } = useToast();
   const filterByView = useFilterByView();
@@ -82,13 +81,13 @@ function Dashboard({ onNavigate }) {
   };
 
   const quickActions = [
-    { id: 'roster', label: 'Guerreros', icon: Users, perm: 'manage_players', primary: true },
-    { id: 'calendario', label: 'Agenda y Asistencia', icon: Calendar, perm: 'manage_schedule' },
-    { id: 'cancha', label: 'Pizarra XV', icon: Compass, perm: 'manage_tactics' },
-    { id: 'entrenamientos', label: 'Planes y Rutinas', icon: Dumbbell, perm: 'manage_training' },
-    { id: 'finanzas', label: 'Tesorería', icon: Wallet, perm: 'manage_finances' },
+    { id: 'roster', label: 'Guerreros', icon: Users, primary: true },
+    { id: 'calendario', label: 'Agenda y Asistencia', icon: Calendar },
+    { id: 'cancha', label: 'Pizarra XV', icon: Compass },
+    { id: 'entrenamientos', label: 'Planes y Rutinas', icon: Dumbbell },
+    { id: 'finanzas', label: 'Tesorería', icon: Wallet },
     { id: 'makgora', label: "Torneo Mak'Gora", icon: Swords },
-  ].filter((a) => (!a.perm ? true : hasPermission ? hasPermission(a.perm) : true));
+  ];
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '22px' }}>
