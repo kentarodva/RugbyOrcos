@@ -1,5 +1,4 @@
 import React, { useMemo } from 'react';
-import { Trophy, CircleCheck, Crown, CircleDot, Medal } from 'lucide-react';
 
 function MiniRanking({ teamPlayers }) {
   const rankings = useMemo(() => {
@@ -32,51 +31,33 @@ function MiniRanking({ teamPlayers }) {
     return { byAttendance, byMvp, byTries };
   }, [teamPlayers]);
 
-  const renderTop3 = (items, label, medalEmoji, statFn) => (
-    <div>
-      <h4 style={{ fontSize: '0.78rem', fontWeight: 700, marginBottom: '8px', color: 'var(--color-gold)' }}>
-        {medalEmoji} {label}
-      </h4>
+  const medal = ['#E8B931', '#C0C6C2', '#CD8B52'];
+  const renderTop3 = (items, label, statFn) => (
+    <div className="glass-panel" style={{ padding: '12px 14px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+      <div style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'var(--color-text-muted)' }}>{label}</div>
       {items.length === 0 ? (
-        <div style={{ fontSize: '0.68rem', color: 'var(--color-text-muted)' }}>Sin datos aún</div>
+        <div style={{ fontSize: '0.8125rem', color: 'var(--color-text-subtle)' }}>Sin datos aún</div>
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-          {items.map((p, i) => (
-            <div key={p.id} style={{
-              display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-              padding: '4px 8px', borderRadius: 'var(--radius-sm)',
-              background: i === 0 ? 'rgba(255,179,0,0.08)' : 'rgba(255,255,255,0.01)',
-              fontSize: '0.72rem'
-            }}>
-              <span>
-                <span style={{ fontWeight: 700, marginRight: '4px', display: 'inline-flex', alignItems: 'center' }}>
-                  {i === 0 ? <Medal size={14} color="#FFD700" /> : i === 1 ? <Medal size={14} color="#C0C0C0" /> : <Medal size={14} color="#CD7F32" />}
-                </span>
-                {p.name}
-              </span>
-              <span style={{ color: 'var(--color-text-muted)', fontSize: '0.65rem' }}>{statFn(p)}</span>
-            </div>
-          ))}
-        </div>
+        items.map((p, i) => (
+          <div key={p.id} style={{ display: 'flex', alignItems: 'center', gap: '10px', minHeight: '32px' }}>
+            <span aria-label={`Puesto ${i + 1}`} style={{ width: 22, height: 22, borderRadius: 99, flexShrink: 0, display: 'grid', placeItems: 'center', fontSize: '0.75rem', fontWeight: 700, color: '#0B0D0C', background: medal[i] }}>{i + 1}</span>
+            <span style={{ flex: 1, minWidth: 0, fontSize: '0.875rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{p.name}</span>
+            <span style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', flexShrink: 0, fontVariantNumeric: 'tabular-nums' }}>{statFn(p)}</span>
+          </div>
+        ))
       )}
     </div>
   );
 
   return (
-    <div className="glass-panel" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-      <h3 style={{ fontSize: '1rem', fontWeight: 700, fontFamily: 'Outfit' }}><Trophy size={20} style={{ verticalAlign: 'middle', marginRight: 4 }} /> Ranking del Clan</h3>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px' }}>
-        {renderTop3(rankings.byAttendance, 'Asistencia', <CircleCheck size={16} />, p =>
-          `${p.attendance?.present || 0}/${p.attendance?.total || 0}`
-        )}
-        {renderTop3(rankings.byMvp, 'MVPs', <Crown size={16} />, p =>
-          `${(p.matchStats || []).filter(s => s.mvp).length} MVP`
-        )}
-        {renderTop3(rankings.byTries, 'Tries', <CircleDot size={16} />, p =>
-          `${(p.matchStats || []).reduce((s, m) => s + (m.tries || 0), 0)} tries`
-        )}
+    <section style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+      <h3 className="section-title">Ranking del clan</h3>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 240px), 1fr))', gap: '10px' }}>
+        {renderTop3(rankings.byAttendance, 'Asistencia', (p) => `${p.attendance?.present || 0}/${p.attendance?.total || 0}`)}
+        {renderTop3(rankings.byMvp, 'MVPs', (p) => `${(p.matchStats || []).filter((s) => s.mvp).length}`)}
+        {renderTop3(rankings.byTries, 'Tries', (p) => `${(p.matchStats || []).reduce((s, m) => s + (m.tries || 0), 0)}`)}
       </div>
-    </div>
+    </section>
   );
 }
 

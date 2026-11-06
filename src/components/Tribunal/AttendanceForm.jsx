@@ -53,9 +53,9 @@ function AttendanceForm({
   const markedCount = Object.keys(attendanceState).length;
 
   return (
-    <div className="glass-panel" style={{ padding: '25px' }}>
-      <h3 style={{ fontSize: '1.1rem', fontWeight: 800, fontFamily: 'Outfit', color: 'var(--color-primary)', marginBottom: '15px' }}>
-        Control de Asistencia del Entrenamiento
+    <div className="glass-panel" style={{ padding: '16px' }}>
+      <h3 style={{ fontSize: '1.1rem', fontWeight: 600, color: 'var(--color-text)', marginBottom: '15px' }}>
+        Pasar lista
       </h3>
 
       <form onSubmit={onSave}>
@@ -76,7 +76,7 @@ function AttendanceForm({
           </select>
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', maxHeight: '320px', overflowY: 'auto', marginBottom: '20px', paddingRight: '5px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', maxHeight: '60vh', overflowY: 'auto', marginBottom: '20px', paddingRight: '5px' }}>
           <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
             <input
               type="text"
@@ -109,33 +109,39 @@ function AttendanceForm({
             const currentStatus = attendanceState[p.id] || '';
             const rsvp = rsvpMap[p.id];
             return (
-              <div key={p.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px', background: 'rgba(255,255,255,0.01)', border: '1px solid var(--border-glass)', borderRadius: 'var(--radius-sm)' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <div key={p.id} style={{ display: 'flex', flexDirection: 'column', gap: '8px', padding: '10px 12px', background: 'var(--bg-elevated)', border: '1px solid var(--border-glass)', borderRadius: 'var(--radius-md)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: 0 }}>
                   <PlayerPhoto player={p} size={28} />
-                  <div>
-                    <strong style={{ fontSize: '0.8rem' }}>{p.name}</strong>
-                    <span style={{ fontSize: '0.7rem', color: 'var(--color-primary)', marginLeft: '4px' }}>("{p.apodo}")</span>
-                    {rsvp && <span style={{ marginLeft: '4px', fontSize: '0.75rem' }} title={rsvp === 'going' ? 'Confirmado' : rsvp === 'maybe' ? 'Quizas' : 'No va'}>{RSVP_ICON[rsvp]}</span>}
-                  </div>
+                  <span style={{ flex: 1, minWidth: 0, fontSize: '0.875rem', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    {p.name}
+                    {p.apodo && <span style={{ fontWeight: 400, color: 'var(--color-text-muted)', marginLeft: '6px' }}>«{p.apodo}»</span>}
+                  </span>
+                  {rsvp && <span style={{ fontSize: '0.8rem', flexShrink: 0 }} title={rsvp === 'going' ? 'Confirmado' : rsvp === 'maybe' ? 'Quizás' : 'No va'}>{RSVP_ICON[rsvp]}</span>}
                 </div>
 
-                <div style={{ display: 'flex', gap: '4px' }}>
-                  {Object.entries(ATTENDANCE_STATUS).map(([key, config]) => (
-                    <button
-                      key={key}
-                      type="button"
-                      onClick={() => onAttendanceChange(p.id, key)}
-                      style={{
-                        background: currentStatus === key ? config.bg : 'transparent',
-                        color: currentStatus === key ? config.color : 'var(--color-text-muted)',
-                        border: '1px solid ' + (currentStatus === key ? config.color : 'rgba(255,255,255,0.05)'),
-                        padding: '3px 6px', borderRadius: '4px', fontSize: '0.65rem', fontWeight: 700, cursor: 'pointer'
-                      }}
-                      title={config.penalty}
-                    >
-                      {config.label}
-                    </button>
-                  ))}
+                <div role="group" aria-label={`Asistencia de ${p.name}`} style={{ display: 'grid', gridTemplateColumns: `repeat(${Object.keys(ATTENDANCE_STATUS).length}, minmax(0, 1fr))`, gap: '6px' }}>
+                  {Object.entries(ATTENDANCE_STATUS).map(([key, config]) => {
+                    const on = currentStatus === key;
+                    return (
+                      <button
+                        key={key}
+                        type="button"
+                        aria-pressed={on}
+                        onClick={() => onAttendanceChange(p.id, key)}
+                        style={{
+                          minHeight: '36px', minWidth: 0, padding: '0 4px',
+                          background: on ? config.bg : 'transparent',
+                          color: on ? config.color : 'var(--color-text-muted)',
+                          border: '1px solid ' + (on ? config.color : 'var(--border-strong)'),
+                          borderRadius: 'var(--radius-sm)', fontSize: '0.75rem', fontWeight: 600, cursor: 'pointer',
+                          lineHeight: 1.15, overflowWrap: 'anywhere'
+                        }}
+                        title={config.penalty}
+                      >
+                        {config.label}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             );

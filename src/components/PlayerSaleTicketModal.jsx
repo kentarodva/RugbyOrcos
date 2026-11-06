@@ -20,7 +20,7 @@ const TicketRow = React.memo(function TicketRow({ ticket, reports, setReports, h
     <div className="glass-panel" style={{
       padding: '10px 14px', marginBottom: '6px',
       opacity: isApproved ? 0.6 : 1,
-      borderLeft: `3px solid ${isApproved ? '#00e676' : isRejected ? '#ff3d00' : isPendingFiado ? '#ffb300' : isPendingPaid ? '#00b0ff' : 'var(--border-glass)'}`
+      borderLeft: `3px solid ${isApproved ? '#2EE57A' : isRejected ? '#FF5C4D' : isPendingFiado ? '#E8B931' : isPendingPaid ? '#5AA9FF' : 'var(--border-glass)'}`
     }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
         <div>
@@ -30,10 +30,10 @@ const TicketRow = React.memo(function TicketRow({ ticket, reports, setReports, h
               {campaign.name} ({campaign.type})
             </span>
           </div>
-          {isApproved && <div style={{ fontSize: '0.68rem', color: '#00e676' }}>✅ Aprobado por tesorero</div>}
-          {isRejected && <div style={{ fontSize: '0.68rem', color: '#ff3d00' }}>❌ Rechazado{ticket.review_note ? ': ' + ticket.review_note : ''}</div>}
-          {isPendingFiado && <div style={{ fontSize: '0.68rem', color: '#ffb300' }}>⏳ Fiado — esperando confirmación</div>}
-          {isPendingPaid && <div style={{ fontSize: '0.68rem', color: '#00b0ff' }}>⏳ Pagado — esperando confirmación</div>}
+          {isApproved && <div style={{ fontSize: '0.68rem', color: '#2EE57A' }}>✅ Aprobado por tesorero</div>}
+          {isRejected && <div style={{ fontSize: '0.68rem', color: '#FF5C4D' }}>❌ Rechazado{ticket.review_note ? ': ' + ticket.review_note : ''}</div>}
+          {isPendingFiado && <div style={{ fontSize: '0.68rem', color: '#E8B931' }}>⏳ Fiado — esperando confirmación</div>}
+          {isPendingPaid && <div style={{ fontSize: '0.68rem', color: '#5AA9FF' }}>⏳ Pagado — esperando confirmación</div>}
           {isPendingFiado && ticket.fiado_until && (
             <div style={{ fontSize: '0.65rem', color: 'var(--color-text-muted)' }}>
               Fiado hasta: {formatLocalDate(parseLocalDate(ticket.fiado_until))}
@@ -131,7 +131,7 @@ function PlayerSaleTicketModal({ playerId, onClose }) {
       <div className="modal-content animated-slide" style={{ maxWidth: '650px', maxHeight: '80vh', display: 'flex', flexDirection: 'column' }}
         onClick={e => e.stopPropagation()}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
-          <h3 style={{ fontSize: '1.1rem', fontWeight: 800, fontFamily: 'Outfit' }}>Mis Tickets</h3>
+          <h3 style={{ fontSize: '1.1rem', fontWeight: 600 }}>Mis Tickets</h3>
           <button onClick={onClose} className="btn-outline" style={{ padding: '4px 10px', fontSize: '0.75rem' }}>✕</button>
         </div>
 
@@ -152,7 +152,7 @@ function PlayerSaleTicketModal({ playerId, onClose }) {
 
             {pendingReports.length > 0 && (
               <div>
-                <h4 style={{ fontSize: '0.75rem', fontWeight: 700, color: '#ffb300', textTransform: 'uppercase', marginBottom: '6px' }}>
+                <h4 style={{ fontSize: '0.75rem', fontWeight: 700, color: '#E8B931', textTransform: 'uppercase', marginBottom: '6px' }}>
                   Pendientes (Fiado) ({pendingReports.length})
                 </h4>
                 {pendingReports.map(t => <TicketRow key={t.id} ticket={t} reports={reports} setReports={setReports} handleReport={handleReport} reporting={reporting} />)}
@@ -161,7 +161,7 @@ function PlayerSaleTicketModal({ playerId, onClose }) {
 
             {pendingPaidReports.length > 0 && (
               <div>
-                <h4 style={{ fontSize: '0.75rem', fontWeight: 700, color: '#00b0ff', textTransform: 'uppercase', marginBottom: '6px' }}>
+                <h4 style={{ fontSize: '0.75rem', fontWeight: 700, color: '#5AA9FF', textTransform: 'uppercase', marginBottom: '6px' }}>
                   Pendientes (Pagado) ({pendingPaidReports.length})
                 </h4>
                 {pendingPaidReports.map(t => <TicketRow key={t.id} ticket={t} reports={reports} setReports={setReports} handleReport={handleReport} reporting={reporting} />)}
@@ -170,7 +170,7 @@ function PlayerSaleTicketModal({ playerId, onClose }) {
 
             {rejectedTickets.length > 0 && (
               <div>
-                <h4 style={{ fontSize: '0.75rem', fontWeight: 700, color: '#ff3d00', textTransform: 'uppercase', marginBottom: '6px' }}>
+                <h4 style={{ fontSize: '0.75rem', fontWeight: 700, color: '#FF5C4D', textTransform: 'uppercase', marginBottom: '6px' }}>
                   Rechazados ({rejectedTickets.length})
                 </h4>
                 {rejectedTickets.map(t => <TicketRow key={t.id} ticket={t} reports={reports} setReports={setReports} handleReport={handleReport} reporting={reporting} />)}
@@ -179,7 +179,7 @@ function PlayerSaleTicketModal({ playerId, onClose }) {
 
             {approvedTickets.length > 0 && (
               <div>
-                <h4 style={{ fontSize: '0.75rem', fontWeight: 700, color: '#00e676', textTransform: 'uppercase', marginBottom: '6px' }}>
+                <h4 style={{ fontSize: '0.75rem', fontWeight: 700, color: '#2EE57A', textTransform: 'uppercase', marginBottom: '6px' }}>
                   Aprobados ({approvedTickets.length})
                 </h4>
                 {approvedTickets.slice(0, 10).map(t => <TicketRow key={t.id} ticket={t} reports={reports} setReports={setReports} handleReport={handleReport} reporting={reporting} />)}

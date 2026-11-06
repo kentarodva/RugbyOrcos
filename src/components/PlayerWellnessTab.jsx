@@ -20,7 +20,7 @@ const WELLNESS_PILLARS = [
     key: 'energy',
     title: 'Nivel de Energía y Vitalidad',
     Icon: Zap,
-    color: '#00e676',
+    color: '#2EE57A',
     descriptions: [
       '1 - Agotado, sin energía para entrenar',
       '2 - Cuerpo pesado, baja reacción',
@@ -33,7 +33,7 @@ const WELLNESS_PILLARS = [
     key: 'soreness',
     title: 'Dolor Muscular y Golpes (Tackle/Scrum)',
     Icon: ShieldAlert,
-    color: '#ff5252',
+    color: '#FF5C4D',
     descriptions: [
       '1 - Dolor severo por choque o golpes fuertes',
       '2 - Mucha rigidez y dolor en articulaciones',
@@ -59,7 +59,7 @@ const WELLNESS_PILLARS = [
     key: 'hydration',
     title: 'Hidratación y Recuperación',
     Icon: Droplets,
-    color: '#00b0ff',
+    color: '#5AA9FF',
     descriptions: [
       '1 - Muy deshidratado, calambres frecuentes',
       '2 - Poca ingesta de agua durante el día',
@@ -89,9 +89,9 @@ function PlayerWellnessTab({ player, recordWellness }) {
   }, [scores]);
 
   const readinessStatus = useMemo(() => {
-    if (readiness >= 80) return { label: 'Óptimo para Batalla', color: '#00e676', bg: 'rgba(0, 230, 118, 0.12)', border: '#00e676', msg: 'Tu cuerpo está en plenitud para rendir en el partido y los entrenamientos pesados.' };
+    if (readiness >= 80) return { label: 'Óptimo para Batalla', color: '#2EE57A', bg: 'rgba(46, 229, 122, 0.12)', border: '#2EE57A', msg: 'Tu cuerpo está en plenitud para rendir en el partido y los entrenamientos pesados.' };
     if (readiness >= 60) return { label: 'Cuidado / Fatiga Moderada', color: 'var(--color-gold)', bg: 'rgba(255, 215, 64, 0.12)', border: 'var(--color-gold)', msg: 'Rendimiento aceptable, pero monitorea hidratación y elongación tras el choque.' };
-    return { label: 'Sobrecarga / Riesgo de Lesión', color: '#ff5252', bg: 'rgba(255, 23, 68, 0.12)', border: '#ff1744', msg: 'Alerta de sobreentrenamiento o golpes acumulados. Notifica al entrenador.' };
+    return { label: 'Sobrecarga / Riesgo de Lesión', color: '#FF5C4D', bg: 'rgba(255, 92, 77, 0.12)', border: '#FF5C4D', msg: 'Alerta de sobreentrenamiento o golpes acumulados. Notifica al entrenador.' };
   }, [readiness]);
 
   const handleSubmit = () => {
@@ -115,14 +115,14 @@ function PlayerWellnessTab({ player, recordWellness }) {
         style={{
           padding: '22px',
           borderRadius: '16px',
-          background: 'linear-gradient(135deg, rgba(0, 176, 255, 0.08) 0%, rgba(10, 20, 32, 0.95) 100%)',
-          border: '1px solid rgba(0, 176, 255, 0.3)',
+          background: 'linear-gradient(135deg, rgba(90, 169, 255, 0.08) 0%, rgba(21, 24, 22, 0.95) 100%)',
+          border: '1px solid rgba(90, 169, 255, 0.3)',
         }}
       >
         <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-          <HeartPulse size={24} color="#00b0ff" style={{ marginTop: '2px', flexShrink: 0 }} />
+          <HeartPulse size={24} color="#5AA9FF" style={{ marginTop: '2px', flexShrink: 0 }} />
           <div>
-            <h3 style={{ fontSize: '1.1rem', fontWeight: 900, fontFamily: 'Outfit', color: '#fff', margin: 0 }}>
+            <h3 style={{ fontSize: '1.1rem', fontWeight: 600, color: '#fff', margin: 0 }}>
               Control de Estado Físico & Fatiga de Combate
             </h3>
             <p style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', marginTop: '6px', lineHeight: 1.5 }}>
@@ -150,7 +150,7 @@ function PlayerWellnessTab({ player, recordWellness }) {
             <span style={{ fontSize: '0.72rem', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 800, color: readinessStatus.color }}>
               Índice de Recuperación de Combate
             </span>
-            <div style={{ fontSize: '1.4rem', fontWeight: 900, fontFamily: 'Outfit', color: '#fff' }}>
+            <div style={{ fontSize: '1.4rem', fontWeight: 900, fontFamily: 'var(--font-display)', color: '#fff' }}>
               {readiness}% &middot; {readinessStatus.label}
             </div>
             <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginTop: '2px' }}>
@@ -186,7 +186,7 @@ function PlayerWellnessTab({ player, recordWellness }) {
                 flexWrap: 'wrap',
                 gap: '12px',
                 border: '1px solid rgba(255, 255, 255, 0.08)',
-                background: 'rgba(10, 18, 28, 0.65)',
+                background: 'rgba(19, 22, 20, 0.65)',
               }}
             >
               <div style={{ flex: 1, minWidth: '220px' }}>

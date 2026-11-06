@@ -111,7 +111,7 @@ export function NewCampaignModal({ onClose, players }) {
       <div className="modal-content glass-panel animated-slide" style={{ maxWidth: '600px', padding: '26px' }} onClick={e => e.stopPropagation()}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
           <div>
-            <h3 style={{ fontSize: '1.2rem', fontWeight: 800, fontFamily: 'Outfit', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <h3 style={{ fontSize: '1.2rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '8px' }}>
               {step === 1 ? 'Nueva Actividad / Campaña del Club' : 'Asignar Guerreros Participantes'}
             </h3>
             <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginTop: '2px' }}>
@@ -127,7 +127,7 @@ export function NewCampaignModal({ onClose, players }) {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
             <div className="form-group">
               <label>Tipo de Control</label>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '8px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: '8px' }}>
                 {CAMPAIGN_TYPES.map(t => {
                   const Icon = t.icon;
                   const active = type === t.value;
@@ -144,7 +144,7 @@ export function NewCampaignModal({ onClose, players }) {
                         textAlign: 'left',
                         borderRadius: '10px',
                         cursor: 'pointer',
-                        background: active ? 'rgba(0, 230, 118, 0.08)' : 'rgba(255,255,255,0.02)',
+                        background: active ? 'rgba(46, 229, 122, 0.08)' : 'rgba(255,255,255,0.02)',
                         border: `1px solid ${active ? t.color : 'var(--border-glass)'}`,
                         color: 'var(--color-text)',
                         transition: 'all 0.18s ease',
@@ -153,13 +153,13 @@ export function NewCampaignModal({ onClose, players }) {
                       <div style={{
                         width: '32px', height: '32px', borderRadius: '8px',
                         background: active ? t.color : 'rgba(255,255,255,0.05)',
-                        color: active ? '#05080d' : t.color,
+                        color: active ? '#06210F' : t.color,
                         display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
                       }}>
                         <Icon size={16} />
                       </div>
                       <div>
-                        <div style={{ fontSize: '0.82rem', fontWeight: 800, fontFamily: 'Outfit', color: active ? t.color : 'var(--color-text)' }}>
+                        <div style={{ fontSize: '0.82rem', fontWeight: 800, fontFamily: 'var(--font-display)', color: active ? t.color : 'var(--color-text)' }}>
                           {t.label}
                         </div>
                         <div style={{ fontSize: '0.68rem', color: 'var(--color-text-muted)', lineHeight: 1.3 }}>
@@ -172,7 +172,7 @@ export function NewCampaignModal({ onClose, players }) {
               </div>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '10px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 2fr) minmax(0, 1fr)', gap: '10px' }}>
               <div className="form-group" style={{ marginBottom: 0 }}>
                 <label>Nombre de la Campaña / Actividad</label>
                 <input
@@ -208,7 +208,7 @@ export function NewCampaignModal({ onClose, players }) {
 
             {type === 'raffle' && (
               <>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '10px' }}>
                   <div className="form-group" style={{ marginBottom: 0 }}>
                     <label>Valor por Boleta ($ COP)</label>
                     <CopInput value={ticketPrice} onChange={e => setTicketPrice(e.target.value)} placeholder="2.000" />
@@ -269,7 +269,7 @@ export function NewCampaignModal({ onClose, players }) {
             )}
 
             {type === 'food' && (
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px', padding: '12px', background: 'rgba(0,230,118,0.04)', borderRadius: '10px', border: '1px solid rgba(0,230,118,0.18)' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr)', gap: '10px', padding: '12px', background: 'rgba(46, 229, 122,0.04)', borderRadius: '10px', border: '1px solid rgba(46, 229, 122,0.18)' }}>
                 <div className="form-group" style={{ marginBottom: 0 }}>
                   <label>Precio por Unidad ($ COP)</label>
                   <CopInput value={unitPrice} onChange={e => setUnitPrice(e.target.value)} placeholder="15.000" />
@@ -280,7 +280,7 @@ export function NewCampaignModal({ onClose, players }) {
                 </div>
                 <div className="form-group" style={{ marginBottom: 0 }}>
                   <label>Meta por Jugador</label>
-                  <div style={{ padding: '10px 12px', borderRadius: '8px', background: 'rgba(0,0,0,0.35)', color: 'var(--color-primary)', fontWeight: 800, fontSize: '0.95rem', fontFamily: 'Outfit' }} className="tabular-nums">
+                  <div style={{ padding: '10px 12px', borderRadius: '8px', background: 'rgba(0,0,0,0.35)', color: 'var(--color-primary)', fontWeight: 800, fontSize: '0.95rem', fontFamily: 'var(--font-display)' }} className="tabular-nums">
                     ${computedFoodTotal.toLocaleString()} COP
                   </div>
                 </div>
@@ -288,7 +288,7 @@ export function NewCampaignModal({ onClose, players }) {
             )}
 
             {type === 'uniform' && (
-              <div style={{ padding: '14px', background: 'rgba(0, 176, 255, 0.06)', borderRadius: '10px', border: '1px solid rgba(0, 176, 255, 0.22)', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <div style={{ padding: '14px', background: 'rgba(90, 169, 255, 0.06)', borderRadius: '10px', border: '1px solid rgba(90, 169, 255, 0.22)', display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 <div className="form-group" style={{ marginBottom: 0 }}>
                   <label>Valor del Uniforme / Kit por Jugador ($ COP)</label>
                   <CopInput value={uniformPrice} onChange={e => setUniformPrice(e.target.value)} placeholder="120.000" />
@@ -355,7 +355,7 @@ export function NewCampaignModal({ onClose, players }) {
                   type="button"
                   onClick={() => { setAssignAll(false); setSelectedPlayers([]); }}
                   className="btn-outline"
-                  style={{ padding: '5px 12px', fontSize: '0.72rem', color: 'var(--color-red)', borderColor: 'rgba(255,61,0,0.3)' }}
+                  style={{ padding: '5px 12px', fontSize: '0.72rem', color: 'var(--color-red)', borderColor: 'rgba(255, 92, 77,0.3)' }}
                 >
                   <X size={13} /> Deseleccionar todos
                 </button>
@@ -383,8 +383,8 @@ export function NewCampaignModal({ onClose, players }) {
                       style={{
                         display: 'flex', alignItems: 'center', gap: '10px',
                         padding: '8px 12px', cursor: 'pointer', borderRadius: '8px',
-                        background: isSelected ? 'rgba(0, 230, 118, 0.06)' : 'rgba(255,255,255,0.01)',
-                        border: '1px solid ' + (isSelected ? 'rgba(0, 230, 118, 0.18)' : 'var(--border-glass)'),
+                        background: isSelected ? 'rgba(46, 229, 122, 0.06)' : 'rgba(255,255,255,0.01)',
+                        border: '1px solid ' + (isSelected ? 'rgba(46, 229, 122, 0.18)' : 'var(--border-glass)'),
                         transition: 'all 0.15s ease', fontSize: '0.84rem',
                       }}
                     >
@@ -397,7 +397,7 @@ export function NewCampaignModal({ onClose, players }) {
                         {p.apodo && <span style={{ fontSize: '0.72rem', color: 'var(--color-primary)', marginLeft: '6px' }}>&ldquo;{p.apodo}&rdquo;</span>}
                       </div>
                       {type === 'uniform' && (
-                        <span style={{ fontSize: '0.68rem', padding: '2px 7px', borderRadius: '5px', background: 'rgba(0,176,255,0.1)', color: 'var(--color-blue)', border: '1px solid rgba(0,176,255,0.25)' }}>
+                        <span style={{ fontSize: '0.68rem', padding: '2px 7px', borderRadius: '5px', background: 'rgba(90, 169, 255,0.1)', color: 'var(--color-blue)', border: '1px solid rgba(90, 169, 255,0.25)' }}>
                           C:{cloth.jersey || 'M'} · P:{cloth.shorts || 'M'} · M:{cloth.socks || '40-42'}
                         </span>
                       )}

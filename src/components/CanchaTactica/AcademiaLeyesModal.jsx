@@ -71,13 +71,13 @@ export function AcademiaLeyesModal({ onClose, onAwardXp }) {
         style={{ maxWidth: '820px', width: '95%', maxHeight: '92vh', overflowY: 'auto', padding: '24px' }}
       >
         {/* Cabecera */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '18px', borderBottom: '1px solid rgba(0,230,118,0.2)', paddingBottom: '12px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '18px', borderBottom: '1px solid rgba(46, 229, 122,0.2)', paddingBottom: '12px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <div style={{ background: 'rgba(0, 230, 118, 0.15)', padding: '10px', borderRadius: '12px', border: '1px solid rgba(0,230,118,0.3)' }}>
-              <OrcosBattleAxeHPostsIcon size={28} color="#00e676" />
+            <div style={{ background: 'rgba(46, 229, 122, 0.15)', padding: '10px', borderRadius: '12px', border: '1px solid rgba(46, 229, 122,0.3)' }}>
+              <OrcosBattleAxeHPostsIcon size={28} color="#2EE57A" />
             </div>
             <div>
-              <h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 900, color: '#ffffff', fontFamily: 'Outfit' }}>
+              <h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 600, color: '#ffffff' }}>
                 Academia de Rugby & Leyes FCR
               </h3>
               <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>
@@ -122,7 +122,7 @@ export function AcademiaLeyesModal({ onClose, onAwardXp }) {
 
         {/* 1. PESTAÑA: LEYES & FALTAS DIDÁCTICAS */}
         {activeTab === 'leyes' && (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '16px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 240px), 1fr))', gap: '16px' }}>
             {/* Lista lateral de lecciones */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               <span style={{ fontSize: '0.78rem', fontWeight: 800, color: 'var(--color-text-muted)', textTransform: 'uppercase' }}>
@@ -138,9 +138,9 @@ export function AcademiaLeyesModal({ onClose, onAwardXp }) {
                       textAlign: 'left',
                       padding: '10px 14px',
                       borderRadius: '8px',
-                      background: isSelected ? 'rgba(0, 230, 118, 0.15)' : 'rgba(255, 255, 255, 0.03)',
-                      border: isSelected ? '1px solid #00e676' : '1px solid rgba(255, 255, 255, 0.07)',
-                      color: isSelected ? '#00e676' : '#e2e8f0',
+                      background: isSelected ? 'rgba(46, 229, 122, 0.15)' : 'rgba(255, 255, 255, 0.03)',
+                      border: isSelected ? '1px solid #2EE57A' : '1px solid rgba(255, 255, 255, 0.07)',
+                      color: isSelected ? '#2EE57A' : '#e2e8f0',
                       cursor: 'pointer',
                       transition: 'all 0.15s ease',
                       fontSize: '0.82rem',
@@ -160,7 +160,7 @@ export function AcademiaLeyesModal({ onClose, onAwardXp }) {
             </div>
 
             {/* Detalle didáctico de la lección seleccionada */}
-            <div style={{ background: 'rgba(8, 20, 32, 0.8)', border: '1px solid rgba(0, 230, 118, 0.3)', borderRadius: '14px', padding: '20px' }}>
+            <div style={{ background: 'rgba(20, 23, 21, 0.8)', border: '1px solid rgba(46, 229, 122, 0.3)', borderRadius: '14px', padding: '20px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '14px' }}>
                 <div>
                   <span style={{ fontSize: '0.75rem', fontWeight: 800, color: selectedLesson.color, background: `${selectedLesson.color}20`, padding: '3px 8px', borderRadius: '6px', border: `1px solid ${selectedLesson.color}40` }}>
@@ -173,30 +173,30 @@ export function AcademiaLeyesModal({ onClose, onAwardXp }) {
                 <div style={{ padding: '8px', background: 'rgba(255,255,255,0.05)', borderRadius: '8px' }}>
                   {selectedLesson.id === 'tackle_alto' && <OrcosCardIcon type="red" size={28} />}
                   {selectedLesson.id === 'scrum_colapso' && <OrcosTackleShieldIcon size={28} color="#ff9100" />}
-                  {selectedLesson.id === 'offside_ruck' && <OrcosWhistleIcon size={28} color="#ffd740" />}
+                  {selectedLesson.id === 'offside_ruck' && <OrcosWhistleIcon size={28} color="#E8B931" />}
                   {selectedLesson.id === 'knock_on' && <OrcosRugbyBallIcon size={28} color="#38bdf8" />}
-                  {selectedLesson.id === 'not_releasing' && <OrcosTackleShieldIcon size={28} color="#00e676" />}
+                  {selectedLesson.id === 'not_releasing' && <OrcosTackleShieldIcon size={28} color="#2EE57A" />}
                   {selectedLesson.id === 'crossing_pantalla' && <OrcosWhistleIcon size={28} color="#a855f7" />}
                 </div>
               </div>
 
               {/* Infracción */}
               <div style={{ marginBottom: '14px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#ff5252', fontSize: '0.85rem', fontWeight: 800, marginBottom: '4px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#FF5C4D', fontSize: '0.85rem', fontWeight: 800, marginBottom: '4px' }}>
                   <AlertTriangle size={15} />
                   <span>¿Cómo se comete la Infracción?</span>
                 </div>
                 <p style={{ margin: 0, fontSize: '0.82rem', color: '#cbd5e1', lineHeight: 1.5 }}>
                   {selectedLesson.infractionDesc}
                 </p>
-                <div style={{ marginTop: '6px', fontSize: '0.78rem', color: '#ffd740', fontWeight: 700 }}>
+                <div style={{ marginTop: '6px', fontSize: '0.78rem', color: '#E8B931', fontWeight: 700 }}>
                   ⚖️ Sanción Reglamentaria: {selectedLesson.sanction}
                 </div>
               </div>
 
               {/* Técnica Correcta */}
-              <div style={{ background: 'rgba(0, 230, 118, 0.08)', border: '1px solid rgba(0, 230, 118, 0.25)', borderRadius: '10px', padding: '14px', marginBottom: '14px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#00e676', fontSize: '0.85rem', fontWeight: 800, marginBottom: '4px' }}>
+              <div style={{ background: 'rgba(46, 229, 122, 0.08)', border: '1px solid rgba(46, 229, 122, 0.25)', borderRadius: '10px', padding: '14px', marginBottom: '14px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#2EE57A', fontSize: '0.85rem', fontWeight: 800, marginBottom: '4px' }}>
                   <CheckCircle2 size={15} />
                   <span>{selectedLesson.correctTechniqueTitle}</span>
                 </div>
@@ -217,7 +217,7 @@ export function AcademiaLeyesModal({ onClose, onAwardXp }) {
 
         {/* 2. PESTAÑA: EXAMEN DE LEYES (QUIZ INTERACTIVO) */}
         {activeTab === 'quiz' && (
-          <div style={{ background: 'rgba(8, 20, 32, 0.8)', border: '1px solid rgba(255, 215, 64, 0.3)', borderRadius: '14px', padding: '24px' }}>
+          <div style={{ background: 'rgba(20, 23, 21, 0.8)', border: '1px solid rgba(255, 215, 64, 0.3)', borderRadius: '14px', padding: '24px' }}>
             {!quizFinished ? (
               <div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
@@ -243,13 +243,13 @@ export function AcademiaLeyesModal({ onClose, onAwardXp }) {
 
                     if (showAnswerFeedback) {
                       if (isCorrect) {
-                        bg = 'rgba(0, 230, 118, 0.2)';
-                        border = '1px solid #00e676';
-                        textCol = '#00e676';
+                        bg = 'rgba(46, 229, 122, 0.2)';
+                        border = '1px solid #2EE57A';
+                        textCol = '#2EE57A';
                       } else if (isSelected) {
-                        bg = 'rgba(255, 23, 68, 0.2)';
-                        border = '1px solid #ff1744';
-                        textCol = '#ff1744';
+                        bg = 'rgba(255, 92, 77, 0.2)';
+                        border = '1px solid #FF5C4D';
+                        textCol = '#FF5C4D';
                       }
                     }
 
@@ -277,9 +277,9 @@ export function AcademiaLeyesModal({ onClose, onAwardXp }) {
                 </div>
 
                 {showAnswerFeedback && (
-                  <div style={{ background: 'rgba(0, 0, 0, 0.4)', padding: '12px 16px', borderRadius: '8px', marginBottom: '18px', borderLeft: '3px solid #00e676' }}>
+                  <div style={{ background: 'rgba(0, 0, 0, 0.4)', padding: '12px 16px', borderRadius: '8px', marginBottom: '18px', borderLeft: '3px solid #2EE57A' }}>
                     <div style={{ fontSize: '0.8rem', color: '#94a3b8' }}>
-                      <strong style={{ color: '#00e676' }}>Explicación Oficial: </strong>
+                      <strong style={{ color: '#2EE57A' }}>Explicación Oficial: </strong>
                       {ACADEMY_QUIZ_QUESTIONS[currentQIndex].explanation}
                     </div>
                   </div>
@@ -298,7 +298,7 @@ export function AcademiaLeyesModal({ onClose, onAwardXp }) {
                 <div style={{ fontSize: '3rem', marginBottom: '10px' }}>
                   {score >= 4 ? '🏆' : '📚'}
                 </div>
-                <h3 style={{ fontSize: '1.4rem', fontWeight: 900, color: score >= 4 ? '#00e676' : '#ffd740', marginBottom: '6px' }}>
+                <h3 style={{ fontSize: '1.4rem', fontWeight: 900, color: score >= 4 ? '#2EE57A' : '#E8B931', marginBottom: '6px' }}>
                   {score >= 4 ? '¡Aprobaste el Examen de Leyes FCR!' : 'Buen intento, ¡continúa repasando las Leyes!'}
                 </h3>
                 <p style={{ color: 'var(--color-text-muted)', fontSize: '0.88rem', marginBottom: '20px' }}>
@@ -339,12 +339,12 @@ export function AcademiaLeyesModal({ onClose, onAwardXp }) {
               </p>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '14px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 260px), 1fr))', gap: '14px' }}>
               {WORLD_RUGBY_CERTIFICATIONS.map(cert => (
                 <div
                   key={cert.id}
                   style={{
-                    background: 'rgba(10, 20, 30, 0.7)',
+                    background: 'rgba(20, 23, 21, 0.7)',
                     border: '1px solid rgba(255, 255, 255, 0.08)',
                     borderRadius: '12px',
                     padding: '16px',
@@ -356,7 +356,7 @@ export function AcademiaLeyesModal({ onClose, onAwardXp }) {
                 >
                   <div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                      <span style={{ fontSize: '0.7rem', fontWeight: 800, color: '#00e676', background: 'rgba(0, 230, 118, 0.15)', padding: '2px 8px', borderRadius: '4px' }}>
+                      <span style={{ fontSize: '0.7rem', fontWeight: 800, color: '#2EE57A', background: 'rgba(46, 229, 122, 0.15)', padding: '2px 8px', borderRadius: '4px' }}>
                         {cert.badge}
                       </span>
                       <span style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)' }}>

@@ -47,7 +47,7 @@ export function MembershipCard({ player, getMembershipStatus, onRequestConfirm, 
     <div style={{
       display: 'flex', flexDirection: 'column', gap: '12px',
       padding: '18px', background: 'rgba(255,255,255,0.01)',
-      border: '1px solid ' + (status.color === 'var(--color-red)' ? 'rgba(255, 61, 0, 0.2)' : 'var(--border-glass)'),
+      border: '1px solid ' + (status.color === 'var(--color-red)' ? 'rgba(255, 92, 77, 0.2)' : 'var(--border-glass)'),
       borderRadius: 'var(--radius-md)'
     }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>

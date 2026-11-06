@@ -23,7 +23,7 @@ function HiaSection({ onHiaSubmit }) {
         <button
           onClick={() => setShowForm(!showForm)}
           className="btn-outline"
-          style={{ padding: '3px 6px', fontSize: '0.7rem', color: 'var(--color-red)', borderColor: 'rgba(255, 61, 0, 0.2)' }}
+          style={{ padding: '3px 6px', fontSize: '0.7rem', color: 'var(--color-red)', borderColor: 'rgba(255, 92, 77, 0.2)' }}
         >
           {showForm ? 'Cerrar' : 'Correr Test'}
         </button>
@@ -66,7 +66,7 @@ function HiaSection({ onHiaSubmit }) {
               justifyContent: 'center',
               background: 'linear-gradient(135deg, var(--color-red), #d50000)',
               color: '#fff',
-              boxShadow: '0 2px 8px rgba(255, 61, 0, 0.2)'
+              boxShadow: '0 2px 8px rgba(255, 92, 77, 0.2)'
             }}
           >
             Confirmar Diagnostico HIA

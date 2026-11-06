@@ -32,7 +32,7 @@ function TrainingHub() {
 
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '15px' }}>
         <div>
-          <h2 style={{ fontSize: '1.5rem', fontWeight: 800, fontFamily: 'Outfit, sans-serif' }} className="neon-text-primary">
+          <h2 style={{ fontSize: '1.5rem', fontWeight: 800, fontFamily: 'var(--font-display)' }} className="neon-text-primary">
             Centro de Entrenamientos Especificos
           </h2>
           <p style={{ color: 'var(--color-text-muted)', fontSize: '0.85rem' }}>

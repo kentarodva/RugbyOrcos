@@ -30,7 +30,7 @@ export default function ExercisePreviewModal({ exercise, onClose, onAddToRoutine
         style={{ maxWidth: '560px', maxHeight: '85vh', overflowY: 'auto', padding: '24px' }}>
         
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-          <h3 style={{ fontSize: '1rem', fontWeight: 800, fontFamily: 'Outfit', color: 'var(--color-primary)' }}>
+          <h3 style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--color-text)' }}>
             {ex.name_local}
           </h3>
           <button onClick={onClose} className="btn-outline" style={{ padding: '4px 10px', fontSize: '0.75rem' }}>✕</button>

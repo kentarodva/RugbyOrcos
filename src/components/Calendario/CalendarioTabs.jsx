@@ -12,7 +12,7 @@ const TABS = [
 
 function CalendarioTabs({ activeTab, onChange, hasActiveMatch }) {
   return (
-    <div style={{ borderBottom: '1px solid var(--border-glass)', paddingBottom: '14px', marginBottom: '20px', display: 'flex', flexWrap: 'wrap', alignItems: 'center' }}>
+    <div style={{ marginBottom: '16px', width: '100%', minWidth: 0 }}>
       <div className="pro-subtabs">
         {TABS.map(tab => {
           const isLive = tab.live && hasActiveMatch;
@@ -26,7 +26,7 @@ function CalendarioTabs({ activeTab, onChange, hasActiveMatch }) {
               style={isLive && !isActive ? { color: 'var(--color-red)', animation: 'pulse 2s infinite' } : undefined}
             >
               {isLive ? (
-                <span style={{ display: 'inline-block', width: '8px', height: '8px', borderRadius: '50%', background: isActive ? '#05080d' : 'var(--color-red)' }} />
+                <span style={{ display: 'inline-block', width: '8px', height: '8px', borderRadius: '50%', background: isActive ? '#06210F' : 'var(--color-red)' }} />
               ) : (
                 <Icon size={15} />
               )}

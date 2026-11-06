@@ -1,5 +1,5 @@
-import React, { useState, useContext, useMemo } from 'react';
-import { Dumbbell, CircleDot, ClipboardList, MapPin, Calendar, CalendarDays } from 'lucide-react';
+import React, { useContext, useMemo } from 'react';
+import { Dumbbell, CircleDot, ClipboardList, MapPin } from 'lucide-react';
 import { ClubContext } from '../../context/ClubContext';
 import { useFilterByView } from '../../context/hooks/useFilterByView';
 import { formatLocalDate } from '../../utils/dates.js';
@@ -33,9 +33,8 @@ function sameDay(d1, d2) {
     d1.getDate() === d2.getDate();
 }
 
-function AgendaSemanal() {
+function AgendaSemanal({ onNavigate }) {
   const { schedule, futureFixtures } = useContext(ClubContext);
-  const [viewMode_, setViewMode_] = useState('weekly');
   const filterByView = useFilterByView();
 
   const filteredSchedule = useMemo(() => {
@@ -85,179 +84,99 @@ function AgendaSemanal() {
     })),
   ].sort((a, b) => new Date(a.date + 'T' + (a.time || '00:00')) - new Date(b.date + 'T' + (b.time || '00:00')));
 
-  const upcomingByDate = useMemo(() => {
-    const groups = {};
-    for (const e of allUpcoming) {
-      if (!groups[e.date]) groups[e.date] = [];
-      groups[e.date].push(e);
-    }
-    return Object.entries(groups).sort(([a], [b]) => a.localeCompare(b));
-  }, [allUpcoming]);
-
   const totalEvents = allUpcoming.length;
+  const nextEvents = allUpcoming.slice(0, 4);
 
   return (
-    <div className="glass-panel" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '15px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
-        <h3 style={{ fontSize: '1.1rem', fontWeight: 700, fontFamily: 'Outfit', color: 'var(--color-primary)' }}>
-          <Calendar size={20} style={{ verticalAlign: 'middle', marginRight: 4 }} /> Agenda de la Semana
-        </h3>
-        <div style={{ display: 'flex', gap: '4px', background: 'rgba(255,255,255,0.04)', borderRadius: '8px', padding: '3px' }}>
-          <button
-            onClick={() => setViewMode_('weekly')}
-            style={{
-              padding: '6px 14px', border: 'none', borderRadius: '6px', cursor: 'pointer',
-              background: viewMode_ === 'weekly' ? 'var(--color-primary)' : 'transparent',
-              color: viewMode_ === 'weekly' ? '#000' : 'var(--text-secondary)',
-              fontWeight: viewMode_ === 'weekly' ? 700 : 500,
-              fontSize: '0.78rem', transition: 'all 0.2s',
-            }}
-          >
-            <CalendarDays size={16} style={{ verticalAlign: 'middle', marginRight: 4 }} /> Semana
+    <section style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: '10px' }}>
+        <h3 className="section-title">Esta semana</h3>
+        {onNavigate && (
+          <button type="button" className="link-btn" onClick={() => onNavigate('calendario')}>
+            Ver agenda
           </button>
-          <button
-            onClick={() => setViewMode_('list')}
-            style={{
-              padding: '6px 14px', border: 'none', borderRadius: '6px', cursor: 'pointer',
-              background: viewMode_ === 'list' ? 'var(--color-primary)' : 'transparent',
-              color: viewMode_ === 'list' ? '#000' : 'var(--text-secondary)',
-              fontWeight: viewMode_ === 'list' ? 700 : 500,
-              fontSize: '0.78rem', transition: 'all 0.2s',
-            }}
-          >
-            <ClipboardList size={16} style={{ verticalAlign: 'middle', marginRight: 4 }} /> Lista ({totalEvents})
-          </button>
-        </div>
+        )}
       </div>
 
-      {viewMode_ === 'weekly' ? (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: '6px' }}>
-          {weekDays.map(day => {
-            const all = [...day.events, ...day.fixtures.map(f => ({
-              ...f, title: `PARTIDO vs ${f.opponent}`, time: f.time || '', type: 'partido',
-            }))];
+      <div className="glass-panel" style={{ overflow: 'hidden' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, minmax(0, 1fr))', gap: '2px', padding: '8px' }}>
+          {weekDays.map((day) => {
+            const count = day.events.length + day.fixtures.length;
+            const hasMatch = day.fixtures.length > 0 || day.events.some((e) => e.type === 'partido');
             return (
               <div
                 key={day.dateStr}
+                aria-label={`${DIAS[day.date.getDay() === 0 ? 6 : day.date.getDay() - 1]} ${day.date.getDate()}: ${count} eventos`}
                 style={{
-                  background: day.isToday ? 'rgba(0,230,118,0.08)' : 'rgba(255,255,255,0.02)',
-                  border: day.isToday ? '1px solid var(--color-primary)' : '1px solid var(--border-glass)',
-                  borderRadius: 'var(--radius-sm)',
-                  padding: '8px',
+                  height: '58px',
+                  borderRadius: '10px',
                   display: 'flex',
                   flexDirection: 'column',
-                  gap: '4px',
-                  minHeight: '100px',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '3px',
+                  background: day.isToday ? 'var(--color-primary)' : 'transparent',
+                  color: day.isToday ? 'var(--color-on-primary)' : 'var(--color-text-soft)',
                 }}
               >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span style={{
-                    fontSize: '0.7rem', fontWeight: 700, fontFamily: 'Outfit',
-                    color: day.isToday ? 'var(--color-primary)' : 'var(--text-secondary)',
-                    textTransform: 'uppercase',
-                  }}>
-                    {DIAS[day.date.getDay() === 0 ? 6 : day.date.getDay() - 1]}
-                  </span>
-                  <span style={{
-                    fontSize: '0.7rem', fontWeight: 700, fontFamily: 'Outfit',
-                    color: day.isToday ? '#000' : 'var(--text-primary)',
-                    background: day.isToday ? 'var(--color-primary)' : 'transparent',
-                    borderRadius: '50%',
-                    width: '22px', height: '22px',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  }}>
-                    {day.date.getDate()}
-                  </span>
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', flex: 1 }}>
-                  {all.length === 0 ? (
-                    <span style={{ fontSize: '0.6rem', color: 'var(--text-secondary)', opacity: 0.5, textAlign: 'center', marginTop: '8px' }}>
-                      —
-                    </span>
-                  ) : (
-                    all.slice(0, 3).map((e, i) => (
-                      <div key={i} style={{
-                        fontSize: '0.62rem',
-                        padding: '2px 4px',
-                        background: e.type === 'partido' ? 'rgba(255,179,0,0.1)' : 'rgba(0,230,118,0.08)',
-                        borderRadius: '3px',
-                        whiteSpace: 'nowrap',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        color: e.type === 'partido' ? '#ffd740' : 'var(--color-primary)',
-                      }}>
-                        <EventIcon type={e.type} size={12} /> {e.time ? e.time + ' ' : ''}{e.title}
-                      </div>
-                    ))
-                  )}
-                  {all.length > 3 && (
-                    <span style={{ fontSize: '0.6rem', color: 'var(--text-secondary)', textAlign: 'center' }}>
-                      +{all.length - 3} más
-                    </span>
-                  )}
-                </div>
+                <span style={{ fontSize: '0.6875rem', fontWeight: 600, opacity: 0.85 }}>
+                  {DIAS[day.date.getDay() === 0 ? 6 : day.date.getDay() - 1].charAt(0)}
+                </span>
+                <span className="stat-number" style={{ fontSize: '1.2rem' }}>{day.date.getDate()}</span>
+                <span
+                  aria-hidden="true"
+                  style={{
+                    width: '5px', height: '5px', borderRadius: '99px',
+                    background: count === 0 ? 'transparent' : day.isToday ? 'var(--color-on-primary)' : hasMatch ? 'var(--color-gold)' : 'var(--color-primary)',
+                  }}
+                />
               </div>
             );
           })}
         </div>
-      ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+
+        <div style={{ borderTop: '1px solid var(--border-glass)' }}>
           {totalEvents === 0 ? (
-            <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', textAlign: 'center', padding: '20px 0' }}>
-              No hay entrenamientos ni partidos agendados para esta categoria.
+            <p style={{ fontSize: '0.875rem', color: 'var(--color-text-muted)', padding: '16px', textAlign: 'center' }}>
+              Nada agendado por ahora.
             </p>
           ) : (
-            upcomingByDate.map(([dateStr, events]) => {
-              const d = new Date(dateStr + 'T00:00:00');
-              const isToday = sameDay(d, today);
+            nextEvents.map((e, i) => {
+              const d = new Date(e.date + 'T00:00:00');
+              const isMatch = e.type === 'partido';
               return (
-                <div key={dateStr}>
-                  <div style={{
-                    fontSize: '0.72rem', fontWeight: 700, fontFamily: 'Outfit',
-                    color: isToday ? 'var(--color-primary)' : 'var(--text-secondary)',
-                    textTransform: 'uppercase', marginBottom: '6px',
-                    paddingBottom: '4px', borderBottom: '1px solid var(--border-glass)',
-                  }}>
-                    {DIAS[d.getDay() === 0 ? 6 : d.getDay() - 1]} {formatLocalDate(d, { day: 'numeric', month: 'short' })}
-                    {isToday && ' · HOY'}
+                <div
+                  key={`${e.date}-${i}`}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: '14px', padding: '12px 14px',
+                    borderTop: i === 0 ? 'none' : '1px solid var(--border-glass)',
+                  }}
+                >
+                  <div style={{ width: '40px', textAlign: 'center', flexShrink: 0, color: sameDay(d, today) ? 'var(--color-primary)' : 'var(--color-text)' }}>
+                    <div style={{ fontSize: '0.6875rem', fontWeight: 600, color: 'inherit', opacity: 0.8, textTransform: 'uppercase' }}>
+                      {DIAS[d.getDay() === 0 ? 6 : d.getDay() - 1]}
+                    </div>
+                    <div className="stat-number" style={{ fontSize: '1.375rem' }}>{d.getDate()}</div>
                   </div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                    {events.map((e, i) => (
-                      <div key={i} style={{
-                        padding: '10px 12px',
-                        background: 'rgba(255,255,255,0.02)',
-                        border: '1px solid var(--border-glass)',
-                        borderRadius: 'var(--radius-sm)',
-                        display: 'flex', gap: '10px', alignItems: 'center',
-                      }}>
-                        <div style={{
-                          width: '36px', height: '36px',
-                          borderRadius: 'var(--radius-sm)',
-                          background: e.type === 'partido' ? 'rgba(255,179,0,0.1)' : 'rgba(0,230,118,0.1)',
-                          border: '1px solid rgba(255,255,255,0.05)',
-                          display: 'flex', justifyContent: 'center', alignItems: 'center',
-                          fontSize: '1rem', flexShrink: 0,
-                        }}>
-                          <EventIcon type={e.type} size={18} />
-                        </div>
-                        <div style={{ flex: 1, minWidth: 0 }}>
-                          <h4 style={{ fontSize: '0.85rem', fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                            {e.title}
-                          </h4>
-                          <p style={{ fontSize: '0.72rem', color: 'var(--text-secondary)', marginTop: '2px' }}>
-                            {e.time ? `${e.time} · ` : ''}{e.location || ''}
-                          </p>
-                        </div>
-                      </div>
-                    ))}
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: '0.9375rem', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      {isMatch && e._type === 'future' ? `Partido vs ${e.opponent}` : e.title}
+                    </div>
+                    <div style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <EventIcon type={e.type} size={13} />
+                      <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        {[e.time, e.location].filter(Boolean).join(' · ') || formatLocalDate(d, { day: 'numeric', month: 'short' })}
+                      </span>
+                    </div>
                   </div>
+                  {isMatch && <span className="badge badge-gold">Partido</span>}
                 </div>
               );
             })
           )}
         </div>
-      )}
-    </div>
+      </div>
+    </section>
   );
 }
 

@@ -16,7 +16,7 @@ export function StandingsTable({ standings }) {
 
   return (
     <div className="glass-panel" style={{ padding: '20px', borderRadius: 'var(--radius-md)', overflowX: 'auto' }}>
-      <h4 style={{ color: 'var(--color-gold)', marginBottom: '15px', fontFamily: 'Outfit' }}>Tabla de Posiciones</h4>
+      <h4 style={{ color: 'var(--color-gold)', marginBottom: '15px', fontFamily: 'var(--font-display)' }}>Tabla de Posiciones</h4>
       <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
         <thead>
           <tr style={{ borderBottom: '1px solid var(--border-glass)', textAlign: 'left' }}>
@@ -28,18 +28,18 @@ export function StandingsTable({ standings }) {
             return (
               <tr key={s.id} style={{
                 borderBottom: '1px solid rgba(255,255,255,0.05)',
-                background: i === 0 ? 'rgba(255,179,0,0.05)' : undefined,
+                background: i === 0 ? 'rgba(232, 185, 49,0.05)' : undefined,
                 transition: 'background 0.3s ease',
               }}>
                 <td style={STYLE.td}>{s.currentPos}</td>
                 <td style={{...STYLE.td, fontWeight: 700}}>
                   {s.makgora_teams?.rpg_name || s.makgora_teams?.name || '—'}
-                  {s.makgora_teams?.is_external && <span style={{ fontSize: '0.55rem', padding: '1px 5px', borderRadius: '4px', background: 'rgba(255,179,0,0.15)', color: '#ffb300', marginLeft: '6px', verticalAlign: 'middle' }}>Invitado</span>}
+                  {s.makgora_teams?.is_external && <span style={{ fontSize: '0.55rem', padding: '1px 5px', borderRadius: '4px', background: 'rgba(232, 185, 49,0.15)', color: '#E8B931', marginLeft: '6px', verticalAlign: 'middle' }}>Invitado</span>}
                 </td>
                 <td style={STYLE.td}>{s.played}</td><td style={STYLE.td}>{s.won}</td><td style={STYLE.td}>{s.drawn}</td><td style={STYLE.td}>{s.lost}</td>
                 <td style={STYLE.td}>{s.points_for}</td><td style={STYLE.td}>{s.points_against}</td><td style={STYLE.td}>{s.point_diff}</td>
                 <td style={STYLE.td}>{s.bonus_points}</td><td style={{...STYLE.td, fontWeight: 800, color: 'var(--color-gold)'}}>{s.total_points}</td>
-                <td style={{...STYLE.td, fontSize: '0.9rem', color: s.trend === TREND_UP ? '#00e676' : s.trend === TREND_DOWN ? '#ff3d00' : 'var(--color-text-muted)'}}>{s.trend}</td>
+                <td style={{...STYLE.td, fontSize: '0.9rem', color: s.trend === TREND_UP ? '#2EE57A' : s.trend === TREND_DOWN ? '#FF5C4D' : 'var(--color-text-muted)'}}>{s.trend}</td>
               </tr>
             );
           })}

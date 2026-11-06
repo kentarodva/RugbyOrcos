@@ -4,9 +4,9 @@ import { SUPLENTES } from './constants';
 function BenchPanel({ lineup, teamPlayers, onSlotClick }) {
   return (
     <div className="glass-panel" style={{ padding: '20px' }}>
-      <h3 style={{ fontSize: '1.1rem', fontWeight: 700, fontFamily: 'Outfit', marginBottom: '15px' }}>Banquillo de Suplentes (Banca)</h3>
+      <h3 style={{ fontSize: '1.1rem', fontWeight: 600, marginBottom: '15px' }}>Banquillo de Suplentes (Banca)</h3>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '10px' }}>
         {SUPLENTES.map(sup => {
           const assignedPlayerId = lineup[sup.id];
           const player = teamPlayers.find(p => p.id === assignedPlayerId);
@@ -16,7 +16,7 @@ function BenchPanel({ lineup, teamPlayers, onSlotClick }) {
               key={sup.id}
               onClick={() => onSlotClick(sup.id, sup.name)}
               style={{
-                background: player ? 'rgba(0, 230, 118, 0.03)' : 'var(--bg-dark)',
+                background: player ? 'rgba(46, 229, 122, 0.03)' : 'var(--bg-dark)',
                 border: player ? '1px solid var(--color-primary)' : '1px solid var(--border-glass)',
                 padding: '8px 12px',
                 borderRadius: 'var(--radius-sm)',

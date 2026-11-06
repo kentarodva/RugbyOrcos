@@ -56,9 +56,9 @@ export function TournamentStats({ tournament }) {
 
   return (
     <div className="glass-panel" style={{ padding: '20px', borderRadius: 'var(--radius-md)', marginBottom: '20px' }}>
-      <h4 style={{ color: 'var(--color-gold)', marginBottom: '15px', fontFamily: 'Outfit' }}>Estadísticas del Torneo</h4>
+      <h4 style={{ color: 'var(--color-gold)', marginBottom: '15px', fontFamily: 'var(--font-display)' }}>Estadísticas del Torneo</h4>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '15px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 200px), 1fr))', gap: '15px' }}>
         <div>
           <h5 style={{ color: 'var(--color-text)', fontSize: '0.8rem', marginBottom: '8px' }}>Top Tries</h5>
           {topTries.map((s, i) => (

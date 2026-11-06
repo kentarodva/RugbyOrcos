@@ -1,7 +1,7 @@
 import React, { useRef } from 'react';
 
 const TEAM_COLORS = {
-  orcos: '#065f46', cuervo: '#1f2937', cuervos: '#1f2937',
+  orcos: '#065f46', cuervo: '#2A2D2B', cuervos: '#2A2D2B',
   troll: '#1e3a5f', trolls: '#1e3a5f',
   gargola: '#3b1f54', gargolas: '#3b1f54',
   pitbull: '#431407',

@@ -1,7 +1,7 @@
 export const LOAN_STATUS_COLORS = {
-  pending: '#ffb300',
-  approved: '#00e676',
-  rejected: '#ff3d00',
+  pending: '#E8B931',
+  approved: '#2EE57A',
+  rejected: '#FF5C4D',
   returned: '#9e9e9e',
   cancelled: '#9e9e9e'
 };
@@ -16,9 +16,9 @@ export const LOAN_STATUS_LABELS = {
 
 export const TOURNAMENT_STATUS_MAP = {
   proximo: { label: 'Proximo', color: '#9e9e9e' },
-  en_curso: { label: 'En Curso', color: '#ffb300' },
-  finalizado: { label: 'Finalizado', color: '#00e676' },
-  cancelado: { label: 'Cancelado', color: '#ff3d00' }
+  en_curso: { label: 'En Curso', color: '#E8B931' },
+  finalizado: { label: 'Finalizado', color: '#2EE57A' },
+  cancelado: { label: 'Cancelado', color: '#FF5C4D' }
 };
 
 export const STYLE = {
@@ -32,5 +32,5 @@ export const STYLE = {
 export const TABS = [
   { id: 'teams', label: 'Equipos' },
   { id: 'tournaments', label: 'Torneos' },
-  { id: 'loans', label: 'Prestamos' }
+  { id: 'loans', label: 'Préstamos' }
 ];

@@ -5,6 +5,8 @@ import { useToast } from '../context/ToastContext.jsx';
 import { formatLocalDate } from '../utils/dates.js';
 import { getRpgRole } from '../context/constants';
 import { parseSupabaseError } from '../utils/errorHandler';
+import { useIsMobile } from '../hooks/useIsMobile';
+import { ChevronLeft } from 'lucide-react';
 
 const emitMsg = (action, payload = {}) => {
   window.dispatchEvent(new CustomEvent('data:changed', {
@@ -42,6 +44,7 @@ function Messages() {
   const { showToast } = useToast();
   const [conversations, setConversations] = useState([]);
   const [activeChat, setActiveChat] = useState(null);
+  const isMobile = useIsMobile();
   const [messages, setMessages] = useState([]);
   const [newText, setNewText] = useState('');
   const [staffUsers, setStaffUsers] = useState([]);
@@ -310,13 +313,13 @@ function Messages() {
   };
 
   return (
-    <div className="animated-fade" style={{ display: 'flex', gap: '15px', height: 'calc(100vh - 280px)', minHeight: '400px' }}>
+    <div className="animated-fade" style={{ display: 'flex', gap: '12px', height: isMobile ? 'calc(100dvh - 180px)' : 'calc(100vh - 200px)', minHeight: '400px' }}>
       {/* Panel de conversaciones */}
-      <div className="glass-panel" style={{ width: '280px', flexShrink: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+      <div className="glass-panel" style={{ width: isMobile ? '100%' : '300px', flexShrink: 0, display: isMobile && activeChat ? 'none' : 'flex', flexDirection: 'column', overflow: 'hidden' }}>
         <div style={{ padding: '12px', borderBottom: '1px solid var(--border-glass)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <h3 style={{ fontSize: '0.9rem', fontWeight: 700, fontFamily: 'Outfit', color: 'var(--color-gold)' }}>💬 Mensajes</h3>
-          <button onClick={() => setShowNewChat(!showNewChat)} className="btn-outline" style={{ padding: '4px 8px', fontSize: '0.7rem' }}>
-            +
+          <h3 style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--color-text)' }}>Mensajes</h3>
+          <button onClick={() => setShowNewChat(!showNewChat)} className="icon-btn" aria-label="Nueva conversación" aria-expanded={showNewChat}>
+            <span aria-hidden="true" style={{ fontSize: '1.4rem', lineHeight: 1 }}>+</span>
           </button>
         </div>
 
@@ -333,8 +336,8 @@ function Messages() {
         )}
 
         {canAnnounce && <button onClick={() => setShowAnnounceForm(!showAnnounceForm)} className="btn-outline"
-          style={{ margin: '8px 12px', padding: '8px', fontSize: '0.75rem', borderColor: 'var(--color-gold)', color: 'var(--color-gold)', justifyContent: 'center' }}>
-          📢 {showAnnounceForm ? 'Cancelar' : 'Nuevo Anuncio'}
+          style={{ margin: '8px 12px', padding: '8px', fontSize: '0.8125rem', justifyContent: 'center' }}>
+          📢 {showAnnounceForm ? 'Cancelar' : 'Nuevo anuncio'}
         </button>}
 
         {canAnnounce && showAnnounceForm && (
@@ -367,7 +370,7 @@ function Messages() {
               <div key={c.id} onClick={() => openChat(c.id)}
                 style={{
                   padding: '10px 12px', cursor: 'pointer', borderBottom: '1px solid rgba(255,255,255,0.03)',
-                  background: activeChat?.id === c.id ? 'rgba(0,230,118,0.05)' : 'transparent',
+                  background: activeChat?.id === c.id ? 'rgba(46, 229, 122,0.05)' : 'transparent',
                 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3px' }}>
                   <span style={{ fontWeight: 700, fontSize: '0.8rem', color: 'var(--color-text)' }}>
@@ -392,15 +395,20 @@ function Messages() {
       </div>
 
       {/* Panel de chat */}
-      <div className="glass-panel" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+      <div className="glass-panel" style={{ flex: 1, minWidth: 0, display: isMobile && !activeChat ? 'none' : 'flex', flexDirection: 'column', overflow: 'hidden' }}>
         {!activeChat ? (
           <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-text-muted)', fontSize: '0.85rem' }}>
             Selecciona una conversación
           </div>
         ) : (
           <>
-            <div style={{ padding: '12px 15px', borderBottom: '1px solid var(--border-glass)' }}>
-              <span style={{ fontWeight: 700, fontSize: '0.85rem', color: 'var(--color-gold)', fontFamily: 'Outfit' }}>
+            <div style={{ padding: '6px 12px', minHeight: '52px', display: 'flex', alignItems: 'center', gap: '4px', borderBottom: '1px solid var(--border-glass)' }}>
+              {isMobile && (
+                <button type="button" className="icon-btn" aria-label="Volver a conversaciones" onClick={() => setActiveChat(null)}>
+                  <ChevronLeft size={22} />
+                </button>
+              )}
+              <span style={{ fontWeight: 600, fontSize: '1rem', color: 'var(--color-text)' }}>
                 {getDisplayName(activeChat.id)}
               </span>
             </div>
@@ -413,8 +421,8 @@ function Messages() {
                     maxWidth: '75%',
                     padding: '8px 12px',
                     borderRadius: '12px',
-                    background: isOwn ? 'rgba(0,230,118,0.1)' : 'var(--bg-surface-solid)',
-                    border: `1px solid ${isOwn ? 'rgba(0,230,118,0.2)' : 'var(--border-glass)'}`,
+                    background: isOwn ? 'rgba(46, 229, 122,0.1)' : 'var(--bg-surface-solid)',
+                    border: `1px solid ${isOwn ? 'rgba(46, 229, 122,0.2)' : 'var(--border-glass)'}`,
                     fontSize: '0.82rem',
                     color: 'var(--color-text)',
                     lineHeight: 1.4,
@@ -449,7 +457,7 @@ function Messages() {
                         return (
                           <button key={emoji} onClick={() => toggleReaction(msg.id, emoji)}
                             style={{
-                              background: active ? 'rgba(0,230,118,0.1)' : 'transparent',
+                              background: active ? 'rgba(46, 229, 122,0.1)' : 'transparent',
                               border: `1px solid ${active ? 'var(--color-primary)' : 'var(--border-glass)'}`,
                               borderRadius: '10px', padding: '1px 5px', cursor: 'pointer',
                               fontSize: '0.65rem', display: 'flex', alignItems: 'center', gap: '2px',
@@ -467,7 +475,7 @@ function Messages() {
             </div>
             <div style={{ padding: '10px', borderTop: '1px solid var(--border-glass)', display: 'flex', flexDirection: 'column', gap: '6px' }}>
               {previewFile && (
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '4px 8px', background: 'rgba(0,230,118,0.05)', borderRadius: 'var(--radius-sm)', fontSize: '0.7rem', color: 'var(--color-primary)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '4px 8px', background: 'rgba(46, 229, 122,0.05)', borderRadius: 'var(--radius-sm)', fontSize: '0.7rem', color: 'var(--color-primary)' }}>
                   <span>{previewFile.type?.startsWith('image/') ? '📷' : '📎'}</span>
                   <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{previewFile.name}</span>
                   <span style={{ color: 'var(--color-text-muted)', fontSize: '0.65rem' }}>{(previewFile.size / 1024).toFixed(0)}KB</span>

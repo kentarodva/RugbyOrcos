@@ -47,7 +47,7 @@ export function MonthlyChargeModal({ players, mensualidadBase, lastMonthlyCharge
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content animated-slide" style={{ maxWidth: '520px', maxHeight: '85vh' }} onClick={e => e.stopPropagation()}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-          <h3 style={{ fontSize: '1.15rem', fontWeight: 800, fontFamily: 'Outfit' }}>📋 Generar Cobro Mensual</h3>
+          <h3 style={{ fontSize: '1.15rem', fontWeight: 600 }}>📋 Generar Cobro Mensual</h3>
           <button onClick={onClose} className="btn-outline" style={{ padding: '4px 10px', fontSize: '0.75rem' }}>✕</button>
         </div>
 
@@ -90,8 +90,8 @@ export function MonthlyChargeModal({ players, mensualidadBase, lastMonthlyCharge
               <label key={p.id} style={{
                 display: 'flex', alignItems: 'center', gap: '10px',
                 padding: '8px 10px', cursor: 'pointer',
-                background: isSelected ? 'rgba(0,230,118,0.04)' : 'transparent',
-                border: '1px solid ' + (isSelected ? 'rgba(0,230,118,0.15)' : 'var(--border-glass)'),
+                background: isSelected ? 'rgba(46, 229, 122,0.04)' : 'transparent',
+                border: '1px solid ' + (isSelected ? 'rgba(46, 229, 122,0.15)' : 'var(--border-glass)'),
                 borderRadius: 'var(--radius-sm)', opacity: isNew ? 0.5 : 1,
               }}>
                 <input
@@ -104,7 +104,7 @@ export function MonthlyChargeModal({ players, mensualidadBase, lastMonthlyCharge
                   <strong>{p.name}</strong>
                   {p.apodo && <span style={{ color: 'var(--color-primary)', marginLeft: '4px' }}>"{p.apodo}"</span>}
                   {isNew && (
-                    <span style={{ marginLeft: '6px', fontSize: '0.6rem', color: 'var(--color-gold)', background: 'rgba(255,179,0,0.1)', padding: '1px 6px', borderRadius: '4px' }}>
+                    <span style={{ marginLeft: '6px', fontSize: '0.6rem', color: 'var(--color-gold)', background: 'rgba(232, 185, 49,0.1)', padding: '1px 6px', borderRadius: '4px' }}>
                       NUEVO
                     </span>
                   )}
@@ -120,8 +120,8 @@ export function MonthlyChargeModal({ players, mensualidadBase, lastMonthlyCharge
         </div>
 
         <div style={{
-          padding: '12px', background: 'rgba(255,179,0,0.06)', borderRadius: 'var(--radius-sm)',
-          border: '1px solid rgba(255,179,0,0.15)', marginBottom: '16px',
+          padding: '12px', background: 'rgba(232, 185, 49,0.06)', borderRadius: 'var(--radius-sm)',
+          border: '1px solid rgba(232, 185, 49,0.15)', marginBottom: '16px',
         }}>
           <div style={{ fontSize: '0.85rem' }}>
             <strong style={{ color: 'var(--color-gold)' }}>Preview del cobro:</strong>

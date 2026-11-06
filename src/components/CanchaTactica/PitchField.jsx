@@ -44,14 +44,14 @@ function PitchField({
           : { aspectRatio: pitchOrientation === 'horizontal' ? '1.6' : '1.2' }
         ),
         background: pitchOrientation === 'horizontal'
-          ? 'repeating-linear-gradient(90deg, #11361c, #11361c 5%, #0d2b16 5%, #0d2b16 10%)'
-          : 'repeating-linear-gradient(180deg, #11361c, #11361c 5%, #0d2b16 5%, #0d2b16 10%)',
+          ? 'repeating-linear-gradient(90deg, #212422, #212422 5%, #1A1D1B 5%, #1A1D1B 10%)'
+          : 'repeating-linear-gradient(180deg, #212422, #212422 5%, #1A1D1B 5%, #1A1D1B 10%)',
         borderRadius: 'var(--radius-lg)',
         border: pitchSize === 'large' ? '3px solid var(--color-primary)' : '3px solid rgba(255,255,255,0.85)',
         overflow: 'hidden',
         boxShadow: pitchSize === 'large'
           ? '0 0 40px var(--color-primary-glow), inset 0 0 30px rgba(0,0,0,0.6)'
-          : '0 0 25px rgba(0, 230, 118, 0.15), inset 0 0 30px rgba(0,0,0,0.6)',
+          : '0 0 25px rgba(46, 229, 122, 0.15), inset 0 0 30px rgba(0,0,0,0.6)',
         backgroundSize: '100% 100%',
         userSelect: 'none',
         transition: 'min-height 0.3s cubic-bezier(0.4, 0, 0.2, 1), aspect-ratio 0.3s cubic-bezier(0.4, 0, 0.2, 1), max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1), width 0.3s cubic-bezier(0.4, 0, 0.2, 1), border 0.3s, box-shadow 0.3s'

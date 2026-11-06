@@ -47,7 +47,7 @@ function PlanTab({
           style={{
             padding: '10px 24px', justifyContent: 'center', fontSize: '0.9rem',
             opacity: planPlayerId ? 1 : 0.5, whiteSpace: 'nowrap',
-            background: 'linear-gradient(135deg, var(--color-primary), #00b359)',
+            background: 'linear-gradient(135deg, var(--color-primary), #22C766)',
             flexDirection: 'column', gap: '2px', display: 'flex',
           }}
         >
@@ -63,8 +63,8 @@ function PlanTab({
         <div style={{
           padding: '12px 16px', borderRadius: 'var(--radius-md)',
           background: overtrainingRisk.maxSeverity === 'alta'
-            ? 'linear-gradient(135deg, rgba(255,61,0,0.12), rgba(255,179,0,0.08))'
-            : 'rgba(255,179,0,0.08)',
+            ? 'linear-gradient(135deg, rgba(255, 92, 77,0.12), rgba(232, 185, 49,0.08))'
+            : 'rgba(232, 185, 49,0.08)',
           border: `1px solid ${overtrainingRisk.maxSeverity === 'alta' ? 'var(--color-red)' : 'var(--color-gold)'}`,
           display: 'flex', flexDirection: 'column', gap: '6px',
         }}>
@@ -90,7 +90,7 @@ function PlanTab({
             </div>
 
             {generatedPlan.aiAnalysis && (
-              <div style={{ marginTop: '12px', padding: '15px', background: 'rgba(255,179,0,0.05)', border: '1px solid rgba(255,179,0,0.15)', borderRadius: 'var(--radius-sm)', fontSize: '0.8rem', color: 'var(--color-gold)', lineHeight: 1.5 }}>
+              <div style={{ marginTop: '12px', padding: '15px', background: 'rgba(232, 185, 49,0.05)', border: '1px solid rgba(232, 185, 49,0.15)', borderRadius: 'var(--radius-sm)', fontSize: '0.8rem', color: 'var(--color-gold)', lineHeight: 1.5 }}>
                 <strong>Análisis IA:</strong> {generatedPlan.aiAnalysis}
                 {generatedPlan.aiRisks?.length > 0 && (
                   <div style={{ marginTop: '8px', color: 'var(--color-red)' }}>
@@ -116,9 +116,9 @@ function PlanTab({
             </span>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '20px' }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              <h3 style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--color-primary)', fontFamily: 'Outfit' }}>
+              <h3 style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--color-text)' }}>
                 Plan Campo ({generatedPlan.plan.campo.length})
               </h3>
               {generatedPlan.plan.campo.map((ex, i) => (
@@ -138,7 +138,7 @@ function PlanTab({
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              <h3 style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--color-gold)', fontFamily: 'Outfit' }}>
+              <h3 style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--color-text)' }}>
                 Plan Gimnasio ({generatedPlan.plan.gym.length})
               </h3>
               {generatedPlan.plan.gym.map((ex, i) => (
@@ -160,10 +160,10 @@ function PlanTab({
 
           {generatedPlan.plan.recuperacion.length > 0 && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              <h3 style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--color-blue)', fontFamily: 'Outfit' }}>
+              <h3 style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--color-text)' }}>
                 Recuperación ({generatedPlan.plan.recuperacion.length})
               </h3>
-              <div className="grid-cards" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))' }}>
+              <div className="grid-cards" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))' }}>
                 {generatedPlan.plan.recuperacion.map((ex, i) => (
                   <ExerciseCard
                     key={i}

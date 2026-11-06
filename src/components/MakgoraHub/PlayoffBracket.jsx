@@ -11,11 +11,11 @@ const ROUND_LABELS = {
 
 function TrophySVG() {
   return (
-    <svg viewBox="0 0 72 72" width="72" height="72" style={{ filter: 'drop-shadow(0 0 20px rgba(255,179,0,0.4))' }}>
+    <svg viewBox="0 0 72 72" width="72" height="72" style={{ filter: 'drop-shadow(0 0 20px rgba(232, 185, 49,0.4))' }}>
       <defs>
         <radialGradient id="tg" cx="50%" cy="35%" r="55%">
           <stop offset="0%" stopColor="#ffe082" />
-          <stop offset="45%" stopColor="#ffb300" />
+          <stop offset="45%" stopColor="#E8B931" />
           <stop offset="100%" stopColor="#e6a800" />
         </radialGradient>
       </defs>
@@ -66,7 +66,7 @@ function BracketMatchCard({ match, teams, onUpdateMatch, side }) {
   if (isPlaceholder) {
     return (
       <div className={`bracket-card ${sideClass}`} style={{ opacity: 0.35 }}>
-        <div style={{ padding: '14px 10px', textAlign: 'center', fontSize: '0.6rem', color: 'rgba(255,255,255,0.3)', fontFamily: 'Outfit', fontStyle: 'italic' }}>
+        <div style={{ padding: '14px 10px', textAlign: 'center', fontSize: '0.6rem', color: 'rgba(255,255,255,0.3)', fontFamily: 'var(--font-display)', fontStyle: 'italic' }}>
           Por definir
         </div>
       </div>
@@ -78,21 +78,21 @@ function BracketMatchCard({ match, teams, onUpdateMatch, side }) {
       <div style={{
         display: 'flex', alignItems: 'center', gap: '6px',
         padding: '5px 8px',
-        background: homeWon ? 'rgba(255,179,0,0.06)' : 'transparent',
+        background: homeWon ? 'rgba(232, 185, 49,0.06)' : 'transparent',
         borderBottom: '1px solid rgba(255,255,255,0.04)',
         minHeight: '30px',
       }}>
         <TeamDot color={homeColor} />
         <span style={{
           flex: 1, fontSize: '0.68rem', fontWeight: homeWon ? 800 : 500,
-          color: homeWon ? '#ffb300' : isJugado ? 'rgba(255,255,255,0.35)' : 'rgba(255,255,255,0.8)',
+          color: homeWon ? '#E8B931' : isJugado ? 'rgba(255,255,255,0.35)' : 'rgba(255,255,255,0.8)',
           whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
-          fontFamily: 'Outfit',
+          fontFamily: 'var(--font-display)',
         }}>
           {homeName || 'Por definir'}
         </span>
         {isJugado ? (
-          <span style={{ fontSize: '0.8rem', fontWeight: 900, fontFamily: 'Outfit', color: homeWon ? '#ffb300' : 'rgba(255,255,255,0.4)', minWidth: '20px', textAlign: 'center' }}>
+          <span style={{ fontSize: '0.8rem', fontWeight: 900, fontFamily: 'var(--font-display)', color: homeWon ? '#E8B931' : 'rgba(255,255,255,0.4)', minWidth: '20px', textAlign: 'center' }}>
             {match.home_score}
           </span>
         ) : hasTeams ? (
@@ -103,20 +103,20 @@ function BracketMatchCard({ match, teams, onUpdateMatch, side }) {
       <div style={{
         display: 'flex', alignItems: 'center', gap: '6px',
         padding: '5px 8px',
-        background: awayWon ? 'rgba(255,179,0,0.06)' : 'transparent',
+        background: awayWon ? 'rgba(232, 185, 49,0.06)' : 'transparent',
         minHeight: '30px',
       }}>
         <TeamDot color={awayColor} />
         <span style={{
           flex: 1, fontSize: '0.68rem', fontWeight: awayWon ? 800 : 500,
-          color: awayWon ? '#ffb300' : isJugado ? 'rgba(255,255,255,0.35)' : 'rgba(255,255,255,0.8)',
+          color: awayWon ? '#E8B931' : isJugado ? 'rgba(255,255,255,0.35)' : 'rgba(255,255,255,0.8)',
           whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
-          fontFamily: 'Outfit',
+          fontFamily: 'var(--font-display)',
         }}>
           {awayName || 'Por definir'}
         </span>
         {isJugado ? (
-          <span style={{ fontSize: '0.8rem', fontWeight: 900, fontFamily: 'Outfit', color: awayWon ? '#ffb300' : 'rgba(255,255,255,0.4)', minWidth: '20px', textAlign: 'center' }}>
+          <span style={{ fontSize: '0.8rem', fontWeight: 900, fontFamily: 'var(--font-display)', color: awayWon ? '#E8B931' : 'rgba(255,255,255,0.4)', minWidth: '20px', textAlign: 'center' }}>
             {match.away_score}
           </span>
         ) : hasTeams ? (
@@ -126,7 +126,7 @@ function BracketMatchCard({ match, teams, onUpdateMatch, side }) {
 
       {hasTeams && !isJugado && (
         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '4px', padding: '2px 6px', background: 'rgba(0,0,0,0.15)' }}>
-          <span className="bracket-status" style={{ background: 'rgba(255,179,0,0.08)', color: 'rgba(255,179,0,0.6)' }}>
+          <span className="bracket-status" style={{ background: 'rgba(232, 185, 49,0.08)', color: 'rgba(232, 185, 49,0.6)' }}>
             ⬤ Pendiente
           </span>
           <button onClick={() => {
@@ -139,7 +139,7 @@ function BracketMatchCard({ match, teams, onUpdateMatch, side }) {
             padding: '1px 8px', background: 'rgba(79,195,247,0.15)',
             border: '1px solid rgba(79,195,247,0.25)', borderRadius: '3px',
             color: '#4fc3f7', cursor: 'pointer', fontSize: '0.55rem',
-            fontWeight: 700, fontFamily: 'Outfit', marginLeft: 'auto',
+            fontWeight: 700, fontFamily: 'var(--font-display)', marginLeft: 'auto',
           }}>
             OK
           </button>
@@ -147,7 +147,7 @@ function BracketMatchCard({ match, teams, onUpdateMatch, side }) {
       )}
       {isJugado && (
         <div style={{ display: 'flex', justifyContent: 'center', padding: '2px 6px', background: 'rgba(0,0,0,0.15)' }}>
-          <span className="bracket-status" style={{ background: 'rgba(0,230,118,0.08)', color: 'rgba(0,230,118,0.6)' }}>
+          <span className="bracket-status" style={{ background: 'rgba(46, 229, 122,0.08)', color: 'rgba(46, 229, 122,0.6)' }}>
             ⬤ Jugado
           </span>
         </div>
@@ -277,7 +277,7 @@ export function PlayoffBracket({ matches, teams, onUpdateMatch }) {
         <div className="bracket-texture" />
         <div className="bracket-overlay" />
         <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '350px', gap: '20px' }}>
-          <h1 style={{ fontFamily: 'Outfit', fontSize: '1.6rem', fontWeight: 900, color: '#fff', textTransform: 'uppercase', letterSpacing: '8px', margin: 0, textShadow: '0 0 30px rgba(79,195,247,0.3)' }}>
+          <h1 style={{ fontFamily: 'var(--font-display)', fontSize: '1.6rem', fontWeight: 900, color: '#fff', textTransform: 'uppercase', letterSpacing: '8px', margin: 0, textShadow: '0 0 30px rgba(79,195,247,0.3)' }}>
             Playoffs
           </h1>
           <div style={{ width: '60px', height: '2px', background: 'linear-gradient(90deg,transparent,#4fc3f7,transparent)' }} />
@@ -297,7 +297,7 @@ export function PlayoffBracket({ matches, teams, onUpdateMatch }) {
       <div className="bracket-overlay" />
       <div style={{ position: 'relative', zIndex: 1, width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
         <div style={{ textAlign: 'center', padding: '20px 20px 10px' }}>
-          <h1 style={{ fontFamily: 'Outfit', fontSize: '1.6rem', fontWeight: 900, color: '#fff', textTransform: 'uppercase', letterSpacing: '8px', margin: 0, textShadow: '0 0 30px rgba(79,195,247,0.3), 0 2px 4px rgba(0,0,0,0.5)' }}>
+          <h1 style={{ fontFamily: 'var(--font-display)', fontSize: '1.6rem', fontWeight: 900, color: '#fff', textTransform: 'uppercase', letterSpacing: '8px', margin: 0, textShadow: '0 0 30px rgba(79,195,247,0.3), 0 2px 4px rgba(0,0,0,0.5)' }}>
             Playoffs
           </h1>
           <div style={{ width: '60px', height: '2px', background: 'linear-gradient(90deg,transparent,#4fc3f7,transparent)', margin: '8px auto 0' }} />

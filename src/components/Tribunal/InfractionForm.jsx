@@ -50,12 +50,12 @@ function InfractionForm({
 
   return (
     <div className="glass-panel" style={{ padding: '25px' }}>
-      <h3 style={{ fontSize: '1.1rem', fontWeight: 800, fontFamily: 'Outfit', color: 'var(--color-red)', marginBottom: '15px' }}>
+      <h3 style={{ fontSize: '1.1rem', fontWeight: 600, color: 'var(--color-text)', marginBottom: '15px' }}>
         Sanciones del Tribunal (Correctivos Fisicos)
       </h3>
 
       <form onSubmit={onSave} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '10px' }}>
           <div className="form-group">
             <label>Fecha de Infraccion</label>
             <input type="date" value={matchDate} onChange={(e) => setMatchDate(e.target.value)} className="form-input" required />
@@ -143,7 +143,7 @@ function InfractionForm({
           </select>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px', textAlign: 'center' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: '10px', textAlign: 'center' }}>
           <div className="form-group">
             <label style={{ fontSize: '0.7rem' }}>Penales</label>
             <input type="number" min="0" value={infPenales} onChange={(e) => setInfPenales(e.target.value)} className="form-input" />
@@ -161,7 +161,7 @@ function InfractionForm({
           </div>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '10px', textAlign: 'center' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 2fr)', gap: '10px', textAlign: 'center' }}>
           <div className="form-group">
             <label style={{ fontSize: '0.7rem' }}>Burpees Directos</label>
             <input type="number" min="0" value={infBurpeesExtra} onChange={(e) => setInfBurpeesExtra(e.target.value)} className="form-input" />
@@ -170,15 +170,15 @@ function InfractionForm({
           <div className="form-group" style={{ textAlign: 'left' }}>
             <label style={{ fontSize: '0.7rem' }}>Ejercicio Extra (opcional)</label>
             <div style={{ display: 'flex', gap: '8px' }}>
-              <input type="text" value={infCustomExercise} onChange={(e) => setInfCustomExercise(e.target.value)} placeholder="Ej. Sentadillas, Planchas..." className="form-input" style={{ flex: 1, fontSize: '0.78rem' }} />
-              <input type="number" min="0" value={infCustomReps} onChange={(e) => setInfCustomReps(e.target.value)} placeholder="Reps" className="form-input" style={{ width: '70px', fontSize: '0.78rem', textAlign: 'center' }} />
+              <input type="text" value={infCustomExercise} onChange={(e) => setInfCustomExercise(e.target.value)} placeholder="Ej. Sentadillas, Planchas..." className="form-input" style={{ flex: 1, minWidth: 0, fontSize: '0.78rem' }} />
+              <input type="number" min="0" value={infCustomReps} onChange={(e) => setInfCustomReps(e.target.value)} placeholder="Reps" className="form-input" style={{ width: '70px', flexShrink: 0, fontSize: '0.78rem', textAlign: 'center' }} />
             </div>
             <span style={{ fontSize: '0.55rem', color: 'var(--color-text-muted)' }}>Ejercicio + repeticiones como multa</span>
           </div>
         </div>
 
         {(burpeesTotal > 0 || (customReps > 0 && infCustomExercise.trim())) && (
-          <div style={{ padding: '8px 12px', background: 'rgba(255, 61, 0, 0.08)', border: '1px solid rgba(255, 61, 0, 0.2)', borderRadius: 'var(--radius-sm)', textAlign: 'center' }}>
+          <div style={{ padding: '8px 12px', background: 'rgba(255, 92, 77, 0.08)', border: '1px solid rgba(255, 92, 77, 0.2)', borderRadius: 'var(--radius-sm)', textAlign: 'center' }}>
             <span style={{ fontSize: '0.8rem', color: 'var(--color-red)', fontWeight: 700 }}>
               Total: {burpeesTotal > 0 ? `${burpeesTotal} Burpees` : ''}
               {burpeesTotal > 0 && customReps > 0 && infCustomExercise.trim() ? ' + ' : ''}

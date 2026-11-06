@@ -1,14 +1,14 @@
 import React from 'react';
 import { PieChart, Pie, Cell, BarChart as ReBarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip } from 'recharts';
 
-export const COLORS = ['#00e676', '#448aff', '#ffd740', '#ff5252', '#ce93d8', '#ffab40', '#18ffff', '#ff4081', '#69f0ae', '#b388ff'];
+export const COLORS = ['#2EE57A', '#448aff', '#E8B931', '#FF5C4D', '#ce93d8', '#ffab40', '#18ffff', '#ff4081', '#7DF0AC', '#b388ff'];
 
 export const CAT_COLORS = {
-  masculina_mayor: '#00e676',
+  masculina_mayor: '#2EE57A',
   femenina_mayor: '#ff4081',
   juveniles_masculina: '#448aff',
   juveniles_femenina: '#ce93d8',
-  'Masculina Mayor': '#00e676',
+  'Masculina Mayor': '#2EE57A',
   'Femenina Mayor': '#ff4081',
   'Juveniles Masculina': '#448aff',
   'Juveniles Femenina': '#ce93d8',
@@ -20,11 +20,11 @@ export const CAT_COLORS = {
   otros: '#ffab40',
 };
 
-export const STATUS_COLORS = { activo: '#00e676', lesionado: '#ff5252', suspendido: '#ffd740', inactivo: '#757575' };
+export const STATUS_COLORS = { activo: '#2EE57A', lesionado: '#FF5C4D', suspendido: '#E8B931', inactivo: '#757575' };
 
-export const AGE_COLORS = ['#18ffff', '#448aff', '#00e676', '#ffd740', '#ffab40', '#ff5252'];
+export const AGE_COLORS = ['#18ffff', '#448aff', '#2EE57A', '#E8B931', '#ffab40', '#FF5C4D'];
 
-export const TT = { contentStyle: { background: '#1a1a2e', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '8px', fontSize: '0.82rem', outline: 'none', boxShadow: '0 4px 16px rgba(0,0,0,0.4)' }, labelStyle: { color: '#fff', fontWeight: 600 }, itemStyle: { color: 'rgba(255,255,255,0.85)', fontSize: '0.78rem' } };
+export const TT = { contentStyle: { background: '#212422', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '8px', fontSize: '0.82rem', outline: 'none', boxShadow: '0 4px 16px rgba(0,0,0,0.4)' }, labelStyle: { color: '#fff', fontWeight: 600 }, itemStyle: { color: 'rgba(255,255,255,0.85)', fontSize: '0.78rem' } };
 
 export const AXIS_TICK = { fill: 'rgba(255,255,255,0.7)', fontSize: 12 };
 
@@ -34,7 +34,7 @@ export const makeBarTooltip = (suffix) => {
     const d = payload[0].payload;
     const pct = d.pct !== undefined ? ` (${d.pct}%)` : '';
     return (
-      <div style={{ background: '#1a1a2e', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '8px', padding: '8px 12px', boxShadow: '0 4px 16px rgba(0,0,0,0.4)' }}>
+      <div style={{ background: '#212422', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '8px', padding: '8px 12px', boxShadow: '0 4px 16px rgba(0,0,0,0.4)' }}>
         <div style={{ color: '#fff', fontSize: '0.82rem', fontWeight: 600 }}>{d.label}</div>
         <div style={{ color: '#e0e0e0', fontSize: '0.78rem' }}>{d.value}{suffix}{pct}</div>
       </div>
@@ -48,7 +48,7 @@ export const ScatterTooltip = ({ active, payload }) => {
   if (!active || !payload?.length) return null;
   const d = payload[0].payload;
   return (
-    <div style={{ background: '#1a1a2e', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '8px', padding: '8px 12px', boxShadow: '0 4px 16px rgba(0,0,0,0.4)' }}>
+    <div style={{ background: '#212422', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '8px', padding: '8px 12px', boxShadow: '0 4px 16px rgba(0,0,0,0.4)' }}>
       <div style={{ color: '#fff', fontSize: '0.82rem', fontWeight: 600 }}>{d.name}</div>
       <div style={{ color: '#e0e0e0', fontSize: '0.78rem' }}>{d.weight}kg · {d.height}m</div>
       <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.72rem' }}>{d.categoria}</div>
@@ -62,14 +62,14 @@ export function DonutChart({ data, title, centerLabel }) {
   if (total === 0) {
     return (
       <div className="glass-panel" style={{ padding: '16px' }}>
-        {title && <h4 style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--color-primary)', marginBottom: '12px', fontFamily: 'Outfit' }}>{title}</h4>}
+        {title && <h4 style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--color-text)', marginBottom: '12px' }}>{title}</h4>}
         <div style={{ height: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)', fontSize: '0.82rem' }}>Sin datos</div>
       </div>
     );
   }
   return (
     <div className="glass-panel" style={{ padding: '16px', position: 'relative' }}>
-      {title && <h4 style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--color-primary)', marginBottom: '8px', fontFamily: 'Outfit' }}>{title}</h4>}
+      {title && <h4 style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--color-text)', marginBottom: '8px' }}>{title}</h4>}
       <div style={{ position: 'relative', width: '100%', height: 200 }}>
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
@@ -140,7 +140,7 @@ export function SmallDonut({ data, centerLabel }) {
 export function HorizontalBar({ data, title, subtitle, color = '#448aff', height = 40, suffix = '' }) {
   return (
     <div className="glass-panel" style={{ padding: '16px' }}>
-      {title && <h4 style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--color-primary)', marginBottom: '8px', fontFamily: 'Outfit' }}>{title}</h4>}
+      {title && <h4 style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--color-text)', marginBottom: '8px' }}>{title}</h4>}
       {subtitle && <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', marginBottom: '10px' }}>{subtitle}</p>}
       <div style={{ width: '100%', height: Math.max(data.length * height + 20, 60) }}>
         <ResponsiveContainer width="100%" height="100%">

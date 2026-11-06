@@ -135,7 +135,7 @@ function UserManagement() {
       {showCreate && (
         <form onSubmit={handleCreateUser} style={{
           background: 'rgba(255,255,255,0.03)', padding: '20px', borderRadius: 'var(--radius-md)',
-          marginBottom: '20px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px'
+          marginBottom: '20px', display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '12px'
         }}>
           <div style={{ gridColumn: 'span 2' }}>
             <label style={labelS}>Nombre en el Reino</label>
@@ -211,7 +211,7 @@ function UserManagement() {
                   <td style={tdS}>
                     <span style={{
                       padding: '3px 10px', borderRadius: '10px', fontSize: '0.75rem', fontWeight: 700,
-                      background: u.is_active ? 'rgba(0,230,118,0.1)' : 'rgba(255,61,0,0.1)',
+                      background: u.is_active ? 'rgba(46, 229, 122,0.1)' : 'rgba(255, 92, 77,0.1)',
                       color: u.is_active ? 'var(--color-primary)' : 'var(--color-red)'
                     }}>{u.is_active ? 'Activo' : 'Inactivo'}</span>
                   </td>
@@ -221,7 +221,7 @@ function UserManagement() {
                       <>
                         <button onClick={() => handleToggleActive(u.user_id, u.is_active)}
                           style={{
-                            background: u.is_active ? 'rgba(255,61,0,0.1)' : 'rgba(0,230,118,0.1)',
+                            background: u.is_active ? 'rgba(255, 92, 77,0.1)' : 'rgba(46, 229, 122,0.1)',
                             border: `1px solid ${u.is_active ? 'var(--color-red)' : 'var(--color-primary)'}`,
                             color: u.is_active ? 'var(--color-red)' : 'var(--color-primary)',
                             padding: '4px 10px', borderRadius: 'var(--radius-sm)', cursor: 'pointer', fontSize: '0.7rem', fontWeight: 700
@@ -235,7 +235,7 @@ function UserManagement() {
                       </>
                     )}
                       <button onClick={() => setResetModal({ open: true, userId: u.user_id, userName: u.display_name, newPass: '' })}
-                        style={{ background: 'rgba(255,179,0,0.1)', border: '1px solid rgba(255,179,0,0.3)', color: '#ffb300', padding: '4px 10px', borderRadius: 'var(--radius-sm)', cursor: 'pointer', fontSize: '0.7rem', fontWeight: 700 }}>🔑</button>
+                        style={{ background: 'rgba(232, 185, 49,0.1)', border: '1px solid rgba(232, 185, 49,0.3)', color: '#E8B931', padding: '4px 10px', borderRadius: 'var(--radius-sm)', cursor: 'pointer', fontSize: '0.7rem', fontWeight: 700 }}>🔑</button>
                     </div>
                   </td>
                 </tr>
@@ -250,7 +250,7 @@ function UserManagement() {
         <div className="modal-overlay" onClick={() => setResetModal({ ...resetModal, open: false })}>
           <div className="modal-content glass-panel animated-slide" style={{ maxWidth: '400px', textAlign: 'center', padding: '25px' }} onClick={e => e.stopPropagation()}>
             <div style={{ fontSize: '2rem', marginBottom: '10px' }}>🔑</div>
-            <h3 style={{ color: 'var(--color-gold)', fontFamily: 'Outfit', marginBottom: '8px' }}>Restablecer Contrasena</h3>
+            <h3 style={{ color: 'var(--color-gold)', fontFamily: 'var(--font-display)', marginBottom: '8px' }}>Restablecer Contrasena</h3>
             <p style={{ color: 'var(--color-text-muted)', fontSize: '0.85rem', marginBottom: '15px' }}>{resetModal.userName}</p>
             <input type="password" value={resetModal.newPass} onChange={e => setResetModal({ ...resetModal, newPass: e.target.value })}
               placeholder="Nueva contrasena (min. 6)" className="form-input"

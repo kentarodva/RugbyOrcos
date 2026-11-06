@@ -24,7 +24,7 @@ export default function Fisico({ players }) {
   }, [players]);
 
   const pesoBuckets = useMemo(() => {
-    const wColors = ['#448aff', '#00e676', '#ffd740', '#ffab40', '#ff5252', '#ce93d8'];
+    const wColors = ['#448aff', '#2EE57A', '#E8B931', '#ffab40', '#FF5C4D', '#ce93d8'];
     return getWeightBuckets(players).map((d, i) => ({ ...d, color: wColors[i] }));
   }, [players]);
 
@@ -33,12 +33,12 @@ export default function Fisico({ players }) {
   const nIMC = players.filter(p => p.weight && p.height).length;
 
   const alturaBuckets = useMemo(() => {
-    const hColors = ['#448aff', '#00e676', '#ffd740', '#ffab40', '#ce93d8'];
+    const hColors = ['#448aff', '#2EE57A', '#E8B931', '#ffab40', '#ce93d8'];
     return getHeightBuckets(players).map((d, i) => ({ ...d, color: hColors[i] }));
   }, [players]);
 
   const imcOmsBuckets = useMemo(() => {
-    const omsColors = ['#ff5252', '#00e676', '#ffd740', '#ff5252'];
+    const omsColors = ['#FF5C4D', '#2EE57A', '#E8B931', '#FF5C4D'];
     return getIMCClassification(players).map((d, i) => ({ ...d, color: omsColors[i] }));
   }, [players]);
 
@@ -61,18 +61,18 @@ export default function Fisico({ players }) {
   }, [scatterData]);
 
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '14px' }}>
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap: '14px' }}>
       <HorizontalBar data={byCat.weightData} title="Peso Promedio por Categoría"
         subtitle={`General: ${byCat.overallW}kg (${byCat.nW} jugs)`} color="#448aff" height={36} suffix="kg" />
       <HorizontalBar data={byCat.heightData} title="Altura Promedio por Categoría"
-        subtitle={`General: ${byCat.overallH}m (${byCat.nH} jugs)`} color="#00e676" height={36} suffix="m" />
-      <HorizontalBar data={imcByCat} title="IMC Promedio por Categoría" color="#ffd740" height={36} suffix=" IMC" />
-      <HorizontalBar data={imcOmsBuckets} title="Clasificación IMC (OMS)" subtitle={`${nIMC} con ambos datos`} color="#00e676" height={32} suffix=" jug" />
-      <HorizontalBar data={pesoBuckets} title="Distribución de Peso" subtitle={`${nW} reportaron peso`} color="#ff5252" height={32} suffix=" jug" />
-      <HorizontalBar data={alturaBuckets} title="Distribución de Altura" subtitle={`${nH} reportaron altura`} color="#00e676" height={32} suffix=" jug" />
+        subtitle={`General: ${byCat.overallH}m (${byCat.nH} jugs)`} color="#2EE57A" height={36} suffix="m" />
+      <HorizontalBar data={imcByCat} title="IMC Promedio por Categoría" color="#E8B931" height={36} suffix=" IMC" />
+      <HorizontalBar data={imcOmsBuckets} title="Clasificación IMC (OMS)" subtitle={`${nIMC} con ambos datos`} color="#2EE57A" height={32} suffix=" jug" />
+      <HorizontalBar data={pesoBuckets} title="Distribución de Peso" subtitle={`${nW} reportaron peso`} color="#FF5C4D" height={32} suffix=" jug" />
+      <HorizontalBar data={alturaBuckets} title="Distribución de Altura" subtitle={`${nH} reportaron altura`} color="#2EE57A" height={32} suffix=" jug" />
       {byPos.length > 0 && (
         <div className="glass-panel" style={{ padding: '16px' }}>
-          <h4 style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--color-primary)', marginBottom: '8px', fontFamily: 'Outfit' }}>Físico por Posición</h4>
+          <h4 style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--color-text)', marginBottom: '8px' }}>Físico por Posición</h4>
           <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', marginBottom: '6px' }}>Solo posiciones con ≥2 jugadores</div>
           <table style={{ width: '100%', fontSize: '0.78rem', borderCollapse: 'collapse' }}>
             <thead>
@@ -98,7 +98,7 @@ export default function Fisico({ players }) {
       )}
       {Object.keys(scatterByCat).length > 1 && (
         <div className="glass-panel" style={{ padding: '16px', gridColumn: '1 / -1' }}>
-          <h4 style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--color-primary)', marginBottom: '8px', fontFamily: 'Outfit' }}>Peso vs Altura</h4>
+          <h4 style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--color-text)', marginBottom: '8px' }}>Peso vs Altura</h4>
           <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', marginBottom: '10px' }}>{scatterData.length} jugadores con ambos datos</p>
           <div style={{ width: '100%', height: 320 }}>
             <ResponsiveContainer width="100%" height="100%">

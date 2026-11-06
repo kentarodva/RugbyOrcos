@@ -239,11 +239,11 @@ function WorkoutLogger({ player, logWorkout, myTrainingPlan, onOpenBuilder, onGe
   const categoryColors = {
     calentamiento: { color: '#ff9800', label: 'Calentamiento' },
     campo: { color: 'var(--color-primary)', label: 'Campo' },
-    gym: { color: '#ff3d00', label: 'Gimnasio' },
+    gym: { color: '#FF5C4D', label: 'Gimnasio' },
     crossfit: { color: '#e040fb', label: 'CrossFit' },
-    casa: { color: '#00e676', label: 'Casa' },
-    recuperacion: { color: '#00b0ff', label: 'Recuperación' },
-    prevencion: { color: '#ffb300', label: 'Prevención' },
+    casa: { color: '#2EE57A', label: 'Casa' },
+    recuperacion: { color: '#5AA9FF', label: 'Recuperación' },
+    prevencion: { color: '#E8B931', label: 'Prevención' },
   };
 
   const recentLogs = (player?.workoutLog || []).slice(-5).reverse();
@@ -251,7 +251,7 @@ function WorkoutLogger({ player, logWorkout, myTrainingPlan, onOpenBuilder, onGe
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
       {myTrainingPlan.isInjured && (
-        <div className="glass-panel" style={{ padding: '12px 16px', borderRadius: 'var(--radius-md)', border: '1px solid rgba(255,61,0,0.3)', fontSize: '0.78rem', color: '#ff7043', display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <div className="glass-panel" style={{ padding: '12px 16px', borderRadius: 'var(--radius-md)', border: '1px solid rgba(255, 92, 77,0.3)', fontSize: '0.78rem', color: '#ff7043', display: 'flex', alignItems: 'center', gap: '8px' }}>
           <span>🩹</span>
           <div>
             <strong>Fase de recuperación {player.injuryLog?.[0]?.phase || 1}/4:</strong> {myTrainingPlan.matchFaults.length > 0 ? `Atención a: ${myTrainingPlan.matchFaults.join(', ')}` : 'Sigue el protocolo preventivo al pie de la letra.'}
@@ -336,7 +336,7 @@ function WorkoutLogger({ player, logWorkout, myTrainingPlan, onOpenBuilder, onGe
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <span style={{ fontSize: '1.2rem' }}>{categoryIcons[activeCategory] || '🏉'}</span>
-            <h4 style={{ fontSize: '1rem', fontWeight: 800, fontFamily: 'Outfit', color: (categoryColors[activeCategory] || {}).color || '#fff', margin: 0 }}>
+            <h4 style={{ fontSize: '1rem', fontWeight: 800, fontFamily: 'var(--font-display)', color: (categoryColors[activeCategory] || {}).color || '#fff', margin: 0 }}>
               {(categoryColors[activeCategory] || {}).label || activeCategory}
             </h4>
           </div>
@@ -350,9 +350,9 @@ function WorkoutLogger({ player, logWorkout, myTrainingPlan, onOpenBuilder, onGe
           {REST_PRESETS.map(s => (
             <button key={s} type="button" aria-pressed={restPreset === s} onClick={() => setRestPreset(s)}
               style={{ minWidth: '52px', height: '36px', borderRadius: '10px', fontSize: '0.75rem', fontWeight: 800, cursor: 'pointer',
-                border: `1px solid ${restPreset === s ? '#00e676' : 'rgba(255,255,255,0.1)'}`,
-                background: restPreset === s ? 'rgba(0,230,118,0.15)' : 'rgba(255,255,255,0.03)',
-                color: restPreset === s ? '#00e676' : 'var(--color-text-muted)' }}>
+                border: `1px solid ${restPreset === s ? '#2EE57A' : 'rgba(255,255,255,0.1)'}`,
+                background: restPreset === s ? 'rgba(46, 229, 122,0.15)' : 'rgba(255,255,255,0.03)',
+                color: restPreset === s ? '#2EE57A' : 'var(--color-text-muted)' }}>
               {formatRest(s)}
             </button>
           ))}
@@ -388,9 +388,9 @@ function WorkoutLogger({ player, logWorkout, myTrainingPlan, onOpenBuilder, onGe
                   style={{
                     padding: 'clamp(12px, 3vw, 16px)',
                     borderRadius: '14px',
-                    background: ex.completed ? 'rgba(0, 230, 118, 0.05)' : 'rgba(255, 255, 255, 0.02)',
-                    border: `1.5px solid ${ex.completed ? 'rgba(0, 230, 118, 0.35)' : 'rgba(255, 255, 255, 0.07)'}`,
-                    boxShadow: ex.completed ? '0 0 16px rgba(0, 230, 118, 0.1)' : 'none',
+                    background: ex.completed ? 'rgba(46, 229, 122, 0.05)' : 'rgba(255, 255, 255, 0.02)',
+                    border: `1.5px solid ${ex.completed ? 'rgba(46, 229, 122, 0.35)' : 'rgba(255, 255, 255, 0.07)'}`,
+                    boxShadow: ex.completed ? '0 0 16px rgba(46, 229, 122, 0.1)' : 'none',
                     transition: 'all 0.2s ease',
                   }}
                 >
@@ -458,7 +458,7 @@ function WorkoutLogger({ player, logWorkout, myTrainingPlan, onOpenBuilder, onGe
                           : 'rgba(255, 255, 255, 0.06)',
                         color: ex.completed ? '#000' : 'var(--color-text-muted)',
                         boxShadow: ex.completed
-                          ? '0 0 16px rgba(0, 230, 118, 0.4)'
+                          ? '0 0 16px rgba(46, 229, 122, 0.4)'
                           : 'none',
                         display: 'inline-flex',
                         alignItems: 'center',
@@ -497,8 +497,8 @@ function WorkoutLogger({ player, logWorkout, myTrainingPlan, onOpenBuilder, onGe
 
                     {/* Field / recovery drills: simple touch steppers (44px targets) */}
                     {!isLoad && (
-                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(138px, 1fr))', gap: '12px 8px', width: '100%' }}>
-                        <Stepper label="Series" color="#00e676" value={ex.sets} min={1} max={20}
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 138px), 1fr))', gap: '12px 8px', width: '100%' }}>
+                        <Stepper label="Series" color="#2EE57A" value={ex.sets} min={1} max={20}
                           decLabel="Restar serie" incLabel="Sumar serie"
                           onChange={(v, typed) => updateExercise(ex, 'sets', typed ? Math.min(20, Math.max(1, parseInt(v) || 1)) : v)} />
                         <Stepper label="Reps" value={ex.reps} min={1} max={100}
@@ -512,12 +512,12 @@ function WorkoutLogger({ player, logWorkout, myTrainingPlan, onOpenBuilder, onGe
                           const sum = summarizeSets(ex.setLogs || []);
                           return sum.sets + sum.warmupSets === 0
                             ? 'Toca ✓ al terminar cada serie'
-                            : <><span style={{ color: '#00e676' }}>{sum.sets} efectivas</span>{sum.warmupSets > 0 && <> · <span style={{ color: '#ff9800' }}>{sum.warmupSets} calent.</span></>}{sum.weight && <> · máx <span style={{ color: '#ffd700' }}>{sum.weight} kg</span></>}</>;
-                        })() : <span style={{ color: '#00e676' }}>{ex.sets} × {ex.reps}</span>}
+                            : <><span style={{ color: '#2EE57A' }}>{sum.sets} efectivas</span>{sum.warmupSets > 0 && <> · <span style={{ color: '#ff9800' }}>{sum.warmupSets} calent.</span></>}{sum.weight && <> · máx <span style={{ color: '#E8B931' }}>{sum.weight} kg</span></>}</>;
+                        })() : <span style={{ color: '#2EE57A' }}>{ex.sets} × {ex.reps}</span>}
                       </span>
                       <button type="button" onClick={() => startRest(ex.name)}
                         aria-label={`Iniciar descanso de ${formatRest(restPreset)} para ${ex.name}`}
-                        style={{ marginLeft: 'auto', height: '44px', padding: '0 14px', borderRadius: '12px', border: '1px solid rgba(0,230,118,0.4)', background: 'rgba(0,230,118,0.1)', color: '#00e676', fontWeight: 800, fontSize: '0.78rem', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
+                        style={{ marginLeft: 'auto', height: '44px', padding: '0 14px', borderRadius: '12px', border: '1px solid rgba(46, 229, 122,0.4)', background: 'rgba(46, 229, 122,0.1)', color: '#2EE57A', fontWeight: 800, fontSize: '0.78rem', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
                         <Timer size={16} aria-hidden="true" /> Descanso {formatRest(restPreset)}
                       </button>
                     </div>
@@ -545,7 +545,7 @@ function WorkoutLogger({ player, logWorkout, myTrainingPlan, onOpenBuilder, onGe
                         style={{
                           padding: '3px 8px',
                           fontSize: '0.75rem',
-                          background: '#0d1821',
+                          background: '#171A18',
                           border: '1px solid rgba(255, 255, 255, 0.15)',
                           borderRadius: '6px',
                           color: 'var(--color-gold)',
@@ -599,7 +599,7 @@ function WorkoutLogger({ player, logWorkout, myTrainingPlan, onOpenBuilder, onGe
             borderRadius: '12px',
             opacity: (saving || completedCount === 0) ? 0.45 : 1,
             cursor: (saving || completedCount === 0) ? 'not-allowed' : 'pointer',
-            boxShadow: completedCount > 0 ? '0 0 24px rgba(0, 230, 118, 0.35)' : 'none',
+            boxShadow: completedCount > 0 ? '0 0 24px rgba(46, 229, 122, 0.35)' : 'none',
           }}
         >
           {saving
@@ -625,7 +625,7 @@ function WorkoutLogger({ player, logWorkout, myTrainingPlan, onOpenBuilder, onGe
 
       {recentLogs.length > 0 && (
         <div className="glass-panel" style={{ padding: '14px', borderRadius: 'var(--radius-lg)' }}>
-          <h4 style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--color-gold)', marginBottom: '8px', fontFamily: 'Outfit' }}>
+          <h4 style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--color-text)', marginBottom: '8px' }}>
             Últimos Entrenos
           </h4>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
@@ -659,7 +659,7 @@ function WorkoutLogger({ player, logWorkout, myTrainingPlan, onOpenBuilder, onGe
           <div className="glass-panel" style={{
             maxWidth: '420px', width: '90%', padding: '24px', borderRadius: 'var(--radius-lg)',
           }} onClick={e => e.stopPropagation()}>
-            <h3 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--color-gold)', marginBottom: '16px', fontFamily: 'Outfit' }}>
+            <h3 style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--color-text)', marginBottom: '16px' }}>
               🏁 Cerrar Semana de Entreno
             </h3>
             <p style={{ fontSize: '0.78rem', color: 'var(--color-text-muted)', marginBottom: '14px' }}>
@@ -677,7 +677,7 @@ function WorkoutLogger({ player, logWorkout, myTrainingPlan, onOpenBuilder, onGe
                     style={{
                       flex: 1, padding: '8px', borderRadius: 'var(--radius-sm)',
                       border: `1px solid ${feedback.rating >= n ? 'var(--color-gold)' : 'var(--border-glass)'}`,
-                      background: feedback.rating >= n ? 'rgba(255,179,0,0.1)' : 'transparent',
+                      background: feedback.rating >= n ? 'rgba(232, 185, 49,0.1)' : 'transparent',
                       color: feedback.rating >= n ? 'var(--color-gold)' : 'var(--color-text-muted)',
                       cursor: 'pointer', fontSize: '0.75rem', textAlign: 'center',
                     }}>{n}</button>

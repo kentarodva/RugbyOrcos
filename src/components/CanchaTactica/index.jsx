@@ -210,7 +210,7 @@ function CanchaTactica() {
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', position: 'relative' }}>
       <div className="animated-fade" style={{
         display: 'grid',
-        gridTemplateColumns: isLargeFullscreen ? '1fr' : 'repeat(auto-fit, minmax(320px, 1fr))',
+        gridTemplateColumns: isLargeFullscreen ? '1fr' : 'repeat(auto-fit, minmax(min(100%, 320px), 1fr))',
         gap: '20px', width: '100%'
       }}>
 
@@ -219,7 +219,7 @@ function CanchaTactica() {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-                <h3 style={{ fontSize: '1.2rem', fontWeight: 700, fontFamily: 'Outfit', margin: 0 }}>
+                <h3 style={{ fontSize: '1.2rem', fontWeight: 600, margin: 0 }}>
                   {isLargeFullscreen ? 'Pizarra Táctica — Vista Completa' : 'Pizarra de Alineaciones (XV Inicial)'}
                 </h3>
                 <select
@@ -249,7 +249,7 @@ function CanchaTactica() {
                     value={selectedMatchId}
                     onChange={e => setSelectedMatchId(e.target.value)}
                     className="form-select"
-                    style={{ padding: '4px 10px', fontSize: '0.75rem', width: 'auto', color: 'var(--color-primary)', borderColor: 'rgba(0,230,118,0.3)' }}
+                    style={{ padding: '4px 10px', fontSize: '0.75rem', width: 'auto', color: 'var(--color-primary)', borderColor: 'rgba(46, 229, 122,0.3)' }}
                     title="Filtrar disponibilidad y guardar pizarra para un partido específico"
                   >
                     <option value="">
@@ -266,10 +266,10 @@ function CanchaTactica() {
               <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginTop: '3px' }}>Arrastra los círculos para mover posiciones o tócalos para alinear guerreros.</p>
             </div>
             <div style={{ display: 'flex', gap: '8px' }}>
-              <button onClick={resetToDefaultPositions} className="btn-outline" style={{ padding: '6px 12px', fontSize: '0.8rem', color: 'var(--color-gold)', borderColor: 'rgba(255, 179, 0, 0.2)' }}>
+              <button onClick={resetToDefaultPositions} className="btn-outline" style={{ padding: '6px 12px', fontSize: '0.8rem', color: 'var(--color-gold)', borderColor: 'rgba(232, 185, 49, 0.2)' }}>
                 Reset Tactico
               </button>
-              <button onClick={clearField} className="btn-outline" style={{ padding: '6px 12px', fontSize: '0.8rem', color: 'var(--color-red)', borderColor: 'rgba(255, 61, 0, 0.2)' }}>
+              <button onClick={clearField} className="btn-outline" style={{ padding: '6px 12px', fontSize: '0.8rem', color: 'var(--color-red)', borderColor: 'rgba(255, 92, 77, 0.2)' }}>
                 Limpiar
               </button>
             </div>
@@ -402,11 +402,11 @@ function CanchaTactica() {
             overflowY: 'auto',
             padding: '24px',
             border: '2px solid var(--color-primary)',
-            boxShadow: '0 0 40px rgba(0, 230, 118, 0.2)',
+            boxShadow: '0 0 40px rgba(46, 229, 122, 0.2)',
           }}
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-            <h3 style={{ fontSize: '1rem', fontWeight: 800, fontFamily: 'Outfit' }}>Banca y Notas Tacticas</h3>
+            <h3 style={{ fontSize: '1rem', fontWeight: 600 }}>Banca y Notas Tacticas</h3>
             <button
               onClick={() => setShowSidebar(false)}
               className="btn-outline"

@@ -80,7 +80,7 @@ function ExercisePicker({ onSelect, onClose }) {
         style={{ maxWidth: '780px', maxHeight: '85vh', display: 'flex', flexDirection: 'column' }}
         onClick={e => e.stopPropagation()}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-          <h3 style={{ fontSize: '1rem', fontWeight: 800, fontFamily: 'Outfit', margin: 0 }}>
+          <h3 style={{ fontSize: '1rem', fontWeight: 600, margin: 0 }}>
             Catálogo de Ejercicios <span style={{ color: 'var(--color-text-muted)', fontSize: '0.65rem', fontWeight: 400 }}>({filtered.length})</span>
           </h3>
           <button onClick={onClose} className="btn-outline" style={{ padding: '4px 10px', fontSize: '0.75rem' }}>✕</button>
@@ -114,14 +114,14 @@ function ExercisePicker({ onSelect, onClose }) {
           ) : filtered.length === 0 ? (
             <p style={{ color: 'var(--color-text-muted)', padding: '20px', textAlign: 'center' }}>No se encontraron ejercicios.</p>
           ) : (
-            <div className="grid-cards" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '7px' }}>
+            <div className="grid-cards" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 220px), 1fr))', gap: '7px' }}>
               {filtered.slice(0, 200).map(ex => (
                 <div key={ex.code} className="glass-panel"
                   style={{ padding: '10px', cursor: 'pointer', border: '1px solid transparent', transition: 'border-color 0.15s', display: 'flex', flexDirection: 'column', gap: '4px' }}
                   onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--color-primary)'}
                   onMouseLeave={e => e.currentTarget.style.borderColor = 'transparent'}
                   onClick={() => openPreview(ex)}>
-                  <div style={{ fontWeight: 700, fontSize: '0.78rem', fontFamily: 'Outfit', lineHeight: 1.2 }}>
+                  <div style={{ fontWeight: 700, fontSize: '0.78rem', fontFamily: 'var(--font-display)', lineHeight: 1.2 }}>
                     {ex.name_local}
                   </div>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', fontSize: '0.6rem' }}>
@@ -145,7 +145,7 @@ function ExercisePicker({ onSelect, onClose }) {
             <div className="modal-content glass-panel" onClick={e => e.stopPropagation()}
               style={{ maxWidth: '450px', maxHeight: '80vh', overflowY: 'auto', padding: '16px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-                <h3 style={{ fontSize: '0.9rem', fontWeight: 800, fontFamily: 'Outfit', color: 'var(--color-primary)', margin: 0 }}>{fullPreview.name_local}</h3>
+                <h3 style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--color-text)', margin: 0 }}>{fullPreview.name_local}</h3>
                 <button onClick={() => setFullPreview(null)} className="btn-outline" style={{ padding: '3px 8px', fontSize: '0.7rem' }}>✕</button>
               </div>
               {fullPreview.gif_url && (

@@ -163,7 +163,7 @@ export function FixtureEditor({ matches, tournament, teams, onSaved, onClose }) 
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content" onClick={e => e.stopPropagation()} style={{ maxWidth: '900px', maxHeight: '90vh', overflowY: 'auto' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
-          <h3 style={{ color: 'var(--color-gold)', fontFamily: 'Outfit' }}>Editor de Fixture</h3>
+          <h3 style={{ color: 'var(--color-gold)', fontFamily: 'var(--font-display)' }}>Editor de Fixture</h3>
           <button onClick={onClose} style={{ background: 'none', border: 'none', color: 'var(--color-text-muted)', fontSize: '1.5rem', cursor: 'pointer' }}>×</button>
         </div>
 
@@ -181,7 +181,7 @@ export function FixtureEditor({ matches, tournament, teams, onSaved, onClose }) 
               <h5 style={{ color: 'var(--color-text)', fontSize: '0.85rem', margin: 0 }}>Ronda {r.round}</h5>
               <div style={{ display: 'flex', gap: '6px' }}>
                 <button onClick={() => addMatch(r.round)} className="btn-outline" style={{ padding: '3px 8px', fontSize: '0.65rem' }}>+ Partido</button>
-                <button onClick={() => deleteRound(r.round)} className="btn-outline" style={{ padding: '3px 8px', fontSize: '0.65rem', borderColor: '#ff3d00', color: '#ff3d00' }}>× Ronda</button>
+                <button onClick={() => deleteRound(r.round)} className="btn-outline" style={{ padding: '3px 8px', fontSize: '0.65rem', borderColor: '#FF5C4D', color: '#FF5C4D' }}>× Ronda</button>
               </div>
             </div>
             {r.matches.length === 0 && (
@@ -197,7 +197,7 @@ export function FixtureEditor({ matches, tournament, teams, onSaved, onClose }) 
                   {allTeams.map(t => <option key={t.id} value={t.id}>{t.rpg_name || t.name}</option>)}
                 </select>
                 <button onClick={() => swapHomeAway(r.round, idx)} className="btn-outline" style={{ padding: '3px 8px', fontSize: '0.7rem' }}>↔</button>
-                <button onClick={() => deleteMatch(r.round, idx)} className="btn-outline" style={{ padding: '3px 8px', fontSize: '0.65rem', borderColor: '#ff3d00', color: '#ff3d00' }}>×</button>
+                <button onClick={() => deleteMatch(r.round, idx)} className="btn-outline" style={{ padding: '3px 8px', fontSize: '0.65rem', borderColor: '#FF5C4D', color: '#FF5C4D' }}>×</button>
               </div>
             ))}
           </div>

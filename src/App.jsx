@@ -13,6 +13,7 @@ import AnnouncementModal from './components/AnnouncementModal';
 import BirthdayCelebration from './components/BirthdayCelebration';
 import ImportCSVModal from './components/Admin/ImportCSVModal';
 import Sidebar, { QuickNavBar } from './components/Sidebar';
+import StaffBottomNav from './components/shell/StaffBottomNav';
 import { ChangePasswordModal } from './components/Auth/ChangePasswordModal';
 import apisupabase, { supabasePlayerToReact } from './data/supabaseApi';
 
@@ -101,7 +102,7 @@ function App() {
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', background: 'var(--bg-root)', padding: '20px' }}>
         <div className="glass-panel" style={{ maxWidth: '440px', padding: '40px', textAlign: 'center', display: 'flex', flexDirection: 'column', gap: '20px' }}>
           <span style={{ fontSize: '3rem' }}>🛡️</span>
-          <h2 style={{ fontFamily: 'Outfit', fontWeight: 800, fontSize: '1.3rem', color: 'var(--color-gold)' }}>
+          <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: '1.3rem', color: 'var(--color-gold)' }}>
             Sin rango en el Reino
           </h2>
           <p style={{ color: 'var(--color-text-muted)', fontSize: '0.85rem', lineHeight: 1.6 }}>
@@ -219,16 +220,20 @@ function App() {
         exportData={exportData}
       />
 
-      {isAuthenticated && <QuickNavBar activeTab={activeTab} setActiveTab={setActiveTab} hasPermission={hasPermission} profile={profile} onOpenDrawer={() => setSidebarOpen(true)} />}
+      {isAuthenticated && (
+        <div className="only-desktop">
+          <QuickNavBar activeTab={activeTab} setActiveTab={setActiveTab} hasPermission={hasPermission} profile={profile} onOpenDrawer={() => setSidebarOpen(true)} />
+        </div>
+      )}
 
       {isAuthenticated && liveMatch && (liveMatch.status === 'live' || liveMatch.status === 'paused' || liveMatch.status === 'delayed') && (
         <div
           onClick={() => setActiveTab('calendario')}
           style={{
             background: liveMatch.status === 'delayed'
-              ? 'linear-gradient(90deg, rgba(255, 171, 0, 0.25) 0%, rgba(10, 20, 32, 0.95) 50%, rgba(255, 171, 0, 0.25) 100%)'
-              : 'linear-gradient(90deg, rgba(255, 23, 68, 0.22) 0%, rgba(10, 20, 32, 0.95) 50%, rgba(0, 230, 118, 0.22) 100%)',
-            borderBottom: `1px solid ${liveMatch.status === 'delayed' ? 'var(--color-orange, #ffab00)' : 'var(--color-primary)'}`,
+              ? 'linear-gradient(90deg, rgba(255, 171, 0, 0.25) 0%, rgba(21, 24, 22, 0.95) 50%, rgba(255, 171, 0, 0.25) 100%)'
+              : 'linear-gradient(90deg, rgba(255, 92, 77, 0.22) 0%, rgba(21, 24, 22, 0.95) 50%, rgba(46, 229, 122, 0.22) 100%)',
+            borderBottom: `1px solid ${liveMatch.status === 'delayed' ? 'var(--color-orange, #F59E3D)' : 'var(--color-primary)'}`,
             padding: '8px 16px',
             display: 'flex',
             alignItems: 'center',
@@ -242,8 +247,8 @@ function App() {
           }}
           title="Clic para ir directamente a la transmisión del partido en vivo"
         >
-          <span style={{ color: liveMatch.status === 'delayed' ? '#ffab00' : '#ff1744', display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: liveMatch.status === 'delayed' ? '#ffab00' : '#ff1744', display: 'inline-block' }} />
+          <span style={{ color: liveMatch.status === 'delayed' ? '#F59E3D' : '#FF5C4D', display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: liveMatch.status === 'delayed' ? '#F59E3D' : '#FF5C4D', display: 'inline-block' }} />
             {liveMatch.status === 'live' ? 'PARTIDO EN VIVO' : liveMatch.status === 'delayed' ? 'PARTIDO EN ESPERA (COROZAL)' : 'PARTIDO PAUSADO'}:
           </span>
           <span style={{ color: 'var(--color-primary)' }}>Orcos {liveMatch.orcos_score ?? 0}</span>
@@ -276,7 +281,7 @@ function App() {
         </motion.div>
       )}
 
-      <main style={{ flex: 1, padding: '15px 15px 40px 15px' }}>
+      <main className="app-main">
         <AnimatePresence mode="wait">
         <ErrorBoundary>
         <Suspense fallback={<motion.div key="suspense" className="glass-panel" style={{ padding: '40px', textAlign: 'center', color: 'var(--color-text-muted)' }}
@@ -335,6 +340,8 @@ function App() {
         hasPermission={hasPermission}
         profile={profile}
       />
+
+      <StaffBottomNav activeTab={activeTab} setActiveTab={setActiveTab} hasPermission={hasPermission} />
 
       <Footer />
 

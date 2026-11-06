@@ -42,7 +42,7 @@ function FutureTab({
   return (
     <div className="animated-fade" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h3 style={{ fontSize: '1.2rem', fontWeight: 800, fontFamily: 'Outfit', color: 'var(--color-blue)' }}>
+        <h3 style={{ fontSize: '1.2rem', fontWeight: 600, color: 'var(--color-text)' }}>
           Próximos Partidos
         </h3>
         <button
@@ -70,7 +70,7 @@ function FutureTab({
                 <input type="text" value={futureOpponentCustom} onChange={(e) => setFutureOpponentCustom(e.target.value)} placeholder="Nombre del rival" className="form-input" style={{ marginTop: '8px' }} />
               )}
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '10px' }}>
               <div className="form-group">
                 <label>Fecha</label>
                 <input type="date" value={futureDate} onChange={(e) => setFutureDate(e.target.value)} className="form-input" required />

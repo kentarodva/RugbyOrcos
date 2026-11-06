@@ -14,7 +14,7 @@ function ResetPasswordModal({ player, onClose, onReset }) {
     <div className="modal-overlay" onClick={() => { onClose(); setPass(''); }}>
       <div className="modal-content glass-panel animated-slide" style={{ maxWidth: '420px', textAlign: 'center' }} onClick={e => e.stopPropagation()}>
         <div style={{ fontSize: '2rem', marginBottom: '10px' }}>🔑</div>
-        <h3 style={{ fontSize: '1.1rem', fontWeight: 800, fontFamily: 'Outfit', marginBottom: '8px', color: 'var(--color-gold)' }}>
+        <h3 style={{ fontSize: '1.1rem', fontWeight: 600, marginBottom: '8px', color: 'var(--color-text)' }}>
           Restablecer Contrasena
         </h3>
         <p style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', marginBottom: '15px' }}>

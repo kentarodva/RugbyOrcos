@@ -3,7 +3,7 @@ import React from 'react';
 function StrategyNotes({ tacticalNotes, onChange }) {
   return (
     <div className="glass-panel" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-      <h3 style={{ fontSize: '1.1rem', fontWeight: 700, fontFamily: 'Outfit' }}>Pizarra de Estrategia</h3>
+      <h3 style={{ fontSize: '1.1rem', fontWeight: 600 }}>Pizarra de Estrategia</h3>
 
       <textarea
         className="form-textarea"

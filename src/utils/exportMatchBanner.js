@@ -63,15 +63,15 @@ export async function generateMatchScoreBannerBlob({
 
   // Background gradient: carbon & emerald ambient
   const bgGrad = ctx.createLinearGradient(0, 0, width, height);
-  bgGrad.addColorStop(0, '#060d13');
-  bgGrad.addColorStop(0.5, '#0b1924');
-  bgGrad.addColorStop(1, '#050a0f');
+  bgGrad.addColorStop(0, '#0D100E');
+  bgGrad.addColorStop(0.5, '#181B19');
+  bgGrad.addColorStop(1, '#0A0D0B');
   ctx.fillStyle = bgGrad;
   ctx.fillRect(0, 0, width, height);
 
   // Decorative field markings / grid lines
   ctx.save();
-  ctx.strokeStyle = 'rgba(0, 230, 118, 0.08)';
+  ctx.strokeStyle = 'rgba(46, 229, 122, 0.08)';
   ctx.lineWidth = 2;
   for (let x = 100; x < width; x += 150) {
     ctx.beginPath();
@@ -83,7 +83,7 @@ export async function generateMatchScoreBannerBlob({
 
   // Outer border with neon glow
   ctx.save();
-  ctx.strokeStyle = 'rgba(0, 230, 118, 0.4)';
+  ctx.strokeStyle = 'rgba(46, 229, 122, 0.4)';
   ctx.lineWidth = 6;
   ctx.strokeRect(16, 16, width - 32, height - 32);
   ctx.strokeStyle = 'rgba(255, 215, 64, 0.3)';
@@ -103,7 +103,7 @@ export async function generateMatchScoreBannerBlob({
   const opponentName = (liveMatch?.opponent_name || 'RIVAL').toUpperCase();
   const tournament = (liveMatch?.tournament || 'TORNEO OFICIAL').toUpperCase();
 
-  ctx.fillStyle = '#ffd740';
+  ctx.fillStyle = '#E8B931';
   ctx.font = '700 16px "Outfit", Arial, sans-serif';
   ctx.textAlign = 'right';
   ctx.fillText(tournament, width - 60, 72);
@@ -116,7 +116,7 @@ export async function generateMatchScoreBannerBlob({
       : '✅ FINALIZADO';
 
   ctx.save();
-  ctx.fillStyle = status === 'live' ? '#ff1744' : status === 'paused' ? '#f59e0b' : '#10b981';
+  ctx.fillStyle = status === 'live' ? '#FF5C4D' : status === 'paused' ? '#f59e0b' : '#10b981';
   ctx.beginPath();
   ctx.roundRect((width / 2) - 150, 110, 300, 38, 19);
   ctx.fill();
@@ -132,15 +132,15 @@ export async function generateMatchScoreBannerBlob({
 
   // Left Card: Orcos
   ctx.save();
-  ctx.fillStyle = 'rgba(10, 35, 20, 0.7)';
-  ctx.strokeStyle = 'rgba(0, 230, 118, 0.4)';
+  ctx.fillStyle = 'rgba(22, 25, 23, 0.7)';
+  ctx.strokeStyle = 'rgba(46, 229, 122, 0.4)';
   ctx.lineWidth = 2;
   ctx.beginPath();
   ctx.roundRect(60, boxY, 440, boxH, 16);
   ctx.fill();
   ctx.stroke();
 
-  ctx.fillStyle = '#00e676';
+  ctx.fillStyle = '#2EE57A';
   ctx.font = '900 32px "Outfit", Arial, sans-serif';
   ctx.textAlign = 'center';
   ctx.fillText('ORCOS NEGROS', 280, boxY + 65);
@@ -149,16 +149,16 @@ export async function generateMatchScoreBannerBlob({
   ctx.font = '700 15px Arial, sans-serif';
   ctx.fillText('LOCAL / CLUB', 280, boxY + 95);
 
-  ctx.fillStyle = '#00e676';
+  ctx.fillStyle = '#2EE57A';
   ctx.font = '900 135px "Outfit", Arial, sans-serif';
-  ctx.shadowColor = 'rgba(0, 230, 118, 0.6)';
+  ctx.shadowColor = 'rgba(46, 229, 122, 0.6)';
   ctx.shadowBlur = 25;
   ctx.fillText(String(score.orcos ?? 0), 280, boxY + 240);
   ctx.restore();
 
   // Middle VS
   ctx.save();
-  ctx.fillStyle = '#ffd740';
+  ctx.fillStyle = '#E8B931';
   ctx.font = '900 48px "Outfit", Arial, sans-serif';
   ctx.textAlign = 'center';
   ctx.shadowColor = 'rgba(255, 215, 64, 0.5)';
@@ -168,7 +168,7 @@ export async function generateMatchScoreBannerBlob({
 
   // Right Card: Opponent
   ctx.save();
-  ctx.fillStyle = 'rgba(30, 41, 59, 0.7)';
+  ctx.fillStyle = 'rgba(43, 46, 44, 0.7)';
   ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
   ctx.lineWidth = 2;
   ctx.beginPath();
@@ -193,8 +193,8 @@ export async function generateMatchScoreBannerBlob({
 
   // Bottom Ticker / Try Scorers
   ctx.save();
-  ctx.fillStyle = 'rgba(7, 15, 24, 0.9)';
-  ctx.strokeStyle = 'rgba(0, 230, 118, 0.25)';
+  ctx.fillStyle = 'rgba(15, 18, 16, 0.9)';
+  ctx.strokeStyle = 'rgba(46, 229, 122, 0.25)';
   ctx.lineWidth = 1;
   ctx.beginPath();
   ctx.roundRect(60, 495, width - 120, 85, 12);
@@ -207,7 +207,7 @@ export async function generateMatchScoreBannerBlob({
     .map(ev => `${ev.minute}' ${ev.event_type.toUpperCase()}: ${ev.player_name || 'Guerrero'}`)
     .join('  |  ');
 
-  ctx.fillStyle = '#00e676';
+  ctx.fillStyle = '#2EE57A';
   ctx.font = '900 16px "Outfit", Arial, sans-serif';
   ctx.textAlign = 'left';
   ctx.fillText('ANOTACIONES DESTACADAS:', 80, 532);
@@ -217,7 +217,7 @@ export async function generateMatchScoreBannerBlob({
   const tickerText = recentTries || 'Sin incidencias mayores registradas · Partido en disputa activa';
   ctx.fillText(tickerText, 80, 558);
 
-  ctx.fillStyle = '#ffd740';
+  ctx.fillStyle = '#E8B931';
   ctx.font = 'italic 700 14px "Outfit", Arial, sans-serif';
   ctx.textAlign = 'right';
   ctx.fillText('Fuerza, Honor y Tercer Tiempo 🏉', width - 80, 545);

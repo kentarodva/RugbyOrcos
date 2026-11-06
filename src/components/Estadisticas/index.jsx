@@ -90,24 +90,22 @@ function Estadisticas() {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-      <div className="glass-panel" style={{ padding: '14px 18px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
-        <h3 className="neon-text-primary" style={{ fontSize: '1.1rem', fontFamily: 'Outfit', margin: 0, display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
-          <BarChart3 size={18} /> Estadísticas del Club
-        </h3>
-        <span style={{ fontSize: '0.82rem', color: 'var(--text-secondary)' }}>{filteredPlayers.length} jugadores · {activePlayers.length} activos</span>
-      </div>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '10px' }}>
-        <KPI value={filteredPlayers.length} label="Jugadores en vista" icon={<Users size={16} />} color="#00e676" />
-        <KPI value={activePlayers.length} label="Guerreros activos" icon={<Swords size={16} />} color="#00e676" sub={filteredPlayers.length > 0 ? `${(activePlayers.length / filteredPlayers.length * 100).toFixed(0)}% del total` : ''} />
-        <KPI value={`${avg(ages)}`} label="Edad promedio" icon={<Cake size={16} />} color="#ffd740" sub={`${ages.length} reportaron edad`} />
+      <header style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+        <span className="page-eyebrow">{filteredPlayers.length} jugadores · {activePlayers.length} activos</span>
+        <h1 className="page-title">Estadísticas</h1>
+      </header>
+      <div className="metrics-grid">
+        <KPI value={filteredPlayers.length} label="En vista" icon={<Users size={16} />} color="#2EE57A" />
+        <KPI value={activePlayers.length} label="Activos" icon={<Swords size={16} />} color="#2EE57A" sub={filteredPlayers.length > 0 ? `${(activePlayers.length / filteredPlayers.length * 100).toFixed(0)}% del total` : ''} />
+        <KPI value={`${avg(ages)}`} label="Edad promedio" icon={<Cake size={16} />} color="#E8B931" sub={`${ages.length} reportaron edad`} />
         <KPI value={`${avg(weights)}kg`} label="Peso promedio" icon={<Dumbbell size={16} />} color="#448aff" sub={`${weights.length} reportaron peso`} />
       </div>
       {upcomingBirthdays.length > 0 && (
         <div className="glass-panel" style={{ padding: '10px 16px', display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
-          <Cake size={18} style={{ color: '#ffd740' }} />
-          <span style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase' }}>Próximos cumpleaños</span>
+          <Cake size={18} style={{ color: 'var(--color-text-muted)' }} aria-hidden="true" />
+          <span style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'var(--color-text-muted)' }}>Próximos cumpleaños</span>
           {upcomingBirthdays.map((p, i) => (
-            <span key={p.id} style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.82rem', color: p.days === 0 ? '#ffd740' : 'var(--text-primary)' }}>
+            <span key={p.id} style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.82rem', color: p.days === 0 ? '#E8B931' : 'var(--text-primary)' }}>
               <span style={{ fontWeight: p.days === 0 ? 800 : 600 }}>{p.name}</span>
               <span style={{ color: 'var(--text-secondary)', fontSize: '0.78rem' }}>
                 {p.days === 0 ? '¡Hoy!' : `${formatLocalDate(p.nextBD, { day: 'numeric', month: 'short' })} (${p.days}d)`}
@@ -117,7 +115,7 @@ function Estadisticas() {
           ))}
         </div>
       )}
-      <div className="glass-panel" style={{ padding: '14px 18px' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
         {activeTab !== 'salon' && (
           <FilterBar filters={filters} onChange={setFilters} uniqueEps={uniqueEps} searchInputRef={searchInputRef} />
         )}

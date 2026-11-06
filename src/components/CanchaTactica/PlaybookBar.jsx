@@ -54,8 +54,8 @@ function PlaybookBar({
       className="glass-panel"
       style={{
         padding: '12px 14px',
-        border: '1px solid rgba(0, 230, 118, 0.28)',
-        background: 'linear-gradient(135deg, rgba(10, 20, 32, 0.92) 0%, rgba(7, 15, 24, 0.95) 100%)',
+        border: '1px solid rgba(46, 229, 122, 0.28)',
+        background: 'linear-gradient(135deg, rgba(21, 24, 22, 0.92) 0%, rgba(15, 18, 16, 0.95) 100%)',
         display: 'flex',
         flexDirection: 'column',
         gap: '10px',
@@ -63,11 +63,11 @@ function PlaybookBar({
     >
       {/* Top Row: TV Playbook Selector + Rivals/Ball Toggles + WhatsApp Exports */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', flex: '1 1 320px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', flex: '1 1 320px', minWidth: 0 }}>
           <span
             style={{
-              background: 'rgba(0, 230, 118, 0.14)',
-              border: '1px solid rgba(0, 230, 118, 0.4)',
+              background: 'rgba(46, 229, 122, 0.14)',
+              border: '1px solid rgba(46, 229, 122, 0.4)',
               color: 'var(--color-primary)',
               fontSize: '0.68rem',
               fontWeight: 900,
@@ -136,8 +136,8 @@ function PlaybookBar({
               fontSize: '0.75rem',
               fontWeight: 800,
               background: showBall ? 'rgba(255, 215, 64, 0.18)' : 'rgba(255,255,255,0.03)',
-              borderColor: showBall ? '#ffd740' : 'rgba(255,255,255,0.15)',
-              color: showBall ? '#ffd740' : 'var(--color-text-muted)',
+              borderColor: showBall ? '#E8B931' : 'rgba(255,255,255,0.15)',
+              color: showBall ? '#E8B931' : 'var(--color-text-muted)',
             }}
             title="Mostrar u ocultar el balón interactivo (arrástralo para trazar pases)"
           >
@@ -189,8 +189,8 @@ function PlaybookBar({
                 padding: '6px 10px',
                 fontSize: '0.75rem',
                 fontWeight: 800,
-                borderColor: '#00e676',
-                color: '#00e676',
+                borderColor: '#2EE57A',
+                color: '#2EE57A',
                 display: 'flex',
                 alignItems: 'center',
                 gap: '4px',
@@ -209,7 +209,7 @@ function PlaybookBar({
               padding: '6px 10px',
               fontSize: '0.75rem',
               fontWeight: 800,
-              borderColor: 'rgba(0, 230, 118, 0.35)',
+              borderColor: 'rgba(46, 229, 122, 0.35)',
               color: 'var(--color-primary)',
             }}
             title="Copia la lista del XV titular y suplentes formateada para pegar en el grupo de WhatsApp"
@@ -259,8 +259,8 @@ function PlaybookBar({
                   padding: '6px 14px',
                   borderRadius: '8px',
                   border: 'none',
-                  background: isPlayingPlay ? '#ffb300' : 'var(--color-primary)',
-                  color: '#04080e',
+                  background: isPlayingPlay ? '#E8B931' : 'var(--color-primary)',
+                  color: '#090C0A',
                   fontWeight: 900,
                   fontSize: '0.76rem',
                   cursor: 'pointer',
@@ -268,8 +268,8 @@ function PlaybookBar({
                   alignItems: 'center',
                   gap: '6px',
                   boxShadow: isPlayingPlay
-                    ? '0 0 14px rgba(255, 179, 0, 0.45)'
-                    : '0 0 14px rgba(0, 230, 118, 0.35)',
+                    ? '0 0 14px rgba(232, 185, 49, 0.45)'
+                    : '0 0 14px rgba(46, 229, 122, 0.35)',
                 }}
               >
                 {isPlayingPlay ? '⏸️ Pausar Animación' : '▶️ Reproducir TV'}
@@ -308,9 +308,9 @@ function PlaybookBar({
                   fontSize: '0.72rem',
                   fontWeight: 800,
                   width: 'auto',
-                  background: 'rgba(10, 20, 32, 0.85)',
-                  borderColor: 'rgba(0, 230, 118, 0.4)',
-                  color: '#ffd740',
+                  background: 'rgba(21, 24, 22, 0.85)',
+                  borderColor: 'rgba(46, 229, 122, 0.4)',
+                  color: '#E8B931',
                 }}
                 title="Velocidad de reproducción de la animación de pizarra"
               >
@@ -335,10 +335,10 @@ function PlaybookBar({
                   fontSize: '0.72rem',
                   fontWeight: 800,
                   cursor: 'pointer',
-                  background: isCurrent ? 'rgba(0, 230, 118, 0.22)' : 'rgba(255,255,255,0.05)',
+                  background: isCurrent ? 'rgba(46, 229, 122, 0.22)' : 'rgba(255,255,255,0.05)',
                   border: isCurrent ? '1.5px solid var(--color-primary)' : '1px solid rgba(255,255,255,0.12)',
                   color: isCurrent ? '#fff' : 'var(--color-text-muted)',
-                  boxShadow: isCurrent ? '0 0 10px rgba(0, 230, 118, 0.4)' : 'none',
+                  boxShadow: isCurrent ? '0 0 10px rgba(46, 229, 122, 0.4)' : 'none',
                 }}
               >
                 Fase {idx + 1}
@@ -357,7 +357,7 @@ function PlaybookBar({
               padding: '5px 10px',
               fontSize: '0.72rem',
               fontWeight: 700,
-              borderColor: 'rgba(255, 179, 0, 0.35)',
+              borderColor: 'rgba(232, 185, 49, 0.35)',
               color: 'var(--color-gold)',
             }}
             title="Mueve jugadores, rivales o el balón y guarda la posición como una nueva fase animada"

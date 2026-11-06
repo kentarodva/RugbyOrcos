@@ -37,7 +37,7 @@ function PitchControls({
         alignItems: 'center',
         justifyContent: 'space-between',
         gap: '15px',
-        background: 'rgba(15, 22, 36, 0.4)',
+        background: 'rgba(24, 27, 25, 0.4)',
         borderRadius: 'var(--radius-md)',
         border: '1px solid var(--border-glass)',
         flexWrap: 'wrap',
@@ -134,7 +134,7 @@ function PitchControls({
                 cursor: autoAssignLoading ? 'wait' : 'pointer',
                 borderColor: 'var(--color-primary)',
                 color: 'var(--color-primary)',
-                background: autoAssignLoading ? 'rgba(0, 230, 118, 0.1)' : 'transparent',
+                background: autoAssignLoading ? 'rgba(46, 229, 122, 0.1)' : 'transparent',
                 opacity: autoAssignLoading ? 0.7 : 1,
               }}
             >
@@ -178,7 +178,7 @@ function PitchControls({
                       color: 'var(--color-text)',
                       cursor: 'pointer',
                     }}
-                    onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(0,230,118,0.08)'}
+                    onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(46, 229, 122,0.08)'}
                     onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
                   >
                     {opt.label}
@@ -200,7 +200,7 @@ function PitchControls({
                       color: 'var(--color-text)',
                       cursor: 'pointer',
                     }}
-                    onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(0,230,118,0.08)'}
+                    onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(46, 229, 122,0.08)'}
                     onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
                   >
                     Personalizar...
@@ -223,7 +223,7 @@ function PitchControls({
                 borderRadius: 'var(--radius-sm)',
                 cursor: 'pointer',
                 borderColor: pitchOrientation === 'horizontal' ? 'var(--color-primary)' : 'rgba(255,255,255,0.1)',
-                background: pitchOrientation === 'horizontal' ? 'rgba(0, 230, 118, 0.15)' : 'transparent',
+                background: pitchOrientation === 'horizontal' ? 'rgba(46, 229, 122, 0.15)' : 'transparent',
                 color: pitchOrientation === 'horizontal' ? 'var(--color-primary)' : 'rgba(255,255,255,0.6)',
                 transition: 'all 0.2s'
               }}
@@ -240,7 +240,7 @@ function PitchControls({
                 borderRadius: 'var(--radius-sm)',
                 cursor: 'pointer',
                 borderColor: pitchOrientation === 'vertical' ? 'var(--color-primary)' : 'rgba(255,255,255,0.1)',
-                background: pitchOrientation === 'vertical' ? 'rgba(0, 230, 118, 0.15)' : 'transparent',
+                background: pitchOrientation === 'vertical' ? 'rgba(46, 229, 122, 0.15)' : 'transparent',
                 color: pitchOrientation === 'vertical' ? 'var(--color-primary)' : 'rgba(255,255,255,0.6)',
                 transition: 'all 0.2s'
               }}
@@ -265,7 +265,7 @@ function PitchControls({
                   textTransform: 'uppercase',
                   cursor: 'pointer',
                   borderColor: pitchSize === sz ? 'var(--color-primary)' : 'rgba(255,255,255,0.1)',
-                  background: pitchSize === sz ? 'rgba(0, 230, 118, 0.15)' : 'transparent',
+                  background: pitchSize === sz ? 'rgba(46, 229, 122, 0.15)' : 'transparent',
                   color: pitchSize === sz ? 'var(--color-primary)' : 'rgba(255,255,255,0.6)',
                   transition: 'all 0.2s'
                 }}

@@ -90,7 +90,7 @@ function MatchSquadModal({ fixture, players, onSave, onClose, showToast }) {
         padding: '25px', display: 'flex', flexDirection: 'column', gap: '15px'
       }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <h3 style={{ fontSize: '1.1rem', fontWeight: 800, fontFamily: 'Outfit', color: 'var(--color-primary)' }}>
+          <h3 style={{ fontSize: '1.1rem', fontWeight: 600, color: 'var(--color-text)' }}>
             XV Titular vs {fixture.opponent}
           </h3>
           <button onClick={onClose} style={{ background: 'none', border: 'none', color: 'var(--color-red)', cursor: 'pointer', fontSize: '1.2rem' }}>X</button>
@@ -102,18 +102,18 @@ function MatchSquadModal({ fixture, players, onSave, onClose, showToast }) {
           className="form-input" style={{ fontSize: '0.8rem' }}
         />
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', flex: 1, minHeight: 0 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '15px', flex: 1, minHeight: 0 }}>
           <div>
             <div style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--color-primary)', marginBottom: '8px', textAlign: 'center' }}>
               XV Titular ({startingXV.length}/15)
             </div>
             <Scroller height="320px">
               {startingXV.map(id => (
-                <div key={id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '6px 8px', background: 'rgba(0,230,118,0.06)', borderRadius: '6px', border: '1px solid rgba(0,230,118,0.15)', fontSize: '0.75rem' }}>
+                <div key={id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '6px 8px', background: 'rgba(46, 229, 122,0.06)', borderRadius: '6px', border: '1px solid rgba(46, 229, 122,0.15)', fontSize: '0.75rem' }}>
                   <span style={{ fontWeight: 600 }}>{getPlayerName(id)}</span>
                   <div style={{ display: 'flex', gap: '4px' }}>
                     <button onClick={() => toggleSubstitute(id)} style={{ background: 'rgba(255,234,0,0.1)', border: '1px solid rgba(255,234,0,0.2)', color: 'var(--color-gold)', borderRadius: '4px', padding: '2px 5px', cursor: 'pointer', fontSize: '0.6rem', fontWeight: 700 }}>Supl</button>
-                    <button onClick={() => removeFromSquad(id)} style={{ background: 'rgba(255,61,0,0.1)', border: '1px solid rgba(255,61,0,0.2)', color: 'var(--color-red)', borderRadius: '4px', padding: '2px 5px', cursor: 'pointer', fontSize: '0.6rem', fontWeight: 700 }}>X</button>
+                    <button onClick={() => removeFromSquad(id)} style={{ background: 'rgba(255, 92, 77,0.1)', border: '1px solid rgba(255, 92, 77,0.2)', color: 'var(--color-red)', borderRadius: '4px', padding: '2px 5px', cursor: 'pointer', fontSize: '0.6rem', fontWeight: 700 }}>X</button>
                   </div>
                 </div>
               ))}
@@ -130,8 +130,8 @@ function MatchSquadModal({ fixture, players, onSave, onClose, showToast }) {
                 <div key={id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '6px 8px', background: 'rgba(255,234,0,0.06)', borderRadius: '6px', border: '1px solid rgba(255,234,0,0.15)', fontSize: '0.75rem' }}>
                   <span style={{ fontWeight: 600 }}>{getPlayerName(id)}</span>
                   <div style={{ display: 'flex', gap: '4px' }}>
-                    <button onClick={() => toggleStarting(id)} style={{ background: 'rgba(0,230,118,0.1)', border: '1px solid rgba(0,230,118,0.2)', color: 'var(--color-primary)', borderRadius: '4px', padding: '2px 5px', cursor: 'pointer', fontSize: '0.6rem', fontWeight: 700 }}>Tit</button>
-                    <button onClick={() => removeFromSquad(id)} style={{ background: 'rgba(255,61,0,0.1)', border: '1px solid rgba(255,61,0,0.2)', color: 'var(--color-red)', borderRadius: '4px', padding: '2px 5px', cursor: 'pointer', fontSize: '0.6rem', fontWeight: 700 }}>X</button>
+                    <button onClick={() => toggleStarting(id)} style={{ background: 'rgba(46, 229, 122,0.1)', border: '1px solid rgba(46, 229, 122,0.2)', color: 'var(--color-primary)', borderRadius: '4px', padding: '2px 5px', cursor: 'pointer', fontSize: '0.6rem', fontWeight: 700 }}>Tit</button>
+                    <button onClick={() => removeFromSquad(id)} style={{ background: 'rgba(255, 92, 77,0.1)', border: '1px solid rgba(255, 92, 77,0.2)', color: 'var(--color-red)', borderRadius: '4px', padding: '2px 5px', cursor: 'pointer', fontSize: '0.6rem', fontWeight: 700 }}>X</button>
                   </div>
                 </div>
               ))}
@@ -148,8 +148,8 @@ function MatchSquadModal({ fixture, players, onSave, onClose, showToast }) {
               <div key={p.id} style={{
                 display: 'flex', justifyContent: 'space-between', alignItems: 'center',
                 padding: '5px 8px', borderRadius: '4px', fontSize: '0.75rem',
-                background: inStarting ? 'rgba(0,230,118,0.08)' : inSubs ? 'rgba(255,234,0,0.08)' : 'transparent',
-                border: `1px solid ${inStarting ? 'rgba(0,230,118,0.2)' : inSubs ? 'rgba(255,234,0,0.2)' : 'transparent'}`
+                background: inStarting ? 'rgba(46, 229, 122,0.08)' : inSubs ? 'rgba(255,234,0,0.08)' : 'transparent',
+                border: `1px solid ${inStarting ? 'rgba(46, 229, 122,0.2)' : inSubs ? 'rgba(255,234,0,0.2)' : 'transparent'}`
               }}>
                 <div>
                   <span style={{ fontWeight: 600 }}>{p.name}</span>
@@ -158,7 +158,7 @@ function MatchSquadModal({ fixture, players, onSave, onClose, showToast }) {
                 <div style={{ display: 'flex', gap: '4px' }}>
                   <button onClick={() => toggleStarting(p.id)} style={{
                     padding: '2px 6px', borderRadius: '4px', fontSize: '0.6rem', fontWeight: 700, cursor: 'pointer',
-                    background: inStarting ? 'rgba(0,230,118,0.2)' : 'transparent',
+                    background: inStarting ? 'rgba(46, 229, 122,0.2)' : 'transparent',
                     border: `1px solid ${inStarting ? 'var(--color-primary)' : 'rgba(255,255,255,0.1)'}`,
                     color: inStarting ? 'var(--color-primary)' : 'var(--color-text-muted)'
                   }}>Titular</button>

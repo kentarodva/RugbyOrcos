@@ -45,7 +45,7 @@ function FixtureForm({ players, onSave, initialData, onCancel }) {
 
   return (
     <div className="glass-panel animated-slide" style={{ padding: '25px' }}>
-      <h3 className="neon-text-gold" style={{ marginBottom: '20px', fontFamily: 'Outfit' }}>
+      <h3 className="neon-text-gold" style={{ marginBottom: '20px', fontFamily: 'var(--font-display)' }}>
         {isEditing ? 'Editar Resultado' : 'Registrar Resultado'}
       </h3>
 
@@ -62,7 +62,7 @@ function FixtureForm({ players, onSave, initialData, onCancel }) {
           />
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '10px' }}>
           <div className="form-group">
             <label>Puntos Orcos</label>
             <input
@@ -87,7 +87,7 @@ function FixtureForm({ players, onSave, initialData, onCancel }) {
           </div>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '10px' }}>
           <div className="form-group">
             <label>Fecha de Contienda</label>
             <input

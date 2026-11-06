@@ -54,8 +54,8 @@ export function AnalysisPanel({ showAnalysis, analyzingMatch, analysisResult, on
             )}
             {analysisResult.recomendacionTactica && (
               <div style={{
-                background: 'rgba(0, 230, 118, 0.05)',
-                border: '1px solid rgba(0, 230, 118, 0.15)',
+                background: 'rgba(46, 229, 122, 0.05)',
+                border: '1px solid rgba(46, 229, 122, 0.15)',
                 padding: '12px',
                 borderRadius: 'var(--radius-sm)',
                 fontSize: '0.82rem'

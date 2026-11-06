@@ -55,7 +55,7 @@ export function LeaderboardTab({ players = [], teamCategory = 'all' }) {
 
   const renderPodium = (title, icon, data, unit, color) => (
     <div style={{
-      background: 'rgba(10, 20, 30, 0.65)',
+      background: 'rgba(20, 23, 21, 0.65)',
       border: `1px solid ${color}40`,
       borderRadius: '16px',
       padding: '20px',
@@ -63,7 +63,7 @@ export function LeaderboardTab({ players = [], teamCategory = 'all' }) {
       flexDirection: 'column',
       gap: '12px'
     }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color, fontWeight: 900, fontSize: '1.05rem', fontFamily: 'Outfit' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color, fontWeight: 900, fontSize: '1.05rem', fontFamily: 'var(--font-display)' }}>
         {icon}
         <span>{title}</span>
       </div>
@@ -102,7 +102,7 @@ export function LeaderboardTab({ players = [], teamCategory = 'all' }) {
               </div>
 
               <div style={{ textAlign: 'right' }}>
-                <span style={{ fontSize: '1.05rem', fontWeight: 900, color, fontFamily: 'Outfit' }}>
+                <span style={{ fontSize: '1.05rem', fontWeight: 900, color, fontFamily: 'var(--font-display)' }}>
                   {item.count}
                 </span>
                 <span style={{ fontSize: '0.68rem', color: 'var(--color-text-muted)', marginLeft: '4px' }}>
@@ -143,11 +143,11 @@ export function LeaderboardTab({ players = [], teamCategory = 'all' }) {
       {/* Grid of 4 Podiums */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))',
         gap: '16px'
       }}>
-        {renderPodium('TRYMAN / TRYWOMAN DE ORO', <OrcosRugbyBallIcon size={20} color="#00e676" />, topTries, 'Tries', '#00e676')}
-        {renderPodium('BOTÍN DE ORO (PATEADOR)', <OrcosBattleAxeHPostsIcon size={20} color="#ffd740" />, topKickers, 'Pts', '#ffd740')}
+        {renderPodium('TRYMAN / TRYWOMAN DE ORO', <OrcosRugbyBallIcon size={20} color="#2EE57A" />, topTries, 'Tries', '#2EE57A')}
+        {renderPodium('BOTÍN DE ORO (PATEADOR)', <OrcosBattleAxeHPostsIcon size={20} color="#E8B931" />, topKickers, 'Pts', '#E8B931')}
         {renderPodium('ESCUDO DE HIERRO (CAPS)', <OrcosTackleShieldIcon size={20} color="#38bdf8" />, topCaps, 'Partidos', '#38bdf8')}
         {renderPodium('CAMPEÓN MAKGORA (XP)', <OrcosThirdTimeHornIcon size={20} color="#a855f7" />, topMvp, 'XP', '#a855f7')}
       </div>
@@ -162,9 +162,9 @@ export function LeaderboardTab({ players = [], teamCategory = 'all' }) {
         alignItems: 'center',
         gap: '14px'
       }}>
-        <OrcosWarBannerIcon size={32} color="#ffd740" style={{ flexShrink: 0 }} />
+        <OrcosWarBannerIcon size={32} color="#E8B931" style={{ flexShrink: 0 }} />
         <div>
-          <div style={{ fontSize: '0.9rem', fontWeight: 800, color: '#ffd740' }}>
+          <div style={{ fontSize: '0.9rem', fontWeight: 800, color: '#E8B931' }}>
             Premios Oficiales de Clausura de Temporada
           </div>
           <div style={{ fontSize: '0.78rem', color: 'var(--color-text-muted)' }}>

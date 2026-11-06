@@ -29,10 +29,10 @@ function FixtureTab({
   };
 
   return (
-    <div className="animated-fade" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '20px', width: '100%' }}>
+    <div className="animated-fade" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 320px), 1fr))', gap: '20px', width: '100%' }}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
         <div>
-          <h3 style={{ fontSize: '1.2rem', fontWeight: 700, fontFamily: 'Outfit' }}>Historial de Campaña</h3>
+          <h3 style={{ fontSize: '1.2rem', fontWeight: 600 }}>Historial de Campaña</h3>
           <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>Resultados de la contienda de esta temporada.</p>
         </div>
 

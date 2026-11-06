@@ -22,7 +22,7 @@ export function LoanForm({ players, teams, loanForm, setLoanForm, onSubmit, onCa
           ))}
         </select>
       </div>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '10px' }}>
         <div className="form-group">
           <label style={STYLE.lbl}>Dias de prestamo</label>
           <input type="number" min="1" max="90" value={loanForm.days} onChange={e => setLoanForm({ ...loanForm, days: Number(e.target.value) })} style={STYLE.inp} />

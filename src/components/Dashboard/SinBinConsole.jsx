@@ -88,10 +88,10 @@ function SinBinConsole({ teamPlayers, showToast }) {
   };
 
   return (
-    <div className="glass-panel" style={{ padding: '25px', display: 'flex', flexDirection: 'column', gap: '15px', borderLeft: '4px solid var(--color-yellow)' }}>
+    <div style={{ padding: '4px 12px 12px', display: 'flex', flexDirection: 'column', gap: '15px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
         <div>
-          <h3 style={{ fontSize: '1.2rem', fontWeight: 800, fontFamily: 'Outfit', color: 'var(--color-yellow)' }}>
+          <h3 style={{ fontSize: '1.2rem', fontWeight: 600, color: 'var(--color-text)' }}>
             Consola de Sin-Bin en Vivo (Sanciones del Staff)
           </h3>
           <p style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>
@@ -113,9 +113,9 @@ function SinBinConsole({ teamPlayers, showToast }) {
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px', marginTop: '10px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))', gap: '20px', marginTop: '10px' }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 100px', gap: '10px', alignItems: 'end' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 100px', gap: '10px', alignItems: 'end' }}>
             <div className="form-group" style={{ margin: 0 }}>
               <label>Seleccionar Infractor</label>
               <select
@@ -174,8 +174,8 @@ function SinBinConsole({ teamPlayers, showToast }) {
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'space-between',
-                      background: l.finished ? 'rgba(0, 230, 118, 0.05)' : 'rgba(255, 234, 0, 0.03)',
-                      border: '1px solid ' + (l.finished ? 'rgba(0, 230, 118, 0.2)' : 'rgba(255, 234, 0, 0.2)'),
+                      background: l.finished ? 'rgba(46, 229, 122, 0.05)' : 'rgba(255, 234, 0, 0.03)',
+                      border: '1px solid ' + (l.finished ? 'rgba(46, 229, 122, 0.2)' : 'rgba(255, 234, 0, 0.2)'),
                       padding: '10px 12px',
                       borderRadius: 'var(--radius-sm)'
                     }}

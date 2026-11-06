@@ -41,7 +41,7 @@ export default function SetTable({ sets, previous = [], onChange, onSetDone, sug
         return (
           <div role="row" key={i} style={{
             display: 'grid', gridTemplateColumns: GRID, gap: '6px', alignItems: 'center',
-            padding: '2px 0', borderRadius: '10px', background: s.done ? 'rgba(0,230,118,0.08)' : 'transparent',
+            padding: '2px 0', borderRadius: '10px', background: s.done ? 'rgba(46, 229, 122,0.08)' : 'transparent',
           }}>
             <button type="button" onClick={() => update(i, { type: nextSetType(s.type) })}
               aria-label={`Serie ${label}: ${meta.label}. Tocar para cambiar tipo`}
@@ -49,19 +49,19 @@ export default function SetTable({ sets, previous = [], onChange, onSetDone, sug
               {label}
             </button>
             <span role="cell" style={{ fontSize: '0.74rem', color: 'var(--color-text-muted)', textAlign: 'center', fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-              {pr ? <span style={{ color: '#ffd700' }}>🔥 Récord</span> : ghost ? `${ghost.weight}×${ghost.reps}` : '—'}
+              {pr ? <span style={{ color: '#E8B931' }}>🔥 Récord</span> : ghost ? `${ghost.weight}×${ghost.reps}` : '—'}
             </span>
             <input type="text" inputMode="decimal" aria-label={`Kg serie ${label}`} value={s.weight} placeholder={weightHint}
               onFocus={e => e.target.select()}
               onChange={e => update(i, { weight: e.target.value.replace(',', '.').replace(/[^\d.]/g, '') })}
-              style={{ ...cell, color: '#ffd700' }} />
+              style={{ ...cell, color: '#E8B931' }} />
             <input type="text" inputMode="numeric" aria-label={`Reps serie ${label}`} value={s.reps} placeholder={repsHint}
               onFocus={e => e.target.select()}
               onChange={e => update(i, { reps: e.target.value.replace(/\D/g, '').slice(0, 3) })}
               style={cell} />
             <button type="button" onClick={toggleDone} aria-pressed={s.done} aria-label={`Marcar serie ${label} como hecha`}
               style={{ ...cell, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                background: s.done ? '#00e676' : 'rgba(255,255,255,0.06)', color: s.done ? '#000' : 'var(--color-text-muted)', border: s.done ? 'none' : cell.border }}>
+                background: s.done ? '#2EE57A' : 'rgba(255,255,255,0.06)', color: s.done ? '#000' : 'var(--color-text-muted)', border: s.done ? 'none' : cell.border }}>
               <Check size={20} strokeWidth={3} />
             </button>
           </div>

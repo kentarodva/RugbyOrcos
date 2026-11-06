@@ -39,13 +39,13 @@ export default function PushOptIn() {
 
   const box = {
     display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 14px', borderRadius: '14px',
-    background: 'rgba(255,215,0,0.08)', border: '1px solid rgba(255,215,0,0.3)',
+    background: 'var(--bg-surface)', border: '1px solid var(--border-glass)',
   };
 
   if (state === 'ios-install') {
     return (
       <div role="note" style={box}>
-        <Bell size={22} color="#ffd700" aria-hidden="true" style={{ flexShrink: 0 }} />
+        <Bell size={20} color="var(--color-text-muted)" aria-hidden="true" style={{ flexShrink: 0 }} />
         <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--color-text)' }}>
           Para recibir avisos de partidos en iPhone: toca <strong>Compartir → Añadir a pantalla de inicio</strong> y abre la app desde ese icono.
         </p>
@@ -56,7 +56,7 @@ export default function PushOptIn() {
   if (state === 'denied') {
     return (
       <div role="note" style={box}>
-        <BellOff size={22} color="#ffd700" aria-hidden="true" style={{ flexShrink: 0 }} />
+        <BellOff size={22} color="#E8B931" aria-hidden="true" style={{ flexShrink: 0 }} />
         <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--color-text)' }}>
           Bloqueaste las notificaciones. Actívalas en los ajustes del navegador para este sitio y recarga.
         </p>
@@ -66,7 +66,7 @@ export default function PushOptIn() {
 
   return (
     <div role="region" aria-label="Activar notificaciones" style={{ ...box, flexWrap: 'wrap' }}>
-      <Bell size={22} color="#ffd700" aria-hidden="true" style={{ flexShrink: 0 }} />
+      <Bell size={20} color="var(--color-text-muted)" aria-hidden="true" style={{ flexShrink: 0 }} />
       <div style={{ flex: '1 1 180px', minWidth: 0 }}>
         <strong style={{ display: 'block', fontSize: '0.85rem', color: 'var(--color-text)' }}>Activa las notificaciones</strong>
         <span style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>Entérate de partidos, cambios de horario y anuncios del club.</span>

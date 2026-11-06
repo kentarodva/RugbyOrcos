@@ -32,9 +32,9 @@ function FaultBookTab({ teamPlayers, penalizedPlayers, redeemPenalty, onShareBla
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', width: '100%' }}>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '15px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 220px), 1fr))', gap: '15px' }}>
 
-        <div className="glass-panel" style={{ padding: '20px', borderLeft: '4px solid var(--color-red)', background: 'rgba(255, 61, 0, 0.02)' }}>
+        <div className="glass-panel" style={{ padding: '20px', borderLeft: '4px solid var(--color-red)', background: 'rgba(255, 92, 77, 0.02)' }}>
           <span style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)', textTransform: 'uppercase', fontWeight: 700 }}>Total Burpees a Pagar</span>
           <h2 style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--color-red)', marginTop: '5px' }}>
             {totalBurpees} Burpees
@@ -42,7 +42,7 @@ function FaultBookTab({ teamPlayers, penalizedPlayers, redeemPenalty, onShareBla
           <p style={{ fontSize: '0.65rem', color: 'var(--color-text-muted)', marginTop: '5px' }}>Faltas, tardanzas e infracciones activas.</p>
         </div>
 
-        <div className="glass-panel" style={{ padding: '20px', borderLeft: '4px solid var(--color-blue)', background: 'rgba(0, 176, 255, 0.02)' }}>
+        <div className="glass-panel" style={{ padding: '20px', borderLeft: '4px solid var(--color-blue)', background: 'rgba(90, 169, 255, 0.02)' }}>
           <span style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)', textTransform: 'uppercase', fontWeight: 700 }}>Total Conos a Recoger</span>
           <h2 style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--color-blue)', marginTop: '5px' }}>
             {totalCones} Orcos
@@ -62,7 +62,7 @@ function FaultBookTab({ teamPlayers, penalizedPlayers, redeemPenalty, onShareBla
 
       <div className="glass-panel" style={{ padding: '25px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px', flexWrap: 'wrap', gap: '10px' }}>
-          <h3 style={{ fontSize: '1.25rem', fontWeight: 800, fontFamily: 'Outfit', color: 'var(--color-red)', margin: 0 }}>
+          <h3 style={{ fontSize: '1.25rem', fontWeight: 600, color: 'var(--color-text)', margin: 0 }}>
             Reporte de Historial de Faltas e Infracciones
           </h3>
           <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
@@ -126,7 +126,7 @@ function FaultBookTab({ teamPlayers, penalizedPlayers, redeemPenalty, onShareBla
                     key={p.id}
                     style={{
                       borderBottom: '1px solid rgba(255,255,255,0.03)',
-                      background: hasPenalties ? 'rgba(255, 61, 0, 0.01)' : 'transparent'
+                      background: hasPenalties ? 'rgba(255, 92, 77, 0.01)' : 'transparent'
                     }}
                   >
                     <td style={{ padding: '12px 5px' }}>
@@ -192,7 +192,7 @@ function FaultBookTab({ teamPlayers, penalizedPlayers, redeemPenalty, onShareBla
                              <button
                                onClick={() => handleRedeem(p, 'cones')}
                               className="btn-outline"
-                              style={{ padding: '3px 8px', fontSize: '0.65rem', color: 'var(--color-blue)', borderColor: 'rgba(0,176,255,0.2)' }}
+                              style={{ padding: '3px 8px', fontSize: '0.65rem', color: 'var(--color-blue)', borderColor: 'rgba(90, 169, 255,0.2)' }}
                             >
                               Recogido
                             </button>

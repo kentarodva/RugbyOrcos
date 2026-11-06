@@ -56,7 +56,7 @@ function PlayerStatsForm({ activeTeamPlayers, fixture, onSave, onClose }) {
         </select>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '10px', marginBottom: '12px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', gap: '10px', marginBottom: '12px' }}>
         <div className="form-group">
           <label style={{ fontSize: '0.65rem' }}>Tries</label>
           <input type="number" min="0" value={form.tries} onChange={set('tries')} className="form-input" />
@@ -75,7 +75,7 @@ function PlayerStatsForm({ activeTeamPlayers, fixture, onSave, onClose }) {
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', alignItems: 'center', marginBottom: '15px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '15px', alignItems: 'center', marginBottom: '15px' }}>
         <div style={{ display: 'flex', gap: '8px' }}>
           <div className="form-group" style={{ flex: 1 }}>
             <label style={{ fontSize: '0.65rem', color: 'var(--color-gold)' }}>Amarillas</label>
@@ -123,7 +123,7 @@ function MatchCenter({ fixture, activeTeamPlayers, onClose, onSaveStats, getMatc
             <span className="badge badge-gold" style={{ marginBottom: '8px' }}>
               CAMPAÑA Y MATCH CENTER
             </span>
-            <h2 style={{ fontSize: '1.4rem', fontWeight: 800, fontFamily: 'Outfit' }}>
+            <h2 style={{ fontSize: '1.4rem', fontWeight: 800, fontFamily: 'var(--font-display)' }}>
               Ficha de Partido: Orcos vs {fixture.opponent}
             </h2>
             <p style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>
@@ -133,7 +133,7 @@ function MatchCenter({ fixture, activeTeamPlayers, onClose, onSaveStats, getMatc
           <button
             onClick={onClose}
             className="btn-outline"
-            style={{ padding: '6px 12px', fontSize: '0.8rem', color: 'var(--color-red)', borderColor: 'rgba(255,61,0,0.1)' }}
+            style={{ padding: '6px 12px', fontSize: '0.8rem', color: 'var(--color-red)', borderColor: 'rgba(255, 92, 77,0.1)' }}
           >
             Cerrar →
           </button>
@@ -142,7 +142,7 @@ function MatchCenter({ fixture, activeTeamPlayers, onClose, onSaveStats, getMatc
         <div style={{ background: 'rgba(0,0,0,0.2)', padding: '20px', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border-glass)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
           <div style={{ textAlign: 'center', flex: 1 }}>
             <h3 style={{ fontSize: '1.1rem', fontWeight: 900, color: 'var(--color-primary)' }}>Orcos</h3>
-            <div style={{ fontSize: '2.5rem', fontWeight: 900, textShadow: '0 0 10px rgba(0, 230, 118, 0.4)', fontFamily: 'Outfit' }}>
+            <div style={{ fontSize: '2.5rem', fontWeight: 900, textShadow: '0 0 10px rgba(46, 229, 122, 0.4)', fontFamily: 'var(--font-display)' }}>
               {fixture.orcosScore}
             </div>
           </div>
@@ -153,13 +153,13 @@ function MatchCenter({ fixture, activeTeamPlayers, onClose, onSaveStats, getMatc
             <h3 style={{ fontSize: '1.1rem', fontWeight: 900, color: 'var(--color-text-muted)' }}>
               {fixture.opponent}
             </h3>
-            <div style={{ fontSize: '2.5rem', fontWeight: 900, fontFamily: 'Outfit' }}>
+            <div style={{ fontSize: '2.5rem', fontWeight: 900, fontFamily: 'var(--font-display)' }}>
               {fixture.opponentScore}
             </div>
           </div>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginBottom: '20px', fontSize: '0.8rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '15px', marginBottom: '20px', fontSize: '0.8rem' }}>
           <div style={{ background: 'rgba(255,255,255,0.01)', border: '1px solid rgba(255,255,255,0.05)', padding: '12px', borderRadius: 'var(--radius-sm)' }}>
             <span style={{ color: 'var(--color-text-muted)', display: 'block', fontSize: '0.65rem' }}>MVP DEL PARTIDO</span>
             <strong style={{ fontSize: '1rem', color: 'var(--color-gold)' }}>
@@ -203,7 +203,7 @@ function MatchCenter({ fixture, activeTeamPlayers, onClose, onSaveStats, getMatc
             </div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '2fr repeat(5, 1fr)', gap: '5px', padding: '10px', fontSize: '0.7rem', color: 'var(--color-text-muted)', borderBottom: '1px solid rgba(255,255,255,0.05)', fontWeight: 800 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 2fr) repeat(5, minmax(0, 1fr))', gap: '5px', padding: '10px', fontSize: '0.7rem', color: 'var(--color-text-muted)', borderBottom: '1px solid rgba(255,255,255,0.05)', fontWeight: 800 }}>
                 <div>GUERRERO</div>
                 <div style={{ textAlign: 'center' }}>TRIES</div>
                 <div style={{ textAlign: 'center' }}>CONV.</div>
@@ -218,7 +218,7 @@ function MatchCenter({ fixture, activeTeamPlayers, onClose, onSaveStats, getMatc
                   className="glass-panel"
                   style={{
                     display: 'grid',
-                    gridTemplateColumns: '2fr repeat(5, 1fr)',
+                    gridTemplateColumns: 'minmax(0, 2fr) repeat(5, minmax(0, 1fr))',
                     gap: '5px',
                     padding: '12px 10px',
                     fontSize: '0.75rem',
@@ -243,7 +243,7 @@ function MatchCenter({ fixture, activeTeamPlayers, onClose, onSaveStats, getMatc
                   </div>
                   <div style={{ textAlign: 'center' }}>
                     {st.yellowCards > 0 && <span className="badge" style={{ background: 'rgba(255, 234, 0, 0.1)', color: 'var(--color-gold)', border: '1px solid var(--color-gold)', padding: '2px 4px', fontSize: '0.6rem', marginRight: '2px' }}>{st.yellowCards}</span>}
-                    {st.redCards > 0 && <span className="badge" style={{ background: 'rgba(255, 61, 0, 0.1)', color: 'var(--color-red)', border: '1px solid var(--color-red)', padding: '2px 4px', fontSize: '0.6rem' }}>{st.redCards}</span>}
+                    {st.redCards > 0 && <span className="badge" style={{ background: 'rgba(255, 92, 77, 0.1)', color: 'var(--color-red)', border: '1px solid var(--color-red)', padding: '2px 4px', fontSize: '0.6rem' }}>{st.redCards}</span>}
                     {st.yellowCards === 0 && st.redCards === 0 && <span style={{ color: 'var(--color-text-muted)' }}>-</span>}
                   </div>
                 </div>

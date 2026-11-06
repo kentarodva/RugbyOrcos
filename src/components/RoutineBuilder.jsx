@@ -119,7 +119,7 @@ export default function RoutineBuilder({ player, existingPlan, onSaved, onClose 
         {/* Header */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
           <div>
-            <h3 style={{ fontSize: '1rem', fontWeight: 800, fontFamily: 'Outfit', color: 'var(--color-primary)', margin: 0 }}>
+            <h3 style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--color-text)', margin: 0 }}>
               {existingPlan ? 'Modificar Plan' : 'Crear Plan'}
             </h3>
             <span style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)' }}>{player.name}</span>
@@ -153,14 +153,14 @@ export default function RoutineBuilder({ player, existingPlan, onSaved, onClose 
 
           {/* LEFT - Catalog */}
           <div className="glass-panel" style={{ padding: '12px', display: 'flex', flexDirection: 'column', gap: '8px', overflow: 'hidden' }}>
-            <div style={{ fontSize: '0.75rem', fontWeight: 700, fontFamily: 'Outfit', color: 'var(--color-text)' }}>
+            <div style={{ fontSize: '0.75rem', fontWeight: 700, fontFamily: 'var(--font-display)', color: 'var(--color-text)' }}>
               📋 Catálogo <span style={{ fontSize: '0.6rem', color: 'var(--color-text-muted)', fontWeight: 400 }}>{filtered.length} ejercicios</span>
             </div>
 
             <input type="search" value={search} onChange={e => setSearch(e.target.value)} placeholder="🔍 Buscar en español o inglés…"
               aria-label="Buscar ejercicio" className="form-input" style={{ width: '100%', fontSize: '0.85rem', padding: '10px 12px', minHeight: '44px' }} />
-            <FilterPills label="Músculo" groups={MUSCLE_GROUPS} value={muscleFilter} onChange={setMuscleFilter} color="#00e676" />
-            <FilterPills label="Equipo" groups={EQUIP_GROUPS} value={equipFilter} onChange={setEquipFilter} color="#ffd700" />
+            <FilterPills label="Músculo" groups={MUSCLE_GROUPS} value={muscleFilter} onChange={setMuscleFilter} color="#2EE57A" />
+            <FilterPills label="Equipo" groups={EQUIP_GROUPS} value={equipFilter} onChange={setEquipFilter} color="#E8B931" />
 
             <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '3px', minHeight: 0 }}>
               {pageItems.length === 0 ? (
@@ -221,7 +221,7 @@ export default function RoutineBuilder({ player, existingPlan, onSaved, onClose 
 
           {/* RIGHT - Routine */}
           <div className="glass-panel" style={{ padding: '12px', display: 'flex', flexDirection: 'column', gap: '8px', overflow: 'hidden' }}>
-            <div style={{ fontSize: '0.75rem', fontWeight: 700, fontFamily: 'Outfit', color: 'var(--color-text)' }}>
+            <div style={{ fontSize: '0.75rem', fontWeight: 700, fontFamily: 'var(--font-display)', color: 'var(--color-text)' }}>
               🏗️ Mi Rutina <span style={{ fontSize: '0.6rem', color: 'var(--color-text-muted)', fontWeight: 400 }}>{totalExercises} ejercicios</span>
             </div>
 
@@ -286,7 +286,7 @@ export default function RoutineBuilder({ player, existingPlan, onSaved, onClose 
             <div className="modal-content glass-panel" onClick={e => e.stopPropagation()}
               style={{ maxWidth: '480px', maxHeight: '80vh', overflowY: 'auto', padding: '18px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-                <h3 style={{ fontSize: '0.9rem', fontWeight: 800, fontFamily: 'Outfit', color: 'var(--color-primary)', margin: 0 }}>{fullPreview.name_local}</h3>
+                <h3 style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--color-text)', margin: 0 }}>{fullPreview.name_local}</h3>
                 <button onClick={() => setFullPreview(null)} className="btn-outline" style={{ padding: '3px 8px', fontSize: '0.7rem' }}>✕</button>
               </div>
               {fullPreview.gif_url && (

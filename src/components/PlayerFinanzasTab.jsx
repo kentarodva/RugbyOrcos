@@ -91,16 +91,16 @@ export function PlayerFinanzasTab({ player, allPayments = [], campaigns = [], on
         style={{
           padding: '24px',
           borderRadius: '16px',
-          background: 'linear-gradient(135deg, rgba(10, 22, 35, 0.95) 0%, rgba(5, 12, 20, 0.98) 100%)',
-          border: `1px solid ${isPastCycle ? 'rgba(255, 215, 64, 0.4)' : isCovered ? 'rgba(0, 230, 118, 0.35)' : 'rgba(255, 61, 0, 0.35)'}`,
+          background: 'linear-gradient(135deg, rgba(22, 25, 23, 0.95) 0%, rgba(12, 15, 13, 0.98) 100%)',
+          border: `1px solid ${isPastCycle ? 'rgba(255, 215, 64, 0.4)' : isCovered ? 'rgba(46, 229, 122, 0.35)' : 'rgba(255, 92, 77, 0.35)'}`,
           boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)',
         }}
       >
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px', marginBottom: '18px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <Wallet size={24} color={isPastCycle ? 'var(--color-gold)' : isCovered ? 'var(--color-primary)' : '#ff5252'} />
+            <Wallet size={24} color={isPastCycle ? 'var(--color-gold)' : isCovered ? 'var(--color-primary)' : '#FF5C4D'} />
             <div>
-              <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 900, fontFamily: 'Outfit', color: '#fff' }}>
+              <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 600, color: '#fff' }}>
                 Membresía Mensual & Cuotas Oficiales
               </h3>
               <p style={{ margin: '2px 0 0', fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
@@ -115,7 +115,7 @@ export function PlayerFinanzasTab({ player, allPayments = [], campaigns = [], on
               borderRadius: '20px',
               fontSize: '0.74rem',
               fontWeight: 800,
-              background: isPastCycle ? 'rgba(255, 215, 64, 0.12)' : isCovered ? 'rgba(0, 230, 118, 0.12)' : 'rgba(255, 61, 0, 0.12)',
+              background: isPastCycle ? 'rgba(255, 215, 64, 0.12)' : isCovered ? 'rgba(46, 229, 122, 0.12)' : 'rgba(255, 92, 77, 0.12)',
               color: isPastCycle ? 'var(--color-gold)' : isCovered ? 'var(--color-primary)' : 'var(--color-red)',
               border: `1px solid ${isPastCycle ? 'var(--color-gold)' : isCovered ? 'var(--color-primary)' : 'var(--color-red)'}`,
               display: 'inline-flex',
@@ -129,16 +129,16 @@ export function PlayerFinanzasTab({ player, allPayments = [], campaigns = [], on
         </div>
 
         {/* 3 Main KPIs */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '12px', marginBottom: '16px' }}>
-          <div style={{ background: 'rgba(255, 255, 255, 0.02)', border: '1px solid rgba(0, 230, 118, 0.25)', borderRadius: '12px', padding: '16px', textAlign: 'center' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 180px), 1fr))', gap: '12px', marginBottom: '16px' }}>
+          <div style={{ background: 'rgba(255, 255, 255, 0.02)', border: '1px solid rgba(46, 229, 122, 0.25)', borderRadius: '12px', padding: '16px', textAlign: 'center' }}>
             <div style={{ fontSize: '0.72rem', fontWeight: 700, color: 'var(--color-text-muted)', textTransform: 'uppercase' }}>Abono Registrado</div>
-            <div style={{ fontSize: '1.8rem', fontWeight: 900, color: '#00e676', fontFamily: 'Outfit' }}>${paidAmt.toLocaleString()}</div>
+            <div style={{ fontSize: '1.8rem', fontWeight: 900, color: '#2EE57A', fontFamily: 'var(--font-display)' }}>${paidAmt.toLocaleString()}</div>
             <div style={{ fontSize: '0.68rem', color: 'var(--color-primary)', marginTop: '2px' }}>Acreditado ({lastPayMonthName})</div>
           </div>
 
           <div style={{ background: 'rgba(255, 255, 255, 0.02)', border: `1px solid ${isPastCycle ? 'rgba(255, 215, 64, 0.3)' : 'rgba(255, 255, 255, 0.08)'}`, borderRadius: '12px', padding: '16px', textAlign: 'center' }}>
             <div style={{ fontSize: '0.72rem', fontWeight: 700, color: 'var(--color-text-muted)', textTransform: 'uppercase' }}>Cuota Ciclo Actual</div>
-            <div style={{ fontSize: '1.8rem', fontWeight: 900, color: isPastCycle ? 'var(--color-gold)' : '#00e676', fontFamily: 'Outfit' }}>
+            <div style={{ fontSize: '1.8rem', fontWeight: 900, color: isPastCycle ? 'var(--color-gold)' : '#2EE57A', fontFamily: 'var(--font-display)' }}>
               ${isPastCycle ? MENSUALIDAD_BASE.toLocaleString() : '0'}
             </div>
             <div style={{ fontSize: '0.68rem', color: 'var(--color-text-muted)', marginTop: '2px', textTransform: 'capitalize' }}>
@@ -148,7 +148,7 @@ export function PlayerFinanzasTab({ player, allPayments = [], campaigns = [], on
 
           <div style={{ background: 'rgba(255, 255, 255, 0.02)', border: '1px solid rgba(255, 215, 64, 0.25)', borderRadius: '12px', padding: '16px', textAlign: 'center' }}>
             <div style={{ fontSize: '0.72rem', fontWeight: 700, color: 'var(--color-text-muted)', textTransform: 'uppercase' }}>Último Comprobante</div>
-            <div style={{ fontSize: '1.2rem', fontWeight: 900, color: 'var(--color-gold)', fontFamily: 'Outfit', marginTop: '6px' }}>
+            <div style={{ fontSize: '1.2rem', fontWeight: 900, color: 'var(--color-gold)', fontFamily: 'var(--font-display)', marginTop: '6px' }}>
               {lastPayDateStr || '2026-07-10'}
             </div>
             <div style={{ fontSize: '0.68rem', color: 'var(--color-text-muted)', marginTop: '2px' }}>
@@ -186,7 +186,7 @@ export function PlayerFinanzasTab({ player, allPayments = [], campaigns = [], on
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '8px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <History size={18} color="var(--color-gold)" />
-            <h4 style={{ margin: 0, fontSize: '0.95rem', fontWeight: 800, color: '#fff', fontFamily: 'Outfit' }}>
+            <h4 style={{ margin: 0, fontSize: '0.95rem', fontWeight: 600, color: '#fff' }}>
               Historial de Abonos y Recibos Verificados
             </h4>
           </div>
@@ -224,7 +224,7 @@ export function PlayerFinanzasTab({ player, allPayments = [], campaigns = [], on
                 </div>
 
                 <div style={{ textAlign: 'right' }}>
-                  <div style={{ fontSize: '1.1rem', fontWeight: 900, color: '#00e676', fontFamily: 'Outfit' }}>
+                  <div style={{ fontSize: '1.1rem', fontWeight: 900, color: '#2EE57A', fontFamily: 'var(--font-display)' }}>
                     +${Number(p.amount).toLocaleString()}
                   </div>
                   <span style={{ fontSize: '0.65rem', color: 'var(--color-primary)', fontWeight: 700 }}>
@@ -242,7 +242,7 @@ export function PlayerFinanzasTab({ player, allPayments = [], campaigns = [], on
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px', flexWrap: 'wrap', gap: '8px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <Ticket size={18} color="var(--color-gold)" />
-            <h4 style={{ margin: 0, fontSize: '0.95rem', fontWeight: 800, color: '#fff', fontFamily: 'Outfit' }}>
+            <h4 style={{ margin: 0, fontSize: '0.95rem', fontWeight: 600, color: '#fff' }}>
               Campañas de Recaudación & Boletas
             </h4>
           </div>
@@ -258,7 +258,7 @@ export function PlayerFinanzasTab({ player, allPayments = [], campaigns = [], on
             No tienes boletas ni compromisos de rifa asignados activamente en este momento.
           </div>
         ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '12px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 260px), 1fr))', gap: '12px' }}>
             {assignments.map(a => {
               const c = a.campaign || {};
               const price = Number(c.ticket_price || c.unit_price || 0);
@@ -284,7 +284,7 @@ export function PlayerFinanzasTab({ player, allPayments = [], campaigns = [], on
 
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.78rem', marginBottom: '8px' }}>
                     <span>Vendidas: <strong>{sold} / {totalAssigned}</strong></span>
-                    <span style={{ color: '#00e676', fontWeight: 800 }}>${collected.toLocaleString()} COP</span>
+                    <span style={{ color: '#2EE57A', fontWeight: 800 }}>${collected.toLocaleString()} COP</span>
                   </div>
 
                   <div style={{ display: 'flex', gap: '6px', alignItems: 'center', marginTop: '10px' }}>

@@ -62,7 +62,7 @@ function PositionNode({ pos, player, isDraggingThis, isAnimating = false, animDu
         boxShadow: isDraggingThis
           ? '0 0 15px var(--color-gold)'
           : player
-            ? `0 0 12px ${isForward ? 'rgba(255, 179, 0, 0.3)' : 'rgba(0, 230, 118, 0.3)'}`
+            ? `0 0 12px ${isForward ? 'rgba(232, 185, 49, 0.3)' : 'rgba(46, 229, 122, 0.3)'}`
             : 'none',
         scale: isDraggingThis ? '1.18' : '1',
         transition: 'border 0.2s, box-shadow 0.2s, scale 0.2s, background 0.2s',
@@ -76,7 +76,7 @@ function PositionNode({ pos, player, isDraggingThis, isAnimating = false, animDu
           width: '16px',
           height: '16px',
           borderRadius: '50%',
-          background: '#0a0d14',
+          background: '#0E110F',
           border: `1.2px solid ${departmentColor}`,
           color: player ? '#fff' : 'rgba(255,255,255,0.7)',
           fontSize: '0.55rem',
@@ -92,7 +92,7 @@ function PositionNode({ pos, player, isDraggingThis, isAnimating = false, animDu
 
       <div style={{
         marginTop: '6px',
-        background: player ? 'rgba(10, 25, 45, 0.92)' : 'rgba(0, 0, 0, 0.75)',
+        background: player ? 'rgba(27, 30, 28, 0.92)' : 'rgba(0, 0, 0, 0.75)',
         padding: '3px 6px',
         borderRadius: 'var(--radius-sm)',
         fontSize: '0.62rem',
@@ -103,7 +103,7 @@ function PositionNode({ pos, player, isDraggingThis, isAnimating = false, animDu
         textOverflow: 'ellipsis',
         whiteSpace: 'nowrap',
         border: player
-          ? `1px solid ${isForward ? 'rgba(255,179,0,0.3)' : 'rgba(0,230,118,0.3)'}`
+          ? `1px solid ${isForward ? 'rgba(232, 185, 49,0.3)' : 'rgba(46, 229, 122,0.3)'}`
           : '1px solid rgba(255, 255, 255, 0.08)',
         color: player ? '#fff' : 'var(--color-text-muted)',
         boxShadow: isDraggingThis ? '0 4px 10px rgba(0,0,0,0.6)' : 'none',

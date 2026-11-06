@@ -31,7 +31,7 @@ export function FundraisingTab({ isStaff, currentPlayerId }) {
             <History size={15} /> Historial General
           </button>
           {isStaff && (
-            <button onClick={() => setShowApprovals(true)} className="btn-outline" style={{ padding: '8px 14px', fontSize: '0.8rem', color: '#ffb300', borderColor: '#ffb300', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+            <button onClick={() => setShowApprovals(true)} className="btn-outline" style={{ padding: '8px 14px', fontSize: '0.8rem', color: '#E8B931', borderColor: '#E8B931', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
               <Clock size={15} /> Aprobaciones
             </button>
           )}

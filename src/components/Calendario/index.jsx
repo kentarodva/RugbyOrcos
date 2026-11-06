@@ -288,16 +288,14 @@ function Calendario() {
           style={{
             fontSize: '0.74rem',
             padding: '6px 12px',
-            borderColor: 'rgba(59, 130, 246, 0.45)',
-            color: '#60a5fa',
             display: 'inline-flex',
             alignItems: 'center',
             gap: '6px',
-            fontWeight: 700,
+            fontWeight: 600,
           }}
           title="Descarga el archivo estándar .ICS para añadir todos los partidos a Google Calendar, iPhone o Outlook"
         >
-          📅 Sincronizar Calendario (.ICS)
+          📅 Exportar a mi calendario
         </button>
       </div>
 

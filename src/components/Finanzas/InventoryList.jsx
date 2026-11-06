@@ -3,7 +3,7 @@ import { InventoryCard } from './InventoryCard';
 
 export function InventoryList({ inventory, players, onStockChange, onCustodianChange, onStatusChange }) {
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px' }}>
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))', gap: '20px' }}>
       {inventory.map(item => (
         <InventoryCard
           key={item.id}

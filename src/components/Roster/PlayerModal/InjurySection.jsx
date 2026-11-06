@@ -21,7 +21,7 @@ function InjurySection({ player, onInjurySubmit, onPhaseChange }) {
         <h4 style={{ fontSize: '0.95rem', fontWeight: 800, color: 'var(--color-red)' }}>Control Clinico de Rehabilitacion</h4>
 
         {player.estado !== 'lesionado' && (
-          <button onClick={() => setShowForm(!showForm)} className="btn-outline" style={{ padding: '4px 8px', fontSize: '0.75rem', color: 'var(--color-red)', borderColor: 'rgba(255,61,0,0.2)' }}>
+          <button onClick={() => setShowForm(!showForm)} className="btn-outline" style={{ padding: '4px 8px', fontSize: '0.75rem', color: 'var(--color-red)', borderColor: 'rgba(255, 92, 77,0.2)' }}>
             {showForm ? 'Cancelar' : '+ Ingresar a Clinica'}
           </button>
         )}
@@ -71,7 +71,7 @@ function InjurySection({ player, onInjurySubmit, onPhaseChange }) {
           </div>
           <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', marginTop: '5px' }}>
             <button type="button" onClick={() => setShowForm(false)} className="btn-outline" style={{ padding: '4px 8px', fontSize: '0.75rem' }}>Cancelar</button>
-            <button type="submit" className="btn-neon" style={{ padding: '5px 10px', fontSize: '0.75rem', background: 'var(--color-red)', boxShadow: '0 4px 15px rgba(255,61,0,0.3)' }}>Ingresar</button>
+            <button type="submit" className="btn-neon" style={{ padding: '5px 10px', fontSize: '0.75rem', background: 'var(--color-red)', boxShadow: '0 4px 15px rgba(255, 92, 77,0.3)' }}>Ingresar</button>
           </div>
         </form>
       )}

@@ -17,7 +17,7 @@ function PlayerSelectModal({ selectedSlot, teamPlayers, isPlayerAligned, availab
     <div className="modal-overlay">
       <div className="modal-content glass-panel animated-slide" style={{ maxWidth: '480px' }}>
 
-        <h3 className="neon-text-primary" style={{ marginBottom: '12px', fontFamily: 'Outfit' }}>
+        <h3 className="neon-text-primary" style={{ marginBottom: '12px', fontFamily: 'var(--font-display)' }}>
           Alinear en Posición #{selectedSlot.id}
         </h3>
         <p style={{ fontSize: '0.84rem', color: 'var(--color-text-muted)', marginBottom: '15px' }}>
@@ -49,7 +49,7 @@ function PlayerSelectModal({ selectedSlot, teamPlayers, isPlayerAligned, availab
             let borderColor = 'var(--border-glass)';
             if (alreadyAligned) borderColor = 'var(--color-gold)';
             else if (isNaturalFit) borderColor = 'var(--color-primary)';
-            else if (isRelatedFit) borderColor = 'rgba(0, 230, 118, 0.3)';
+            else if (isRelatedFit) borderColor = 'rgba(46, 229, 122, 0.3)';
 
             return (
               <button
@@ -62,7 +62,7 @@ function PlayerSelectModal({ selectedSlot, teamPlayers, isPlayerAligned, availab
                   opacity: isUnavailable ? 0.4 : 1,
                   borderColor,
                   cursor: isUnavailable ? 'not-allowed' : 'pointer',
-                  background: alreadyAligned ? 'rgba(255, 179, 0, 0.03)' : isNaturalFit ? 'rgba(0, 230, 118, 0.06)' : 'transparent',
+                  background: alreadyAligned ? 'rgba(232, 185, 49, 0.03)' : isNaturalFit ? 'rgba(46, 229, 122, 0.06)' : 'transparent',
                   padding: '8px 12px'
                 }}
               >

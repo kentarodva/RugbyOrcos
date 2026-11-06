@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Trash2, ReceiptText } from 'lucide-react';
+import { Trash2 } from 'lucide-react';
 import { CATEGORY_LABELS } from './constants';
 
 export function FinanceLedger({ teamFinances, onDeleteFinanceRecord, isSuperRole }) {
@@ -10,8 +10,7 @@ export function FinanceLedger({ teamFinances, onDeleteFinanceRecord, isSuperRole
     <div className="glass-panel" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '15px' }}>
       <div className="pro-section-header" style={{ marginBottom: 0 }}>
         <div className="pro-section-title" style={{ fontSize: '1.02rem' }}>
-          <ReceiptText size={18} color="var(--color-primary)" />
-          <span>Historial de Caja (Ledger)</span>
+          <span>Movimientos</span>
         </div>
         <span className="pro-chip pro-chip-muted tabular-nums">{teamFinances.length} mov.</span>
       </div>
@@ -51,7 +50,7 @@ export function FinanceLedger({ teamFinances, onDeleteFinanceRecord, isSuperRole
                         <button
                           onClick={() => setDeleteConfirm(f)}
                           className="btn-outline"
-                          style={{ padding: '4px 7px', color: 'var(--color-red)', borderColor: 'rgba(255,61,0,0.3)' }}
+                          style={{ padding: '4px 7px', color: 'var(--color-red)', borderColor: 'rgba(255, 92, 77,0.3)' }}
                           title="Eliminar transacción"
                         >
                           <Trash2 size={13} />
@@ -70,7 +69,7 @@ export function FinanceLedger({ teamFinances, onDeleteFinanceRecord, isSuperRole
         <div className="modal-overlay" onClick={() => setDeleteConfirm(null)} style={{ zIndex: 1000 }}>
           <div className="modal-content animated-slide" style={{ maxWidth: '380px' }} onClick={e => e.stopPropagation()}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-              <h3 style={{ fontSize: '1.1rem', fontWeight: 800, fontFamily: 'Outfit', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <h3 style={{ fontSize: '1.1rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Trash2 size={18} color="var(--color-red)" /> Eliminar Transacción
               </h3>
               <button onClick={() => setDeleteConfirm(null)} className="btn-outline" style={{ padding: '4px 10px', fontSize: '0.75rem' }}>✕</button>

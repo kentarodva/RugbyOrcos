@@ -69,13 +69,13 @@ export function PlayerStatsModal({ match, teams, onClose }) {
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content" onClick={e => e.stopPropagation()} style={{ maxWidth: '800px', maxHeight: '90vh', overflowY: 'auto' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-          <h3 style={{ color: 'var(--color-gold)', fontFamily: 'Outfit' }}>
+          <h3 style={{ color: 'var(--color-gold)', fontFamily: 'var(--font-display)' }}>
             Estadísticas • {homeTeam?.rpg_name || homeTeam?.name} vs {awayTeam?.rpg_name || awayTeam?.name}
           </h3>
           <button onClick={onClose} style={{ background: 'none', border: 'none', color: 'var(--color-text-muted)', fontSize: '1.5rem', cursor: 'pointer' }}>×</button>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '20px' }}>
           {[{ label: homeTeam?.rpg_name || homeTeam?.name, players: homePlayers },
             { label: awayTeam?.rpg_name || awayTeam?.name, players: awayPlayers }].map(section => (
             <div key={section.label}>
@@ -87,7 +87,7 @@ export function PlayerStatsModal({ match, teams, onClose }) {
                     <div style={{ fontWeight: 700, fontSize: '0.8rem', color: 'var(--color-text)', marginBottom: '6px' }}>
                       {player.first_name} {player.last_name}
                     </div>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '6px' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: '6px' }}>
                       <div>
                         <label style={{ fontSize: '0.65rem', color: 'var(--color-text-muted)', display: 'block' }}>Tries</label>
                         <input type="number" min="0" value={s.tries || 0} onChange={e => upsertStat(player.id, 'tries', parseInt(e.target.value) || 0)}

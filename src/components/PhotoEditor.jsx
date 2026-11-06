@@ -156,7 +156,7 @@ export function PhotoEditor({ file, photoUrl, onSave, onClose }) {
       const drawX = off.x * (OUTPUT_SIZE / CROP_SIZE);
       const drawY = off.y * (OUTPUT_SIZE / CROP_SIZE);
 
-      ctx.fillStyle = '#090e17';
+      ctx.fillStyle = '#0F1210';
       ctx.fillRect(0, 0, OUTPUT_SIZE, OUTPUT_SIZE);
 
       if (tacticalMode) {
@@ -171,8 +171,8 @@ export function PhotoEditor({ file, photoUrl, onSave, onClose }) {
           OUTPUT_SIZE / 2, OUTPUT_SIZE / 2, OUTPUT_SIZE / 2
         );
         vig.addColorStop(0, 'rgba(0, 0, 0, 0)');
-        vig.addColorStop(0.75, 'rgba(4, 9, 16, 0.16)');
-        vig.addColorStop(1, 'rgba(4, 9, 16, 0.62)');
+        vig.addColorStop(0.75, 'rgba(10, 13, 11, 0.16)');
+        vig.addColorStop(1, 'rgba(10, 13, 11, 0.62)');
         ctx.fillStyle = vig;
         ctx.fillRect(0, 0, OUTPUT_SIZE, OUTPUT_SIZE);
       }
@@ -205,7 +205,7 @@ export function PhotoEditor({ file, photoUrl, onSave, onClose }) {
         display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px'
       }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center' }}>
-          <h3 style={{ fontSize: '1.1rem', fontWeight: 800, fontFamily: 'Outfit', margin: 0 }}>Recortar Foto de Perfil</h3>
+          <h3 style={{ fontSize: '1.1rem', fontWeight: 600, margin: 0 }}>Recortar Foto de Perfil</h3>
           <button onClick={onClose} className="btn-outline" style={{ padding: '4px 10px', fontSize: '0.75rem' }}>✕</button>
         </div>
 
@@ -240,7 +240,7 @@ export function PhotoEditor({ file, photoUrl, onSave, onClose }) {
           {tacticalMode && (
             <div style={{
               position: 'absolute', inset: 0, borderRadius: '50%',
-              background: 'radial-gradient(circle at 50% 45%, transparent 45%, rgba(4,9,16,0.58) 100%)',
+              background: 'radial-gradient(circle at 50% 45%, transparent 45%, rgba(10, 13, 11,0.58) 100%)',
               pointerEvents: 'none'
             }} />
           )}

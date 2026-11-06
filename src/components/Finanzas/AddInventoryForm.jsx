@@ -24,7 +24,7 @@ export function AddInventoryForm({ players, onSave, onCancel }) {
 
   return (
     <div className="glass-panel animated-slide" style={{ padding: '25px' }}>
-      <h3 style={{ marginBottom: '20px', fontFamily: 'Outfit', color: 'var(--color-primary)' }}>
+      <h3 style={{ marginBottom: '20px', fontFamily: 'var(--font-display)', color: 'var(--color-primary)' }}>
         Agregar Item al Inventario
       </h3>
       <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
@@ -39,7 +39,7 @@ export function AddInventoryForm({ players, onSave, onCancel }) {
             required
           />
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '10px' }}>
           <div className="form-group">
             <label>Categoria</label>
             <select value={category} onChange={(e) => setCategory(e.target.value)} className="form-select">
@@ -59,7 +59,7 @@ export function AddInventoryForm({ players, onSave, onCancel }) {
             />
           </div>
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '10px' }}>
           <div className="form-group">
             <label>Estado</label>
             <select value={status} onChange={(e) => setStatus(e.target.value)} className="form-select">

@@ -64,7 +64,7 @@ function EventTimeline({ events }) {
                 gap: '8px',
                 padding: '6px 10px',
                 borderRadius: 'var(--radius-sm)',
-                background: isOrcos ? 'rgba(0, 230, 118, 0.05)' : 'rgba(255, 61, 0, 0.05)',
+                background: isOrcos ? 'rgba(46, 229, 122, 0.05)' : 'rgba(255, 92, 77, 0.05)',
                 borderLeft: `3px solid ${isOrcos ? 'var(--color-primary)' : 'var(--color-red)'}`,
                 fontSize: '0.8rem',
               }}

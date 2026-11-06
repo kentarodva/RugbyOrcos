@@ -88,14 +88,14 @@ function BirthdayCelebration() {
           angle: 60,
           spread: 55,
           origin: { x: 0, y: 0.7 },
-          colors: ['#00e676', '#ffd740', '#448aff', '#ff5252'],
+          colors: ['#2EE57A', '#E8B931', '#448aff', '#FF5C4D'],
         });
         confetti({
           particleCount: 3,
           angle: 120,
           spread: 55,
           origin: { x: 1, y: 0.7 },
-          colors: ['#00e676', '#ffd740', '#448aff', '#ff5252'],
+          colors: ['#2EE57A', '#E8B931', '#448aff', '#FF5C4D'],
         });
         if (Date.now() < end) frameId = requestAnimationFrame(frame);
       };
@@ -110,7 +110,7 @@ function BirthdayCelebration() {
     <div className="modal-overlay" style={{ zIndex: 9999 }}>
       <div className="modal-content glass-panel animated-slide" style={{ maxWidth: '450px', textAlign: 'center', padding: '30px' }}>
         <div style={{ fontSize: '4rem', marginBottom: '10px' }}>🎉</div>
-        <h2 style={{ color: '#ffd740', fontSize: '1.4rem', fontWeight: 800, fontFamily: 'Outfit', marginBottom: '8px' }}>
+        <h2 style={{ color: '#E8B931', fontSize: '1.4rem', fontWeight: 800, fontFamily: 'var(--font-display)', marginBottom: '8px' }}>
           ¡Feliz cumpleaños!
         </h2>
         <p style={{ fontSize: '1.2rem', color: 'var(--text-primary)', fontWeight: 700, marginBottom: '5px' }}>

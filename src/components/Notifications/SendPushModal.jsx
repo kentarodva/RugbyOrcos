@@ -145,7 +145,7 @@ export default function SendPushModal({ onClose }) {
   return createPortal(
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content glass-panel" onClick={e => e.stopPropagation()} style={{ maxWidth: '600px' }}>
-        <h2 style={{ fontSize: '1.2rem', fontWeight: 800, fontFamily: 'Outfit', color: 'var(--color-primary)', marginBottom: '20px' }}>
+        <h2 style={{ fontSize: '1.2rem', fontWeight: 800, fontFamily: 'var(--font-display)', color: 'var(--color-primary)', marginBottom: '20px' }}>
           Enviar Notificación
         </h2>
 
@@ -159,7 +159,7 @@ export default function SendPushModal({ onClose }) {
           <textarea className="form-input" value={body} onChange={e => setBody(e.target.value)} placeholder="Escribí el mensaje..." rows={3} style={{ resize: 'vertical' }} />
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '16px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '10px', marginBottom: '16px' }}>
           <div className="form-group">
             <label>Filtrar por categoría</label>
             <select className="form-select" value={categoryFilter} onChange={e => { setCategoryFilter(e.target.value); setSelectedIds(new Set()); }}>
@@ -200,8 +200,8 @@ export default function SendPushModal({ onClose }) {
                 <label key={p.id} style={{
                   display: 'flex', alignItems: 'center', gap: '10px', padding: '6px 10px',
                   borderRadius: 'var(--radius-sm)', cursor: 'pointer',
-                  background: selectedIds.has(p.id) ? 'rgba(0,230,118,0.08)' : 'transparent',
-                  border: selectedIds.has(p.id) ? '1px solid rgba(0,230,118,0.2)' : '1px solid transparent',
+                  background: selectedIds.has(p.id) ? 'rgba(46, 229, 122,0.08)' : 'transparent',
+                  border: selectedIds.has(p.id) ? '1px solid rgba(46, 229, 122,0.2)' : '1px solid transparent',
                   fontSize: '0.85rem',
                 }}>
                   <input type="checkbox" checked={selectedIds.has(p.id)} onChange={() => togglePlayer(p.id)} style={{ accentColor: 'var(--color-primary)' }} />
@@ -235,7 +235,7 @@ export default function SendPushModal({ onClose }) {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', maxHeight: '120px', overflowY: 'auto' }}>
               {templates.map(t => (
                 <div key={t.id} onClick={() => applyTemplate(t)}
-                  style={{ padding: '6px 10px', cursor: 'pointer', borderRadius: 'var(--radius-sm)', background: 'rgba(0,230,118,0.03)', border: '1px solid var(--border-glass)', fontSize: '0.75rem' }}
+                  style={{ padding: '6px 10px', cursor: 'pointer', borderRadius: 'var(--radius-sm)', background: 'rgba(46, 229, 122,0.03)', border: '1px solid var(--border-glass)', fontSize: '0.75rem' }}
                   className="hover-row">
                   <strong style={{ color: 'var(--color-primary)' }}>{t.name}</strong>: {t.title}
                 </div>

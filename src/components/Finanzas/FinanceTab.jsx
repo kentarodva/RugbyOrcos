@@ -57,18 +57,15 @@ export function FinanceTab({
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-      <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+      <div className="segmented" role="tablist" aria-label="Secciones de finanzas">
         {FINANCE_SUB_TABS.map(tab => (
           <button
             key={tab.id}
+            type="button"
+            role="tab"
+            aria-selected={financeSubTab === tab.id}
             onClick={() => setFinanceSubTab(tab.id)}
-            className="btn-outline"
-            style={{
-              background: financeSubTab === tab.id ? (tab.id === 'caja' ? 'var(--color-primary)' : 'var(--color-gold)') : 'transparent',
-              color: financeSubTab === tab.id ? '#000' : '#fff',
-              padding: '6px 14px', fontSize: '0.8rem',
-              borderColor: financeSubTab === tab.id ? (tab.id === 'caja' ? 'var(--color-primary)' : 'var(--color-gold)') : 'var(--border-glass)'
-            }}
+            className={financeSubTab === tab.id ? 'is-on' : ''}
           >
             {tab.label}
           </button>
@@ -76,7 +73,7 @@ export function FinanceTab({
       </div>
 
       {financeSubTab === 'caja' && (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '20px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 320px), 1fr))', gap: '20px' }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
             <SummaryCards totalIncomes={totalIncomes} totalExpenses={totalExpenses} netBalance={netBalance} />
 
@@ -94,11 +91,11 @@ export function FinanceTab({
               <div style={{ display: 'flex', gap: '8px' }}>
                 {isStaff && (
                   <button onClick={() => setShowAddForm(true)} className="btn-neon" style={{ justifyContent: 'center', flex: 1 }}>
-                    💰 Registrar Gasto o Ingreso
+                    + Registrar movimiento
                   </button>
                 )}
-                <button onClick={() => printFinances(teamFinances, EQUIPOS_LABELS[activeTeam])} className="btn-outline" style={{ padding: '8px 14px', fontSize: '0.8rem' }}>
-                   🖨️ Imprimir
+                <button onClick={() => printFinances(teamFinances, EQUIPOS_LABELS[activeTeam])} className="btn-outline">
+                  Imprimir
                 </button>
               </div>
             )}
@@ -115,7 +112,7 @@ export function FinanceTab({
           {isStaff && !hasChargeThisMonth && (
             <div style={{
               padding: '14px 18px', borderRadius: 'var(--radius-md)',
-              background: 'rgba(255,179,0,0.06)', border: '1px solid rgba(255,179,0,0.2)',
+              background: 'rgba(232, 185, 49,0.06)', border: '1px solid rgba(232, 185, 49,0.2)',
               display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px'
             }}>
               <div>
@@ -132,11 +129,11 @@ export function FinanceTab({
           )}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
             <div>
-              <h3 style={{ fontSize: '1.2rem', fontWeight: 800, fontFamily: 'Outfit', color: 'var(--color-gold)' }}>
-                👑 Control de Membresías
+              <h3 style={{ fontSize: '1.2rem', fontWeight: 600, color: 'var(--color-text)' }}>
+                Membresías
               </h3>
               <p style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>
-                Membresia mensual: <strong style={{ color: 'var(--color-gold)' }}>${mensualidadBase.toLocaleString()} COP</strong> — Se permiten abonos parciales.
+                Cuota mensual: <strong style={{ color: 'var(--color-text)' }}>${mensualidadBase.toLocaleString()} COP</strong> — Se permiten abonos parciales.
               </p>
             </div>
             {isStaff && (
@@ -181,7 +178,7 @@ export function FinanceTab({
         <div className="modal-overlay" onClick={handleCancelConfirm}>
           <div className="modal-content animated-slide" style={{ maxWidth: '380px' }} onClick={e => e.stopPropagation()}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-              <h3 style={{ fontSize: '1.1rem', fontWeight: 800, fontFamily: 'Outfit' }}>👑 Confirmar Abono</h3>
+              <h3 style={{ fontSize: '1.1rem', fontWeight: 600 }}>👑 Confirmar Abono</h3>
               <button onClick={handleCancelConfirm} className="btn-outline" style={{ padding: '4px 10px', fontSize: '0.75rem' }}>✕</button>
             </div>
             <p style={{ fontSize: '0.95rem', marginBottom: '20px', lineHeight: 1.5 }}>

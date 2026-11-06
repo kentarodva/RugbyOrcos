@@ -10,7 +10,7 @@ export function LoanList({ loans, players, teams, showLoanForm, loanForm, setLoa
   return (
     <div className="animated-fade" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h3 style={{ color: 'var(--color-gold)', fontSize: '1rem', fontWeight: 700, fontFamily: 'Outfit' }}>
+        <h3 style={{ color: 'var(--color-text)', fontSize: '1rem', fontWeight: 600 }}>
           Préstamos de Guerreros
         </h3>
         {canRequest && (

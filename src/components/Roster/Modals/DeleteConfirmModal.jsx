@@ -5,7 +5,7 @@ function DeleteConfirmModal({ playerName, onClose, onConfirm }) {
     <div className="modal-overlay">
       <div className="modal-content glass-panel animated-slide" style={{ maxWidth: '420px', textAlign: 'center' }}>
         <div style={{ fontSize: '2.5rem', marginBottom: '15px' }}>⚠️</div>
-        <h3 style={{ fontSize: '1.2rem', fontWeight: 800, fontFamily: 'Outfit', marginBottom: '10px', color: 'var(--color-red)' }}>
+        <h3 style={{ fontSize: '1.2rem', fontWeight: 600, marginBottom: '10px', color: 'var(--color-text)' }}>
           Dar de Baja al Orco
         </h3>
         <p style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)', lineHeight: 1.6, marginBottom: '20px' }}>

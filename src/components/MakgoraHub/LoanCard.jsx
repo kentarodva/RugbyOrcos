@@ -31,7 +31,7 @@ export function LoanCard({ loan, teams, onApprove, onReject, onReturn, onCancel,
           </span>
         </div>
         <div style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)' }}>
-          {fromName}{fromIsExternal ? <span style={{ fontSize: '0.55rem', color: '#ffb300', marginLeft: '3px' }}>ⓘ</span> : ''} → {toName}{toIsExternal ? <span style={{ fontSize: '0.55rem', color: '#ffb300', marginLeft: '3px' }}>ⓘ</span> : ''}
+          {fromName}{fromIsExternal ? <span style={{ fontSize: '0.55rem', color: '#E8B931', marginLeft: '3px' }}>ⓘ</span> : ''} → {toName}{toIsExternal ? <span style={{ fontSize: '0.55rem', color: '#E8B931', marginLeft: '3px' }}>ⓘ</span> : ''}
           {' • '}{loan.start_date} → {loan.end_date}
           {loan.reason && <span> • {loan.reason}</span>}
         </div>

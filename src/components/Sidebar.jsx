@@ -155,7 +155,7 @@ export default function Sidebar({ open, onClose, activeTab, setActiveTab, hasPer
             position: 'fixed',
             inset: 0,
             zIndex: 998,
-            background: 'rgba(4, 7, 13, 0.65)',
+            background: 'rgba(8, 11, 9, 0.65)',
             backdropFilter: 'blur(4px)',
           }}
         />
@@ -200,7 +200,7 @@ export default function Sidebar({ open, onClose, activeTab, setActiveTab, hasPer
               style={{ width: '32px', height: '32px', objectFit: 'contain' }}
             />
             <div>
-              <h2 style={{ fontSize: '0.95rem', fontWeight: 800, fontFamily: 'Outfit', color: 'var(--color-primary)', margin: 0 }}>
+              <h2 style={{ fontSize: '0.95rem', fontWeight: 800, fontFamily: 'var(--font-display)', color: 'var(--color-primary)', margin: 0 }}>
                 REINO MANAGER
               </h2>
               <span style={{ fontSize: '0.65rem', color: 'var(--color-gold)', fontWeight: 700, letterSpacing: '1px' }}>
@@ -282,8 +282,8 @@ export default function Sidebar({ open, onClose, activeTab, setActiveTab, hasPer
                           borderRadius: '10px',
                           fontSize: '0.85rem',
                           fontWeight: isActive ? 700 : 500,
-                          border: isActive ? '1px solid rgba(0, 230, 118, 0.22)' : '1px solid transparent',
-                          background: isActive ? 'rgba(0, 230, 118, 0.1)' : 'transparent',
+                          border: isActive ? '1px solid rgba(46, 229, 122, 0.22)' : '1px solid transparent',
+                          background: isActive ? 'rgba(46, 229, 122, 0.1)' : 'transparent',
                           color: isActive ? 'var(--color-primary)' : 'var(--color-text)',
                           cursor: 'pointer',
                           transition: 'all 0.18s ease',
@@ -319,8 +319,8 @@ export default function Sidebar({ open, onClose, activeTab, setActiveTab, hasPer
                 width: '36px',
                 height: '36px',
                 borderRadius: '10px',
-                background: 'rgba(255, 179, 0, 0.12)',
-                border: '1px solid rgba(255, 179, 0, 0.3)',
+                background: 'rgba(232, 185, 49, 0.12)',
+                border: '1px solid rgba(232, 185, 49, 0.3)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',

@@ -143,13 +143,13 @@ export default function BulkCredentialsModal({ players = [], onClose, createPlay
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <div style={{
               width: '38px', height: '38px', borderRadius: '10px',
-              background: 'rgba(255, 179, 0, 0.12)', border: '1px solid rgba(255, 179, 0, 0.35)',
+              background: 'rgba(232, 185, 49, 0.12)', border: '1px solid rgba(232, 185, 49, 0.35)',
               display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-gold)'
             }}>
               <KeyRound size={19} />
             </div>
             <div>
-              <h3 style={{ fontSize: '1.08rem', fontWeight: 800, fontFamily: 'Outfit', margin: 0 }}>
+              <h3 style={{ fontSize: '1.08rem', fontWeight: 600, margin: 0 }}>
                 Generador Masivo de Accesos del Club
               </h3>
               <p style={{ fontSize: '0.73rem', color: 'var(--color-text-muted)', margin: 0 }}>
@@ -185,7 +185,7 @@ export default function BulkCredentialsModal({ players = [], onClose, createPlay
         {generatedList.length > 0 && (
           <div style={{
             padding: '14px', borderRadius: 'var(--radius-sm)',
-            background: 'rgba(0, 230, 118, 0.05)', border: '1px solid rgba(0, 230, 118, 0.25)',
+            background: 'rgba(46, 229, 122, 0.05)', border: '1px solid rgba(46, 229, 122, 0.25)',
             marginBottom: '16px', display: 'flex', flexDirection: 'column', gap: '10px'
           }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>

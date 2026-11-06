@@ -37,7 +37,7 @@ function AgendaCard({ event, onDelete, onEdit, onWhatsApp, onDetail }) {
               </span>
             )}
             {isMultiDay && (
-              <span className="badge" style={{ background: 'rgba(255,179,0,0.1)', border: '1px solid var(--color-gold)', color: 'var(--color-gold)', fontSize: '0.6rem' }}>
+              <span className="badge" style={{ background: 'rgba(232, 185, 49,0.1)', border: '1px solid var(--color-gold)', color: 'var(--color-gold)', fontSize: '0.6rem' }}>
                 Multi-dia
               </span>
             )}
@@ -62,7 +62,7 @@ function AgendaCard({ event, onDelete, onEdit, onWhatsApp, onDetail }) {
           <button
             onClick={() => onEdit(event)}
             className="btn-outline"
-            style={{ padding: '4px 8px', fontSize: '0.7rem', color: 'var(--color-gold)', borderColor: 'rgba(255,179,0,0.2)' }}
+            style={{ padding: '4px 8px', fontSize: '0.7rem', color: 'var(--color-gold)', borderColor: 'rgba(232, 185, 49,0.2)' }}
             title="Editar Evento"
           >
             Editar
@@ -70,7 +70,7 @@ function AgendaCard({ event, onDelete, onEdit, onWhatsApp, onDetail }) {
           <button
             onClick={() => onDelete(event.id)}
             className="btn-outline"
-            style={{ padding: '4px 8px', fontSize: '0.7rem', color: 'var(--color-red)', borderColor: 'rgba(255,61,0,0.1)' }}
+            style={{ padding: '4px 8px', fontSize: '0.7rem', color: 'var(--color-red)', borderColor: 'rgba(255, 92, 77,0.1)' }}
             title="Eliminar Evento"
           >
             Borrar

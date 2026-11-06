@@ -21,7 +21,7 @@ export default function AdminPanel({
       borderLeft: '3px solid var(--color-gold)',
     }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
-        <h3 style={{ fontSize: '1.1rem', fontWeight: 800, fontFamily: 'Outfit', color: 'var(--color-gold)' }}>
+        <h3 style={{ fontSize: '1.1rem', fontWeight: 600, color: 'var(--color-text)' }}>
           Administracion del Reino
         </h3>
       </div>
@@ -39,7 +39,7 @@ export default function AdminPanel({
 
       {adminSubTab === 'users' && <UserManagement />}
       {adminSubTab === 'clubs' && (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap: '20px' }}>
           <div>
             <h4 style={{ fontSize: '0.9rem', fontWeight: 700, marginBottom: '10px' }}>Crear Nuevo Equipo</h4>
             <form onSubmit={handleAddClub} style={{ display: 'flex', gap: '8px' }}>
@@ -58,7 +58,7 @@ export default function AdminPanel({
                   <div key={key} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px', background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border-glass)', borderRadius: 'var(--radius-sm)' }}>
                     <span style={{ fontSize: '0.85rem' }}>{allLabels[code] || code}</span>
                     <button onClick={() => { if (window.confirm(`Eliminar "${allLabels[code]}"?`)) { deleteClub(code); showToast(`"${allLabels[code]}" eliminado.`, 'info'); } }}
-                      style={{ background: 'rgba(255, 61, 0, 0.1)', border: '1px solid var(--color-red)', color: 'var(--color-red)', padding: '4px 10px', borderRadius: 'var(--radius-sm)', cursor: 'pointer', fontSize: '0.75rem', fontWeight: 700 }}>
+                      style={{ background: 'rgba(255, 92, 77, 0.1)', border: '1px solid var(--color-red)', color: 'var(--color-red)', padding: '4px 10px', borderRadius: 'var(--radius-sm)', cursor: 'pointer', fontSize: '0.75rem', fontWeight: 700 }}>
                       Eliminar
                     </button>
                   </div>

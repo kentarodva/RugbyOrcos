@@ -35,9 +35,9 @@ export function NetworkBadge() {
         fontSize: '0.74rem',
         fontWeight: 700,
         letterSpacing: '0.03em',
-        background: isOnline ? 'rgba(0, 230, 118, 0.12)' : 'rgba(255, 215, 64, 0.15)',
-        border: `1px solid ${isOnline ? 'rgba(0, 230, 118, 0.35)' : 'rgba(255, 215, 64, 0.45)'}`,
-        color: isOnline ? '#00e676' : '#ffd740',
+        background: isOnline ? 'rgba(46, 229, 122, 0.12)' : 'rgba(255, 215, 64, 0.15)',
+        border: `1px solid ${isOnline ? 'rgba(46, 229, 122, 0.35)' : 'rgba(255, 215, 64, 0.45)'}`,
+        color: isOnline ? '#2EE57A' : '#E8B931',
         transition: 'all 0.25s ease',
         cursor: 'default',
         userSelect: 'none'
@@ -50,8 +50,8 @@ export function NetworkBadge() {
               width: '6px',
               height: '6px',
               borderRadius: '50%',
-              background: '#00e676',
-              boxShadow: '0 0 6px #00e676',
+              background: '#2EE57A',
+              boxShadow: '0 0 6px #2EE57A',
               display: 'inline-block'
             }}
           />
@@ -65,8 +65,8 @@ export function NetworkBadge() {
               width: '6px',
               height: '6px',
               borderRadius: '50%',
-              background: '#ffd740',
-              boxShadow: '0 0 6px #ffd740',
+              background: '#E8B931',
+              boxShadow: '0 0 6px #E8B931',
               display: 'inline-block'
             }}
           />
