@@ -28,7 +28,6 @@ function PositionNode({ pos, player, isDraggingThis, isAnimating = false, animDu
         alignItems: 'center',
         cursor: isDraggingThis ? 'grabbing' : 'grab',
         zIndex: isDraggingThis ? 100 : 10,
-        width: '80px',
         touchAction: 'none',
         transition: isDraggingThis
           ? 'none'

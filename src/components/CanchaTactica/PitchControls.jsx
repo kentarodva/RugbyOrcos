@@ -120,7 +120,7 @@ function PitchControls({
             ))}
           </div>
         </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+        {setPitchSize && <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
           <span style={label}>Tamaño</span>
           <div className="segmented" role="group" aria-label="Tamaño de la cancha" style={{ gridTemplateColumns: 'repeat(3, minmax(0, 1fr))' }}>
             {[['small', 'Chico'], ['medium', 'Normal'], ['large', 'Grande']].map(([v, l]) => (
@@ -128,7 +128,7 @@ function PitchControls({
                 className={pitchSize === v ? 'is-on' : ''} onClick={() => setPitchSize(v)}>{l}</button>
             ))}
           </div>
-        </div>
+        </div>}
       </div>
     </section>
   );

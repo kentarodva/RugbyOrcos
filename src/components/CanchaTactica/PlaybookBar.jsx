@@ -96,112 +96,38 @@ function PlaybookBar({
 
         {/* Interactive Elements Toggles */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
-          <button
-            type="button"
-            onClick={onToggleRivals}
-            className="btn-outline"
-            style={{
-              padding: '6px 10px',
-              fontSize: '0.75rem',
-              fontWeight: 800,
-              background: showRivals ? 'rgba(239, 68, 68, 0.2)' : 'rgba(255,255,255,0.03)',
-              borderColor: showRivals ? '#ef4444' : 'rgba(255,255,255,0.15)',
-              color: showRivals ? '#fca5a5' : 'var(--color-text-muted)',
-            }}
-            title="Mostrar u ocultar los 15 jugadores rivales en la cancha"
-          >
-            🔴 {showRivals ? 'Rivales: ON' : 'Rivales: OFF'}
+          <button type="button" onClick={onToggleRivals} aria-pressed={showRivals}
+            className={`btn-outline btn-sm${showRivals ? ' is-on' : ''}`}
+            style={showRivals ? { borderColor: 'var(--color-primary)', color: 'var(--color-text)' } : undefined}
+            title="Mostrar u ocultar los 15 jugadores rivales en la cancha">
+            Rivales
           </button>
-
-          <button
-            type="button"
-            onClick={onToggleBall}
-            className="btn-outline"
-            style={{
-              padding: '6px 10px',
-              fontSize: '0.75rem',
-              fontWeight: 800,
-              background: showBall ? 'rgba(255, 215, 64, 0.18)' : 'rgba(255,255,255,0.03)',
-              borderColor: showBall ? '#E8B931' : 'rgba(255,255,255,0.15)',
-              color: showBall ? '#E8B931' : 'var(--color-text-muted)',
-            }}
-            title="Mostrar u ocultar el balón interactivo (arrástralo para trazar pases)"
-          >
-            🏉 {showBall ? 'Balón: ON' : 'Balón: OFF'}
+          <button type="button" onClick={onToggleBall} aria-pressed={showBall}
+            className={`btn-outline btn-sm${showBall ? ' is-on' : ''}`}
+            style={showBall ? { borderColor: 'var(--color-primary)', color: 'var(--color-text)' } : undefined}
+            title="Mostrar u ocultar el balón interactivo (arrástralo para trazar pases)">
+            Balón
           </button>
-
-          <button
-            type="button"
-            onClick={handleImageClick}
-            className="btn-primary"
-            style={{
-              padding: '6px 12px',
-              fontSize: '0.75rem',
-              fontWeight: 800,
-              display: 'flex',
-              alignItems: 'center',
-              gap: '5px',
-            }}
-            title="Genera una imagen HD estilo TV con cancha, flechas y alineación XV (se copia para pegar en WhatsApp y se descarga)"
-          >
-            📸 {exportStatus || 'Imagen TV para WhatsApp'}
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap', width: '100%' }}>
+          <button type="button" onClick={handleImageClick} className="btn-neon btn-sm"
+            title="Genera una imagen HD estilo TV con cancha, flechas y alineación XV (se copia para pegar en WhatsApp y se descarga)">
+            {exportStatus || 'Compartir imagen'}
           </button>
-
-          <button
-            type="button"
-            onClick={onPrintOfficialPdf}
-            className="btn-outline"
-            style={{
-              padding: '6px 10px',
-              fontSize: '0.75rem',
-              fontWeight: 800,
-              borderColor: 'rgba(59, 130, 246, 0.45)',
-              color: '#60a5fa',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '4px',
-            }}
-            title="Genera e imprime la Planilla Oficial de Partido en PDF para la Federación / Mesa Técnica"
-          >
-            📄 Planilla PDF FCR
+          <button type="button" onClick={handleTextClick} className="btn-outline btn-sm"
+            title="Copia la lista del XV titular y suplentes formateada para pegar en el grupo de WhatsApp">
+            {copyStatus || 'Copiar alineación'}
           </button>
-
+          <button type="button" onClick={onPrintOfficialPdf} className="btn-outline btn-sm"
+            title="Genera e imprime la Planilla Oficial de Partido en PDF para la Federación / Mesa Técnica">
+            Planilla PDF
+          </button>
           {onOpenAcademia && (
-            <button
-              type="button"
-              onClick={onOpenAcademia}
-              className="btn-outline"
-              style={{
-                padding: '6px 10px',
-                fontSize: '0.75rem',
-                fontWeight: 800,
-                borderColor: '#2EE57A',
-                color: '#2EE57A',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '4px',
-              }}
-              title="Academia de Rugby, Leyes FCR y Certificaciones World Rugby Passport"
-            >
-              📖 Academia FCR
+            <button type="button" onClick={onOpenAcademia} className="btn-outline btn-sm"
+              title="Academia de Rugby, Leyes FCR y Certificaciones World Rugby Passport">
+              Academia
             </button>
           )}
-
-          <button
-            type="button"
-            onClick={handleTextClick}
-            className="btn-outline"
-            style={{
-              padding: '6px 10px',
-              fontSize: '0.75rem',
-              fontWeight: 800,
-              borderColor: 'rgba(46, 229, 122, 0.35)',
-              color: 'var(--color-primary)',
-            }}
-            title="Copia la lista del XV titular y suplentes formateada para pegar en el grupo de WhatsApp"
-          >
-            📋 {copyStatus || 'Copiar XV WA'}
-          </button>
         </div>
       </div>
 
@@ -335,35 +261,13 @@ function PlaybookBar({
 
         {/* Custom Phase Recording Controls */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
-          <button
-            type="button"
-            onClick={onCaptureCustomPhase}
-            className="btn-outline"
-            style={{
-              padding: '5px 10px',
-              fontSize: '0.72rem',
-              fontWeight: 700,
-              borderColor: 'rgba(232, 185, 49, 0.35)',
-              color: 'var(--color-gold)',
-            }}
-            title="Mueve jugadores, rivales o el balón y guarda la posición como una nueva fase animada"
-          >
-            ➕ Capturar Fase ({phases.length + 1})
+          <button type="button" onClick={onCaptureCustomPhase} className="btn-outline btn-sm"
+            title="Mueve jugadores, rivales o el balón y guarda la posición como una nueva fase animada">
+            + Capturar fase {phases.length + 1}
           </button>
-
           {phases.length > 0 && (
-            <button
-              type="button"
-              onClick={onClearCustomPhases}
-              className="btn-outline"
-              style={{
-                padding: '5px 9px',
-                fontSize: '0.72rem',
-                color: 'var(--color-text-muted)',
-                borderColor: 'rgba(255,255,255,0.12)',
-              }}
-            >
-              ✕ Salir de Fases
+            <button type="button" onClick={onClearCustomPhases} className="btn-outline btn-sm">
+              Salir de fases
             </button>
           )}
         </div>

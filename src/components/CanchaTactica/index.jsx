@@ -1,4 +1,5 @@
 import React, { useRef, useMemo } from 'react';
+import { useIsMobile } from '../../hooks/useIsMobile';
 import { ClubContext } from '../../context/ClubContext';
 import { useTeamPlayers } from '../../context/hooks/useFilterByView';
 import { usePitchState } from './usePitchState';
@@ -97,11 +98,14 @@ function CanchaTactica() {
     executeAutoAssign,
   } = usePitchState(effectiveScope);
 
-  const [showSidebar, setShowSidebar] = React.useState(true);
+  const [showSidebar, setShowSidebar] = React.useState(false);
   const [showSaveModal, setShowSaveModal] = React.useState(false);
   const [showFilterModal, setShowFilterModal] = React.useState(false);
   const [showAcademia, setShowAcademia] = React.useState(false);
-  const isLargeFullscreen = pitchSize === 'large';
+  const isMobile = useIsMobile();
+  // On phones the pitch is already full width; "large" only made it taller and covered the screen.
+  const effectivePitchSize = isMobile ? 'medium' : pitchSize;
+  const isLargeFullscreen = effectivePitchSize === 'large';
 
   const allTeamPlayers = useTeamPlayers();
   const teamPlayers = useMemo(() => {
@@ -280,7 +284,7 @@ function CanchaTactica() {
             pitchOrientation={pitchOrientation}
             setPitchOrientation={setPitchOrientation}
             pitchSize={pitchSize}
-            setPitchSize={setPitchSize}
+            setPitchSize={isMobile ? null : setPitchSize}
             onAlignmentChange={handleAlignmentChange}
 
             customTactics={customTactics}
@@ -325,7 +329,7 @@ function CanchaTactica() {
             teamPlayers={teamPlayers}
             draggingId={draggingId}
             pitchOrientation={pitchOrientation}
-            pitchSize={pitchSize}
+            pitchSize={effectivePitchSize}
             pitchRef={pitchRef}
             showRivals={showRivals}
             rivalPositions={rivalPositions}
@@ -387,8 +391,12 @@ function CanchaTactica() {
         </button>
       )}
 
-      {pitchSize === 'large' && showSidebar && (
+      {isLargeFullscreen && showSidebar && (
+        <>
+        <div aria-hidden="true" onClick={() => setShowSidebar(false)}
+          style={{ position: 'fixed', inset: 0, zIndex: 997, background: 'rgba(0,0,0,0.55)' }} />
         <div
+          role="dialog" aria-label="Banca y notas"
           className="glass-panel animated-slide"
           style={{
             position: 'fixed',
@@ -427,6 +435,7 @@ function CanchaTactica() {
             />
           </div>
         </div>
+        </>
       )}
 
       {showSelectModal && selectedSlot && (
