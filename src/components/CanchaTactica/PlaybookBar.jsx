@@ -24,7 +24,10 @@ function PlaybookBar({
   onCopyWhatsAppText,
   onPrintOfficialPdf,
   onOpenAcademia,
+  section = 'all',
 }) {
+  const showPlay = section !== 'share';
+  const showShare = section !== 'play';
   const [exportStatus, setExportStatus] = useState('');
   const [copyStatus, setCopyStatus] = useState('');
 
@@ -61,10 +64,10 @@ function PlaybookBar({
     >
       {/* Top Row: TV Playbook Selector + Rivals/Ball Toggles + WhatsApp Exports */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', flex: '1 1 320px', minWidth: 0 }}>
-          <span style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'var(--color-text-muted)', whiteSpace: 'nowrap' }}>
+        {showPlay && <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', flex: '1 1 320px', minWidth: 0 }}>
+          {section === 'all' && <span style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'var(--color-text-muted)', whiteSpace: 'nowrap' }}>
             Jugadas
-          </span>
+          </span>}
 
           <select
             value={activePlayId || ''}
@@ -78,7 +81,7 @@ function PlaybookBar({
               padding: '6px 10px',
               fontSize: '0.78rem',
               fontWeight: 700,
-              minWidth: '250px',
+              minWidth: 0,
               flex: '1 1 240px',
               borderColor: activePlayId ? 'var(--color-primary)' : 'rgba(255,255,255,0.14)',
             }}
@@ -92,10 +95,10 @@ function PlaybookBar({
               ))}
             </optgroup>
           </select>
-        </div>
+        </div>}
 
         {/* Interactive Elements Toggles */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+        {showPlay && <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
           <button type="button" onClick={onToggleRivals} aria-pressed={showRivals}
             className={`btn-outline btn-sm${showRivals ? ' is-on' : ''}`}
             style={showRivals ? { borderColor: 'var(--color-primary)', color: 'var(--color-text)' } : undefined}
@@ -108,8 +111,8 @@ function PlaybookBar({
             title="Mostrar u ocultar el balón interactivo (arrástralo para trazar pases)">
             Balón
           </button>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap', width: '100%' }}>
+        </div>}
+        {showShare && <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap', width: '100%' }}>
           <button type="button" onClick={handleImageClick} className="btn-neon btn-sm"
             title="Genera una imagen HD estilo TV con cancha, flechas y alineación XV (se copia para pegar en WhatsApp y se descarga)">
             {exportStatus || 'Compartir imagen'}
@@ -128,11 +131,11 @@ function PlaybookBar({
               Academia
             </button>
           )}
-        </div>
+        </div>}
       </div>
 
       {/* Bottom Row: Phase Timeline & Animation Controls */}
-      <div
+      {showPlay && <div
         style={{
           display: 'flex',
           alignItems: 'center',
@@ -271,7 +274,7 @@ function PlaybookBar({
             </button>
           )}
         </div>
-      </div>
+      </div>}
     </div>
   );
 }

@@ -1822,3 +1822,27 @@ body {
 }
 .player-row-num { color: var(--color-text-subtle); font-weight: 500; font-variant-numeric: tabular-nums; }
 .player-row-meta { font-size: 0.8125rem; color: var(--color-text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* Pizarra: player picker as a bottom sheet on phones */
+.pz-sheet { overflow: hidden; max-height: 85vh; max-height: 85dvh; }
+@media (max-width: 767px) {
+  .pz-sheet-overlay { align-items: flex-end; padding: 0; }
+  .pz-sheet {
+    max-width: none !important;
+    border-radius: 18px 18px 0 0;
+    border-bottom: none;
+    padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+}
+/* Pizarra: fullscreen board */
+.pz-fullscreen {
+  position: fixed;
+  inset: 0;
+  z-index: 1050;
+  background: var(--bg-root);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: calc(8px + env(safe-area-inset-top, 0px)) 8px calc(8px + env(safe-area-inset-bottom, 0px));
+  overscroll-behavior: contain;
+}

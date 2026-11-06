@@ -3,6 +3,10 @@ import PositionNode from './PositionNode';
 import { useIsMobile } from '../../hooks/useIsMobile';
 import BroadcastOverlay from './BroadcastOverlay';
 
+// Share of the pitch shown in "half" view, and how deep a player may stand for it to apply.
+const CROP = 0.6;
+const HALF_LIMIT = 53;
+
 function PitchField({
   fieldPositions,
   prevFieldPositions = [],
@@ -25,10 +29,40 @@ function PitchField({
   animDuration = 1.9,
   onStartDrag,
   onDragMove,
-  onEndDrag
+  onEndDrag,
+  view = 'full',
+  fitHeight = false,
+  availabilities = {},
 }) {
   const isMobile = useIsMobile();
+  const isVertical = pitchOrientation !== 'horizontal';
+  const baseAspect = isVertical ? (isMobile || fitHeight ? 0.68 : 1.2) : 1.6;
+  // "Half" view crops to the team's own half so the 15 fit without the empty rival half.
+  // Falls back to the full pitch whenever something lives in the other half.
+  const depth = (pt) => (pt ? (isVertical ? pt.y : pt.x) : 0);
+  const canCrop = pitchSize !== 'large' && !showRivals
+    && fieldPositions.every(pt => depth(pt) <= HALF_LIMIT)
+    && (!showBall || depth(ballPosition) <= HALF_LIMIT);
+  const cropped = view === 'half' && canCrop;
+  const visibleAspect = cropped ? (isVertical ? baseAspect / CROP : baseAspect * CROP) : baseAspect;
+
+  const viewportStyle = {
+    position: 'relative',
+    width: fitHeight
+      ? `min(100%, calc((100dvh - 120px) * ${visibleAspect}))`
+      : pitchSize === 'small' ? '60%' : '100%',
+    maxWidth: fitHeight ? 'none' : pitchSize === 'small' ? '480px' : pitchSize === 'medium' ? '800px' : 'none',
+    margin: pitchSize === 'large' && !fitHeight ? '0' : '0 auto',
+    ...(pitchSize === 'large' && !fitHeight ? { minHeight: '70vh' } : { aspectRatio: String(visibleAspect) }),
+    borderRadius: 'var(--radius-lg)',
+    border: pitchSize === 'large' && !fitHeight ? '3px solid var(--color-primary)' : '2px solid rgba(255,255,255,0.85)',
+    overflow: 'hidden',
+    boxShadow: 'inset 0 0 30px rgba(0,0,0,0.6)',
+    background: '#133A24',
+  };
+
   return (
+    <div style={viewportStyle} data-pitch-view={cropped ? 'half' : 'full'}>
     <div
       ref={pitchRef}
       className="rugby-pitch"
@@ -37,26 +71,16 @@ function PitchField({
       onMouseUp={() => onStartDrag(null, null)}
       onTouchEnd={() => onStartDrag(null, null)}
       style={{
-        position: 'relative',
-        width: pitchSize === 'small' ? '60%' : '100%',
-        maxWidth: pitchSize === 'small' ? '480px' : pitchSize === 'medium' ? '800px' : 'none',
-        margin: pitchSize === 'large' ? '0' : '0 auto',
-        ...(pitchSize === 'large'
-          ? { minHeight: '70vh' }
-          : { aspectRatio: pitchOrientation === 'horizontal' ? '1.6' : isMobile ? '0.68' : '1.2' }
-        ),
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        width: cropped && !isVertical ? `${100 / CROP}%` : '100%',
+        height: cropped && isVertical ? `${100 / CROP}%` : '100%',
         background: pitchOrientation === 'horizontal'
           ? 'repeating-linear-gradient(90deg, #17442A, #17442A 5%, #133A24 5%, #133A24 10%)'
           : 'repeating-linear-gradient(180deg, #17442A, #17442A 5%, #133A24 5%, #133A24 10%)',
-        borderRadius: 'var(--radius-lg)',
-        border: pitchSize === 'large' ? '3px solid var(--color-primary)' : '3px solid rgba(255,255,255,0.85)',
-        overflow: 'hidden',
-        boxShadow: pitchSize === 'large'
-          ? '0 0 40px var(--color-primary-glow), inset 0 0 30px rgba(0,0,0,0.6)'
-          : '0 0 25px rgba(46, 229, 122, 0.15), inset 0 0 30px rgba(0,0,0,0.6)',
         backgroundSize: '100% 100%',
         userSelect: 'none',
-        transition: 'min-height 0.3s cubic-bezier(0.4, 0, 0.2, 1), aspect-ratio 0.3s cubic-bezier(0.4, 0, 0.2, 1), max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1), width 0.3s cubic-bezier(0.4, 0, 0.2, 1), border 0.3s, box-shadow 0.3s'
       }}
     >
       {pitchOrientation === 'horizontal' ? (
@@ -139,6 +163,7 @@ function PitchField({
             key={pos.id}
             pos={pos}
             player={player}
+            availability={player ? availabilities[player.id] : undefined}
             isDraggingThis={isDraggingThis}
             isAnimating={isAnimating}
             animDuration={animDuration}
@@ -147,6 +172,7 @@ function PitchField({
           />
         );
       })}
+    </div>
     </div>
   );
 }

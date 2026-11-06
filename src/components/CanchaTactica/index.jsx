@@ -210,6 +210,259 @@ function CanchaTactica() {
     await copyToClipboard(text);
   };
 
+  const [pitchView, setPitchView] = React.useState('half');
+  const [mobilePanel, setMobilePanel] = React.useState('tactica');
+  const [fullscreen, setFullscreen] = React.useState(false);
+
+  // Fullscreen board: freeze the page behind it and let Escape close it.
+  React.useEffect(() => {
+    if (!fullscreen) return undefined;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    const onKey = (e) => { if (e.key === 'Escape') setFullscreen(false); };
+    window.addEventListener('keydown', onKey);
+    return () => { document.body.style.overflow = prev; window.removeEventListener('keydown', onKey); };
+  }, [fullscreen]);
+
+  const scopeSelect = (
+    <select
+      value={boardScope}
+      onChange={e => { setBoardScope(e.target.value); setSelectedMatchId(''); }}
+      className="form-select"
+      style={isMobile ? { width: '100%' } : { padding: '4px 10px', fontSize: '0.8125rem', fontWeight: 600, width: 'auto', maxWidth: '100%' }}
+      title="Seleccionar equipo o clan Mak'Gora para esta pizarra"
+    >
+      <optgroup label="Divisiones Oficiales">
+        {teamCategories.map(tc => (
+          <option key={tc} value={tc}>{formatTeamCategory(tc)}</option>
+        ))}
+      </optgroup>
+      {makgoraTeams.length > 0 && (
+        <optgroup label="Clanes Mak'Gora (Aislados)">
+          {makgoraTeams.map(mt => (
+            <option key={mt.id} value={`makgora_${mt.id}`}>
+              ⚔️ Mak'Gora: {mt.rpg_name || mt.name}
+            </option>
+          ))}
+        </optgroup>
+      )}
+    </select>
+  );
+  const matchSelect = upcomingMatches.length > 0 && (
+  <select
+    value={selectedMatchId}
+    onChange={e => setSelectedMatchId(e.target.value)}
+    className="form-select"
+    style={isMobile ? { width: '100%' } : { padding: '4px 10px', fontSize: '0.8125rem', width: 'auto', maxWidth: '100%' }}
+    title="Filtrar disponibilidad y guardar pizarra para un partido específico"
+  >
+    <option value="">
+      Partido activo: {nextMatch ? `${nextMatch.date} vs ${nextMatch.opponent} (${Object.values(nextMatch.availabilities || {}).filter(v => v === 'going').length} conf.)` : 'General'}
+    </option>
+    {upcomingMatches.map(m => (
+      <option key={m.id} value={m.id}>
+        📅 {m.date} vs {m.opponent} ({Object.values(m.availabilities || {}).filter(v => v === 'going').length} confirmados)
+      </option>
+    ))}
+  </select>
+);
+  const controlsPanel = (
+    <PitchControls
+      activeAlignment={activeAlignment}
+      pitchOrientation={pitchOrientation}
+      setPitchOrientation={setPitchOrientation}
+      pitchSize={pitchSize}
+      setPitchSize={isMobile ? null : setPitchSize}
+      onAlignmentChange={handleAlignmentChange}
+
+      customTactics={customTactics}
+      activeTacticId={activeTacticId}
+      autoAssignLoading={autoAssignLoading}
+      onSaveTactic={() => setShowSaveModal(true)}
+      onUpdateActiveTactic={activeTacticId ? saveActiveTacticChanges : null}
+      onAutoAssign={handleAutoAssign}
+      onDeleteTactic={handleDeleteTactic}
+      onRenameTactic={handleUpdateTactic}
+    />
+  );
+  const renderPlaybook = (section = 'all') => (
+    <PlaybookBar
+      section={section}
+      activePlayId={activePlayId}
+      onSelectPresetPlay={handleSelectPresetPlay}
+      onExitPlaybook={handleExitPlaybook}
+      phases={phases}
+      activePhaseIndex={activePhaseIndex}
+      onSelectPhase={handleSelectPhase}
+      isPlayingPlay={isPlayingPlay}
+      onTogglePlay={() => setIsPlayingPlay(prev => !prev)}
+      playbackSpeed={playbackSpeed}
+      onSpeedChange={setPlaybackSpeed}
+      onPrevPhase={handlePrevPhase}
+      onNextPhase={handleNextPhase}
+      onCaptureCustomPhase={handleCaptureCustomPhase}
+      onClearCustomPhases={handleExitPlaybook}
+      showRivals={showRivals}
+      onToggleRivals={() => setShowRivals(prev => !prev)}
+      showBall={showBall}
+      onToggleBall={() => setShowBall(prev => !prev)}
+      onExportImage={handleExportBroadcastImage}
+      onCopyWhatsAppText={handleCopyLineupWhatsApp}
+      onPrintOfficialPdf={handlePrintOfficialPdf}
+      onOpenAcademia={() => setShowAcademia(true)}
+    />
+  );
+  const renderPitch = (fit = false) => (
+    <PitchField
+      fieldPositions={fieldPositions}
+      prevFieldPositions={prevFieldPositions}
+      lineup={lineup}
+      teamPlayers={teamPlayers}
+      draggingId={draggingId}
+      pitchOrientation={pitchOrientation}
+      pitchSize={effectivePitchSize}
+      pitchRef={pitchRef}
+      showRivals={showRivals}
+      rivalPositions={rivalPositions}
+      prevRivalPositions={prevRivalPositions}
+      showBall={showBall}
+      ballPosition={ballPosition}
+      passFrom={passFrom}
+      gainLineX={gainLineX}
+      highlightZone={highlightZone}
+      activePhaseInfo={activePhaseInfo}
+      isAnimating={isAnimating}
+      animDuration={animDuration}
+      onStartDrag={handleStartDrag}
+      onDragMove={boundDragMove}
+      onEndDrag={handleEndDrag}
+      view={isMobile ? pitchView : 'full'}
+      fitHeight={fit}
+      availabilities={nextMatch?.availabilities || {}}
+    />
+  );
+  const modalLayer = (
+    <>
+      {showSelectModal && selectedSlot && (
+        <PlayerSelectModal
+          selectedSlot={selectedSlot}
+          teamPlayers={teamPlayers}
+          isPlayerAligned={isPlayerAligned}
+        lineup={lineup}
+          availabilities={nextMatch?.availabilities || {}}
+          onAssign={assignPlayer}
+          onClose={() => setShowSelectModal(false)}
+        />
+      )}
+
+      <ConfirmModal
+        confirmState={confirmState}
+        onConfirm={() => {
+          confirmState.onConfirm();
+          setConfirmState(null);
+        }}
+        onCancel={() => setConfirmState(null)}
+      />
+
+      {showSaveModal && (
+        <SaveTacticModal
+          formationType={activeAlignment}
+          teamCategories={teamCategories}
+          makgoraTeams={makgoraTeams}
+          upcomingMatches={upcomingMatches}
+          defaultScope={effectiveScope}
+          onSave={handleSaveTactic}
+          onClose={() => setShowSaveModal(false)}
+        />
+      )}
+
+      {showFilterModal && (
+        <TacticFiltersModal
+          onAssign={handleAutoAssignWithFilters}
+          onClose={() => setShowFilterModal(false)}
+        />
+      )}
+
+      {showAcademia && (
+        <AcademiaLeyesModal
+          onClose={() => setShowAcademia(false)}
+        />
+      )}
+    </>
+  );
+
+  const viewToggle = (
+    <div className="segmented" role="group" aria-label="Vista de la cancha" style={{ flex: 1 }}>
+      {[['half', 'Media cancha'], ['full', 'Completa']].map(([v, l]) => (
+        <button key={v} type="button" aria-pressed={pitchView === v}
+          className={pitchView === v ? 'is-on' : ''} onClick={() => setPitchView(v)}>{l}</button>
+      ))}
+    </div>
+  );
+
+  if (isMobile) {
+    const panels = [['tactica', 'Táctica'], ['jugadas', 'Jugadas'], ['banca', 'Banca'], ['compartir', 'Compartir']];
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+        <header style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          <h1 className="page-title">Pizarra XV</h1>
+          {scopeSelect}
+          {matchSelect}
+        </header>
+
+        {!fullscreen && renderPitch(false)}
+
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'stretch' }}>
+          {viewToggle}
+          <button type="button" className="btn-outline btn-sm" onClick={() => setFullscreen(true)}
+            aria-label="Pantalla completa" title="Pantalla completa" style={{ minWidth: '44px', fontSize: '1rem' }}>⛶</button>
+        </div>
+        <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', margin: 0 }}>
+          Toca una posición para elegir jugador. Arrastra el círculo para moverla.
+        </p>
+
+        <div className="segmented" role="tablist" aria-label="Herramientas de la pizarra" style={{ gridTemplateColumns: 'repeat(4, minmax(0, 1fr))' }}>
+          {panels.map(([id, label]) => (
+            <button key={id} type="button" role="tab" aria-selected={mobilePanel === id}
+              className={mobilePanel === id ? 'is-on' : ''} onClick={() => setMobilePanel(id)}>{label}</button>
+          ))}
+        </div>
+
+        {mobilePanel === 'tactica' && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            {controlsPanel}
+            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+              <button type="button" onClick={resetToDefaultPositions} className="btn-outline btn-sm">Restablecer posiciones</button>
+              <button type="button" onClick={clearField} className="btn-outline btn-sm">Vaciar cancha</button>
+            </div>
+          </div>
+        )}
+        {mobilePanel === 'jugadas' && renderPlaybook('play')}
+        {mobilePanel === 'banca' && (
+          <>
+            <BenchPanel lineup={lineup} teamPlayers={teamPlayers} onSlotClick={handleSlotClick} />
+            <StrategyNotes tacticalNotes={tacticalNotes} onChange={setTacticalNotes} />
+          </>
+        )}
+        {mobilePanel === 'compartir' && renderPlaybook('share')}
+
+        {fullscreen && (
+          <div className="pz-fullscreen" role="dialog" aria-label="Pizarra en pantalla completa">
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'stretch' }}>
+              {viewToggle}
+              <button type="button" className="btn-neon btn-sm" onClick={() => setFullscreen(false)}>Salir</button>
+            </div>
+            <div style={{ flex: 1, minHeight: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <div style={{ width: '100%' }}>{renderPitch(true)}</div>
+            </div>
+          </div>
+        )}
+
+        {modalLayer}
+      </div>
+    );
+  }
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', position: 'relative' }}>
       <div className="animated-fade" style={{
@@ -226,46 +479,8 @@ function CanchaTactica() {
                 <h1 className="page-title" style={{ width: '100%' }}>
                   {isLargeFullscreen ? 'Pizarra táctica' : 'Pizarra XV'}
                 </h1>
-                <select
-                  value={boardScope}
-                  onChange={e => { setBoardScope(e.target.value); setSelectedMatchId(''); }}
-                  className="form-select"
-                  style={{ padding: '4px 10px', fontSize: '0.8125rem', fontWeight: 600, width: 'auto', maxWidth: '100%' }}
-                  title="Seleccionar equipo o clan Mak'Gora para esta pizarra"
-                >
-                  <optgroup label="Divisiones Oficiales">
-                    {teamCategories.map(tc => (
-                      <option key={tc} value={tc}>{formatTeamCategory(tc)}</option>
-                    ))}
-                  </optgroup>
-                  {makgoraTeams.length > 0 && (
-                    <optgroup label="Clanes Mak'Gora (Aislados)">
-                      {makgoraTeams.map(mt => (
-                        <option key={mt.id} value={`makgora_${mt.id}`}>
-                          ⚔️ Mak'Gora: {mt.rpg_name || mt.name}
-                        </option>
-                      ))}
-                    </optgroup>
-                  )}
-                </select>
-                {upcomingMatches.length > 0 && (
-                  <select
-                    value={selectedMatchId}
-                    onChange={e => setSelectedMatchId(e.target.value)}
-                    className="form-select"
-                    style={{ padding: '4px 10px', fontSize: '0.8125rem', width: 'auto', maxWidth: '100%' }}
-                    title="Filtrar disponibilidad y guardar pizarra para un partido específico"
-                  >
-                    <option value="">
-                      Partido activo: {nextMatch ? `${nextMatch.date} vs ${nextMatch.opponent} (${Object.values(nextMatch.availabilities || {}).filter(v => v === 'going').length} conf.)` : 'General'}
-                    </option>
-                    {upcomingMatches.map(m => (
-                      <option key={m.id} value={m.id}>
-                        📅 {m.date} vs {m.opponent} ({Object.values(m.availabilities || {}).filter(v => v === 'going').length} confirmados)
-                      </option>
-                    ))}
-                  </select>
-                )}
+                {scopeSelect}
+                {matchSelect}
               </div>
               <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginTop: '3px' }}>Arrastra los círculos para mover posiciones o tócalos para alinear guerreros.</p>
             </div>
@@ -279,73 +494,11 @@ function CanchaTactica() {
             </div>
           </div>
 
-          <PitchControls
-            activeAlignment={activeAlignment}
-            pitchOrientation={pitchOrientation}
-            setPitchOrientation={setPitchOrientation}
-            pitchSize={pitchSize}
-            setPitchSize={isMobile ? null : setPitchSize}
-            onAlignmentChange={handleAlignmentChange}
+          {controlsPanel}
 
-            customTactics={customTactics}
-            activeTacticId={activeTacticId}
-            autoAssignLoading={autoAssignLoading}
-            onSaveTactic={() => setShowSaveModal(true)}
-            onUpdateActiveTactic={activeTacticId ? saveActiveTacticChanges : null}
-            onAutoAssign={handleAutoAssign}
-            onDeleteTactic={handleDeleteTactic}
-            onRenameTactic={handleUpdateTactic}
-          />
+          {renderPlaybook('all')}
 
-          <PlaybookBar
-            activePlayId={activePlayId}
-            onSelectPresetPlay={handleSelectPresetPlay}
-            onExitPlaybook={handleExitPlaybook}
-            phases={phases}
-            activePhaseIndex={activePhaseIndex}
-            onSelectPhase={handleSelectPhase}
-            isPlayingPlay={isPlayingPlay}
-            onTogglePlay={() => setIsPlayingPlay(prev => !prev)}
-            playbackSpeed={playbackSpeed}
-            onSpeedChange={setPlaybackSpeed}
-            onPrevPhase={handlePrevPhase}
-            onNextPhase={handleNextPhase}
-            onCaptureCustomPhase={handleCaptureCustomPhase}
-            onClearCustomPhases={handleExitPlaybook}
-            showRivals={showRivals}
-            onToggleRivals={() => setShowRivals(prev => !prev)}
-            showBall={showBall}
-            onToggleBall={() => setShowBall(prev => !prev)}
-            onExportImage={handleExportBroadcastImage}
-            onCopyWhatsAppText={handleCopyLineupWhatsApp}
-            onPrintOfficialPdf={handlePrintOfficialPdf}
-            onOpenAcademia={() => setShowAcademia(true)}
-          />
-
-          <PitchField
-            fieldPositions={fieldPositions}
-            prevFieldPositions={prevFieldPositions}
-            lineup={lineup}
-            teamPlayers={teamPlayers}
-            draggingId={draggingId}
-            pitchOrientation={pitchOrientation}
-            pitchSize={effectivePitchSize}
-            pitchRef={pitchRef}
-            showRivals={showRivals}
-            rivalPositions={rivalPositions}
-            prevRivalPositions={prevRivalPositions}
-            showBall={showBall}
-            ballPosition={ballPosition}
-            passFrom={passFrom}
-            gainLineX={gainLineX}
-            highlightZone={highlightZone}
-            activePhaseInfo={activePhaseInfo}
-            isAnimating={isAnimating}
-            animDuration={animDuration}
-            onStartDrag={handleStartDrag}
-            onDragMove={boundDragMove}
-            onEndDrag={handleEndDrag}
-          />
+          {renderPitch(false)}
         </div>
 
         {!isLargeFullscreen && (
@@ -438,50 +591,7 @@ function CanchaTactica() {
         </>
       )}
 
-      {showSelectModal && selectedSlot && (
-        <PlayerSelectModal
-          selectedSlot={selectedSlot}
-          teamPlayers={teamPlayers}
-          isPlayerAligned={isPlayerAligned}
-          availabilities={nextMatch?.availabilities || {}}
-          onAssign={assignPlayer}
-          onClose={() => setShowSelectModal(false)}
-        />
-      )}
-
-      <ConfirmModal
-        confirmState={confirmState}
-        onConfirm={() => {
-          confirmState.onConfirm();
-          setConfirmState(null);
-        }}
-        onCancel={() => setConfirmState(null)}
-      />
-
-      {showSaveModal && (
-        <SaveTacticModal
-          formationType={activeAlignment}
-          teamCategories={teamCategories}
-          makgoraTeams={makgoraTeams}
-          upcomingMatches={upcomingMatches}
-          defaultScope={effectiveScope}
-          onSave={handleSaveTactic}
-          onClose={() => setShowSaveModal(false)}
-        />
-      )}
-
-      {showFilterModal && (
-        <TacticFiltersModal
-          onAssign={handleAutoAssignWithFilters}
-          onClose={() => setShowFilterModal(false)}
-        />
-      )}
-
-      {showAcademia && (
-        <AcademiaLeyesModal
-          onClose={() => setShowAcademia(false)}
-        />
-      )}
+      {modalLayer}
     </div>
   );
 }

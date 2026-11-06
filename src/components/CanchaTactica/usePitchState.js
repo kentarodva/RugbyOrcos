@@ -258,12 +258,14 @@ export function usePitchState(activeTeam) {
       if (playerId === null) {
         delete newLineup[selectedSlot.id];
       } else {
-        Object.keys(newLineup).forEach(key => {
-          if (newLineup[key] === playerId) {
-            delete newLineup[key];
-          }
-        });
+        const previousSlot = Object.keys(newLineup).find(key => newLineup[key] === playerId);
+        const displaced = newLineup[selectedSlot.id];
+        if (previousSlot !== undefined) delete newLineup[previousSlot];
         newLineup[selectedSlot.id] = playerId;
+        // Swap: whoever held this slot moves to the chosen player's old slot.
+        if (previousSlot !== undefined && displaced != null && String(previousSlot) !== String(selectedSlot.id)) {
+          newLineup[previousSlot] = displaced;
+        }
       }
       if (activeTacticId) {
         updateCustomTactic(activeTacticId, { lineup: newLineup }).then(updated => {

@@ -1,7 +1,7 @@
 import React from 'react';
 import { POS_ABREVIATIONS } from './constants';
 
-function PositionNode({ pos, player, isDraggingThis, isAnimating = false, animDuration = 1.9, onStartDrag, onEndDrag }) {
+function PositionNode({ pos, player, availability, isDraggingThis, isAnimating = false, animDuration = 1.9, onStartDrag, onEndDrag }) {
   const isForward = pos.id <= 8;
   const isReserve = pos.name.includes('Reserva');
   const departmentColor = isReserve
@@ -9,6 +9,13 @@ function PositionNode({ pos, player, isDraggingThis, isAnimating = false, animDu
     : isForward
       ? 'var(--color-gold)'
       : 'var(--color-primary)';
+
+  const unavailable = player && (player.estado === 'lesionado' || player.estado === 'suspendido');
+  const warn = unavailable || availability === 'not_going'
+    ? { color: 'var(--color-red)', label: unavailable ? `${player.name} está ${player.estado}` : `${player.name} no va al partido` }
+    : availability === 'maybe'
+      ? { color: 'var(--color-gold)', label: `${player.name} está en duda` }
+      : null;
 
   return (
     <div
@@ -96,9 +103,9 @@ function PositionNode({ pos, player, isDraggingThis, isAnimating = false, animDu
         background: 'rgba(14, 17, 15, 0.92)',
         padding: '3px 6px',
         borderRadius: 'var(--radius-sm)',
-        fontSize: '0.62rem',
+        fontSize: '0.72rem',
         fontWeight: '700',
-        maxWidth: '72px',
+        maxWidth: '84px',
         textAlign: 'center',
         overflow: 'hidden',
         textOverflow: 'ellipsis',
@@ -112,6 +119,21 @@ function PositionNode({ pos, player, isDraggingThis, isAnimating = false, animDu
       }}>
         {player.apodo || player.name.split(' ').slice(0, 2).join(' ')}
       </div>)}
+      {warn && (
+        <span aria-label={warn.label} title={warn.label} style={{
+          position: 'absolute', top: '-4px', left: '50%', marginLeft: '-26px',
+          width: '16px', height: '16px', borderRadius: '50%', background: warn.color, color: '#0E110F',
+          fontSize: '0.65rem', fontWeight: 900, display: 'flex', alignItems: 'center', justifyContent: 'center',
+          boxShadow: '0 1px 4px rgba(0,0,0,0.6)', pointerEvents: 'none',
+        }}>!</span>
+      )}
+      {player?.rol === 'Capitan' && (
+        <span aria-label="Capitán" title="Capitán" style={{
+          position: 'absolute', top: '26px', left: '50%', marginLeft: '-27px',
+          width: '16px', height: '16px', borderRadius: '50%', background: 'var(--color-gold)', color: '#0E110F',
+          fontSize: '0.6rem', fontWeight: 900, display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none',
+        }}>C</span>
+      )}
     </div>
   );
 }
