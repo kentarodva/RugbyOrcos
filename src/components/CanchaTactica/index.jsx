@@ -9,6 +9,10 @@ import DrawToolbar from './DrawToolbar';
 import { useDrawings } from './useDrawings';
 import PitchControls from './PitchControls';
 import PlaybookBar from './PlaybookBar';
+import PlaysPanel from './PlaysPanel';
+import PhaseStrip from './PhaseStrip';
+import { usePlayLibrary } from './usePlayLibrary';
+import { ALL_TV_PLAYS, playTitle } from './playLibrary';
 import BenchPanel from './BenchPanel';
 import StrategyNotes from './StrategyNotes';
 import PlayerSelectModal from './PlayerSelectModal';
@@ -24,7 +28,8 @@ import { AcademiaLeyesModal } from './AcademiaLeyesModal';
 const TOUCH_LAYOUT_QUERY = '(max-width: 767px), (pointer: coarse) and (max-width: 1100px)';
 
 function CanchaTactica() {
-  const { players, activeTeam, futureFixtures, makgoraTeams = [], viewMode, makgoraTeamId } = React.useContext(ClubContext);
+  const { players, activeTeam, futureFixtures, makgoraTeams = [], viewMode, makgoraTeamId, hasPermission } = React.useContext(ClubContext);
+  const canEditPlays = typeof hasPermission === 'function' ? hasPermission('manage_tactics') : false;
   const pitchRef = useRef(null);
 
   const initialScope = viewMode === 'makgora' && makgoraTeamId
@@ -90,6 +95,7 @@ function CanchaTactica() {
     handleSelectPhase,
     handleCaptureCustomPhase,
     handleExitPlaybook,
+    handleLoadPlay, handleRemoveLastPhase,
     draggingId,
     selectedSlot, showSelectModal, setShowSelectModal,
     confirmState, setConfirmState,
@@ -220,6 +226,7 @@ function CanchaTactica() {
   const [drawing, setDrawing] = React.useState(false);
   const [drawTool, setDrawTool] = React.useState('run');
   const drawings = useDrawings(effectiveScope);
+  const playLibrary = usePlayLibrary(effectiveScope, canEditPlays);
   const [mobilePanel, setMobilePanel] = React.useState('tactica');
   const [fullscreen, setFullscreen] = React.useState(false);
 
@@ -294,31 +301,47 @@ function CanchaTactica() {
       onRenameTactic={handleUpdateTactic}
     />
   );
-  const renderPlaybook = (section = 'all') => (
+  const sharePanel = (
     <PlaybookBar
-      section={section}
-      activePlayId={activePlayId}
-      onSelectPresetPlay={handleSelectPresetPlay}
-      onExitPlaybook={handleExitPlaybook}
-      phases={phases}
-      activePhaseIndex={activePhaseIndex}
-      onSelectPhase={handleSelectPhase}
-      isPlayingPlay={isPlayingPlay}
-      onTogglePlay={() => setIsPlayingPlay(prev => !prev)}
-      playbackSpeed={playbackSpeed}
-      onSpeedChange={setPlaybackSpeed}
-      onPrevPhase={handlePrevPhase}
-      onNextPhase={handleNextPhase}
-      onCaptureCustomPhase={handleCaptureCustomPhase}
-      onClearCustomPhases={handleExitPlaybook}
-      showRivals={showRivals}
-      onToggleRivals={() => setShowRivals(prev => !prev)}
-      showBall={showBall}
-      onToggleBall={() => setShowBall(prev => !prev)}
       onExportImage={handleExportBroadcastImage}
       onCopyWhatsAppText={handleCopyLineupWhatsApp}
       onPrintOfficialPdf={handlePrintOfficialPdf}
       onOpenAcademia={() => setShowAcademia(true)}
+    />
+  );
+  const playsPanel = (
+    <PlaysPanel
+      activePlayId={activePlayId}
+      phases={phases}
+      onSelectPreset={handleSelectPresetPlay}
+      onLoadPlay={handleLoadPlay}
+      onExit={handleExitPlaybook}
+      onCapture={handleCaptureCustomPhase}
+      onRemoveLastPhase={handleRemoveLastPhase}
+      showRivals={showRivals}
+      onToggleRivals={() => setShowRivals(prev => !prev)}
+      showBall={showBall}
+      onToggleBall={() => setShowBall(prev => !prev)}
+      library={playLibrary}
+      canEdit={canEditPlays}
+    />
+  );
+  const activePlayTitle = activePlayId === 'custom_play'
+    ? 'Jugada nueva (sin guardar)'
+    : playTitle(ALL_TV_PLAYS.find(p => p.id === activePlayId)) || playLibrary.plays.find(p => p.id === activePlayId)?.name || 'Jugada';
+  const phaseStrip = (
+    <PhaseStrip
+      title={activePlayTitle}
+      phases={phases}
+      activeIndex={activePhaseIndex}
+      isPlaying={isPlayingPlay}
+      onTogglePlay={() => setIsPlayingPlay(prev => !prev)}
+      onPrev={handlePrevPhase}
+      onNext={handleNextPhase}
+      onSelect={handleSelectPhase}
+      speed={playbackSpeed}
+      onSpeed={setPlaybackSpeed}
+      onExit={handleExitPlaybook}
     />
   );
   const renderPitch = (fit = false) => (
@@ -339,7 +362,7 @@ function CanchaTactica() {
       passFrom={passFrom}
       gainLineX={gainLineX}
       highlightZone={highlightZone}
-      activePhaseInfo={activePhaseInfo}
+      activePhaseInfo={null}
       isAnimating={isAnimating}
       animDuration={animDuration}
       onStartDrag={handleStartDrag}
@@ -442,6 +465,7 @@ function CanchaTactica() {
             aria-label="Pantalla completa" title="Pantalla completa" style={{ minWidth: '44px', fontSize: '1rem' }}>⛶</button>
         </div>
         {drawToolbar}
+        {phaseStrip}
         <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', margin: 0 }}>
           {drawing
             ? 'Arrastra el dedo sobre la cancha para trazar. Toca «Listo» para volver a mover jugadores.'
@@ -464,14 +488,14 @@ function CanchaTactica() {
             </div>
           </div>
         )}
-        {mobilePanel === 'jugadas' && renderPlaybook('play')}
+        {mobilePanel === 'jugadas' && playsPanel}
         {mobilePanel === 'banca' && (
           <>
             <BenchPanel lineup={lineup} teamPlayers={teamPlayers} onSlotClick={handleSlotClick} />
             <StrategyNotes tacticalNotes={tacticalNotes} onChange={setTacticalNotes} />
           </>
         )}
-        {mobilePanel === 'compartir' && renderPlaybook('share')}
+        {mobilePanel === 'compartir' && sharePanel}
 
         {fullscreen && (
           <div className="pz-fullscreen" role="dialog" aria-label="Pizarra en pantalla completa">
@@ -525,13 +549,15 @@ function CanchaTactica() {
 
           {controlsPanel}
 
-          {renderPlaybook('all')}
+          {sharePanel}
+          {playsPanel}
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
             <div style={{ display: 'flex', justifyContent: 'flex-end' }}>{drawToggle}</div>
             {drawToolbar}
           </div>
           {renderPitch(false)}
+          {phaseStrip}
         </div>
 
         {(

@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { ALIGNMENTS_HORIZONTAL, ALIGNMENTS_VERTICAL } from './constants';
-import { DEFAULT_RIVALS_HORIZONTAL, PRESET_TV_PLAYS, mirrorToVertical } from './presetPlays';
+import { DEFAULT_RIVALS_HORIZONTAL, mirrorToVertical } from './presetPlays';
+import { ALL_TV_PLAYS } from './playLibrary';
 import {
   fetchCustomTactics,
   createCustomTactic,
@@ -368,7 +369,7 @@ export function usePitchState(activeTeam) {
   }, [pitchOrientation, activeAlignment]);
 
   const handleSelectPresetPlay = useCallback((playId) => {
-    const found = PRESET_TV_PLAYS.find(p => p.id === playId);
+    const found = ALL_TV_PLAYS.find(p => p.id === playId);
     if (!found) return;
     setActivePlayId(found.id);
     setPhases(found.phases);
@@ -377,6 +378,25 @@ export function usePitchState(activeTeam) {
     setIsPlayingPlay(true);
     applyPhaseData(found.phases, 0, pitchOrientation);
   }, [applyPhaseData, pitchOrientation]);
+
+  // A saved play of the staff: open it paused on phase 1.
+  const handleLoadPlay = useCallback((play) => {
+    if (!play?.phases?.length) return;
+    setActivePlayId(play.id);
+    setPhases(play.phases);
+    setShowRivals(play.phases.some(ph => ph.showRivals));
+    setIsPlayingPlay(false);
+    applyPhaseData(play.phases, 0, pitchOrientation);
+  }, [applyPhaseData, pitchOrientation]);
+
+  const handleRemoveLastPhase = useCallback(() => {
+    if (phases.length === 0) return;
+    const next = phases.slice(0, -1);
+    setIsPlayingPlay(false);
+    setPhases(next);
+    if (next.length) applyPhaseData(next, next.length - 1, pitchOrientation);
+    else setActivePhaseIndex(0);
+  }, [phases, applyPhaseData, pitchOrientation]);
 
   const handleSelectPhase = useCallback((idx) => {
     setIsPlayingPlay(false);
@@ -388,20 +408,21 @@ export function usePitchState(activeTeam) {
     const toCanonical = (pt) => (pt && isVert ? { ...pt, x: pt.y, y: pt.x } : pt);
 
     const newPhase = {
-      title: `Fase ${phases.length + 1}: Movimiento Táctico Personalizado`,
-      description: tacticalNotes || 'Arrastra jugadores, rivales o el balón para explicar la siguiente fase de juego.',
+      title: `Fase ${phases.length + 1}`,
+      description: '',
       ball: toCanonical(ballPosition),
       allies: fieldPositions.map(p => toCanonical({ id: p.id, x: p.x, y: p.y })),
       rivals: rivalPositions.map(r => toCanonical({ id: r.id, num: r.num, x: r.x, y: r.y })),
       gainLineX: gainLineX,
       highlightZone: highlightZone ? toCanonical(highlightZone) : null,
+      showRivals,
     };
 
     const nextPhases = [...phases, newPhase];
     setPhases(nextPhases);
     if (!activePlayId) setActivePlayId('custom_play');
     applyPhaseData(nextPhases, nextPhases.length - 1, pitchOrientation);
-  }, [pitchOrientation, phases, tacticalNotes, ballPosition, fieldPositions, rivalPositions, gainLineX, highlightZone, activePlayId, applyPhaseData]);
+  }, [pitchOrientation, phases, tacticalNotes, ballPosition, fieldPositions, rivalPositions, gainLineX, highlightZone, activePlayId, applyPhaseData, showRivals]);
 
   const handleExitPlaybook = useCallback(() => {
     setIsPlayingPlay(false);
@@ -552,6 +573,8 @@ export function usePitchState(activeTeam) {
     handleNextPhase,
     handleCaptureCustomPhase,
     handleExitPlaybook,
+    handleLoadPlay,
+    handleRemoveLastPhase,
     draggingId, dragStartPos, hasDragged,
     selectedSlot, showSelectModal, setShowSelectModal,
     confirmState, setConfirmState,

@@ -497,6 +497,46 @@ export async function deleteCustomTactic(id) {
   return true;
 }
 
+// ─── Tactical Plays (jugadas propias de la Pizarra) ─────────────
+
+const isMissingTable = (error) => ['PGRST205', '42P01'].includes(error?.code);
+
+/** Returns { plays, available }. available=false means the table isn't deployed yet. */
+export async function fetchTacticalPlays(scope) {
+  const { data, error } = await supabase
+    .from('tactical_plays')
+    .select('id, name, scope, phases, user_id, created_at')
+    .or(`scope.eq.all,scope.eq.${scope}`)
+    .order('created_at', { ascending: false });
+  if (error) {
+    if (!isMissingTable(error)) handleError(error, 'supabaseApi.fetchTacticalPlays', { silent: true });
+    return { plays: [], available: !isMissingTable(error) };
+  }
+  return { plays: data || [], available: true };
+}
+
+export async function createTacticalPlay({ name, scope, phases }) {
+  const { data, error } = await supabase
+    .from('tactical_plays')
+    .insert({ name, scope, phases })
+    .select('id, name, scope, phases, user_id, created_at')
+    .single();
+  if (error) {
+    handleError(error, 'supabaseApi.createTacticalPlay', { notifyUser: true });
+    return null;
+  }
+  return data;
+}
+
+export async function deleteTacticalPlay(id) {
+  const { error } = await supabase.from('tactical_plays').delete().eq('id', id);
+  if (error) {
+    handleError(error, 'supabaseApi.deleteTacticalPlay', { notifyUser: true });
+    return false;
+  }
+  return true;
+}
+
 // ─── Rugby Positions ─────────────────────────────────────────────
 
 export async function fetchRugbyPositions() {
