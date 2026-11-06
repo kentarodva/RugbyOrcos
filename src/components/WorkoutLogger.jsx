@@ -197,29 +197,29 @@ function WorkoutLogger({ player, logWorkout, myTrainingPlan, onOpenBuilder, onGe
 
   if (!plan) {
     return (
-      <div className="glass-panel" style={{ padding: '30px', textAlign: 'center', borderRadius: 'var(--radius-lg)' }}>
-        <p style={{ color: 'var(--color-text-muted)', fontSize: '1rem', fontWeight: 700, marginBottom: '6px' }}>No hay plan de entrenamiento aún</p>
-        <p style={{ fontSize: '0.72rem', color: 'var(--color-text-muted)', marginBottom: '18px' }}>
+      <div className="glass-panel" style={{ padding: '20px 16px', textAlign: 'center' }}>
+        <p style={{ color: 'var(--color-text)', fontSize: '1rem', fontWeight: 600, marginBottom: '4px' }}>Aún no tienes plan de entrenamiento</p>
+        <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', marginBottom: '16px' }}>
           Elige cómo quieres crear tu rutina de entrenamiento
         </p>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxWidth: '360px', margin: '0 auto' }}>
           <button onClick={onGeneratePlan} disabled={generatingPlan}
             className="btn-neon"
-            style={{ padding: '14px 20px', fontSize: '0.85rem', justifyContent: 'center', display: 'flex', flexDirection: 'column', gap: '2px', opacity: generatingPlan ? 0.7 : 1 }}>
+            style={{ padding: '12px 20px', fontSize: '0.875rem', justifyContent: 'center', display: 'flex', flexDirection: 'column', gap: '2px', opacity: generatingPlan ? 0.7 : 1 }}>
             {generatingPlan ? (
               <>🧠 Creando plan de preparación...</>
             ) : (
-              <><span style={{ fontWeight: 800 }}>⚡ Generar Plan de Entrenamiento</span>
-              <span style={{ fontSize: '0.65rem', opacity: 0.8 }}>Rutina adaptada a tu posición y objetivos</span></>
+              <><span style={{ fontWeight: 600 }}>Generar plan</span>
+              <span style={{ fontSize: '0.75rem', opacity: 0.8 }}>Rutina adaptada a tu posición y objetivos</span></>
             )}
           </button>
 
           <button onClick={onOpenBuilder}
             className="btn-outline"
-            style={{ padding: '14px 20px', fontSize: '0.85rem', justifyContent: 'center', display: 'flex', flexDirection: 'column', gap: '2px', borderColor: 'var(--color-primary)' }}>
-            <span style={{ fontWeight: 800 }}>🏋️ Crear Rutina Manual</span>
-            <span style={{ fontSize: '0.65rem', opacity: 0.7 }}>Elige tus ejercicios del catálogo por categoría</span>
+            style={{ padding: '12px 20px', fontSize: '0.875rem', justifyContent: 'center', display: 'flex', flexDirection: 'column', gap: '2px' }}>
+            <span style={{ fontWeight: 600 }}>Crear rutina manual</span>
+            <span style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>Elige tus ejercicios del catálogo por categoría</span>
           </button>
         </div>
       </div>

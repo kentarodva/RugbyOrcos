@@ -30,54 +30,25 @@ function TrainingHub() {
   return (
     <div className="animated-fade" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
 
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '15px' }}>
-        <div>
-          <h2 style={{ fontSize: '1.5rem', fontWeight: 800, fontFamily: 'var(--font-display)' }} className="neon-text-primary">
-            Centro de Entrenamientos Especificos
-          </h2>
-          <p style={{ color: 'var(--color-text-muted)', fontSize: '0.85rem' }}>
-            Rutinas tácticas y físicas personalizadas reactivamente según la posición y el rol de cada guerrero.
-          </p>
-        </div>
-      </div>
+      <header style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+        <span className="page-eyebrow">Rutinas según posición y rol</span>
+        <h1 className="page-title">Entrenamientos</h1>
+      </header>
 
-      <div style={{ display: 'flex', gap: '10px', borderBottom: '1px solid var(--border-glass)', paddingBottom: '12px', flexWrap: 'wrap' }}>
-        <button
-          onClick={() => setActiveTab('team')}
-          className={`tab-btn ${activeTab === 'team' ? 'active' : ''}`}
-          style={{ fontSize: '0.9rem', padding: '10px 20px' }}
-        >
-          📊 Vista Equipo
-        </button>
-        <button
-          onClick={() => setActiveTab('plan')}
-          className={`tab-btn ${activeTab === 'plan' ? 'active' : ''}`}
-          style={{ fontSize: '0.9rem', padding: '10px 20px' }}
-        >
-          Plan Inteligente
-        </button>
-        <button
-          onClick={() => setActiveTab('players')}
-          className={`tab-btn ${activeTab === 'players' ? 'active' : ''}`}
-          style={{ fontSize: '0.9rem', padding: '10px 20px' }}
-        >
-          Rutinas por Jugador
-        </button>
-        <button
-          onClick={() => setActiveTab('builder')}
-          className={`tab-btn ${activeTab === 'builder' ? 'active' : ''}`}
-          style={{ fontSize: '0.9rem', padding: '10px 20px' }}
-        >
-          🛠️ Constructor
-        </button>
-        <button
-          onClick={() => setActiveTab('catalog')}
-          className={`tab-btn ${activeTab === 'catalog' ? 'active' : ''}`}
-          style={{ fontSize: '0.9rem', padding: '10px 20px' }}
-        >
-          Catálogo General
-        </button>
-      </div>
+      <nav className="pro-subtabs chip-row" aria-label="Secciones de entrenamientos">
+        {[
+          { id: 'team', label: 'Equipo' },
+          { id: 'plan', label: 'Plan inteligente' },
+          { id: 'players', label: 'Por jugador' },
+          { id: 'builder', label: 'Constructor' },
+          { id: 'catalog', label: 'Catálogo' },
+        ].map((t) => (
+          <button key={t.id} type="button" onClick={() => setActiveTab(t.id)} aria-pressed={activeTab === t.id}
+            className={`pro-subtab-btn${activeTab === t.id ? ' active' : ''}`}>
+            {t.label}
+          </button>
+        ))}
+      </nav>
 
       {activeTab === 'team' && (
         <TeamOverview

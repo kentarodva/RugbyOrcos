@@ -54,8 +54,6 @@ function PlaybookBar({
       className="glass-panel"
       style={{
         padding: '12px 14px',
-        border: '1px solid rgba(46, 229, 122, 0.28)',
-        background: 'linear-gradient(135deg, rgba(21, 24, 22, 0.92) 0%, rgba(15, 18, 16, 0.95) 100%)',
         display: 'flex',
         flexDirection: 'column',
         gap: '10px',
@@ -64,20 +62,8 @@ function PlaybookBar({
       {/* Top Row: TV Playbook Selector + Rivals/Ball Toggles + WhatsApp Exports */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', flex: '1 1 320px', minWidth: 0 }}>
-          <span
-            style={{
-              background: 'rgba(46, 229, 122, 0.14)',
-              border: '1px solid rgba(46, 229, 122, 0.4)',
-              color: 'var(--color-primary)',
-              fontSize: '0.68rem',
-              fontWeight: 900,
-              padding: '4px 8px',
-              borderRadius: '6px',
-              letterSpacing: '0.05em',
-              whiteSpace: 'nowrap',
-            }}
-          >
-            📺 PIZARRA TV
+          <span style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'var(--color-text-muted)', whiteSpace: 'nowrap' }}>
+            Jugadas
           </span>
 
           <select

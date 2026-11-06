@@ -284,7 +284,7 @@ export default function PlayerProfileTab({ player, _players, updatePlayer, _camp
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 240px), 1fr))', gap: '14px' }}>
               {/* Apodo */}
               <div>
-                <label style={{ fontSize: '0.75rem', fontWeight: 700, color: '#fff', display: 'block', marginBottom: '4px' }}>
+                <label style={{ fontSize: '0.8125rem', fontWeight: 500, color: 'var(--color-text-soft)', display: 'block', marginBottom: '6px' }}>
                   Apodo / Alias de Combate
                 </label>
                 <input
@@ -293,7 +293,7 @@ export default function PlayerProfileTab({ player, _players, updatePlayer, _camp
                   onChange={e => setProfileForm(prev => ({ ...prev, apodo: e.target.value }))}
                   className="form-input"
                   placeholder="Ej: El Tanque, La Muralla..."
-                  style={{ width: '100%', padding: '9px 12px', fontSize: '0.82rem', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '8px', color: '#fff' }}
+                  style={{ width: '100%', minHeight: '44px', padding: '0 12px', fontSize: '0.9375rem', background: 'var(--bg-input)', border: '1px solid var(--border-strong)', borderRadius: 'var(--radius-sm)', color: 'var(--color-text)' }}
                 />
               </div>
 
@@ -318,13 +318,13 @@ export default function PlayerProfileTab({ player, _players, updatePlayer, _camp
                     }));
                   }}
                   className="form-select"
-                  style={{ width: '100%', padding: '9px 12px', fontSize: '0.82rem', background: '#191C1A', border: '1px solid rgba(255, 215, 64, 0.4)', borderRadius: '8px', color: '#fff' }}
+                  style={{ width: '100%', minHeight: '44px', padding: '0 12px', fontSize: '0.9375rem', background: 'var(--bg-input)', border: '1px solid var(--border-strong)', borderRadius: 'var(--radius-sm)', color: 'var(--color-text)' }}
                 >
                   <option value="">Selecciona tu posición oficial...</option>
                   {RUGBY_POSITIONS_GROUPS.map(group => (
                     <optgroup key={group.group} label={group.group} style={{ background: '#111412', color: 'var(--color-gold)' }}>
                       {group.options.map(opt => (
-                        <option key={opt.id} value={opt.id} style={{ background: '#191C1A', color: '#fff' }}>
+                        <option key={opt.id} value={opt.id} style={{ background: 'var(--bg-input)', color: 'var(--color-text)' }}>
                           #{opt.num} - {opt.name}
                         </option>
                       ))}
@@ -338,7 +338,7 @@ export default function PlayerProfileTab({ player, _players, updatePlayer, _camp
 
               {/* Teléfono */}
               <div>
-                <label style={{ fontSize: '0.75rem', fontWeight: 700, color: '#fff', display: 'block', marginBottom: '4px' }}>
+                <label style={{ fontSize: '0.8125rem', fontWeight: 500, color: 'var(--color-text-soft)', display: 'block', marginBottom: '6px' }}>
                   📱 Celular / WhatsApp
                 </label>
                 <input
@@ -347,13 +347,13 @@ export default function PlayerProfileTab({ player, _players, updatePlayer, _camp
                   onChange={e => setProfileForm(prev => ({ ...prev, contacto_phone: e.target.value }))}
                   className="form-input"
                   placeholder="300 123 4567"
-                  style={{ width: '100%', padding: '9px 12px', fontSize: '0.82rem', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '8px', color: '#fff' }}
+                  style={{ width: '100%', minHeight: '44px', padding: '0 12px', fontSize: '0.9375rem', background: 'var(--bg-input)', border: '1px solid var(--border-strong)', borderRadius: 'var(--radius-sm)', color: 'var(--color-text)' }}
                 />
               </div>
 
               {/* Peso (kg) */}
               <div>
-                <label style={{ fontSize: '0.75rem', fontWeight: 700, color: '#fff', display: 'block', marginBottom: '4px' }}>
+                <label style={{ fontSize: '0.8125rem', fontWeight: 500, color: 'var(--color-text-soft)', display: 'block', marginBottom: '6px' }}>
                   ⚖️ Peso Corporal (kg)
                 </label>
                 <input
@@ -363,13 +363,13 @@ export default function PlayerProfileTab({ player, _players, updatePlayer, _camp
                   onChange={e => setProfileForm(prev => ({ ...prev, weight: e.target.value }))}
                   className="form-input"
                   placeholder="Ej: 110"
-                  style={{ width: '100%', padding: '9px 12px', fontSize: '0.82rem', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '8px', color: '#fff' }}
+                  style={{ width: '100%', minHeight: '44px', padding: '0 12px', fontSize: '0.9375rem', background: 'var(--bg-input)', border: '1px solid var(--border-strong)', borderRadius: 'var(--radius-sm)', color: 'var(--color-text)' }}
                 />
               </div>
 
               {/* Estatura (m) */}
               <div>
-                <label style={{ fontSize: '0.75rem', fontWeight: 700, color: '#fff', display: 'block', marginBottom: '4px' }}>
+                <label style={{ fontSize: '0.8125rem', fontWeight: 500, color: 'var(--color-text-soft)', display: 'block', marginBottom: '6px' }}>
                   📏 Estatura (m)
                 </label>
                 <input
@@ -379,20 +379,20 @@ export default function PlayerProfileTab({ player, _players, updatePlayer, _camp
                   onChange={e => setProfileForm(prev => ({ ...prev, height: e.target.value }))}
                   className="form-input"
                   placeholder="Ej: 1.83"
-                  style={{ width: '100%', padding: '9px 12px', fontSize: '0.82rem', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '8px', color: '#fff' }}
+                  style={{ width: '100%', minHeight: '44px', padding: '0 12px', fontSize: '0.9375rem', background: 'var(--bg-input)', border: '1px solid var(--border-strong)', borderRadius: 'var(--radius-sm)', color: 'var(--color-text)' }}
                 />
               </div>
 
               {/* EPS */}
               <div>
-                <label style={{ fontSize: '0.75rem', fontWeight: 700, color: '#fff', display: 'block', marginBottom: '4px' }}>
+                <label style={{ fontSize: '0.8125rem', fontWeight: 500, color: 'var(--color-text-soft)', display: 'block', marginBottom: '6px' }}>
                   🏥 Cobertura Médica / EPS
                 </label>
                 <select
                   value={profileForm.health_insurance}
                   onChange={e => setProfileForm(prev => ({ ...prev, health_insurance: e.target.value }))}
                   className="form-select"
-                  style={{ width: '100%', padding: '9px 12px', fontSize: '0.82rem', background: '#191C1A', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '8px', color: '#fff' }}
+                  style={{ width: '100%', minHeight: '44px', padding: '0 12px', fontSize: '0.9375rem', background: 'var(--bg-input)', border: '1px solid var(--border-strong)', borderRadius: 'var(--radius-sm)', color: 'var(--color-text)' }}
                 >
                   <option value="">Selecciona EPS...</option>
                   {EPS_LIST.map(eps => (
@@ -406,14 +406,14 @@ export default function PlayerProfileTab({ player, _players, updatePlayer, _camp
                     value={profileForm.custom_eps}
                     onChange={e => setProfileForm(prev => ({ ...prev, custom_eps: e.target.value }))}
                     placeholder="Escribe el nombre de tu EPS..."
-                    style={{ width: '100%', marginTop: '6px', padding: '7px 10px', fontSize: '0.78rem', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '6px', color: '#fff' }}
+                    style={{ width: '100%', marginTop: '6px', padding: '7px 10px', fontSize: '0.78rem', background: 'var(--bg-input)', border: '1px solid var(--border-strong)', borderRadius: 'var(--radius-sm)', color: 'var(--color-text)' }}
                   />
                 )}
               </div>
 
               {/* Contacto de Emergencia */}
               <div>
-                <label style={{ fontSize: '0.75rem', fontWeight: 700, color: '#fff', display: 'block', marginBottom: '4px' }}>
+                <label style={{ fontSize: '0.8125rem', fontWeight: 500, color: 'var(--color-text-soft)', display: 'block', marginBottom: '6px' }}>
                   🚨 Contacto de Emergencia (Nombre)
                 </label>
                 <input
@@ -422,13 +422,13 @@ export default function PlayerProfileTab({ player, _players, updatePlayer, _camp
                   onChange={e => setProfileForm(prev => ({ ...prev, emergency_contact_name: e.target.value }))}
                   className="form-input"
                   placeholder="Nombre de familiar"
-                  style={{ width: '100%', padding: '9px 12px', fontSize: '0.82rem', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '8px', color: '#fff' }}
+                  style={{ width: '100%', minHeight: '44px', padding: '0 12px', fontSize: '0.9375rem', background: 'var(--bg-input)', border: '1px solid var(--border-strong)', borderRadius: 'var(--radius-sm)', color: 'var(--color-text)' }}
                 />
               </div>
 
               {/* Teléfono de Emergencia */}
               <div>
-                <label style={{ fontSize: '0.75rem', fontWeight: 700, color: '#fff', display: 'block', marginBottom: '4px' }}>
+                <label style={{ fontSize: '0.8125rem', fontWeight: 500, color: 'var(--color-text-soft)', display: 'block', marginBottom: '6px' }}>
                   ☎️ Teléfono de Emergencia
                 </label>
                 <input
@@ -437,20 +437,20 @@ export default function PlayerProfileTab({ player, _players, updatePlayer, _camp
                   onChange={e => setProfileForm(prev => ({ ...prev, emergency_contact_phone: e.target.value }))}
                   className="form-input"
                   placeholder="300 000 0000"
-                  style={{ width: '100%', padding: '9px 12px', fontSize: '0.82rem', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '8px', color: '#fff' }}
+                  style={{ width: '100%', minHeight: '44px', padding: '0 12px', fontSize: '0.9375rem', background: 'var(--bg-input)', border: '1px solid var(--border-strong)', borderRadius: 'var(--radius-sm)', color: 'var(--color-text)' }}
                 />
               </div>
 
               {/* Talla Camiseta */}
               <div>
-                <label style={{ fontSize: '0.75rem', fontWeight: 700, color: '#fff', display: 'block', marginBottom: '4px' }}>
+                <label style={{ fontSize: '0.8125rem', fontWeight: 500, color: 'var(--color-text-soft)', display: 'block', marginBottom: '6px' }}>
                   👕 Talla Camiseta Oficial
                 </label>
                 <select
                   value={profileForm.jersey || ''}
                   onChange={e => setProfileForm(prev => ({ ...prev, jersey: e.target.value }))}
                   className="form-select"
-                  style={{ width: '100%', padding: '9px 12px', fontSize: '0.82rem', background: '#191C1A', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '8px', color: '#fff' }}
+                  style={{ width: '100%', minHeight: '44px', padding: '0 12px', fontSize: '0.9375rem', background: 'var(--bg-input)', border: '1px solid var(--border-strong)', borderRadius: 'var(--radius-sm)', color: 'var(--color-text)' }}
                 >
                   <option value="">Selecciona talla...</option>
                   {['S', 'M', 'L', 'XL', '2XL', '3XL', '4XL'].map(t => (
@@ -461,14 +461,14 @@ export default function PlayerProfileTab({ player, _players, updatePlayer, _camp
 
               {/* Talla Pantaloneta */}
               <div>
-                <label style={{ fontSize: '0.75rem', fontWeight: 700, color: '#fff', display: 'block', marginBottom: '4px' }}>
+                <label style={{ fontSize: '0.8125rem', fontWeight: 500, color: 'var(--color-text-soft)', display: 'block', marginBottom: '6px' }}>
                   🩳 Talla Pantaloneta
                 </label>
                 <select
                   value={profileForm.shorts || ''}
                   onChange={e => setProfileForm(prev => ({ ...prev, shorts: e.target.value }))}
                   className="form-select"
-                  style={{ width: '100%', padding: '9px 12px', fontSize: '0.82rem', background: '#191C1A', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '8px', color: '#fff' }}
+                  style={{ width: '100%', minHeight: '44px', padding: '0 12px', fontSize: '0.9375rem', background: 'var(--bg-input)', border: '1px solid var(--border-strong)', borderRadius: 'var(--radius-sm)', color: 'var(--color-text)' }}
                 >
                   <option value="">Selecciona talla...</option>
                   {['S', 'M', 'L', 'XL', '2XL', '3XL'].map(t => (
@@ -483,7 +483,7 @@ export default function PlayerProfileTab({ player, _players, updatePlayer, _camp
                 Cancelar
               </button>
               <button onClick={handleSaveProfile} className="btn-primary" style={{ fontSize: '0.82rem', padding: '9px 24px', fontWeight: 800 }}>
-                💾 Guardar Ficha Oficial
+                Guardar cambios
               </button>
             </div>
           </motion.div>

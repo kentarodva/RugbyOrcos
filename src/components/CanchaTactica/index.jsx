@@ -219,14 +219,14 @@ function CanchaTactica() {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-                <h3 style={{ fontSize: '1.2rem', fontWeight: 600, margin: 0 }}>
-                  {isLargeFullscreen ? 'Pizarra Táctica — Vista Completa' : 'Pizarra de Alineaciones (XV Inicial)'}
-                </h3>
+                <h1 className="page-title" style={{ width: '100%' }}>
+                  {isLargeFullscreen ? 'Pizarra táctica' : 'Pizarra XV'}
+                </h1>
                 <select
                   value={boardScope}
                   onChange={e => { setBoardScope(e.target.value); setSelectedMatchId(''); }}
                   className="form-select"
-                  style={{ padding: '4px 10px', fontSize: '0.76rem', fontWeight: 700, width: 'auto' }}
+                  style={{ padding: '4px 10px', fontSize: '0.8125rem', fontWeight: 600, width: 'auto', maxWidth: '100%' }}
                   title="Seleccionar equipo o clan Mak'Gora para esta pizarra"
                 >
                   <optgroup label="Divisiones Oficiales">
@@ -249,7 +249,7 @@ function CanchaTactica() {
                     value={selectedMatchId}
                     onChange={e => setSelectedMatchId(e.target.value)}
                     className="form-select"
-                    style={{ padding: '4px 10px', fontSize: '0.75rem', width: 'auto', color: 'var(--color-primary)', borderColor: 'rgba(46, 229, 122,0.3)' }}
+                    style={{ padding: '4px 10px', fontSize: '0.8125rem', width: 'auto', maxWidth: '100%' }}
                     title="Filtrar disponibilidad y guardar pizarra para un partido específico"
                   >
                     <option value="">
@@ -266,11 +266,11 @@ function CanchaTactica() {
               <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginTop: '3px' }}>Arrastra los círculos para mover posiciones o tócalos para alinear guerreros.</p>
             </div>
             <div style={{ display: 'flex', gap: '8px' }}>
-              <button onClick={resetToDefaultPositions} className="btn-outline" style={{ padding: '6px 12px', fontSize: '0.8rem', color: 'var(--color-gold)', borderColor: 'rgba(232, 185, 49, 0.2)' }}>
-                Reset Tactico
+              <button type="button" onClick={resetToDefaultPositions} className="btn-outline btn-sm">
+                Restablecer posiciones
               </button>
-              <button onClick={clearField} className="btn-outline" style={{ padding: '6px 12px', fontSize: '0.8rem', color: 'var(--color-red)', borderColor: 'rgba(255, 92, 77, 0.2)' }}>
-                Limpiar
+              <button type="button" onClick={clearField} className="btn-outline btn-sm">
+                Vaciar cancha
               </button>
             </div>
           </div>
