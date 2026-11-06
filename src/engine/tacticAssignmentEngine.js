@@ -246,7 +246,7 @@ export function autoAssignLineup(players, matchStatsByPlayer, formationType, pos
       : [];
 
     for (let j = 0; j < nSlots; j++) {
-      const score = scorePlayerForPosition(activePlayers[i], slotIds[j], reqs, playerMatchStats);
+      const score = scorePlayerForPosition(activePlayers[i], slotIds[j], reqs[slotIds[j]], playerMatchStats);
       scores[i][j] = score;
       if (score > maxScore) maxScore = score;
     }
