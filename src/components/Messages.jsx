@@ -36,7 +36,9 @@ const compressToWebP = (file) => new Promise((resolve) => {
 });
 
 function Messages() {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
+  // Only club staff (tier <= 3) may announce; the DB enforces it too (migration 80).
+  const canAnnounce = getRpgRole(profile?.system_role).tier <= 3;
   const { showToast } = useToast();
   const [conversations, setConversations] = useState([]);
   const [activeChat, setActiveChat] = useState(null);
@@ -330,12 +332,12 @@ function Messages() {
           </div>
         )}
 
-        <button onClick={() => setShowAnnounceForm(!showAnnounceForm)} className="btn-outline"
+        {canAnnounce && <button onClick={() => setShowAnnounceForm(!showAnnounceForm)} className="btn-outline"
           style={{ margin: '8px 12px', padding: '8px', fontSize: '0.75rem', borderColor: 'var(--color-gold)', color: 'var(--color-gold)', justifyContent: 'center' }}>
           📢 {showAnnounceForm ? 'Cancelar' : 'Nuevo Anuncio'}
-        </button>
+        </button>}
 
-        {showAnnounceForm && (
+        {canAnnounce && showAnnounceForm && (
           <form onSubmit={sendAnnouncement} style={{ padding: '0 12px 12px 12px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
             <textarea value={announceText} onChange={e => setAnnounceText(e.target.value)}
               placeholder="Mensaje para todo el Reino..."
