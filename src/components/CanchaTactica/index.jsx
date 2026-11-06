@@ -18,6 +18,8 @@ import { formatTeamCategory } from '../../context/constants';
 import { printOfficialMatchSheet } from '../../utils/exportPdf';
 import { AcademiaLeyesModal } from './AcademiaLeyesModal';
 
+const TOUCH_LAYOUT_QUERY = '(max-width: 767px), (pointer: coarse) and (max-width: 1100px)';
+
 function CanchaTactica() {
   const { players, activeTeam, futureFixtures, makgoraTeams = [], viewMode, makgoraTeamId } = React.useContext(ClubContext);
   const pitchRef = useRef(null);
@@ -98,11 +100,11 @@ function CanchaTactica() {
     executeAutoAssign,
   } = usePitchState(effectiveScope);
 
-  const [showSidebar, setShowSidebar] = React.useState(false);
   const [showSaveModal, setShowSaveModal] = React.useState(false);
   const [showFilterModal, setShowFilterModal] = React.useState(false);
   const [showAcademia, setShowAcademia] = React.useState(false);
-  const isMobile = useIsMobile();
+  // Phones (also in landscape) and touch tablets get the pitch-first layout.
+  const isMobile = useIsMobile(TOUCH_LAYOUT_QUERY);
   // On phones the pitch is already full width; "large" only made it taller and covered the screen.
   const effectivePitchSize = isMobile ? 'medium' : pitchSize;
   const isLargeFullscreen = effectivePitchSize === 'large';
@@ -501,7 +503,7 @@ function CanchaTactica() {
           {renderPitch(false)}
         </div>
 
-        {!isLargeFullscreen && (
+        {(
           <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
             <BenchPanel
               lineup={lineup}
@@ -516,80 +518,6 @@ function CanchaTactica() {
           </div>
         )}
       </div>
-
-      {isLargeFullscreen && (
-        <button
-          onClick={() => setShowSidebar(true)}
-          style={{
-            position: 'fixed',
-            bottom: '24px',
-            right: '24px',
-            zIndex: 999,
-            background: 'var(--bg-surface-solid)',
-            border: '2px solid var(--color-primary)',
-            color: 'var(--color-primary)',
-            padding: '12px 20px',
-            borderRadius: 'var(--radius-md)',
-            fontWeight: 800,
-            fontSize: '0.85rem',
-            cursor: 'pointer',
-            boxShadow: '0 0 20px var(--color-primary-glow)',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            transition: 'var(--transition-smooth)',
-          }}
-        >
-          ⚡ Banca y Notas
-        </button>
-      )}
-
-      {isLargeFullscreen && showSidebar && (
-        <>
-        <div aria-hidden="true" onClick={() => setShowSidebar(false)}
-          style={{ position: 'fixed', inset: 0, zIndex: 997, background: 'rgba(0,0,0,0.55)' }} />
-        <div
-          role="dialog" aria-label="Banca y notas"
-          className="glass-panel animated-slide"
-          style={{
-            position: 'fixed',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            zIndex: 998,
-            maxWidth: '500px',
-            width: '90%',
-            maxHeight: '85vh',
-            overflowY: 'auto',
-            padding: '24px',
-            border: '2px solid var(--color-primary)',
-            boxShadow: '0 0 40px rgba(46, 229, 122, 0.2)',
-          }}
-        >
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-            <h3 style={{ fontSize: '1rem', fontWeight: 600 }}>Banca y Notas Tacticas</h3>
-            <button
-              onClick={() => setShowSidebar(false)}
-              className="btn-outline"
-              style={{ padding: '4px 12px', fontSize: '0.75rem' }}
-            >
-              ✕ Cerrar
-            </button>
-          </div>
-          <BenchPanel
-            lineup={lineup}
-            teamPlayers={teamPlayers}
-            onSlotClick={handleSlotClick}
-          />
-          <div style={{ marginTop: '16px' }}>
-            <StrategyNotes
-              tacticalNotes={tacticalNotes}
-              onChange={setTacticalNotes}
-            />
-          </div>
-        </div>
-        </>
-      )}
 
       {modalLayer}
     </div>

@@ -35,12 +35,13 @@ function PitchField({
   availabilities = {},
 }) {
   const isMobile = useIsMobile();
+  const fit = fitHeight || pitchSize === 'large';
   const isVertical = pitchOrientation !== 'horizontal';
-  const baseAspect = isVertical ? (isMobile || fitHeight ? 0.68 : 1.2) : 1.6;
+  const baseAspect = isVertical ? (isMobile || fit ? 0.68 : 1.2) : 1.6;
   // "Half" view crops to the team's own half so the 15 fit without the empty rival half.
   // Falls back to the full pitch whenever something lives in the other half.
   const depth = (pt) => (pt ? (isVertical ? pt.y : pt.x) : 0);
-  const canCrop = pitchSize !== 'large' && !showRivals
+  const canCrop = !showRivals
     && fieldPositions.every(pt => depth(pt) <= HALF_LIMIT)
     && (!showBall || depth(ballPosition) <= HALF_LIMIT);
   const cropped = view === 'half' && canCrop;
@@ -48,14 +49,15 @@ function PitchField({
 
   const viewportStyle = {
     position: 'relative',
-    width: fitHeight
-      ? `min(100%, calc((100dvh - 120px) * ${visibleAspect}))`
-      : pitchSize === 'small' ? '60%' : '100%',
-    maxWidth: fitHeight ? 'none' : pitchSize === 'small' ? '480px' : pitchSize === 'medium' ? '800px' : 'none',
-    margin: pitchSize === 'large' && !fitHeight ? '0' : '0 auto',
-    ...(pitchSize === 'large' && !fitHeight ? { minHeight: '70vh' } : { aspectRatio: String(visibleAspect) }),
+    // Never taller than the screen (matters for phones in landscape).
+    width: pitchSize === 'small' && !fit
+      ? '60%'
+      : `min(100%, calc((100dvh - ${fit ? 120 : 160}px) * ${visibleAspect}))`,
+    maxWidth: fit ? 'none' : pitchSize === 'small' ? '480px' : '800px',
+    margin: '0 auto',
+    aspectRatio: String(visibleAspect),
     borderRadius: 'var(--radius-lg)',
-    border: pitchSize === 'large' && !fitHeight ? '3px solid var(--color-primary)' : '2px solid rgba(255,255,255,0.85)',
+    border: '2px solid rgba(255,255,255,0.85)',
     overflow: 'hidden',
     boxShadow: 'inset 0 0 30px rgba(0,0,0,0.6)',
     background: '#133A24',
