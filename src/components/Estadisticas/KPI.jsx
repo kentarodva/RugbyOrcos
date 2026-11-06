@@ -1,18 +1,15 @@
 import React from 'react';
 
-export default function KPI({ value, label, icon, color, sub }) {
+/** Neutral metric card: label with icon, big number, optional caption. `color` is kept for API compatibility. */
+export default function KPI({ value, label, icon, sub }) {
   return (
-    <div className="glass-panel" style={{ padding: '14px 16px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-      <div style={{
-        width: '42px', height: '42px', borderRadius: '10px',
-        background: `rgba(${color === '#00e676' ? '0,230,118' : color === '#ff5252' ? '255,82,82' : color === '#448aff' ? '68,130,255' : '255,215,64'}, 0.15)`,
-        display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: '1.3rem',
-      }}>{icon}</div>
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ fontSize: '1.6rem', fontWeight: 700, color: 'var(--text-primary)', lineHeight: 1.2 }}>{value}</div>
-        <div style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', fontWeight: 500 }}>{label}</div>
-        {sub && <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', marginTop: '2px' }}>{sub}</div>}
-      </div>
+    <div className="glass-panel" style={{ padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: '6px', minWidth: 0 }}>
+      <span style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.8125rem', color: 'var(--color-text-muted)' }}>
+        {icon && <span aria-hidden="true" style={{ display: 'inline-flex', color: 'var(--color-text-subtle)' }}>{icon}</span>}
+        {label}
+      </span>
+      <span className="stat-number" style={{ fontSize: '1.75rem', overflowWrap: 'anywhere' }}>{value}</span>
+      {sub && <span style={{ fontSize: '0.75rem', color: 'var(--color-text-subtle)' }}>{sub}</span>}
     </div>
   );
 }

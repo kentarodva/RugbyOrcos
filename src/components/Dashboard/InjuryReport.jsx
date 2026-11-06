@@ -7,7 +7,7 @@ function InjuryReport({ teamPlayers }) {
 
   return (
     <div className="glass-panel" style={{ padding: '25px', display: 'flex', flexDirection: 'column', gap: '15px' }}>
-      <h3 style={{ fontSize: '1.1rem', fontWeight: 700, fontFamily: 'Outfit', color: 'var(--color-red)' }}>
+      <h3 style={{ fontSize: '1.1rem', fontWeight: 600, color: 'var(--color-text)' }}>
         Control Clinico de Lesionados
       </h3>
 
@@ -20,7 +20,7 @@ function InjuryReport({ teamPlayers }) {
           {injured.map(p => {
             const injury = (Array.isArray(p.injuryLog) && p.injuryLog[0]) || { diagnosis: 'Lesion sin especificar', weeks: 1, phase: 1 };
             return (
-              <div key={p.id} style={{ padding: '12px', background: 'rgba(255, 61, 0, 0.03)', border: '1px solid rgba(255, 61, 0, 0.1)', borderRadius: 'var(--radius-sm)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div key={p.id} style={{ padding: '12px', background: 'rgba(255, 92, 77, 0.03)', border: '1px solid rgba(255, 92, 77, 0.1)', borderRadius: 'var(--radius-sm)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div style={{ flex: 1, marginRight: '10px' }}>
                   <h4 style={{ fontSize: '0.9rem', fontWeight: 700 }}>{p.name} <span style={{ color: 'var(--color-red)', fontWeight: 500 }}>({p.apodo})</span></h4>
                   <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginTop: '2px' }}>{injury.diagnosis}</p>

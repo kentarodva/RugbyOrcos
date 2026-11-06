@@ -78,7 +78,7 @@ function FutureCard({ future, onDelete }) {
             type="button"
             onClick={() => setShowConvocatoria(!showConvocatoria)}
             className="btn-outline"
-            style={{ padding: '4px 10px', fontSize: '0.72rem', display: 'inline-flex', alignItems: 'center', gap: '5px', color: 'var(--color-primary)', borderColor: 'rgba(0,230,118,0.3)' }}
+            style={{ padding: '4px 10px', fontSize: '0.72rem', display: 'inline-flex', alignItems: 'center', gap: '5px', color: 'var(--color-primary)', borderColor: 'rgba(46, 229, 122,0.3)' }}
           >
             <Users size={13} />
             <span className="tabular-nums">Convocatoria ({goingPlayers.length})</span>
@@ -117,7 +117,7 @@ function FutureCard({ future, onDelete }) {
           <button
             onClick={() => onDelete(future.id)}
             className="btn-outline"
-            style={{ padding: '4px 8px', color: 'var(--color-red)', borderColor: 'rgba(255,61,0,0.3)' }}
+            style={{ padding: '4px 8px', color: 'var(--color-red)', borderColor: 'rgba(255, 92, 77,0.3)' }}
             title="Eliminar fixture"
           >
             <Trash2 size={13} />
@@ -147,7 +147,7 @@ function FutureCard({ future, onDelete }) {
         </div>
       )}
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', fontSize: '0.75rem', background: 'rgba(255,255,255,0.02)', padding: '10px 12px', borderRadius: 'var(--radius-sm)' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '10px', fontSize: '0.75rem', background: 'rgba(255,255,255,0.02)', padding: '10px 12px', borderRadius: 'var(--radius-sm)' }}>
         <div>
           <span style={{ color: 'var(--color-text-muted)', display: 'block', fontSize: '0.65rem' }}>LUGAR</span>
           <strong>{future.location || 'Por definir'}</strong>

@@ -12,3 +12,9 @@ seed/
 _catalog/
 _dereferenced/
 codememory.db
+
+# Indices locales de herramientas de agentes
+codememory.db-shm
+codememory.db-wal
+.codegraph/daemon.pid
+.codegraph/daemon.log

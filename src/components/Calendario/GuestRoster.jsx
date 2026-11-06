@@ -29,7 +29,7 @@ function GuestRoster({ fixture }) {
       </h4>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
         {guests.map(g => (
-          <div key={g.id} style={{ display: 'flex', gap: '10px', alignItems: 'center', padding: '6px 10px', background: 'rgba(255,179,0,0.03)', border: '1px solid var(--border-glass)', borderRadius: 'var(--radius-sm)', fontSize: '0.78rem' }}>
+          <div key={g.id} style={{ display: 'flex', gap: '10px', alignItems: 'center', padding: '6px 10px', background: 'rgba(232, 185, 49,0.03)', border: '1px solid var(--border-glass)', borderRadius: 'var(--radius-sm)', fontSize: '0.78rem' }}>
             <span style={{ color: 'var(--color-gold)', fontWeight: 700, minWidth: '30px' }}>
               {g.number ? `#${g.number}` : '—'}
             </span>

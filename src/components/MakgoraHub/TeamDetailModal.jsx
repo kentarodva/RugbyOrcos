@@ -61,7 +61,7 @@ export function TeamDetailModal({ team, onClose, canEdit = false, isChief = fals
   const [tournamentHistory, setTournamentHistory] = useState([]);
   const [editing, setEditing] = useState(false);
   const [motto, setMotto] = useState('');
-  const [color, setColor] = useState('#00e676');
+  const [color, setColor] = useState('#2EE57A');
   const [saving, setSaving] = useState(false);
   const [editPlayer, setEditPlayer] = useState(null); // { id, name, positionId, jersey }
   const [reloadKey, setReloadKey] = useState(0);
@@ -93,7 +93,7 @@ export function TeamDetailModal({ team, onClose, canEdit = false, isChief = fals
   }, [onClose]);
 
   if (!team) return null;
-  const teamColor = team.emblem_color || '#00e676';
+  const teamColor = team.emblem_color || '#2EE57A';
   const displayName = team.rpg_name || team.name;
 
   const startEdit = () => { setMotto(team.motto || ''); setColor(teamColor); setEditing(true); };
@@ -145,7 +145,7 @@ export function TeamDetailModal({ team, onClose, canEdit = false, isChief = fals
         onClick={e => e.stopPropagation()}
         style={{
           maxWidth: '560px', maxHeight: '90vh', overflowY: 'auto', padding: 0,
-          background: 'var(--bg-surface-solid, #0e1824)', borderRadius: '18px',
+          background: 'var(--bg-surface-solid, #191C1A)', borderRadius: '18px',
           border: `1px solid ${teamColor}55`, boxShadow: `0 20px 60px rgba(0,0,0,0.6), 0 0 40px ${teamColor}22`,
         }}>
         <div style={{ position: 'relative', padding: '28px 20px 20px', textAlign: 'center', background: `linear-gradient(180deg, ${teamColor}26, transparent)`, borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
@@ -156,13 +156,13 @@ export function TeamDetailModal({ team, onClose, canEdit = false, isChief = fals
           <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '12px' }}>
             <TeamCrest url={clanCrestUrl(team)} name={displayName} color={teamColor} size={112} rounded="20%" glow />
           </div>
-          <h3 style={{ color: 'var(--color-gold)', fontFamily: 'Outfit', fontSize: '1.3rem', margin: 0 }}>
+          <h3 style={{ color: 'var(--color-gold)', fontSize: '1.3rem', margin: 0 }}>
             {displayName}
-            {isExternal && <span style={{ fontSize: '0.65rem', padding: '2px 8px', borderRadius: '6px', background: 'rgba(255,179,0,0.1)', color: '#ffb300', marginLeft: '8px', verticalAlign: 'middle' }}>Invitado</span>}
+            {isExternal && <span style={{ fontSize: '0.65rem', padding: '2px 8px', borderRadius: '6px', background: 'rgba(232, 185, 49,0.1)', color: '#E8B931', marginLeft: '8px', verticalAlign: 'middle' }}>Invitado</span>}
           </h3>
           {team.rpg_name && team.name !== team.rpg_name && <p style={{ color: 'var(--color-text-muted)', fontSize: '0.8rem', margin: '4px 0 0' }}>{team.name}</p>}
           {isChief && (
-            <p style={{ display: 'inline-block', margin: '8px 0 0', padding: '2px 10px', borderRadius: '999px', fontSize: '0.68rem', fontWeight: 800, color: '#ffd700', background: 'rgba(255,215,0,0.12)', border: '1px solid rgba(255,215,0,0.35)' }}>
+            <p style={{ display: 'inline-block', margin: '8px 0 0', padding: '2px 10px', borderRadius: '999px', fontSize: '0.68rem', fontWeight: 800, color: '#E8B931', background: 'rgba(232, 185, 49,0.12)', border: '1px solid rgba(232, 185, 49,0.35)' }}>
               👑 Eres jefe de este clan
             </p>
           )}
@@ -224,7 +224,7 @@ export function TeamDetailModal({ team, onClose, canEdit = false, isChief = fals
                 <div role="group" aria-label={`Editar ${editPlayer.name}`}
                   style={{ display: 'grid', gap: '10px', padding: '12px', marginBottom: '14px', borderRadius: '12px', background: 'rgba(255,255,255,0.04)', border: `1px solid ${teamColor}55` }}>
                   <strong style={{ fontSize: '0.85rem', color: 'var(--color-text)' }}>{editPlayer.name}</strong>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1fr) 84px', gap: '8px' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0,minmax(0, 1fr)) 84px', gap: '8px' }}>
                     <select aria-label="Posición" value={editPlayer.positionId} onChange={e => setEditPlayer({ ...editPlayer, positionId: e.target.value })}
                       className="form-select" style={{ minHeight: '44px', fontSize: '0.85rem' }}>
                       <option value="">Sin posición</option>
@@ -240,8 +240,8 @@ export function TeamDetailModal({ team, onClose, canEdit = false, isChief = fals
                   </div>
                 </div>
               )}
-              <PlayerChips title="DELANTEROS" list={forwards} color="#ffb300" onPick={onPick} />
-              <PlayerChips title="TRES CUARTOS" list={backs} color="#00e676" onPick={onPick} />
+              <PlayerChips title="DELANTEROS" list={forwards} color="#E8B931" onPick={onPick} />
+              <PlayerChips title="TRES CUARTOS" list={backs} color="#2EE57A" onPick={onPick} />
               <PlayerChips title="SIN POSICIÓN ASIGNADA" list={unassigned} color="var(--color-text-muted)" onPick={onPick} />
             </>
           )}

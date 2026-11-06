@@ -27,20 +27,17 @@ export function FixtureList({ matches, onGenerate, onUpdateMatch, onStats, onEdi
       }}>
         <div style={{
           width: '60px', height: '60px', borderRadius: '50%',
-          background: 'rgba(255,179,0,0.1)',
+          background: 'rgba(232, 185, 49,0.1)',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           margin: '0 auto 16px auto',
-          border: '1px dashed rgba(255,179,0,0.3)',
+          border: '1px dashed rgba(232, 185, 49,0.3)',
         }}>
           <span style={{ fontSize: '1.5rem', color: 'var(--color-gold)' }}>🏟</span>
         </div>
-        <h3 style={{
-          color: 'var(--color-text)',
+        <h3 style={{ color: 'var(--color-text)',
           fontSize: '1rem',
-          fontWeight: 700,
-          fontFamily: 'Outfit',
-          marginBottom: '6px',
-        }}>
+          fontWeight: 600,
+          marginBottom: '6px', }}>
           No hay fixture generado
         </h3>
         <p style={{
@@ -57,16 +54,16 @@ export function FixtureList({ matches, onGenerate, onUpdateMatch, onStats, onEdi
           style={{
             padding: '12px 28px',
             background: 'linear-gradient(135deg, var(--color-primary-dark), var(--color-primary))',
-            color: '#05070a',
+            color: '#06210F',
             border: 'none',
             borderRadius: 'var(--radius-md)',
             cursor: 'pointer',
             fontWeight: 800,
             fontSize: '0.85rem',
-            fontFamily: 'Outfit',
+            fontFamily: 'var(--font-display)',
             textTransform: 'uppercase',
             letterSpacing: '0.5px',
-            boxShadow: '0 4px 15px rgba(0, 230, 118, 0.3)',
+            boxShadow: '0 4px 15px rgba(46, 229, 122, 0.3)',
             transition: 'var(--transition-smooth)',
           }}>
           ⚔ Generar Fixture
@@ -106,13 +103,10 @@ export function FixtureList({ matches, onGenerate, onUpdateMatch, onStats, onEdi
             ⚔
           </div>
           <div>
-            <h3 style={{
-              color: 'var(--color-gold)',
+            <h3 style={{ color: 'var(--color-text)',
               fontSize: '0.95rem',
-              fontWeight: 800,
-              fontFamily: 'Outfit',
-              margin: 0,
-            }}>
+              fontWeight: 600,
+              margin: 0, }}>
               Fixture
             </h3>
             <p style={{
@@ -127,14 +121,14 @@ export function FixtureList({ matches, onGenerate, onUpdateMatch, onStats, onEdi
         <div style={{ display: 'flex', gap: '8px' }}>
           <button onClick={onGenerate} style={{
             padding: '6px 14px',
-            background: 'rgba(0, 230, 118, 0.1)',
-            border: '1px solid rgba(0, 230, 118, 0.25)',
+            background: 'rgba(46, 229, 122, 0.1)',
+            border: '1px solid rgba(46, 229, 122, 0.25)',
             borderRadius: 'var(--radius-sm)',
             color: 'var(--color-primary)',
             cursor: 'pointer',
             fontWeight: 700,
             fontSize: '0.7rem',
-            fontFamily: 'Outfit',
+            fontFamily: 'var(--font-display)',
             transition: 'var(--transition-smooth)',
           }}>
             + Generar
@@ -149,7 +143,7 @@ export function FixtureList({ matches, onGenerate, onUpdateMatch, onStats, onEdi
               cursor: 'pointer',
               fontWeight: 600,
               fontSize: '0.7rem',
-              fontFamily: 'Outfit',
+              fontFamily: 'var(--font-display)',
               transition: 'var(--transition-smooth)',
             }}>
               ✎ Editar
@@ -172,7 +166,7 @@ export function FixtureList({ matches, onGenerate, onUpdateMatch, onStats, onEdi
               <span className="fixture-round-count">
                 {jugados}/{rMatches.length}
               </span>
-              <span className="fixture-round-label-sub" style={{ fontSize: '0.55rem', fontWeight: 600, color: 'var(--color-text-muted)', fontFamily: 'Outfit' }}>
+              <span className="fixture-round-label-sub" style={{ fontSize: '0.55rem', fontWeight: 600, color: 'var(--color-text-muted)', fontFamily: 'var(--font-display)' }}>
                 {jugados === rMatches.length ? 'Completa' : (rMatches.length - jugados) + ' pendiente' + (rMatches.length - jugados !== 1 ? 's' : '')}
               </span>
               <div className="fixture-round-line" />

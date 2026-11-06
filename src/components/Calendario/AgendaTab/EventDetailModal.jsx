@@ -29,7 +29,7 @@ function EventDetailModal({ event, onClose, players, rsvpList, myRsvp, onRsvp })
       >
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
           <div>
-            <h3 style={{ fontSize: '1.3rem', fontWeight: 800, fontFamily: 'Outfit' }}>{event.title}</h3>
+            <h3 style={{ fontSize: '1.3rem', fontWeight: 600 }}>{event.title}</h3>
             <div style={{ fontSize: '0.78rem', color: 'var(--color-text-muted)', marginTop: '4px' }}>
               {getEventTypeMeta(event.type).emoji} {getEventTypeMeta(event.type).label}
             </div>

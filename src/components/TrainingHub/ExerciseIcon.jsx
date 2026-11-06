@@ -83,8 +83,8 @@ export const SUBCATEGORY_LABELS = {
 
 export const CATEGORY_COLORS = {
   campo: 'var(--color-primary)',
-  gym: '#ff3d00',
-  recuperacion: '#00b0ff',
+  gym: '#FF5C4D',
+  recuperacion: '#5AA9FF',
   prevencion: '#9c27b0',
 };
 

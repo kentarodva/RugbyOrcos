@@ -32,16 +32,16 @@ export async function generatePlayerCardBlob(player = {}, teamLabel = 'Rugby Orc
 
   // Background Gradient
   const bg = ctx.createLinearGradient(0, 0, width, height);
-  bg.addColorStop(0, '#060d13');
-  bg.addColorStop(0.4, '#0d1e2b');
-  bg.addColorStop(0.8, '#08141f');
-  bg.addColorStop(1, '#04070a');
+  bg.addColorStop(0, '#0D100E');
+  bg.addColorStop(0.4, '#1D201E');
+  bg.addColorStop(0.8, '#141715');
+  bg.addColorStop(1, '#070A08');
   ctx.fillStyle = bg;
   ctx.fillRect(0, 0, width, height);
 
   // Carbon decorative lines
   ctx.save();
-  ctx.strokeStyle = 'rgba(0, 230, 118, 0.07)';
+  ctx.strokeStyle = 'rgba(46, 229, 122, 0.07)';
   ctx.lineWidth = 3;
   for (let i = -width; i < width * 2; i += 80) {
     ctx.beginPath();
@@ -53,7 +53,7 @@ export async function generatePlayerCardBlob(player = {}, teamLabel = 'Rugby Orc
 
   // Outer border & gold inner frame
   ctx.save();
-  ctx.strokeStyle = 'rgba(0, 230, 118, 0.6)';
+  ctx.strokeStyle = 'rgba(46, 229, 122, 0.6)';
   ctx.lineWidth = 10;
   ctx.strokeRect(20, 20, width - 40, height - 40);
 
@@ -71,7 +71,7 @@ export async function generatePlayerCardBlob(player = {}, teamLabel = 'Rugby Orc
   ctx.textAlign = 'left';
   ctx.fillText(teamLabel.toUpperCase(), 75, 90);
 
-  ctx.fillStyle = '#ffd740';
+  ctx.fillStyle = '#E8B931';
   ctx.font = '900 20px "Outfit", Arial, sans-serif';
   ctx.textAlign = 'right';
   ctx.fillText('FICHA OFICIAL DE GUERRERO', width - 75, 88);
@@ -83,8 +83,8 @@ export async function generatePlayerCardBlob(player = {}, teamLabel = 'Rugby Orc
   const pBoxH = 500;
 
   ctx.save();
-  ctx.fillStyle = 'rgba(10, 25, 35, 0.8)';
-  ctx.strokeStyle = 'rgba(0, 230, 118, 0.5)';
+  ctx.fillStyle = 'rgba(23, 26, 24, 0.8)';
+  ctx.strokeStyle = 'rgba(46, 229, 122, 0.5)';
   ctx.lineWidth = 4;
   ctx.beginPath();
   ctx.roundRect(pBoxX, pBoxY, pBoxW, pBoxH, 20);
@@ -92,12 +92,12 @@ export async function generatePlayerCardBlob(player = {}, teamLabel = 'Rugby Orc
   ctx.stroke();
 
   // Jersey Number Badge (Top-left of portrait)
-  ctx.fillStyle = '#00e676';
+  ctx.fillStyle = '#2EE57A';
   ctx.beginPath();
   ctx.arc(pBoxX + 65, pBoxY + 65, 45, 0, Math.PI * 2);
   ctx.fill();
 
-  ctx.fillStyle = '#04070a';
+  ctx.fillStyle = '#070A08';
   ctx.font = '900 42px "Outfit", Arial, sans-serif';
   ctx.textAlign = 'center';
   ctx.fillText(String(player.camiseta || '—'), pBoxX + 65, pBoxY + 80);
@@ -142,7 +142,7 @@ export async function generatePlayerCardBlob(player = {}, teamLabel = 'Rugby Orc
       avatarRadius * 2, avatarRadius * 2
     );
   } else {
-    ctx.fillStyle = 'rgba(0, 230, 118, 0.15)';
+    ctx.fillStyle = 'rgba(46, 229, 122, 0.15)';
     ctx.fillRect(avatarCenterX - avatarRadius, avatarCenterY - avatarRadius, avatarRadius * 2, avatarRadius * 2);
     ctx.fillStyle = '#ffffff';
     ctx.font = '900 110px "Outfit", Arial, sans-serif';
@@ -162,7 +162,7 @@ export async function generatePlayerCardBlob(player = {}, teamLabel = 'Rugby Orc
 
   // Borde neón exterior del avatar
   ctx.save();
-  ctx.strokeStyle = '#00e676';
+  ctx.strokeStyle = '#2EE57A';
   ctx.lineWidth = 4;
   ctx.beginPath();
   ctx.arc(avatarCenterX, avatarCenterY, avatarRadius, 0, Math.PI * 2);
@@ -189,7 +189,7 @@ export async function generatePlayerCardBlob(player = {}, teamLabel = 'Rugby Orc
   ctx.fillText(displayTitle, rightX, 200);
 
   if (player.apodo) {
-    ctx.fillStyle = '#ffd740';
+    ctx.fillStyle = '#E8B931';
     ctx.font = 'italic 700 28px "Outfit", Arial, sans-serif';
     ctx.fillText(`"${player.apodo}"`, rightX, 245);
   }
@@ -197,14 +197,14 @@ export async function generatePlayerCardBlob(player = {}, teamLabel = 'Rugby Orc
   // Meta pills: Status & Category
   const division = (player.teamCategory || 'Masculina Mayor').replace('orcos_', '').replace(/_/g, ' ').toUpperCase();
   ctx.save();
-  ctx.fillStyle = 'rgba(0, 230, 118, 0.2)';
-  ctx.strokeStyle = '#00e676';
+  ctx.fillStyle = 'rgba(46, 229, 122, 0.2)';
+  ctx.strokeStyle = '#2EE57A';
   ctx.lineWidth = 1.5;
   ctx.beginPath();
   ctx.roundRect(rightX, 275, 280, 36, 18);
   ctx.fill();
   ctx.stroke();
-  ctx.fillStyle = '#00e676';
+  ctx.fillStyle = '#2EE57A';
   ctx.font = '800 15px "Outfit", Arial, sans-serif';
   ctx.textAlign = 'center';
   ctx.fillText(division, rightX + 140, 299);
@@ -220,31 +220,31 @@ export async function generatePlayerCardBlob(player = {}, teamLabel = 'Rugby Orc
   const techniqueVal = player.pase || playerAttrs.technique || calculated.technique || 72;
   const overallVal = player.ovr || calculated.overall || Math.round((forceVal + tackleVal + staminaVal + speedVal + techniqueVal) / 5);
 
-  ctx.fillStyle = '#ffd740';
+  ctx.fillStyle = '#E8B931';
   ctx.font = '900 22px "Outfit", Arial, sans-serif';
   ctx.textAlign = 'left';
   ctx.fillText('ESTADÍSTICAS & ATRIBUTOS DE COMBATE', rightX, 360);
 
   // Overall OVR Pill
   ctx.save();
-  ctx.fillStyle = 'rgba(0, 230, 118, 0.25)';
-  ctx.strokeStyle = '#00e676';
+  ctx.fillStyle = 'rgba(46, 229, 122, 0.25)';
+  ctx.strokeStyle = '#2EE57A';
   ctx.lineWidth = 2;
   ctx.beginPath();
   ctx.roundRect(rightX + 440, 336, 100, 32, 16);
   ctx.fill();
   ctx.stroke();
-  ctx.fillStyle = '#00e676';
+  ctx.fillStyle = '#2EE57A';
   ctx.font = '900 16px monospace';
   ctx.textAlign = 'center';
   ctx.fillText(`OVR ${overallVal}`, rightX + 490, 358);
   ctx.restore();
 
   const attributes = [
-    { label: 'Fuerza & Scrums', val: forceVal, color: '#00e676' },
-    { label: 'Tackles & Contacto', val: tackleVal, color: '#00e676' },
-    { label: 'Resistencia Aeróbica', val: staminaVal, color: '#ffd740' },
-    { label: 'Velocidad & Evasión', val: speedVal, color: '#ffd740' },
+    { label: 'Fuerza & Scrums', val: forceVal, color: '#2EE57A' },
+    { label: 'Tackles & Contacto', val: tackleVal, color: '#2EE57A' },
+    { label: 'Resistencia Aeróbica', val: staminaVal, color: '#E8B931' },
+    { label: 'Velocidad & Evasión', val: speedVal, color: '#E8B931' },
     { label: 'Manejo de Balón & Pases', val: techniqueVal, color: '#38bdf8' },
   ];
 
@@ -283,7 +283,7 @@ export async function generatePlayerCardBlob(player = {}, teamLabel = 'Rugby Orc
   const botBoxH = 430;
 
   ctx.save();
-  ctx.fillStyle = 'rgba(8, 20, 30, 0.9)';
+  ctx.fillStyle = 'rgba(19, 22, 20, 0.9)';
   ctx.strokeStyle = 'rgba(255, 215, 64, 0.4)';
   ctx.lineWidth = 2;
   ctx.beginPath();
@@ -295,7 +295,7 @@ export async function generatePlayerCardBlob(player = {}, teamLabel = 'Rugby Orc
   const colW = (width - 200) / 3;
 
   // Col 1: Partidos y Trayectoria
-  ctx.fillStyle = '#ffd740';
+  ctx.fillStyle = '#E8B931';
   ctx.font = '900 20px "Outfit", Arial, sans-serif';
   ctx.textAlign = 'center';
   ctx.fillText('HISTORIAL CLÁSICO', 70 + colW / 2 + 15, botBoxY + 50);
@@ -309,11 +309,11 @@ export async function generatePlayerCardBlob(player = {}, teamLabel = 'Rugby Orc
   ctx.fillText('Partidos Disputados', 70 + colW / 2 + 15, botBoxY + 180);
 
   // Col 2: Nivel Makgora RPG
-  ctx.fillStyle = '#00e676';
+  ctx.fillStyle = '#2EE57A';
   ctx.font = '900 20px "Outfit", Arial, sans-serif';
   ctx.fillText('RANGO MAKGORA', 70 + colW * 1.5 + 15, botBoxY + 50);
 
-  ctx.fillStyle = '#00e676';
+  ctx.fillStyle = '#2EE57A';
   ctx.font = '900 64px "Outfit", Arial, sans-serif';
   ctx.fillText(String(player.makgora_rank || 'NIV 4'), 70 + colW * 1.5 + 15, botBoxY + 140);
 
@@ -335,7 +335,7 @@ export async function generatePlayerCardBlob(player = {}, teamLabel = 'Rugby Orc
   ctx.fillText('Ficha Habilitada', 70 + colW * 2.5 + 15, botBoxY + 180);
 
   // Lower quote / motto
-  ctx.fillStyle = '#00e676';
+  ctx.fillStyle = '#2EE57A';
   ctx.font = 'italic 700 24px "Outfit", Arial, sans-serif';
   ctx.textAlign = 'center';
   ctx.fillText('«FUERZA, HONOR Y TERCER TIEMPO»', width / 2, botBoxY + 300);

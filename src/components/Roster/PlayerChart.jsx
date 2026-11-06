@@ -1,9 +1,9 @@
 import React from 'react';
 
 const STATS_KEYS = [
-  { key: 'force', color: '#ff1744', name: 'Fza' },
-  { key: 'speed', color: '#2979ff', name: 'Vel' },
-  { key: 'stamina', color: '#00e676', name: 'Res' },
+  { key: 'force', color: '#FF5C4D', name: 'Fza' },
+  { key: 'speed', color: '#5AA9FF', name: 'Vel' },
+  { key: 'stamina', color: '#2EE57A', name: 'Res' },
   { key: 'technique', color: '#d500f9', name: 'Tec' }
 ];
 

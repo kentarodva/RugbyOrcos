@@ -1,9 +1,9 @@
 // Per-set logging (Hevy/Strong model). Pure helpers, no React.
 
 export const SET_TYPES = {
-  normal: { short: null, label: 'Efectiva', color: '#00e676' },
+  normal: { short: null, label: 'Efectiva', color: '#2EE57A' },
   warmup: { short: 'C', label: 'Calentamiento', color: '#ff9800' },
-  failure: { short: 'F', label: 'Al fallo', color: '#ff5252' },
+  failure: { short: 'F', label: 'Al fallo', color: '#FF5C4D' },
   drop: { short: 'D', label: 'Drop set', color: '#38bdf8' },
 };
 const CYCLE = ['normal', 'warmup', 'failure', 'drop'];

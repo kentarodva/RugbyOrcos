@@ -58,7 +58,9 @@ Antes de cada entrenamiento de alta intensidad, los jugadores registran 5 variab
 
 ## 3. Monitor de Sin-Bin Disciplinario
 
-El panel principal monitorea el tiempo de los jugadores castigados con tarjeta amarilla durante un partido en disputa:
+> Desde 2026-11-06 el cronómetro ya no está en el panel de Inicio: vive en el partido en vivo (Match Center), ver [[05_MATCH_CENTER_EN_VIVO_Y_CALENDARIO]].
+
+El partido en vivo monitorea el tiempo de los jugadores castigados con tarjeta amarilla:
 * Cronómetro regresivo de **10 minutos reglamentarios**.
 * Alerta sonora y visual en el momento exacto en que expira la sanción para que el jugador reingrese al campo.
 

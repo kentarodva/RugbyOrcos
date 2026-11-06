@@ -104,16 +104,16 @@ function BroadcastOverlay({
       >
         <defs>
           <marker id="arrow-ally" markerWidth="3.2" markerHeight="3.2" refX="2.4" refY="1.6" orient="auto">
-            <path d="M0,0 L3.2,1.6 L0,3.2 Z" fill="#00e676" />
+            <path d="M0,0 L3.2,1.6 L0,3.2 Z" fill="#2EE57A" />
           </marker>
           <marker id="arrow-forward" markerWidth="3.2" markerHeight="3.2" refX="2.4" refY="1.6" orient="auto">
-            <path d="M0,0 L3.2,1.6 L0,3.2 Z" fill="#ffb300" />
+            <path d="M0,0 L3.2,1.6 L0,3.2 Z" fill="#E8B931" />
           </marker>
           <marker id="arrow-rival" markerWidth="2.8" markerHeight="2.8" refX="2.1" refY="1.4" orient="auto">
-            <path d="M0,0 L2.8,1.4 L0,2.8 Z" fill="#ff5252" />
+            <path d="M0,0 L2.8,1.4 L0,2.8 Z" fill="#FF5C4D" />
           </marker>
           <marker id="arrow-ball" markerWidth="3.6" markerHeight="3.6" refX="2.6" refY="1.8" orient="auto">
-            <path d="M0,0 L3.6,1.8 L0,3.6 Z" fill="#ffd740" />
+            <path d="M0,0 L3.6,1.8 L0,3.6 Z" fill="#E8B931" />
           </marker>
         </defs>
 
@@ -150,8 +150,8 @@ function BroadcastOverlay({
               cy={screenZone.y}
               rx={highlightZone.r || 8}
               ry={(highlightZone.r || 8) * 1.25}
-              fill="rgba(0, 230, 118, 0.14)"
-              stroke="#00e676"
+              fill="rgba(46, 229, 122, 0.14)"
+              stroke="#2EE57A"
               strokeWidth="0.4"
               strokeDasharray="1.2 0.8"
             />
@@ -160,7 +160,7 @@ function BroadcastOverlay({
               cy={screenZone.y}
               rx={(highlightZone.r || 8) * 0.55}
               ry={(highlightZone.r || 8) * 0.7}
-              fill="rgba(0, 230, 118, 0.18)"
+              fill="rgba(46, 229, 122, 0.18)"
             />
           </g>
         )}
@@ -173,7 +173,7 @@ function BroadcastOverlay({
             y1={v.y1}
             x2={v.x2}
             y2={v.y2}
-            stroke="rgba(255, 82, 82, 0.65)"
+            stroke="rgba(255, 92, 77, 0.65)"
             strokeWidth="0.38"
             strokeDasharray="0.9 0.7"
             markerEnd="url(#arrow-rival)"
@@ -188,7 +188,7 @@ function BroadcastOverlay({
             y1={v.y1}
             x2={v.x2}
             y2={v.y2}
-            stroke={v.isForward ? 'rgba(255, 179, 0, 0.85)' : 'rgba(0, 230, 118, 0.9)'}
+            stroke={v.isForward ? 'rgba(232, 185, 49, 0.85)' : 'rgba(46, 229, 122, 0.9)'}
             strokeWidth="0.5"
             markerEnd={v.isForward ? 'url(#arrow-forward)' : 'url(#arrow-ally)'}
           />
@@ -206,7 +206,7 @@ function BroadcastOverlay({
             <path
               d={passPathD}
               fill="none"
-              stroke="#ffd740"
+              stroke="#E8B931"
               strokeWidth="0.6"
               strokeDasharray="1.4 0.9"
               markerEnd="url(#arrow-ball)"
@@ -224,8 +224,8 @@ function BroadcastOverlay({
             top: `${Math.max(4, screenZone.y - (highlightZone.r || 8) - 3)}%`,
             transform: 'translate(-50%, -50%)',
             background: 'rgba(5, 15, 10, 0.88)',
-            border: '1px solid #00e676',
-            color: '#00e676',
+            border: '1px solid #2EE57A',
+            color: '#2EE57A',
             fontSize: '0.58rem',
             fontWeight: 900,
             letterSpacing: '0.06em',
@@ -234,7 +234,7 @@ function BroadcastOverlay({
             pointerEvents: 'none',
             zIndex: 6,
             whiteSpace: 'nowrap',
-            boxShadow: '0 0 12px rgba(0, 230, 118, 0.35)',
+            boxShadow: '0 0 12px rgba(46, 229, 122, 0.35)',
           }}
         >
           🎯 {highlightZone.label}
@@ -262,7 +262,7 @@ function BroadcastOverlay({
               height: '34px',
               borderRadius: '50%',
               background: 'radial-gradient(circle at 30% 30%, #ef4444, #7f1d1d)',
-              border: isDraggingThis ? '2.5px solid #ffd740' : '2px solid #fca5a5',
+              border: isDraggingThis ? '2.5px solid #E8B931' : '2px solid #fca5a5',
               color: '#fff',
               fontSize: '0.68rem',
               fontWeight: 900,
@@ -353,8 +353,8 @@ function BroadcastOverlay({
             right: '14px',
             bottom: '12px',
             zIndex: 40,
-            background: 'linear-gradient(90deg, rgba(6, 11, 19, 0.94) 0%, rgba(11, 22, 34, 0.92) 100%)',
-            border: '1px solid rgba(0, 230, 118, 0.45)',
+            background: 'linear-gradient(90deg, rgba(12, 15, 13, 0.94) 0%, rgba(22, 25, 23, 0.92) 100%)',
+            border: '1px solid rgba(46, 229, 122, 0.45)',
             borderLeft: '4px solid var(--color-primary)',
             borderRadius: '10px',
             padding: '10px 14px',
@@ -370,7 +370,7 @@ function BroadcastOverlay({
               <span
                 style={{
                   background: 'var(--color-primary)',
-                  color: '#04080e',
+                  color: '#090C0A',
                   fontSize: '0.62rem',
                   fontWeight: 900,
                   padding: '2px 7px',
@@ -381,7 +381,7 @@ function BroadcastOverlay({
               >
                 📺 ORCOS TV · FASE {activePhaseInfo.index + 1}/{activePhaseInfo.total}
               </span>
-              <strong style={{ fontSize: '0.82rem', color: '#fff', fontFamily: 'Outfit' }}>
+              <strong style={{ fontSize: '0.82rem', color: '#fff', fontFamily: 'var(--font-display)' }}>
                 {activePhaseInfo.title}
               </strong>
             </div>
@@ -397,7 +397,7 @@ function BroadcastOverlay({
               style={{
                 height: '100%',
                 width: `${((activePhaseInfo.index + 1) / activePhaseInfo.total) * 100}%`,
-                background: 'linear-gradient(90deg, var(--color-primary) 0%, #ffd740 100%)',
+                background: 'linear-gradient(90deg, var(--color-primary) 0%, #E8B931 100%)',
                 boxShadow: '0 0 8px var(--color-primary)',
                 transition: `width ${animDuration}s cubic-bezier(0.22, 1, 0.36, 1)`,
               }}

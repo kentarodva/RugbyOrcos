@@ -13,7 +13,7 @@ function ChampionsHistory({ tournaments, teams, onSelect }) {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-      <h3 style={{ fontSize: '1.1rem', fontWeight: 800, fontFamily: 'Outfit', color: 'var(--color-gold)' }}>
+      <h3 style={{ fontSize: '1.1rem', fontWeight: 600, color: 'var(--color-text)' }}>
         🏆 Salón de Campeones
       </h3>
       {finished.map(t => {
@@ -39,7 +39,7 @@ function ChampionsHistory({ tournaments, teams, onSelect }) {
                   <span style={{ fontSize: '0.78rem', color: 'var(--color-text-muted)' }}>Campeón:</span>
                   <span style={{
                     fontWeight: 800, fontSize: '1rem', color: 'var(--color-gold)',
-                    textShadow: '0 0 10px rgba(255,179,0,0.3)',
+                    textShadow: '0 0 10px rgba(232, 185, 49,0.3)',
                   }}>
                     {winner.rpg_name || winner.name}
                   </span>

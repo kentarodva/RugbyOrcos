@@ -48,11 +48,11 @@ function PlayerCompare({ players, onClose }) {
         style={{ maxWidth: '700px', width: '100%', maxHeight: '90vh', overflowY: 'auto' }}
         onClick={e => e.stopPropagation()}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-          <h3 style={{ fontFamily: 'Outfit', fontWeight: 800, fontSize: '1.2rem' }}>⚔️ Comparar Jugadores</h3>
+          <h3 style={{ fontWeight: 600, fontSize: '1.2rem' }}>⚔️ Comparar Jugadores</h3>
           <button onClick={onClose} className="btn-outline" style={{ padding: '4px 10px', fontSize: '0.75rem' }}>✕</button>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '20px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '12px', marginBottom: '20px' }}>
           <div className="form-group" style={{ margin: 0 }}>
             <label style={{ fontSize: '0.72rem' }}>Jugador A</label>
             <select value={selectedA} onChange={(e) => setSelectedA(e.target.value)} className="form-select" style={{ fontSize: '0.78rem' }}>
@@ -75,7 +75,7 @@ function PlayerCompare({ players, onClose }) {
 
         {playerA && playerB && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '12px' }}>
               {[playerA, playerB].map((p, i) => (
                 <div key={i} style={{
                   padding: '12px', borderRadius: 'var(--radius-sm)',
@@ -113,7 +113,7 @@ function PlayerCompare({ players, onClose }) {
 
             <div style={{ borderTop: '1px solid var(--border-glass)', paddingTop: '16px' }}>
               <h4 style={{ fontSize: '0.85rem', fontWeight: 700, marginBottom: '12px' }}>🏋️ Gimnasio</h4>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', fontSize: '0.72rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '8px', fontSize: '0.72rem' }}>
                 {gymKeys.map(g => (
                   <React.Fragment key={g.key}>
                     <span style={{ color: 'var(--color-text-muted)' }}>{g.label}</span>
@@ -133,7 +133,7 @@ function PlayerCompare({ players, onClose }) {
 
             <div style={{ borderTop: '1px solid var(--border-glass)', paddingTop: '16px' }}>
               <h4 style={{ fontSize: '0.85rem', fontWeight: 700, marginBottom: '12px' }}>⚡ Estadísticas de Partido</h4>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', fontSize: '0.72rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '8px', fontSize: '0.72rem' }}>
                 {statKeys.map(s => (
                   <React.Fragment key={s.key}>
                     <span style={{ color: 'var(--color-text-muted)' }}>{s.label}</span>

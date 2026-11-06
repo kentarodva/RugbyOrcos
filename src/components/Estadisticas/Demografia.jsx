@@ -39,8 +39,8 @@ export default function Demografia({ players }) {
       <div style={{ flex: '1 1 280px', minWidth: 200 }}><DonutChart data={years} title="Experiencia en el Club" centerLabel="jug" /></div>
       <div style={{ flex: '1 1 280px', minWidth: 200 }}><HorizontalBar data={posiciones} title="Distribución por Posición" color="#ffab40" height={26} suffix=" jug" /></div>
       {edadPosTable.positions.length > 0 && (
-        <div className="glass-panel" style={{ padding: '16px', flex: '1 1 100%' }}>
-          <h4 style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--color-primary)', marginBottom: '8px', fontFamily: 'Outfit' }}>Edad por Posición</h4>
+        <div className="glass-panel" style={{ padding: '16px', flex: '1 1 100%', minWidth: 0 }}>
+          <h4 style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--color-text)', marginBottom: '8px' }}>Edad por Posición</h4>
           <div style={{ overflowX: 'auto', fontSize: '0.78rem' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '400px' }}>
               <thead>

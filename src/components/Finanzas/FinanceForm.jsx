@@ -12,13 +12,13 @@ export function FinanceForm({
 }) {
   return (
     <div className="glass-panel animated-slide" style={{ padding: '25px' }}>
-      <h3 className="neon-text-primary" style={{ marginBottom: '20px', fontFamily: 'Outfit' }}>💰 Registrar Movimiento</h3>
+      <h3 className="neon-text-primary" style={{ marginBottom: '20px', fontFamily: 'var(--font-display)' }}>💰 Registrar Movimiento</h3>
       <form onSubmit={onSave} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
         <div className="form-group">
           <label>Descripción / Detalle</label>
           <input type="text" value={finDesc} onChange={(e) => setFinDesc(e.target.value)} placeholder="Ej. Balones Gilbert, Compra botiquín" className="form-input" required />
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '10px' }}>
           <div className="form-group">
             <label>Monto ($ COP)</label>
             <CopInput value={finAmount} onChange={(e) => setFinAmount(e.target.value)} placeholder="50.000" required />

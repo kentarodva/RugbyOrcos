@@ -47,7 +47,7 @@ export function CreateTournamentForm({ teams, onCreate, onCancel }) {
 
   return (
     <form onSubmit={handleSubmit} className="glass-panel" style={{ padding: '20px', marginBottom: '20px', borderRadius: 'var(--radius-md)' }}>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '15px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '12px', marginBottom: '15px' }}>
         <div style={{ gridColumn: 'span 2' }}>
           <label style={STYLE.lbl}>Nombre del Torneo</label>
           <input type="text" value={form.name} onChange={e => setForm({...form, name: e.target.value})}
@@ -63,15 +63,15 @@ export function CreateTournamentForm({ teams, onCreate, onCancel }) {
           {allAvailable.map(t => (
             <label key={t.id} style={{
               display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 12px', cursor: 'pointer',
-              background: selectedTeamIds.includes(t.id) ? (t.is_external ? 'rgba(255,179,0,0.1)' : 'rgba(0,230,118,0.1)') : 'rgba(255,255,255,0.03)',
-              border: '1px solid ' + (selectedTeamIds.includes(t.id) ? (t.is_external ? '#ffb300' : 'var(--color-primary)') : 'var(--border-glass)'),
+              background: selectedTeamIds.includes(t.id) ? (t.is_external ? 'rgba(232, 185, 49,0.1)' : 'rgba(46, 229, 122,0.1)') : 'rgba(255,255,255,0.03)',
+              border: '1px solid ' + (selectedTeamIds.includes(t.id) ? (t.is_external ? '#E8B931' : 'var(--color-primary)') : 'var(--border-glass)'),
               borderRadius: 'var(--radius-sm)', fontSize: '0.8rem', userSelect: 'none',
             }}>
               <input type="checkbox" checked={selectedTeamIds.includes(t.id)} onChange={() => toggleTeam(t.id)} style={{ accentColor: 'var(--color-primary)' }} />
               <span style={{ color: 'var(--color-text)', fontWeight: selectedTeamIds.includes(t.id) ? 700 : 400 }}>
                 {t.rpg_name || t.name}
               </span>
-              {t.is_external && <span style={{ fontSize: '0.6rem', padding: '1px 5px', borderRadius: '4px', background: 'rgba(255,179,0,0.15)', color: '#ffb300' }}>Invitado</span>}
+              {t.is_external && <span style={{ fontSize: '0.6rem', padding: '1px 5px', borderRadius: '4px', background: 'rgba(232, 185, 49,0.15)', color: '#E8B931' }}>Invitado</span>}
             </label>
           ))}
         </div>

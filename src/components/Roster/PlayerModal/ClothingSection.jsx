@@ -37,7 +37,7 @@ function ClothingSection({ player, onClothingSubmit }) {
       </div>
 
       {!showForm ? (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px', textAlign: 'center', fontSize: '0.8rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: '10px', textAlign: 'center', fontSize: '0.8rem' }}>
           <div style={{ background: 'rgba(255,255,255,0.02)', padding: '8px 5px', borderRadius: '4px' }}>
             <span style={{ fontSize: '0.65rem', color: 'var(--color-text-muted)', display: 'block' }}>JERSEY</span>
             <strong>{player.clothingSizes?.jersey || 'N/A'}</strong>
@@ -53,7 +53,7 @@ function ClothingSection({ player, onClothingSubmit }) {
         </div>
       ) : (
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '5px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: '5px' }}>
             <div className="form-group">
               <label style={{ fontSize: '0.6rem' }}>Camiseta</label>
               <SizeSelect kind="jersey" value={sizes.jersey} onChange={(e) => setSizes(prev => ({ ...prev, jersey: e.target.value }))} style={{ padding: '4px', fontSize: '0.75rem' }} />

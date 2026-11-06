@@ -12,7 +12,7 @@ function ForwardsBacksBalance({ teamPlayers }) {
 
   return (
     <div className="glass-panel" style={{ padding: '25px', display: 'flex', flexDirection: 'column', gap: '15px' }}>
-      <h3 style={{ fontSize: '1.1rem', fontWeight: 700, fontFamily: 'Outfit' }}>Balance de Plantilla (Delanteros vs Backs)</h3>
+      <h3 style={{ fontSize: '1.1rem', fontWeight: 600 }}>Balance de Plantilla (Delanteros vs Backs)</h3>
       <p style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>
         Distribucion de posiciones del roster en campo de rugby.
       </p>

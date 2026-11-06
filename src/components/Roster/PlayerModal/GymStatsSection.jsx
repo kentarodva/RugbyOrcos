@@ -55,7 +55,7 @@ function GymStatsSection({ player, onGymSubmit }) {
 
       {!showForm ? (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '10px', textAlign: 'center' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', gap: '10px', textAlign: 'center' }}>
             <div style={{ background: 'rgba(255,255,255,0.02)', padding: '10px 5px', borderRadius: 'var(--radius-sm)' }}>
               <span style={{ fontSize: '0.65rem', color: 'var(--color-text-muted)', display: 'block' }}>SENTADILLA</span>
               <strong style={{ fontSize: '1rem', color: 'var(--color-primary)' }}>{squat} Kg</strong>
@@ -74,7 +74,7 @@ function GymStatsSection({ player, onGymSubmit }) {
             </div>
           </div>
 
-          <div style={{ background: 'rgba(255, 61, 0, 0.02)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: 'var(--radius-md)', padding: '12px 15px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ background: 'rgba(255, 92, 77, 0.02)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: 'var(--radius-md)', padding: '12px 15px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div>
               <span style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>Indice de Fuerza Relativa:</span>
               <h4 style={{ fontSize: '1.2rem', fontWeight: 800, color: rankColor, marginTop: '2px' }}>{ratio} x Peso Corp.</h4>
@@ -87,7 +87,7 @@ function GymStatsSection({ player, onGymSubmit }) {
         </div>
       ) : (
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '12px', background: 'rgba(255,255,255,0.02)', padding: '15px', borderRadius: 'var(--radius-sm)', border: '1px dashed var(--color-primary)' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '10px' }}>
             <div className="form-group">
               <label style={{ fontSize: '0.75rem' }}>Sentadilla 1RM</label>
               <WeightInput value={gym.squat} onChange={set('squat')} required />

@@ -30,7 +30,7 @@ function CredentialModal({ player, onClose, onGenerate }) {
       <div className="modal-overlay" onClick={onClose}>
         <div className="modal-content glass-panel animated-slide" style={{ maxWidth: '420px', textAlign: 'center' }} onClick={e => e.stopPropagation()}>
           <div style={{ fontSize: '2rem', marginBottom: '10px' }}>⚔️</div>
-          <h3 style={{ fontSize: '1.1rem', fontWeight: 800, fontFamily: 'Outfit', marginBottom: '8px', color: 'var(--color-gold)' }}>
+          <h3 style={{ fontSize: '1.1rem', fontWeight: 600, marginBottom: '8px', color: 'var(--color-text)' }}>
             Forjar Credenciales
           </h3>
           <p style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', marginBottom: '15px' }}>
@@ -55,7 +55,7 @@ function CredentialModal({ player, onClose, onGenerate }) {
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content glass-panel animated-slide" style={{ maxWidth: '420px', textAlign: 'center' }} onClick={e => e.stopPropagation()}>
         <div style={{ fontSize: '2rem', marginBottom: '10px' }}>⚔️</div>
-        <h3 style={{ fontSize: '1.1rem', fontWeight: 800, fontFamily: 'Outfit', marginBottom: '16px', color: 'var(--color-primary)' }}>
+        <h3 style={{ fontSize: '1.1rem', fontWeight: 600, marginBottom: '16px', color: 'var(--color-text)' }}>
           ✅ Credenciales Creadas
         </h3>
         <p style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)', marginBottom: '20px' }}>

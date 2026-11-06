@@ -51,7 +51,7 @@ export function RaffleTicketModal({ campaign, assignment, tickets, onClose, read
       <div className="modal-content animated-slide" style={{ maxWidth: '500px' }} onClick={e => e.stopPropagation()}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
           <div>
-            <h3 style={{ fontSize: '1.2rem', fontWeight: 800, fontFamily: 'Outfit' }}>🎟️ Boletas — {campaign.name}</h3>
+            <h3 style={{ fontSize: '1.2rem', fontWeight: 600 }}>🎟️ Boletas — {campaign.name}</h3>
             <p style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>
               Boletas {assignment.ticket_start}–{assignment.ticket_end} · {soldCount}/{totalCount} vendidas
               {ticketPrice > 0 && ` · $${ticketPrice.toLocaleString()} c/u`}
@@ -77,8 +77,8 @@ export function RaffleTicketModal({ campaign, assignment, tickets, onClose, read
           {tickets.map(t => (
             <div key={t.id} style={{
               display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-              padding: '8px 12px', background: t.is_sold ? 'rgba(0, 230, 118, 0.05)' : 'rgba(255,255,255,0.02)',
-              border: '1px solid ' + (t.is_sold ? 'rgba(0, 230, 118, 0.2)' : 'var(--border-glass)'),
+              padding: '8px 12px', background: t.is_sold ? 'rgba(46, 229, 122, 0.05)' : 'rgba(255,255,255,0.02)',
+              border: '1px solid ' + (t.is_sold ? 'rgba(46, 229, 122, 0.2)' : 'var(--border-glass)'),
               borderRadius: 'var(--radius-sm)', fontSize: '0.85rem',
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>

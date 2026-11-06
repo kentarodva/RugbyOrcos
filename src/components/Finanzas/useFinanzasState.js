@@ -64,10 +64,10 @@ export function useFinanzasState({ finances, players, addFinanceRecord, recordMe
     const due = m.due > 0 ? m.due : MENSUALIDAD_BASE;
     const paid = m.paid || 0;
 
-    if (paid >= due) return { label: 'AL DIA', color: 'var(--color-primary)', bg: 'rgba(0, 230, 118, 0.08)' };
-    if (paid > 0 && paid < due - 2000) return { label: 'PAGO PARCIAL', color: 'var(--color-gold)', bg: 'rgba(255, 179, 0, 0.08)' };
+    if (paid >= due) return { label: 'AL DIA', color: 'var(--color-primary)', bg: 'rgba(46, 229, 122, 0.08)' };
+    if (paid > 0 && paid < due - 2000) return { label: 'PAGO PARCIAL', color: 'var(--color-gold)', bg: 'rgba(232, 185, 49, 0.08)' };
     if (paid > 0) return { label: 'CASI AL DIA', color: 'var(--color-blue)', bg: 'rgba(64, 196, 255, 0.08)' };
-    return { label: 'MOROSO', color: 'var(--color-red)', bg: 'rgba(255, 61, 0, 0.06)' };
+    return { label: 'MOROSO', color: 'var(--color-red)', bg: 'rgba(255, 92, 77, 0.06)' };
   }, []);
 
   const handleStockChange = useCallback((itemId, currentTotal, diff) => {

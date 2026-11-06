@@ -23,7 +23,7 @@ function FixtureCard({ fixture, onDelete, onDetail, onEdit, onStartMatch, onSqua
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
         <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
           <span className="badge" style={{
-            background: isWinner ? 'rgba(0, 230, 118, 0.1)' : isDraw ? 'rgba(255, 234, 0, 0.1)' : 'rgba(255, 61, 0, 0.1)',
+            background: isWinner ? 'rgba(46, 229, 122, 0.1)' : isDraw ? 'rgba(255, 234, 0, 0.1)' : 'rgba(255, 92, 77, 0.1)',
             color: isWinner ? 'var(--color-primary)' : isDraw ? 'var(--color-gold)' : 'var(--color-red)',
             border: `1px solid ${isWinner ? 'var(--color-primary)' : isDraw ? 'var(--color-gold)' : 'var(--color-red)'}`,
             fontSize: '0.65rem',
@@ -33,9 +33,9 @@ function FixtureCard({ fixture, onDelete, onDetail, onEdit, onStartMatch, onSqua
           </span>
           {fixture.squad?.startingXV?.length > 0 && (
             <span className="badge" style={{
-              background: 'rgba(0, 230, 118, 0.08)',
+              background: 'rgba(46, 229, 122, 0.08)',
               color: 'var(--color-primary)',
-              border: '1px solid rgba(0, 230, 118, 0.2)',
+              border: '1px solid rgba(46, 229, 122, 0.2)',
               fontSize: '0.6rem',
               fontWeight: 600
             }}>
@@ -49,8 +49,8 @@ function FixtureCard({ fixture, onDelete, onDetail, onEdit, onStartMatch, onSqua
             <button
               onClick={() => onStartMatch(fixture)}
               style={{
-                background: 'rgba(255, 61, 0, 0.1)',
-                border: '1px solid rgba(255, 61, 0, 0.3)',
+                background: 'rgba(255, 92, 77, 0.1)',
+                border: '1px solid rgba(255, 92, 77, 0.3)',
                 color: 'var(--color-red)',
                 cursor: 'pointer',
                 borderRadius: 'var(--radius-sm)',
@@ -67,8 +67,8 @@ function FixtureCard({ fixture, onDelete, onDetail, onEdit, onStartMatch, onSqua
             <button
               onClick={() => onSquad(fixture)}
               style={{
-                background: 'rgba(0, 230, 118, 0.1)',
-                border: '1px solid rgba(0, 230, 118, 0.3)',
+                background: 'rgba(46, 229, 122, 0.1)',
+                border: '1px solid rgba(46, 229, 122, 0.3)',
                 color: 'var(--color-primary)',
                 cursor: 'pointer',
                 borderRadius: 'var(--radius-sm)',
@@ -115,16 +115,16 @@ function FixtureCard({ fixture, onDelete, onDetail, onEdit, onStartMatch, onSqua
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: '15px 0' }}>
         <div style={{ textAlign: 'center', flex: 1 }}>
           <h4 style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--color-primary)' }}>Orcos</h4>
-          <div style={{ fontSize: '2rem', fontWeight: 900, fontFamily: 'Outfit' }}>{fixture.orcosScore}</div>
+          <div style={{ fontSize: '2rem', fontWeight: 900, fontFamily: 'var(--font-display)' }}>{fixture.orcosScore}</div>
         </div>
         <div style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--color-text-muted)' }}>VS</div>
         <div style={{ textAlign: 'center', flex: 1 }}>
           <h4 style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--color-text-muted)' }}>{fixture.opponent}</h4>
-          <div style={{ fontSize: '2rem', fontWeight: 900, fontFamily: 'Outfit' }}>{fixture.opponentScore}</div>
+          <div style={{ fontSize: '2rem', fontWeight: 900, fontFamily: 'var(--font-display)' }}>{fixture.opponentScore}</div>
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', fontSize: '0.75rem', background: 'rgba(255,255,255,0.02)', padding: '10px', borderRadius: 'var(--radius-sm)' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '10px', fontSize: '0.75rem', background: 'rgba(255,255,255,0.02)', padding: '10px', borderRadius: 'var(--radius-sm)' }}>
         <div>
           <span style={{ color: 'var(--color-text-muted)', display: 'block', fontSize: '0.65rem' }}>MVP DEL PARTIDO</span>
           <strong>{fixture.mvp || 'Sin definir'}</strong>

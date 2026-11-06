@@ -53,9 +53,9 @@ Rugby Orcos/
 │   │   └── ToastContext.jsx     # Notificaciones toast
 │   ├── components/
 │   │   ├── Login.jsx            # Login unificado (email/username + password)
-│   │   ├── Dashboard.jsx        # Panel principal (metricas, HIA, Sin-Bin, wellness)
+│   │   ├── Dashboard.jsx        # Inicio (metricas, HIA, wellness, eventos)
 │   │   ├── Roster.jsx           # CRUD jugadores, atributos RPG, insignias, credenciales
-│   │   ├── CanchaTactica.jsx    # Pizarra con 11 formaciones + drag-and-drop
+│   │   ├── CanchaTactica/       # Pizarra: formaciones, dibujo, jugadas guardadas
 │   │   ├── Tribunal.jsx         # Asistencia, infracciones, rankings
 │   │   ├── Calendario.jsx       # Agenda/Fixture/Proximos/Rivales (QuickTrainingPanel)
 │   │   ├── Finanzas.jsx         # Caja chica, membresias, inventario (AddInventoryForm)
@@ -65,7 +65,7 @@ Rugby Orcos/
 │   │   ├── MakgoraHub.jsx       # Torneo Mak'Gora (equipos, fixture, standings, prestamos)
 │   │   ├── Invitaciones.jsx     # Dashboard de invitaciones a rivales
 │   │   ├── MatchInvitation.jsx  # Pagina publica de invitacion (sin login)
-│   │   ├── PlayerDashboard.jsx  # Vista del Guerrero (4 tabs: Perfil, Agenda, Entreno, Bienestar)
+│   │   ├── PlayerDashboard.jsx  # Vista del Guerrero (Partidos, Entreno, Fisico, Ficha + Mas)
 │   │   ├── UserManagement.jsx   # Admin de usuarios, roles y reset password
 │   │   ├── Settings.jsx         # Configuracion IA, tema claro/oscuro, cuenta
 │   │   ├── Rivales.jsx          # Gestion de equipos rivales
@@ -217,7 +217,7 @@ Triggers bidireccionales mantienen sincronizadas `team_category` (VARCHAR) y `te
 - Ingresa su **nombre de usuario** (ej: `kennent.vergara`) o **email** + contrasena
 - La app busca el jugador por `players.user_id` UUID (FK a `auth.users`) → match directo
 - Fallback: busca por nombre (`display_name`) o email del perfil
-- Accede al PlayerDashboard con 7 tabs
+- Accede al PlayerDashboard (barra inferior + menu Mas)
 - Si el perfil no tiene `birth_date`, se muestra wizard de bienvenida
 
 ### Fundar Reino (primer uso / staff nuevo)
@@ -228,16 +228,16 @@ Triggers bidireccionales mantienen sincronizadas `team_category` (VARCHAR) y `te
 ## Modulos
 
 ### Dashboard
-Metricas del squad, protocolo HIA (conmociones), temporizador Sin-Bin, wellness check-in, eventos, partidos recientes.
+Metricas del squad, protocolo HIA (conmociones), wellness check-in, eventos, partidos recientes. El cronometro de Sin-Bin vive en el partido en vivo (Match Center).
 
 ### Roster
 CRUD de jugadores con atributos RPG (Fuerza, Velocidad, Resistencia, Tecnica). Historial fisico SVG. Lesiones 4 fases. Gimnasio 1RM. Insignias automaticas. **Forjar Credenciales** (genera username + password). **Restablecer Contrasena** de jugador. **Asignacion a equipo Mak'Gora** desde ficha de edicion.
 
 ### Pizarra Tactica
-11 formaciones, drag-and-drop, asignacion de jugadores, banco de suplentes, orientacion H/V, 3 tamanos.
+11 formaciones, drag-and-drop, selector de jugador con busqueda y disponibilidad, banco de suplentes, orientacion H/V, media cancha y pantalla completa. **Modo Dibujar** (carrera, pase, marca) con deshacer/rehacer. **13 jugadas de ejemplo** y **Mis jugadas** guardadas para todo el club en `tactical_plays` (migracion 81). Compartir como imagen, texto de WhatsApp o PDF.
 
 ### Tribunal Disciplinario
-Asistencia con penitencias (burpees, conos). Infracciones. Rankings: Honor, MVPs, Tries, Tackles.
+Dos pestanas: **Asistencia** y **Faltas y castigos** (penitencias, infracciones). Rankings de Honor, MVPs, Tries y Tackles arriba.
 
 ### Salon de la Fama
 **43 premios automaticos** basados en estadisticas (15 de Honor + 28 de la Taberna). Certificados HTML imprimibles.
@@ -249,16 +249,18 @@ Torneo interno con 6 equipos. Crear torneos, fixture round-robin, registrar resu
 Dashboard centralizado de invitaciones a equipos rivales. Genera links unicos por partido, los rivales registran sus jugadores sin login. Contador en vivo, respuesta aceptar/rechazar, GuestRoster visible en proximos partidos y Match Center. Badge de invitaciones activas en gestion de rivales.
 
 ### Agenda (Grupo CLUB > Calendario)
+Tres pestanas: **Calendario**, **Partidos** (proximos, jugados, campeonatos e invitaciones juntos) y **Rivales**. La pestana "En vivo" solo aparece durante un partido, con un aviso para abrirlo.
 Recurrencia personalizada (dias de la semana x N semanas con vista previa). Panel de **Entreno Rapido** (crear entrenos en 2 clicks con memoria de ultima hora/lugar). Anti-duplicado (misma fecha+hora+equipo). WhatsApp formatter con mapa. Vista semanal. Editar/borrar cualquier evento. Los eventos se guardan en Supabase y son visibles para todos los miembros de la division.
 
 ### PlayerDashboard (Guerrero, tier 4)
-El Guerrero accede a un dashboard con **7 tabs**: 🛡️ Mi Perfil (atributos RPG, insignias, membresia, editar perfil completo), 📅 Agenda (proximos entrenos y partidos del equipo con RSVP), 💪 Entreno (plan IA + logging de ejercicios), 🧘 Bienestar (wellness check-in diario), 📈 Progreso (gym history graficas), 💰 Finanzas (historial de pagos, tickets, campanas), 🤖 IA (chat tactico). El perfil es completamente editable por el jugador (peso, altura, EPS, salud, experiencia). Primer login muestra wizard de bienvenida para completar datos requeridos.
+El Guerrero navega con una barra inferior: **Partidos** (proximos entrenos y partidos con RSVP), **Entreno** (plan IA, registro de ejercicios y "Mi progreso" con graficas de fuerza), **Fisico** (wellness check-in diario) y **Ficha** (atributos RPG, insignias, perfil). En **Mas**: Membresia & Cuotas y Coach Tactico IA. El perfil es completamente editable por el jugador (peso, altura, EPS, salud, experiencia). Primer login muestra wizard de bienvenida para completar datos requeridos.
 
 ### Finanzas
 Caja chica, membresias con abonos parciales y cobro mensual automatico, inventario con custodios.
 **Recaudacion**: campanas de rifa (boletas numeradas secuenciales, premios multiples, venta FIFO con abono tracking) y comidas, pagos unificados en `player_payments`, sincronizacion bidireccional con Caja Chica via `[pid:...]`, rentabilidad automatica (Bruto − Premios).
 
 ### Entrenamientos (TrainingHub)
+Plan inteligente, Constructor y Catalogo unidos en **Crear rutina**.
 **IA Personal Trainer multi-proveedor** (Groq → DeepSeek → Gemini). La IA recibe 14 fuentes de datos por jugador: atributos, tendencia historica, 1RM con ratios, partidos (tries, tackles, tarjetas), racha de entrenamiento, ejercicios saltados, wellness (sueno/dolor/estres 7d), lesiones activas y pasadas, fracturas, HIA, asistencia, penalizaciones. Genera: analisis, riesgos, metas a 30/90d, plan campo/gym/recuperacion, recomendaciones de sueno/nutricion/prevencion. **PlayersTab** auto-genera plan al seleccionar Guerrero.
 
 ### IA Coach

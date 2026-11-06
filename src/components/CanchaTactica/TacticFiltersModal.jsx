@@ -37,7 +37,7 @@ function TacticFiltersModal({ onAssign, onClose }) {
   return (
     <div className="modal-overlay">
       <div className="modal-content glass-panel animated-slide" style={{ maxWidth: '380px' }}>
-        <h3 className="neon-text-primary" style={{ marginBottom: '15px', fontFamily: 'Outfit' }}>
+        <h3 className="neon-text-primary" style={{ marginBottom: '15px', fontFamily: 'var(--font-display)' }}>
           Auto-asignar Jugadores
         </h3>
         <p style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', marginBottom: '16px' }}>
@@ -61,7 +61,7 @@ function TacticFiltersModal({ onAssign, onClose }) {
                 padding: '10px 14px',
                 fontSize: '0.85rem',
                 borderColor: mode === opt.value ? 'var(--color-primary)' : 'var(--border-glass)',
-                background: mode === opt.value ? 'rgba(0, 230, 118, 0.1)' : 'transparent',
+                background: mode === opt.value ? 'rgba(46, 229, 122, 0.1)' : 'transparent',
                 color: mode === opt.value ? 'var(--color-primary)' : 'var(--color-text)',
               }}
             >
@@ -147,7 +147,7 @@ function TacticFiltersModal({ onAssign, onClose }) {
               padding: '8px 16px',
               fontSize: '0.85rem',
               background: 'var(--color-primary)',
-              color: '#0a0f1a',
+              color: '#111412',
               fontWeight: 800,
               border: 'none',
               borderRadius: 'var(--radius-sm)',

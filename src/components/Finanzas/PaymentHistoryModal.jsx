@@ -77,7 +77,7 @@ export function PaymentHistoryModal({ onClose, playerId, scopePlayerId }) {
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content animated-slide" style={{ maxWidth: '700px', maxHeight: '85vh' }} onClick={e => e.stopPropagation()}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-          <h3 style={{ fontSize: '1.2rem', fontWeight: 800, fontFamily: 'Outfit' }}>📜 Historial General de Pagos</h3>
+          <h3 style={{ fontSize: '1.2rem', fontWeight: 600 }}>📜 Historial General de Pagos</h3>
           <button onClick={onClose} className="btn-outline" style={{ padding: '4px 10px', fontSize: '0.75rem' }}>✕</button>
         </div>
 
@@ -153,7 +153,7 @@ export function PaymentHistoryModal({ onClose, playerId, scopePlayerId }) {
                       <button
                         onClick={() => setDeleteConfirm(p)}
                         className="btn-outline"
-                        style={{ padding: '3px 6px', fontSize: '0.65rem', color: 'var(--color-red)', borderColor: 'rgba(255,61,0,0.3)' }}
+                        style={{ padding: '3px 6px', fontSize: '0.65rem', color: 'var(--color-red)', borderColor: 'rgba(255, 92, 77,0.3)' }}
                         title="Eliminar pago"
                       >
                         🗑️
@@ -175,7 +175,7 @@ export function PaymentHistoryModal({ onClose, playerId, scopePlayerId }) {
           <div className="modal-overlay" onClick={() => setDeleteConfirm(null)} style={{ zIndex: 1000 }}>
             <div className="modal-content animated-slide" style={{ maxWidth: '380px' }} onClick={e => e.stopPropagation()}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-                <h3 style={{ fontSize: '1.1rem', fontWeight: 800, fontFamily: 'Outfit' }}>⚠️ Eliminar Pago</h3>
+                <h3 style={{ fontSize: '1.1rem', fontWeight: 600 }}>⚠️ Eliminar Pago</h3>
                 <button onClick={() => setDeleteConfirm(null)} className="btn-outline" style={{ padding: '4px 10px', fontSize: '0.75rem' }}>✕</button>
               </div>
               <p style={{ fontSize: '0.95rem', marginBottom: '20px', lineHeight: 1.5 }}>

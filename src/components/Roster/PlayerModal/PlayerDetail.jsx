@@ -78,7 +78,7 @@ function PlayerDetail({
             <span className="badge badge-gold" style={{ marginBottom: '8px' }}>
               {player.posicion}
             </span>
-            <h2 style={{ fontSize: '1.6rem', fontWeight: 800, fontFamily: 'Outfit' }}>{player.name}</h2>
+            <h2 style={{ fontSize: '1.6rem', fontWeight: 800, fontFamily: 'var(--font-display)' }}>{player.name}</h2>
             <p style={{ color: 'var(--color-primary)', fontWeight: 700 }}>Apodo: "{player.apodo}"</p>
 
             {wellnessBadge && (
@@ -119,18 +119,18 @@ function PlayerDetail({
               <button onClick={() => onEdit(player)} className="btn-outline" style={{ padding: '6px 10px', fontSize: '0.75rem' }}>
                 Editar
               </button>
-              <button onClick={() => onDelete(player.id)} className="btn-outline" style={{ padding: '6px 10px', fontSize: '0.75rem', color: 'var(--color-red)', borderColor: 'rgba(255, 61, 0, 0.2)' }}>
+              <button onClick={() => onDelete(player.id)} className="btn-outline" style={{ padding: '6px 10px', fontSize: '0.75rem', color: 'var(--color-red)', borderColor: 'rgba(255, 92, 77, 0.2)' }}>
                 Dar Baja
               </button>
             </div>
             {hasPermission('admin_panel') && (
               <div style={{ display: 'flex', gap: '5px', marginTop: '4px' }}>
                 {player.username ? (
-                  <button onClick={() => onReset(player)} className="btn-outline" style={{ padding: '4px 8px', fontSize: '0.7rem', color: '#ffb300', borderColor: 'rgba(255,179,0,0.3)' }}>
+                  <button onClick={() => onReset(player)} className="btn-outline" style={{ padding: '4px 8px', fontSize: '0.7rem', color: '#E8B931', borderColor: 'rgba(232, 185, 49,0.3)' }}>
                     Restablecer Pass
                   </button>
                 ) : (
-                  <button onClick={() => onCredential(player)} className="btn-outline" style={{ padding: '4px 8px', fontSize: '0.7rem', color: '#00e676', borderColor: 'rgba(0,230,118,0.3)' }}>
+                  <button onClick={() => onCredential(player)} className="btn-outline" style={{ padding: '4px 8px', fontSize: '0.7rem', color: '#2EE57A', borderColor: 'rgba(46, 229, 122,0.3)' }}>
                     Forjar Credenciales
                   </button>
                 )}
@@ -206,7 +206,7 @@ function PlayerDetail({
           )}
 
           {!isCoach && (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '15px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 260px), 1fr))', gap: '15px' }}>
               <ClothingSection player={player} onClothingSubmit={onClothingSubmit} />
               <HiaSection player={player} onHiaSubmit={onHiaSubmit} />
             </div>

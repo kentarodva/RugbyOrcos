@@ -15,7 +15,7 @@ function LedgerRowSkeleton() {
 function CajaSkeleton() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: '10px' }}>
         {[1, 2, 3].map(i => (
           <div className="skeleton-card" key={i} style={{ padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
             <SkeletonLine width="50%" height={12} />
@@ -36,7 +36,7 @@ function CajaSkeleton() {
 
 function InventorySkeleton() {
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '14px' }}>
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 280px), 1fr))', gap: '14px' }}>
       {Array.from({ length: 4 }).map((_, i) => (
         <div className="skeleton-card" key={i} style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
           <SkeletonLine width="60%" height={16} />

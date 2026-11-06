@@ -78,7 +78,7 @@ export function RegisterPaymentModal({ assignment, campaign, players, onClose, r
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content animated-slide" style={{ maxWidth: '400px' }} onClick={e => e.stopPropagation()}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-          <h3 style={{ fontSize: '1.2rem', fontWeight: 800, fontFamily: 'Outfit' }}>💰 Registrar Pago</h3>
+          <h3 style={{ fontSize: '1.2rem', fontWeight: 600 }}>💰 Registrar Pago</h3>
           <button onClick={onClose} className="btn-outline" style={{ padding: '4px 10px', fontSize: '0.75rem' }}>✕</button>
         </div>
 

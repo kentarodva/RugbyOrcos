@@ -49,17 +49,17 @@ export function MatchDelayModal({ isOpen, onClose, currentReason, status, onSetD
         style={{
           width: '100%',
           maxWidth: '520px',
-          background: 'var(--color-bg-secondary, #0c1522)',
-          border: '1px solid var(--color-gold, #ffd740)',
+          background: 'var(--color-bg-secondary, #161917)',
+          border: '1px solid var(--color-gold, #E8B931)',
           borderRadius: 'var(--radius-lg, 12px)',
           padding: '24px',
           boxShadow: '0 12px 40px rgba(0, 0, 0, 0.6), 0 0 20px rgba(255, 215, 64, 0.15)',
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
-          <OrcosDelayClockIcon size={26} color="var(--color-gold, #ffd740)" />
+          <OrcosDelayClockIcon size={26} color="var(--color-gold, #E8B931)" />
           <div>
-            <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 900, color: 'var(--color-gold, #ffd740)' }}>
+            <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 900, color: 'var(--color-gold, #E8B931)' }}>
               Protocolo de Retraso de Partido (Corozal, Sucre)
             </h3>
             <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>

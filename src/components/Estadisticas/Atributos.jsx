@@ -15,7 +15,7 @@ export default function Atributos({ players, allPlayers }) {
   }
 
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '14px' }}>
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap: '14px' }}>
       <div style={{ gridColumn: '1 / -1' }}>
         <RadarChart teamPlayers={teamPlayers} />
       </div>

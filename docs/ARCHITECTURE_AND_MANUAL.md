@@ -57,7 +57,6 @@ El sistema combina el rigor de la gestión deportiva profesional (protocolos HIA
 - **Métricas Clave:** Indicadores de guerreros activos por categoría, balance de tesorería, porcentaje de asistencia y próximos encuentros.
 - **Ticker de Partido en Vivo:** Barra flotante en tiempo real que avisa cuando hay un partido en disputa o a punto de iniciar, con botón de acceso directo al marcador.
 - **Protocolo HIA (Head Injury Assessment):** Registro y seguimiento de conmociones cerebrales conforme al protocolo de World Rugby con alertas de reposo obligatorio.
-- **Sin-Bin Activo:** Monitor de tarjetas amarillas y suspensiones temporales activas.
 - **Radar de Bienestar (Wellness):** Monitoreo de fatiga, dolor muscular, sueño y estrés de los jugadores.
 
 ### 3.2. Roster de Guerreros (Gestión de Plantilla)

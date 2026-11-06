@@ -46,7 +46,7 @@ function TreasurerApprovalQueue({ onClose }) {
       <div className="modal-content animated-slide" style={{ maxWidth: '700px', maxHeight: '80vh', display: 'flex', flexDirection: 'column' }}
         onClick={e => e.stopPropagation()}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
-          <h3 style={{ fontSize: '1.1rem', fontWeight: 800, fontFamily: 'Outfit' }}>
+          <h3 style={{ fontSize: '1.1rem', fontWeight: 600 }}>
             Aprobaciones Pendientes ({pending.length})
           </h3>
           <button onClick={onClose} className="btn-outline" style={{ padding: '4px 10px', fontSize: '0.75rem' }}>✕</button>
@@ -60,12 +60,12 @@ function TreasurerApprovalQueue({ onClose }) {
           <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '12px' }}>
             {fiadoItems.length > 0 && (
               <div>
-                <h4 style={{ fontSize: '0.75rem', fontWeight: 700, color: '#ffb300', textTransform: 'uppercase', marginBottom: '6px' }}>
+                <h4 style={{ fontSize: '0.75rem', fontWeight: 700, color: '#E8B931', textTransform: 'uppercase', marginBottom: '6px' }}>
                   Fiado ({fiadoItems.length})
                 </h4>
                 {fiadoItems.map(item => (
                   <div key={item.ticket_id} className="glass-panel" style={{
-                    padding: '12px', marginBottom: '6px', borderLeft: '3px solid #ffb300'
+                    padding: '12px', marginBottom: '6px', borderLeft: '3px solid #E8B931'
                   }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', gap: '10px', flexWrap: 'wrap' }}>
                       <div>
@@ -90,7 +90,7 @@ function TreasurerApprovalQueue({ onClose }) {
                         </button>
                         <button onClick={() => handleConfirm(item.ticket_id, 'rejected')}
                           disabled={processing[item.ticket_id]}
-                          className="btn-outline" style={{ padding: '6px 14px', fontSize: '0.75rem', color: '#ff3d00', borderColor: '#ff3d00' }}>
+                          className="btn-outline" style={{ padding: '6px 14px', fontSize: '0.75rem', color: '#FF5C4D', borderColor: '#FF5C4D' }}>
                           ❌ Rechazar
                         </button>
                       </div>
@@ -102,12 +102,12 @@ function TreasurerApprovalQueue({ onClose }) {
 
             {paidItems.length > 0 && (
               <div>
-                <h4 style={{ fontSize: '0.75rem', fontWeight: 700, color: '#00b0ff', textTransform: 'uppercase', marginBottom: '6px' }}>
+                <h4 style={{ fontSize: '0.75rem', fontWeight: 700, color: '#5AA9FF', textTransform: 'uppercase', marginBottom: '6px' }}>
                   Pagado ({paidItems.length})
                 </h4>
                 {paidItems.map(item => (
                   <div key={item.ticket_id} className="glass-panel" style={{
-                    padding: '12px', marginBottom: '6px', borderLeft: '3px solid #00b0ff'
+                    padding: '12px', marginBottom: '6px', borderLeft: '3px solid #5AA9FF'
                   }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', gap: '10px', flexWrap: 'wrap' }}>
                       <div>
@@ -128,7 +128,7 @@ function TreasurerApprovalQueue({ onClose }) {
                         </button>
                         <button onClick={() => handleConfirm(item.ticket_id, 'rejected')}
                           disabled={processing[item.ticket_id]}
-                          className="btn-outline" style={{ padding: '6px 14px', fontSize: '0.75rem', color: '#ff3d00', borderColor: '#ff3d00' }}>
+                          className="btn-outline" style={{ padding: '6px 14px', fontSize: '0.75rem', color: '#FF5C4D', borderColor: '#FF5C4D' }}>
                           ❌ Rechazar
                         </button>
                       </div>

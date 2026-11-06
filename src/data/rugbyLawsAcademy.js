@@ -7,7 +7,7 @@ export const RUGBY_LAWS_LESSONS = [
     lawNumber: 'Ley 9.13',
     title: 'Tackle Alto y Contacto Peligroso (Head Contact Process)',
     severity: 'Grave (Tarjeta Roja / Amarilla)',
-    color: '#ff1744',
+    color: '#FF5C4D',
     badge: 'Seguridad Crítica',
     infractionDesc:
       'Un jugador no debe taclear a un oponente en forma peligrosa. El contacto directo con la cabeza, cuello o garganta mediante el hombro o brazo rígido pone en riesgo inminente la integridad del deportista.',
@@ -23,7 +23,7 @@ export const RUGBY_LAWS_LESSONS = [
     lawNumber: 'Ley 14 & 15',
     title: 'Fuera de Juego (Offside) en el Ruck & Entrada por la Puerta',
     severity: 'Infracción Táctica (Penal)',
-    color: '#ffd740',
+    color: '#E8B931',
     badge: 'Disciplina Táctica',
     infractionDesc:
       'Cuando se forma un ruck (al menos un jugador de cada equipo en contacto sobre el balón en el suelo), la línea de fuera de juego se traza en el último pie del último jugador de cada equipo. Entrar por los lados o despegarse antes de que el balón salga es penal.',
@@ -71,7 +71,7 @@ export const RUGBY_LAWS_LESSONS = [
     lawNumber: 'Ley 14.7',
     title: 'No Liberar el Balón en el Suelo (Tackled Player Not Releasing)',
     severity: 'Infracción en el Punto de Contacto (Penal)',
-    color: '#00e676',
+    color: '#2EE57A',
     badge: 'Disputa de Posesión',
     infractionDesc:
       'El jugador derribado (tackled) debe de inmediato liberar o empujar el balón lejos de su cuerpo para que pueda ser disputado legalmente por los jugadores de pie.',

@@ -1,5 +1,5 @@
 import React, { useMemo, useState, useEffect } from 'react';
-import { Trophy, TrendingDown, Shield, Coins, Wallet, Swords, Dumbbell, ScrollText, Megaphone } from 'lucide-react';
+import { Trophy, TrendingDown, Shield, Coins, Wallet, Swords, Dumbbell, Megaphone } from 'lucide-react';
 import { supabase } from '../../supabaseClient';
 import { useDataListener } from '../../context/hooks/useDataListener';
 
@@ -71,25 +71,18 @@ function ActivityFeed({ players, fixtures, finances, schedule }) {
   if (activities.length === 0) return null;
 
   return (
-    <div className="glass-panel" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-      <h3 style={{ fontSize: '1rem', fontWeight: 700, fontFamily: 'Outfit' }}><ScrollText size={20} style={{ verticalAlign: 'middle', marginRight: 4 }} /> Actividad Reciente</h3>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', maxHeight: '300px', overflowY: 'auto' }}>
+    <section style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+      <h3 className="section-title">Actividad reciente</h3>
+      <div className="glass-panel" style={{ maxHeight: '320px', overflowY: 'auto' }}>
         {activities.map((a, i) => (
-          <div key={i} style={{
-            display: 'flex', alignItems: 'center', gap: '8px',
-            padding: '6px 10px', borderRadius: 'var(--radius-sm)',
-            background: 'rgba(255,255,255,0.01)', border: '1px solid var(--border-glass)',
-            fontSize: '0.72rem'
-          }}>
-            <span style={{ display: 'flex', alignItems: 'center' }}>{a.icon}</span>
-            <div style={{ flex: 1 }}>
-              <span>{a.text}</span>
-              <span style={{ marginLeft: '8px', fontSize: '0.6rem', color: 'var(--color-text-muted)' }}>{a.date}</span>
-            </div>
+          <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 14px', borderTop: i ? '1px solid var(--border-glass)' : 'none' }}>
+            <span style={{ width: 32, height: 32, borderRadius: 10, flexShrink: 0, display: 'grid', placeItems: 'center', background: 'var(--bg-elevated)', color: 'var(--color-text-soft)' }}>{a.icon}</span>
+            <span style={{ flex: 1, minWidth: 0, fontSize: '0.875rem' }}>{a.text}</span>
+            <span style={{ fontSize: '0.75rem', color: 'var(--color-text-subtle)', flexShrink: 0 }}>{a.date}</span>
           </div>
         ))}
       </div>
-    </div>
+    </section>
   );
 }
 

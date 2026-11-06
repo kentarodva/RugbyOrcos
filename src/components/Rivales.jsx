@@ -167,15 +167,15 @@ function Rivales() {
     <div className="animated-fade" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
 
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
-        <h3 style={{ fontSize: '1.2rem', fontWeight: 800, fontFamily: 'Outfit' }}>🛡️ Gestión de Equipos Rivales</h3>
-        <div style={{ display: 'flex', gap: '8px' }}>
-          <button onClick={printArbitroSheet} className="btn-outline" style={{ padding: '8px 14px', fontSize: '0.8rem', borderColor: 'var(--color-blue)', color: 'var(--color-blue)' }}>
-            🖨️ Imprimir Planilla
+        <h2 className="section-title" style={{ fontSize: '1.125rem' }}>Equipos rivales</h2>
+        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+          <button type="button" onClick={printArbitroSheet} className="btn-outline btn-sm">
+            Imprimir planilla
           </button>
-          <button onClick={generateArbitroSheet} className="btn-outline" style={{ padding: '8px 14px', fontSize: '0.8rem', borderColor: 'var(--color-primary)' }}>
-            📋 Planilla Árbitro (WA)
+          <button type="button" onClick={generateArbitroSheet} className="btn-outline btn-sm">
+            Planilla árbitro (WhatsApp)
           </button>
-          <button onClick={() => { resetForm(); setShowForm(!showForm); }} className="btn-neon" style={{ padding: '8px 14px', fontSize: '0.8rem' }}>
+          <button type="button" onClick={() => { resetForm(); setShowForm(!showForm); }} className="btn-neon btn-sm">
             {showForm ? 'Cancelar' : '+ Agregar Rival'}
           </button>
         </div>
@@ -183,11 +183,11 @@ function Rivales() {
 
       {showForm && (
         <div className="glass-panel animated-slide" style={{ padding: '25px' }}>
-          <h3 className="neon-text-primary" style={{ marginBottom: '20px', fontFamily: 'Outfit' }}>
+          <h3 className="neon-text-primary" style={{ marginBottom: '20px', fontFamily: 'var(--font-display)' }}>
             {editingRival ? '✏️ Editar Rival' : '🛡️ Nuevo Equipo Rival'}
           </h3>
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '10px' }}>
               <div className="form-group">
                 <label>Nombre del Equipo *</label>
                 <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="Ej. Toros R.C." className="form-input" required />
@@ -220,13 +220,13 @@ function Rivales() {
           </p>
         </div>
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '15px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap: '15px' }}>
           {rivals.map(rival => (
             <div key={rival.id} className="glass-panel" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '12px' }}>
                 <TeamCrest url={resolveCrestUrl(rival)} name={rival.name} color="#ff7043" size={56} />
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <h4 style={{ fontSize: '1.1rem', fontWeight: 800, fontFamily: 'Outfit' }}>{rival.name}</h4>
+                  <h4 style={{ fontSize: '1.1rem', fontWeight: 600 }}>{rival.name}</h4>
                   {rival.colors && (
                     <span style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
                       🎨 {rival.colors}
@@ -252,7 +252,7 @@ function Rivales() {
                       }
                     }}
                     style={{
-                      background: 'rgba(255, 61, 0, 0.1)', border: '1px solid var(--color-red)',
+                      background: 'rgba(255, 92, 77, 0.1)', border: '1px solid var(--color-red)',
                       color: 'var(--color-red)', padding: '4px 8px', borderRadius: 'var(--radius-sm)',
                       cursor: 'pointer', fontSize: '0.75rem'
                     }}

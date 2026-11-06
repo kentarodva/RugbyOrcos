@@ -178,12 +178,14 @@ describe('Header — renderizado', function () {
     exportData: vi.fn(),
   };
 
-  it('muestra los botones principales', function () {
+  it('agrupa datos, administración y salida en el menú de cuenta', function () {
     render(wrapInClubContext(React.createElement(Header, headerProps)));
-    const datosBtn = screen.getByText(/Datos/);
-    expect(datosBtn).toBeDefined();
-    fireEvent.click(datosBtn);
+    expect(screen.queryByText(/Respaldar/)).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: 'Cuenta y ajustes' }));
     expect(screen.getByText(/Respaldar/)).toBeDefined();
     expect(screen.getByText(/Restaurar/)).toBeDefined();
+    expect(screen.getByText(/Panel de administración/)).toBeDefined();
+    fireEvent.click(screen.getByText(/Cerrar sesión/));
+    expect(headerProps.handleLogout).toHaveBeenCalled();
   });
 });

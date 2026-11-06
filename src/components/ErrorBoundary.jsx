@@ -40,8 +40,8 @@ class ErrorBoundary extends React.Component {
             padding: '36px 20px',
             textAlign: 'center',
             color: 'var(--color-text-muted)',
-            background: 'rgba(10, 16, 26, 0.9)',
-            border: `1px solid ${isChunkError ? 'rgba(0, 230, 118, 0.3)' : 'rgba(239, 68, 68, 0.3)'}`,
+            background: 'rgba(17, 20, 18, 0.9)',
+            border: `1px solid ${isChunkError ? 'rgba(46, 229, 122, 0.3)' : 'rgba(239, 68, 68, 0.3)'}`,
             borderRadius: '16px',
             margin: '20px 0',
             boxShadow: '0 8px 32px rgba(0, 0, 0, 0.45)',
@@ -54,7 +54,7 @@ class ErrorBoundary extends React.Component {
             style={{
               fontSize: '1.05rem',
               fontWeight: 800,
-              color: isChunkError ? 'var(--color-primary, #00e676)' : '#ef4444',
+              color: isChunkError ? 'var(--color-primary, #2EE57A)' : '#ef4444',
               marginBottom: '6px',
             }}
           >

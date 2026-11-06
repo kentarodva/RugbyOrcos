@@ -158,7 +158,7 @@ export default function BuilderTab({ teamPlayers, onBuilderPlanSaved }) {
         borderLeft: '4px solid var(--color-primary)',
       }}>
         <div>
-          <h3 style={{ fontSize: '1.05rem', fontWeight: 800, fontFamily: 'Outfit', color: 'var(--color-primary)', margin: 0 }}>
+          <h3 style={{ fontSize: '1.05rem', fontWeight: 600, color: 'var(--color-text)', margin: 0 }}>
             🛠️ Constructor de Rutinas
           </h3>
           <p style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)', margin: '2px 0 0' }}>
@@ -179,7 +179,7 @@ export default function BuilderTab({ teamPlayers, onBuilderPlanSaved }) {
                 setPlayerSearch('');
               }}
               placeholder={selectedPlayer ? selectedPlayer.name : '🎯 Buscar jugador...'}
-              className="form-input" style={{ fontSize: '0.8rem', padding: '8px 14px', width: '100%', fontWeight: 600, fontFamily: 'Outfit' }} />
+              className="form-input" style={{ fontSize: '0.8rem', padding: '8px 14px', width: '100%', fontWeight: 600, fontFamily: 'var(--font-display)' }} />
             {showPlayerList && (
               <div id="builder-player-dropdown" className="glass-panel" style={{
                 position: 'fixed', top: playerDropPos.top, left: playerDropPos.left,
@@ -188,7 +188,7 @@ export default function BuilderTab({ teamPlayers, onBuilderPlanSaved }) {
                 borderLeft: '3px solid var(--color-primary)',
               }}>
                 <div style={{ padding: '8px 12px', borderBottom: '1px solid var(--border-glass)', position: 'sticky', top: 0, background: 'inherit', zIndex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span style={{ fontSize: '0.72rem', fontWeight: 700, fontFamily: 'Outfit' }}>🎯 Buscar jugador</span>
+                  <span style={{ fontSize: '0.72rem', fontWeight: 700, fontFamily: 'var(--font-display)' }}>🎯 Buscar jugador</span>
                   <button onClick={() => setShowPlayerList(false)} className="btn-outline" style={{ padding: '2px 8px', fontSize: '0.65rem' }}>✕</button>
                 </div>
                 {filteredPlayers.length === 0 ? (
@@ -224,7 +224,7 @@ export default function BuilderTab({ teamPlayers, onBuilderPlanSaved }) {
 
       {/* Global search bar */}
       <div className="glass-panel" id="builder-search-bar" style={{ padding: '10px 14px', display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
-        <span style={{ fontSize: '0.75rem', fontWeight: 700, fontFamily: 'Outfit', color: 'var(--color-text)', whiteSpace: 'nowrap' }}>🔍 Búsqueda rápida</span>
+        <span style={{ fontSize: '0.75rem', fontWeight: 700, fontFamily: 'var(--font-display)', color: 'var(--color-text)', whiteSpace: 'nowrap' }}>🔍 Búsqueda rápida</span>
         <div style={{ flex: 1, minWidth: '200px' }}>
           <input type="text" value={globalSearch} onChange={e => setGlobalSearch(e.target.value)}
             placeholder="Buscar por nombre, músculo o equipo..."
@@ -249,7 +249,7 @@ export default function BuilderTab({ teamPlayers, onBuilderPlanSaved }) {
           zIndex: 1050, borderLeft: '4px solid var(--color-primary)',
         }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 14px', borderBottom: '1px solid var(--border-glass)', position: 'sticky', top: 0, background: 'inherit', zIndex: 1 }}>
-            <span style={{ fontSize: '0.8rem', fontWeight: 700, fontFamily: 'Outfit' }}>
+            <span style={{ fontSize: '0.8rem', fontWeight: 700, fontFamily: 'var(--font-display)' }}>
               Resultados para "{globalSearch}"
               <span style={{ fontSize: '0.65rem', color: 'var(--color-text-muted)', fontWeight: 400, marginLeft: '6px' }}>
                 → {CATEGORY_LABELS[globalSearchCat] || globalSearchCat}
@@ -313,7 +313,7 @@ export default function BuilderTab({ teamPlayers, onBuilderPlanSaved }) {
       <div style={{ fontSize: '0.72rem', color: 'var(--color-text-muted)', textAlign: 'center', margin: '0 0 -6px' }}>
         Cada contenedor es una <strong>sección de la rutina</strong>. Agregá ejercicios donde correspondan.
       </div>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(380px, 1fr))', gap: '14px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 380px), 1fr))', gap: '14px' }}>
         {CATS.map(cat => {
           const entries = plan[cat] || [];
           const color = CAT_COLORS[cat] || 'var(--color-primary)';
@@ -323,7 +323,7 @@ export default function BuilderTab({ teamPlayers, onBuilderPlanSaved }) {
               {/* Category header */}
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                 <div>
-                  <h4 style={{ fontSize: '0.82rem', fontWeight: 800, fontFamily: 'Outfit', color, margin: 0, textTransform: 'uppercase' }}>
+                  <h4 style={{ fontSize: '0.82rem', fontWeight: 600, color, margin: 0 }}>
                     {CATEGORY_LABELS[cat] || cat}
                   </h4>
                   <p style={{ fontSize: '0.62rem', color: 'var(--color-text-muted)', margin: '2px 0 0', lineHeight: 1.3 }}>
@@ -436,7 +436,7 @@ export default function BuilderTab({ teamPlayers, onBuilderPlanSaved }) {
           <div className="modal-content glass-panel" onClick={e => e.stopPropagation()}
             style={{ maxWidth: '480px', maxHeight: '85vh', overflowY: 'auto', padding: '20px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-              <h3 style={{ fontSize: '0.95rem', fontWeight: 800, fontFamily: 'Outfit', color: 'var(--color-primary)' }}>{previewEx.name_local}</h3>
+              <h3 style={{ fontSize: '0.95rem', fontWeight: 600, color: 'var(--color-text)' }}>{previewEx.name_local}</h3>
               <button onClick={() => setPreviewEx(null)} className="btn-outline" style={{ padding: '4px 10px', fontSize: '0.7rem' }}>✕</button>
             </div>
             {previewEx.gif_url && (
@@ -519,7 +519,7 @@ function CatalogAdder({ exercises, categoryLabel, categoryColor, alreadyAdded, o
 
         {/* Header */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-          <h3 style={{ fontSize: '0.95rem', fontWeight: 800, fontFamily: 'Outfit', margin: 0 }}>
+          <h3 style={{ fontSize: '0.95rem', fontWeight: 600, margin: 0 }}>
             Añadir ejercicios a <span style={{ color: categoryColor }}>{categoryLabel}</span>
           </h3>
           <button onClick={onClose} className="btn-outline" style={{ padding: '4px 12px', fontSize: '0.75rem' }}>✕ Cerrar</button>
@@ -550,7 +550,7 @@ function CatalogAdder({ exercises, categoryLabel, categoryColor, alreadyAdded, o
           {pageItems.length === 0 ? (
             <p style={{ textAlign: 'center', color: 'var(--color-text-muted)', padding: '30px', fontSize: '0.78rem' }}>No se encontraron ejercicios.</p>
           ) : (
-            <div className="grid-cards" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '7px' }}>
+            <div className="grid-cards" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 200px), 1fr))', gap: '7px' }}>
               {pageItems.map(ex => {
                 const added = alreadyAdded.includes(ex.code);
                 return (
@@ -566,7 +566,7 @@ function CatalogAdder({ exercises, categoryLabel, categoryColor, alreadyAdded, o
                     onMouseEnter={e => { if (!added) { e.currentTarget.style.borderColor = categoryColor; e.currentTarget.style.transform = 'translateY(-2px)'; } }}
                     onMouseLeave={e => { e.currentTarget.style.borderColor = added ? 'rgba(255,255,255,0.03)' : 'transparent'; e.currentTarget.style.transform = ''; }}
                   >
-                    <div style={{ fontWeight: 700, fontSize: '0.76rem', fontFamily: 'Outfit', lineHeight: 1.2, color: 'var(--color-text)' }}>
+                    <div style={{ fontWeight: 700, fontSize: '0.76rem', fontFamily: 'var(--font-display)', lineHeight: 1.2, color: 'var(--color-text)' }}>
                       {ex.name_local}
                     </div>
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', fontSize: '0.6rem' }}>
@@ -611,7 +611,7 @@ function CatalogAdder({ exercises, categoryLabel, categoryColor, alreadyAdded, o
             <div className="modal-content glass-panel" onClick={e => e.stopPropagation()}
               style={{ maxWidth: '460px', maxHeight: '80vh', overflowY: 'auto', padding: '16px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-                <h3 style={{ fontSize: '0.88rem', fontWeight: 800, fontFamily: 'Outfit', color: 'var(--color-primary)', margin: 0 }}>{detailEx.name_local}</h3>
+                <h3 style={{ fontSize: '0.88rem', fontWeight: 600, color: 'var(--color-text)', margin: 0 }}>{detailEx.name_local}</h3>
                 <button onClick={() => setDetailEx(null)} className="btn-outline" style={{ padding: '3px 8px', fontSize: '0.7rem' }}>✕</button>
               </div>
               {detailEx.gif_url && (

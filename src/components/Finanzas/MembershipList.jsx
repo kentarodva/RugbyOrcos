@@ -141,7 +141,7 @@ export function MembershipList({ teamPlayers, getMembershipStatus, onRequestConf
               Ningún jugador coincide con los filtros.
             </p>
           ) : (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '15px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 350px), 1fr))', gap: '15px' }}>
               {filteredPlayers.map(p => (
                 <MembershipCard
                   key={p.id}

@@ -162,7 +162,7 @@ function MatchInvitation() {
         <div className="glass-panel" style={{ padding: '25px', borderRadius: 'var(--radius-lg)', textAlign: 'center' }}>
           <img src="/assets/orcos_logo.png" alt="Rugby Orcos Negros"
             style={{ width: '70px', height: '70px', objectFit: 'contain', filter: 'drop-shadow(0 0 12px var(--color-primary-glow))', marginBottom: '10px' }} />
-          <h1 className="neon-text-primary" style={{ fontSize: '1.2rem', fontWeight: 800, fontFamily: 'Outfit' }}>
+          <h1 className="neon-text-primary" style={{ fontSize: '1.2rem', fontWeight: 800, fontFamily: 'var(--font-display)' }}>
             Has sido invitado por Rugby Orcos Negros
           </h1>
           {invitation?.rival_name && (
@@ -174,7 +174,7 @@ function MatchInvitation() {
 
         {fixture && (
           <div className="glass-panel" style={{ padding: '20px', borderRadius: 'var(--radius-md)' }}>
-            <h3 style={{ color: 'var(--color-gold)', fontSize: '0.9rem', fontWeight: 700, marginBottom: '12px', fontFamily: 'Outfit' }}>
+            <h3 style={{ color: 'var(--color-text)', fontSize: '0.9rem', fontWeight: 600, marginBottom: '12px' }}>
               Datos del Partido
             </h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', fontSize: '0.85rem' }}>
@@ -229,12 +229,12 @@ function MatchInvitation() {
 
         {invitation.response !== 'declined' && (
         <div className="glass-panel" style={{ padding: '20px', borderRadius: 'var(--radius-md)' }}>
-          <h3 style={{ color: 'var(--color-primary)', fontSize: '0.9rem', fontWeight: 700, marginBottom: '15px', fontFamily: 'Outfit' }}>
+          <h3 style={{ color: 'var(--color-text)', fontSize: '0.9rem', fontWeight: 600, marginBottom: '15px' }}>
             Registra tus Guerreros
           </h3>
 
           <form onSubmit={handleAddGuest} style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '20px' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', gap: '8px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1fr)', gap: '8px' }}>
               <input
                 type="text"
                 value={form.name}
@@ -274,7 +274,7 @@ function MatchInvitation() {
               {guests.map(g => (
                 <div key={g.id} style={{
                   display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                  padding: '10px 14px', background: 'rgba(0, 230, 118, 0.03)',
+                  padding: '10px 14px', background: 'rgba(46, 229, 122, 0.03)',
                   border: '1px solid var(--border-glass)', borderRadius: 'var(--radius-sm)'
                 }}>
                   <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>

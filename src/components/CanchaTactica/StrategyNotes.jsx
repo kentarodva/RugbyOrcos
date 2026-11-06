@@ -2,20 +2,20 @@ import React from 'react';
 
 function StrategyNotes({ tacticalNotes, onChange }) {
   return (
-    <div className="glass-panel" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-      <h3 style={{ fontSize: '1.1rem', fontWeight: 700, fontFamily: 'Outfit' }}>Pizarra de Estrategia</h3>
+    <div className="glass-panel" style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+      <h3 className="section-title">Notas tácticas</h3>
 
       <textarea
         className="form-textarea"
-        rows="8"
-        placeholder="Escribe notas aqui... Ej. Lanzamiento de line-out al primer saltador, presion rapida en patada del Apertura, etc."
+        rows="5"
+        placeholder="Ej.: line-out al primer saltador, presión rápida en la patada del apertura…"
         value={tacticalNotes}
         onChange={(e) => onChange(e.target.value)}
-        style={{ fontSize: '0.85rem', lineHeight: '1.5', fontFamily: 'monospace' }}
+        style={{ fontSize: '0.9375rem', lineHeight: '1.5' }}
       />
 
-      <p style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)' }}>
-        Las alineaciones, coordenadas y notas tacticas se guardan automaticamente en tiempo real.
+      <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)' }}>
+        La alineación, las posiciones y las notas se guardan solas.
       </p>
     </div>
   );

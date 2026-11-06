@@ -1,5 +1,5 @@
 import React, { useContext, useMemo, useState, useRef, useCallback } from 'react';
-import { BarChart3, Dumbbell, Swords, HeartPulse, ClipboardCheck, Shield, Trophy, Users, Cake } from 'lucide-react';
+import { BarChart3, Dumbbell, Swords, Trophy, Users, Cake } from 'lucide-react';
 import { ClubContext } from '../../context/ClubContext';
 import { useTeamPlayers } from '../../context/hooks/useFilterByView';
 import { formatLocalDate } from '../../utils/dates.js';
@@ -20,20 +20,31 @@ import EstadisticasSkeleton from '../Skeletons/EstadisticasSkeleton';
 import { getUpcomingBirthdays } from '../../services/statsService';
 
 const TABS = [
-  { id: 'demografia', label: 'Demografía', Icon: BarChart3 },
-  { id: 'fisico', label: 'Físico', Icon: Dumbbell },
-  { id: 'atributos', label: 'Atributos', Icon: Swords },
-  { id: 'salud', label: 'Salud', Icon: HeartPulse },
-  { id: 'cobertura', label: 'Cobertura', Icon: ClipboardCheck },
-  { id: 'equipos', label: 'Equipos', Icon: Shield },
+  { id: 'plantilla', label: 'Plantilla', Icon: BarChart3 },
+  { id: 'rendimiento', label: 'Rendimiento', Icon: Dumbbell },
   { id: 'salon', label: 'Salón de la Fama', Icon: Trophy },
 ];
+
+const TAB_HELP = {
+  plantilla: 'Quiénes son: edades, divisiones, cuántos hay por posición y cómo se reparten entre equipos.',
+  rendimiento: 'Cómo están: físico y marcas de gimnasio, atributos de juego y reportes de salud.',
+  salon: 'Los mejores del club en tries, MVPs y asistencia.',
+};
+
+function Block({ title, children }) {
+  return (
+    <section style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+      <h2 className="section-title">{title}</h2>
+      {children}
+    </section>
+  );
+}
 
 function Estadisticas() {
   const { players, makgoraTeams, syncStatus, recordWellness } = useContext(ClubContext);
   const teamPlayers = useTeamPlayers();
   const searchInputRef = useRef(null);
-  const [activeTab, setActiveTab] = useState('demografia');
+  const [activeTab, setActiveTab] = useState('plantilla');
 
   useRegisterSearchHandler(useCallback(() => {
     searchInputRef.current?.focus();
@@ -90,24 +101,22 @@ function Estadisticas() {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-      <div className="glass-panel" style={{ padding: '14px 18px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
-        <h3 className="neon-text-primary" style={{ fontSize: '1.1rem', fontFamily: 'Outfit', margin: 0, display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
-          <BarChart3 size={18} /> Estadísticas del Club
-        </h3>
-        <span style={{ fontSize: '0.82rem', color: 'var(--text-secondary)' }}>{filteredPlayers.length} jugadores · {activePlayers.length} activos</span>
-      </div>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '10px' }}>
-        <KPI value={filteredPlayers.length} label="Jugadores en vista" icon={<Users size={16} />} color="#00e676" />
-        <KPI value={activePlayers.length} label="Guerreros activos" icon={<Swords size={16} />} color="#00e676" sub={filteredPlayers.length > 0 ? `${(activePlayers.length / filteredPlayers.length * 100).toFixed(0)}% del total` : ''} />
-        <KPI value={`${avg(ages)}`} label="Edad promedio" icon={<Cake size={16} />} color="#ffd740" sub={`${ages.length} reportaron edad`} />
+      <header style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+        <span className="page-eyebrow">{filteredPlayers.length} jugadores · {activePlayers.length} activos</span>
+        <h1 className="page-title">Estadísticas</h1>
+      </header>
+      <div className="metrics-grid">
+        <KPI value={filteredPlayers.length} label="En vista" icon={<Users size={16} />} color="#2EE57A" />
+        <KPI value={activePlayers.length} label="Activos" icon={<Swords size={16} />} color="#2EE57A" sub={filteredPlayers.length > 0 ? `${(activePlayers.length / filteredPlayers.length * 100).toFixed(0)}% del total` : ''} />
+        <KPI value={`${avg(ages)}`} label="Edad promedio" icon={<Cake size={16} />} color="#E8B931" sub={`${ages.length} reportaron edad`} />
         <KPI value={`${avg(weights)}kg`} label="Peso promedio" icon={<Dumbbell size={16} />} color="#448aff" sub={`${weights.length} reportaron peso`} />
       </div>
       {upcomingBirthdays.length > 0 && (
         <div className="glass-panel" style={{ padding: '10px 16px', display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
-          <Cake size={18} style={{ color: '#ffd740' }} />
-          <span style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase' }}>Próximos cumpleaños</span>
+          <Cake size={18} style={{ color: 'var(--color-text-muted)' }} aria-hidden="true" />
+          <span style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'var(--color-text-muted)' }}>Próximos cumpleaños</span>
           {upcomingBirthdays.map((p, i) => (
-            <span key={p.id} style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.82rem', color: p.days === 0 ? '#ffd740' : 'var(--text-primary)' }}>
+            <span key={p.id} style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.82rem', color: p.days === 0 ? '#E8B931' : 'var(--text-primary)' }}>
               <span style={{ fontWeight: p.days === 0 ? 800 : 600 }}>{p.name}</span>
               <span style={{ color: 'var(--text-secondary)', fontSize: '0.78rem' }}>
                 {p.days === 0 ? '¡Hoy!' : `${formatLocalDate(p.nextBD, { day: 'numeric', month: 'short' })} (${p.days}d)`}
@@ -117,11 +126,12 @@ function Estadisticas() {
           ))}
         </div>
       )}
-      <div className="glass-panel" style={{ padding: '14px 18px' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
         {activeTab !== 'salon' && (
           <FilterBar filters={filters} onChange={setFilters} uniqueEps={uniqueEps} searchInputRef={searchInputRef} />
         )}
         <Tabs tabs={TABS} active={activeTab} onChange={setActiveTab} />
+        <p style={{ margin: '0 0 12px', fontSize: '0.875rem', color: 'var(--color-text-muted)' }}>{TAB_HELP[activeTab]}</p>
         {activeTab === 'salon' ? (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
             <LeaderboardTab players={players} />
@@ -130,14 +140,22 @@ function Estadisticas() {
         ) : filteredPlayers.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '30px', color: 'var(--text-muted)', fontSize: '0.82rem' }}>No hay jugadores que coincidan con los filtros actuales.</div>
         ) : (
-          <>
-            {activeTab === 'demografia' && <Demografia players={filteredPlayers} />}
-            {activeTab === 'fisico' && <Fisico players={filteredPlayers} />}
-            {activeTab === 'atributos' && <Atributos players={filteredPlayers} allPlayers={players} />}
-            {activeTab === 'salud' && <Salud players={filteredPlayers} recordWellness={recordWellness} />}
-            {activeTab === 'cobertura' && <Cobertura players={filteredPlayers} />}
-            {activeTab === 'equipos' && <EquiposTab players={filteredPlayers} makgoraTeams={makgoraTeams} />}
-          </>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+            {activeTab === 'plantilla' && (
+              <>
+                <Block title="Demografía"><Demografia players={filteredPlayers} /></Block>
+                <Block title="Cobertura por posición"><Cobertura players={filteredPlayers} /></Block>
+                <Block title="Equipos"><EquiposTab players={filteredPlayers} makgoraTeams={makgoraTeams} /></Block>
+              </>
+            )}
+            {activeTab === 'rendimiento' && (
+              <>
+                <Block title="Físico"><Fisico players={filteredPlayers} /></Block>
+                <Block title="Atributos"><Atributos players={filteredPlayers} allPlayers={players} /></Block>
+                <Block title="Salud"><Salud players={filteredPlayers} recordWellness={recordWellness} /></Block>
+              </>
+            )}
+          </div>
         )}
       </div>
     </div>

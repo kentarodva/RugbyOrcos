@@ -7,7 +7,7 @@ function ConfirmModal({ confirmState, onConfirm, onCancel }) {
     <div className="modal-overlay">
       <div className="modal-content glass-panel animated-slide" style={{ maxWidth: '420px', textAlign: 'center' }}>
         <div style={{ fontSize: '2.5rem', marginBottom: '15px' }}>⚙️</div>
-        <h3 style={{ fontSize: '1.15rem', fontWeight: 800, fontFamily: 'Outfit', marginBottom: '10px' }}>
+        <h3 style={{ fontSize: '1.15rem', fontWeight: 600, marginBottom: '10px' }}>
           Confirmar Accion
         </h3>
         <p style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)', lineHeight: 1.6, marginBottom: '20px' }}>

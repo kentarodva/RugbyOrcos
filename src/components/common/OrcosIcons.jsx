@@ -8,7 +8,7 @@ import React from 'react';
  */
 
 // 1. Balón de Rugby de Guerra con costuras y púas de acero
-export function OrcosRugbyBallIcon({ size = 24, color = '#00e676', className = '', style = {} }) {
+export function OrcosRugbyBallIcon({ size = 24, color = '#2EE57A', className = '', style = {} }) {
   return (
     <svg
       width={size}
@@ -27,14 +27,14 @@ export function OrcosRugbyBallIcon({ size = 24, color = '#00e676', className = '
         rx="26"
         ry="17"
         transform="rotate(-40 32 32)"
-        fill="#0b1626"
+        fill="#181B19"
         stroke={color}
         strokeWidth="3.5"
       />
       {/* Costura longitudinal de combate */}
       <path
         d="M17 19L47 45"
-        stroke="#ffd740"
+        stroke="#E8B931"
         strokeWidth="2.5"
         strokeLinecap="round"
       />
@@ -46,14 +46,14 @@ export function OrcosRugbyBallIcon({ size = 24, color = '#00e676', className = '
         strokeLinecap="round"
       />
       {/* Colmillos / Púas en los extremos del balón */}
-      <path d="M12 15L8 10L15 13Z" fill="#ffd740" />
-      <path d="M52 49L56 54L49 51Z" fill="#ffd740" />
+      <path d="M12 15L8 10L15 13Z" fill="#E8B931" />
+      <path d="M52 49L56 54L49 51Z" fill="#E8B931" />
     </svg>
   );
 }
 
 // 2. Hachas de Guerra cruzadas con los postes en H de Rugby
-export function OrcosBattleAxeHPostsIcon({ size = 24, color = '#ffd740', className = '', style = {} }) {
+export function OrcosBattleAxeHPostsIcon({ size = 24, color = '#E8B931', className = '', style = {} }) {
   return (
     <svg
       width={size}
@@ -75,7 +75,7 @@ export function OrcosBattleAxeHPostsIcon({ size = 24, color = '#ffd740', classNa
       {/* Hacha Izquierda cruzada */}
       <path
         d="M12 52L52 12"
-        stroke="#00e676"
+        stroke="#2EE57A"
         strokeWidth="3.5"
         strokeLinecap="round"
       />
@@ -88,7 +88,7 @@ export function OrcosBattleAxeHPostsIcon({ size = 24, color = '#ffd740', classNa
       {/* Hacha Derecha cruzada */}
       <path
         d="M52 52L12 12"
-        stroke="#00e676"
+        stroke="#2EE57A"
         strokeWidth="3.5"
         strokeLinecap="round"
       />
@@ -103,7 +103,7 @@ export function OrcosBattleAxeHPostsIcon({ size = 24, color = '#ffd740', classNa
 }
 
 // 3. Escudo de Choque / Tackle con Remaches y Runas
-export function OrcosTackleShieldIcon({ size = 24, color = '#00e676', className = '', style = {} }) {
+export function OrcosTackleShieldIcon({ size = 24, color = '#2EE57A', className = '', style = {} }) {
   return (
     <svg
       width={size}
@@ -118,7 +118,7 @@ export function OrcosTackleShieldIcon({ size = 24, color = '#00e676', className 
       {/* Escudo pesado */}
       <path
         d="M32 6L54 14V30C54 44 44 54 32 58C20 44 10 30 10 14L32 6Z"
-        fill="#081420"
+        fill="#141715"
         stroke={color}
         strokeWidth="3"
         strokeLinejoin="round"
@@ -131,16 +131,16 @@ export function OrcosTackleShieldIcon({ size = 24, color = '#00e676', className 
         strokeLinecap="round"
       />
       {/* Remaches de hierro */}
-      <circle cx="18" cy="24" r="2" fill="#ffd740" />
-      <circle cx="46" cy="24" r="2" fill="#ffd740" />
-      <circle cx="32" cy="14" r="2" fill="#ffd740" />
-      <circle cx="32" cy="50" r="2" fill="#ffd740" />
+      <circle cx="18" cy="24" r="2" fill="#E8B931" />
+      <circle cx="46" cy="24" r="2" fill="#E8B931" />
+      <circle cx="32" cy="14" r="2" fill="#E8B931" />
+      <circle cx="32" cy="50" r="2" fill="#E8B931" />
     </svg>
   );
 }
 
 // 4. Cuerno de Victoria de Tercer Tiempo (en vez de vaso genérico)
-export function OrcosThirdTimeHornIcon({ size = 24, color = '#ffd740', className = '', style = {} }) {
+export function OrcosThirdTimeHornIcon({ size = 24, color = '#E8B931', className = '', style = {} }) {
   return (
     <svg
       width={size}
@@ -155,7 +155,7 @@ export function OrcosThirdTimeHornIcon({ size = 24, color = '#ffd740', className
       {/* Cuerno de beber orco */}
       <path
         d="M16 14C24 16 42 22 46 38C48 48 40 54 28 50C20 46 16 34 16 14Z"
-        fill="#0c1a24"
+        fill="#191C1A"
         stroke={color}
         strokeWidth="3"
         strokeLinejoin="round"
@@ -166,7 +166,7 @@ export function OrcosThirdTimeHornIcon({ size = 24, color = '#ffd740', className
         cy="14"
         rx="8"
         ry="5"
-        fill="#ffd740"
+        fill="#E8B931"
       />
       {/* Espuma de victoria / Brindis */}
       <path
@@ -176,7 +176,7 @@ export function OrcosThirdTimeHornIcon({ size = 24, color = '#ffd740', className
       {/* Anillos de forja en el cuerno */}
       <path
         d="M24 24C28 27 34 29 38 32M28 35C31 38 36 40 40 42"
-        stroke="#00e676"
+        stroke="#2EE57A"
         strokeWidth="2"
       />
     </svg>
@@ -209,7 +209,7 @@ export function OrcosWhistleIcon({ size = 24, color = '#38bdf8', className = '',
         cx="38"
         cy="36"
         r="14"
-        fill="#0c1e30"
+        fill="#1E211F"
         stroke={color}
         strokeWidth="3"
       />
@@ -225,13 +225,13 @@ export function OrcosWhistleIcon({ size = 24, color = '#38bdf8', className = '',
         cx="54"
         cy="36"
         r="4"
-        stroke="#ffd740"
+        stroke="#E8B931"
         strokeWidth="2.5"
       />
       {/* Ondas sónicas trino */}
       <path
         d="M28 14C33 12 37 14 39 17"
-        stroke="#00e676"
+        stroke="#2EE57A"
         strokeWidth="2.5"
         strokeLinecap="round"
       />
@@ -240,7 +240,7 @@ export function OrcosWhistleIcon({ size = 24, color = '#38bdf8', className = '',
 }
 
 // 6. Reloj de Espera / Retraso de Partido en Cancha (con cadenas)
-export function OrcosDelayClockIcon({ size = 24, color = '#ffd740', className = '', style = {} }) {
+export function OrcosDelayClockIcon({ size = 24, color = '#E8B931', className = '', style = {} }) {
   return (
     <svg
       width={size}
@@ -256,7 +256,7 @@ export function OrcosDelayClockIcon({ size = 24, color = '#ffd740', className = 
         cx="32"
         cy="32"
         r="24"
-        fill="#0a1420"
+        fill="#151816"
         stroke={color}
         strokeWidth="3"
       />
@@ -270,7 +270,7 @@ export function OrcosDelayClockIcon({ size = 24, color = '#ffd740', className = 
       {/* Cadenas laterales de espera */}
       <path
         d="M10 18L6 14M54 18L58 14M32 8V4"
-        stroke="#00e676"
+        stroke="#2EE57A"
         strokeWidth="2.5"
         strokeLinecap="round"
       />
@@ -281,7 +281,7 @@ export function OrcosDelayClockIcon({ size = 24, color = '#ffd740', className = 
 // 7. Tarjeta Disciplinaria con filo de advertencia
 export function OrcosCardIcon({ size = 24, type = 'yellow', className = '', style = {} }) {
   const isRed = type === 'red';
-  const cardColor = isRed ? '#ff1744' : '#ffd740';
+  const cardColor = isRed ? '#FF5C4D' : '#E8B931';
 
   return (
     <svg
@@ -309,7 +309,7 @@ export function OrcosCardIcon({ size = 24, type = 'yellow', className = '', styl
       {/* Runa orca interior */}
       <path
         d="M30 22L36 32L30 42M34 26H26M34 38H26"
-        stroke="#04070a"
+        stroke="#070A08"
         strokeWidth="2.5"
         strokeLinecap="round"
       />
@@ -318,7 +318,7 @@ export function OrcosCardIcon({ size = 24, type = 'yellow', className = '', styl
 }
 
 // 8. Estandarte de Guerra / Horda
-export function OrcosWarBannerIcon({ size = 24, color = '#00e676', className = '', style = {} }) {
+export function OrcosWarBannerIcon({ size = 24, color = '#2EE57A', className = '', style = {} }) {
   return (
     <svg
       width={size}
@@ -333,15 +333,15 @@ export function OrcosWarBannerIcon({ size = 24, color = '#00e676', className = '
       {/* Asta de guerra con punta de lanza */}
       <path
         d="M14 6V58"
-        stroke="#ffd740"
+        stroke="#E8B931"
         strokeWidth="3.5"
         strokeLinecap="round"
       />
-      <path d="M14 4L19 12H9L14 4Z" fill="#ffd740" />
+      <path d="M14 4L19 12H9L14 4Z" fill="#E8B931" />
       {/* Tela de estandarte orco rasgado */}
       <path
         d="M17 12H48L42 24L52 36H17V12Z"
-        fill="#0b2214"
+        fill="#161917"
         stroke={color}
         strokeWidth="3"
         strokeLinejoin="round"
@@ -349,7 +349,7 @@ export function OrcosWarBannerIcon({ size = 24, color = '#00e676', className = '
       {/* Garra / Emblema interior */}
       <path
         d="M26 20L34 28M34 20L26 28"
-        stroke="#ffd740"
+        stroke="#E8B931"
         strokeWidth="2.5"
       />
     </svg>

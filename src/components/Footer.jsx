@@ -3,6 +3,7 @@ import React from 'react';
 export default function Footer() {
   return (
     <footer
+      className="app-footer"
       style={{
         display: 'flex',
         justifyContent: 'center',
@@ -13,14 +14,14 @@ export default function Footer() {
         fontSize: '0.75rem',
         color: 'var(--color-text-muted)',
         borderTop: '1px solid var(--border-glass)',
-        background: 'rgba(7, 9, 14, 0.5)',
+        background: 'transparent',
       }}
     >
       <span style={{ fontWeight: 700, color: 'var(--color-text)' }}>Rugby Orcos Negros 2026</span>
       <span>·</span>
       <span>Fuerza, Honor y Tercer Tiempo</span>
       <span>·</span>
-      <span style={{ color: 'var(--color-primary)', fontWeight: 700, fontFamily: 'Outfit' }}>Reino Manager v5.0</span>
+      <span style={{ color: 'var(--color-primary)', fontWeight: 700, fontFamily: 'var(--font-display)' }}>Reino Manager v5.0</span>
     </footer>
   );
 }

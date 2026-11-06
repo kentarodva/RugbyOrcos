@@ -51,7 +51,7 @@ function PlayerAgendaTab({
                 style={{
                   padding: '24px',
                   borderRadius: '18px',
-                  background: 'linear-gradient(135deg, rgba(255, 215, 64, 0.08) 0%, rgba(12, 22, 35, 0.96) 50%, rgba(255, 23, 68, 0.08) 100%)',
+                  background: 'linear-gradient(135deg, rgba(255, 215, 64, 0.08) 0%, rgba(23, 26, 24, 0.96) 50%, rgba(255, 92, 77, 0.08) 100%)',
                   border: '1px solid rgba(255, 215, 64, 0.4)',
                   boxShadow: '0 8px 32px rgba(0, 0, 0, 0.5), inset 0 0 24px rgba(255, 215, 64, 0.05)',
                   position: 'relative',
@@ -73,9 +73,9 @@ function PlayerAgendaTab({
                         style={{
                           padding: '4px 10px',
                           borderRadius: '20px',
-                          background: daysUntil <= 3 ? 'rgba(255, 23, 68, 0.2)' : 'rgba(255, 215, 64, 0.15)',
-                          border: `1px solid ${daysUntil <= 3 ? '#ff1744' : 'var(--color-gold)'}`,
-                          color: daysUntil <= 3 ? '#ff5252' : 'var(--color-gold)',
+                          background: daysUntil <= 3 ? 'rgba(255, 92, 77, 0.2)' : 'rgba(255, 215, 64, 0.15)',
+                          border: `1px solid ${daysUntil <= 3 ? '#FF5C4D' : 'var(--color-gold)'}`,
+                          color: daysUntil <= 3 ? '#FF5C4D' : 'var(--color-gold)',
                           fontSize: '0.72rem',
                           fontWeight: 800,
                         }}
@@ -95,7 +95,7 @@ function PlayerAgendaTab({
                 <div
                   style={{
                     display: 'grid',
-                    gridTemplateColumns: '1fr auto 1fr',
+                    gridTemplateColumns: 'minmax(0, 1fr) auto minmax(0, 1fr)',
                     alignItems: 'center',
                     gap: '16px',
                     padding: '16px 0',
@@ -118,11 +118,11 @@ function PlayerAgendaTab({
                         padding: '4px',
                         margin: '0 auto 8px',
                         display: 'block',
-                        boxShadow: '0 0 20px rgba(0, 230, 118, 0.35)',
-                        border: '2px solid rgba(0, 230, 118, 0.6)',
+                        boxShadow: '0 0 20px rgba(46, 229, 122, 0.35)',
+                        border: '2px solid rgba(46, 229, 122, 0.6)',
                       }}
                     />
-                    <div style={{ fontFamily: 'Outfit', fontWeight: 900, fontSize: '1.15rem', color: '#fff' }}>
+                    <div style={{ fontFamily: 'var(--font-display)', fontWeight: 900, fontSize: '1.15rem', color: '#fff' }}>
                       Orcos Rugby Club
                     </div>
                     <div style={{ fontSize: '0.7rem', color: 'var(--color-primary)', fontWeight: 700 }}>
@@ -137,7 +137,7 @@ function PlayerAgendaTab({
                         width: '44px',
                         height: '44px',
                         borderRadius: '50%',
-                        background: 'linear-gradient(135deg, rgba(255, 215, 64, 0.3) 0%, rgba(255, 23, 68, 0.35) 100%)',
+                        background: 'linear-gradient(135deg, rgba(255, 215, 64, 0.3) 0%, rgba(255, 92, 77, 0.35) 100%)',
                         border: '2px solid rgba(255, 215, 64, 0.7)',
                         display: 'flex',
                         alignItems: 'center',
@@ -173,8 +173,8 @@ function PlayerAgendaTab({
                           padding: '4px',
                           margin: '0 auto 8px',
                           display: 'block',
-                          boxShadow: '0 0 20px rgba(255, 61, 0, 0.35)',
-                          border: '2px solid rgba(255, 61, 0, 0.6)',
+                          boxShadow: '0 0 20px rgba(255, 92, 77, 0.35)',
+                          border: '2px solid rgba(255, 92, 77, 0.6)',
                         }}
                       />
                     ) : (
@@ -182,7 +182,7 @@ function PlayerAgendaTab({
                         <TeamCrest name={f.opponent} color="#ff7043" size={64} rounded="14px" glow />
                       </div>
                     )}
-                    <div style={{ fontFamily: 'Outfit', fontWeight: 900, fontSize: '1.15rem', color: '#fff' }}>
+                    <div style={{ fontFamily: 'var(--font-display)', fontWeight: 900, fontSize: '1.15rem', color: '#fff' }}>
                       {f.opponent}
                     </div>
                     <div style={{ fontSize: '0.7rem', color: '#ff7043', fontWeight: 700 }}>
@@ -283,9 +283,9 @@ function PlayerAgendaTab({
       {/* Main Team Schedule & Calendar Section */}
       <div className="glass-panel" style={{ padding: '22px', borderRadius: '18px' }}>
         <div className="pro-section-header" style={{ marginBottom: '16px' }}>
-          <div className="pro-section-title" style={{ fontSize: '1.05rem', fontWeight: 800 }}>
-            <Calendar size={18} color="var(--color-primary)" />
-            <span>Calendario Oficial de Entrenamientos & Partidos</span>
+          <div className="pro-section-title" style={{ fontSize: '1rem', fontWeight: 600 }}>
+            <Calendar size={18} color="var(--color-text-muted)" />
+            <span>Calendario del equipo</span>
           </div>
           <button
             onClick={() => setShowCalendarView(!showCalendarView)}
@@ -328,7 +328,7 @@ function PlayerAgendaTab({
                       background: isMatch
                         ? 'rgba(255, 215, 64, 0.05)'
                         : isToday
-                        ? 'rgba(0, 230, 118, 0.08)'
+                        ? 'rgba(46, 229, 122, 0.08)'
                         : 'rgba(255, 255, 255, 0.02)',
                       borderRadius: '12px',
                       border: `1px solid ${isMatch ? 'rgba(255, 215, 64, 0.35)' : isToday ? 'var(--color-primary)' : 'rgba(255, 255, 255, 0.08)'}`,

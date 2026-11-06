@@ -102,7 +102,7 @@ function ImportCSVModal({ onClose, onImport, makgoraTeams }) {
         initial={{ opacity: 0, y: 24, scale: 0.97 }} animate={{ opacity: 1, y: 0, scale: 1 }}
         exit={{ opacity: 0, y: -16, scale: 0.97 }}
         transition={{ duration: 0.25, ease: [0.2, 0.8, 0.2, 1] }}>
-        <h3 className="neon-text-primary" style={{ marginBottom: '16px', fontFamily: 'Outfit' }}>
+        <h3 className="neon-text-primary" style={{ marginBottom: '16px', fontFamily: 'var(--font-display)' }}>
           Importar Jugadores desde CSV
         </h3>
 
@@ -154,10 +154,10 @@ function ImportCSVModal({ onClose, onImport, makgoraTeams }) {
             )}
             {skippedWarnings?.length > 0 && (
               <div style={{
-                background: 'rgba(255,215,0,0.1)', border: '1px solid rgba(255,215,0,0.3)',
+                background: 'rgba(232, 185, 49,0.1)', border: '1px solid rgba(232, 185, 49,0.3)',
                 borderRadius: '8px', padding: '8px 12px', marginBottom: '8px', fontSize: '0.78rem',
               }}>
-                <span style={{ color: '#ffd740', fontWeight: 700 }}>⚠️ Filas omitidas ({skippedWarnings.length})</span>
+                <span style={{ color: '#E8B931', fontWeight: 700 }}>⚠️ Filas omitidas ({skippedWarnings.length})</span>
                 {skippedWarnings.map((s, i) => (
                   <div key={i} style={{ color: 'var(--text-secondary)', marginTop: '2px' }}>
                     {s.name}: {s.reason === 'datos_incompletos' ? 'Datos incompletos (nombre o documento faltante)' :
@@ -235,7 +235,7 @@ function ImportCSVModal({ onClose, onImport, makgoraTeams }) {
         )}
 
         {error && (
-          <p style={{ color: '#ff5252', fontSize: '0.85rem', margin: '0 0 12px' }}>{error}</p>
+          <p style={{ color: '#FF5C4D', fontSize: '0.85rem', margin: '0 0 12px' }}>{error}</p>
         )}
 
         <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
