@@ -16,6 +16,8 @@ function PositionNode({ pos, player, isDraggingThis, isAnimating = false, animDu
       onTouchStart={(e) => onStartDrag(e, pos.id)}
       onMouseUp={() => onEndDrag(pos.id, pos.name)}
       onTouchEnd={() => onEndDrag(pos.id, pos.name)}
+      title={player ? `${pos.name}: ${player.name}` : pos.name}
+      aria-label={player ? `${pos.name}: ${player.name}` : pos.name}
       style={{
         position: 'absolute',
         left: `${pos.x}%`,
@@ -90,14 +92,14 @@ function PositionNode({ pos, player, isDraggingThis, isAnimating = false, animDu
         </div>
       </div>
 
-      <div style={{
-        marginTop: '6px',
-        background: player ? 'rgba(27, 30, 28, 0.92)' : 'rgba(0, 0, 0, 0.75)',
+      {player && (<div style={{
+        marginTop: '4px',
+        background: 'rgba(14, 17, 15, 0.92)',
         padding: '3px 6px',
         borderRadius: 'var(--radius-sm)',
         fontSize: '0.62rem',
         fontWeight: '700',
-        width: '80px',
+        maxWidth: '72px',
         textAlign: 'center',
         overflow: 'hidden',
         textOverflow: 'ellipsis',
@@ -109,8 +111,8 @@ function PositionNode({ pos, player, isDraggingThis, isAnimating = false, animDu
         boxShadow: isDraggingThis ? '0 4px 10px rgba(0,0,0,0.6)' : 'none',
         transition: 'background 0.2s, border 0.2s, color 0.2s'
       }}>
-        {player ? `🛡️ ${player.apodo || player.name.split(' ').slice(0, 2).join(' ')}` : pos.name}
-      </div>
+        {player.apodo || player.name.split(' ').slice(0, 2).join(' ')}
+      </div>)}
     </div>
   );
 }

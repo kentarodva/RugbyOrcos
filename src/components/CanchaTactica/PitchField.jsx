@@ -1,5 +1,6 @@
 import React from 'react';
 import PositionNode from './PositionNode';
+import { useIsMobile } from '../../hooks/useIsMobile';
 import BroadcastOverlay from './BroadcastOverlay';
 
 function PitchField({
@@ -26,6 +27,7 @@ function PitchField({
   onDragMove,
   onEndDrag
 }) {
+  const isMobile = useIsMobile();
   return (
     <div
       ref={pitchRef}
@@ -41,11 +43,11 @@ function PitchField({
         margin: pitchSize === 'large' ? '0' : '0 auto',
         ...(pitchSize === 'large'
           ? { minHeight: '70vh' }
-          : { aspectRatio: pitchOrientation === 'horizontal' ? '1.6' : '1.2' }
+          : { aspectRatio: pitchOrientation === 'horizontal' ? '1.6' : isMobile ? '0.68' : '1.2' }
         ),
         background: pitchOrientation === 'horizontal'
-          ? 'repeating-linear-gradient(90deg, #212422, #212422 5%, #1A1D1B 5%, #1A1D1B 10%)'
-          : 'repeating-linear-gradient(180deg, #212422, #212422 5%, #1A1D1B 5%, #1A1D1B 10%)',
+          ? 'repeating-linear-gradient(90deg, #17442A, #17442A 5%, #133A24 5%, #133A24 10%)'
+          : 'repeating-linear-gradient(180deg, #17442A, #17442A 5%, #133A24 5%, #133A24 10%)',
         borderRadius: 'var(--radius-lg)',
         border: pitchSize === 'large' ? '3px solid var(--color-primary)' : '3px solid rgba(255,255,255,0.85)',
         overflow: 'hidden',

@@ -19,14 +19,17 @@ export const PLAYBACK_SPEEDS = {
   '1.5x': { id: '1.5x', label: '1.5x Rápido', interval: 2200, duration: 0.9 },
 };
 
+const startsVertical = () =>
+  typeof window !== 'undefined' && typeof window.matchMedia === 'function' && window.matchMedia('(max-width: 767px)').matches;
+
 export function usePitchState(activeTeam) {
   const [lineup, setLineup] = useState({});
   const [tacticalNotes, setTacticalNotes] = useState('');
-  const [pitchOrientation, setPitchOrientation] = useState('horizontal');
+  const [pitchOrientation, setPitchOrientation] = useState(() => (startsVertical() ? 'vertical' : 'horizontal'));
   const [pitchSize, setPitchSize] = useState('medium');
   const [activeAlignment, setActiveAlignment] = useState('standard');
 
-  const [fieldPositions, setFieldPositions] = useState(() => ALIGNMENTS_HORIZONTAL.standard);
+  const [fieldPositions, setFieldPositions] = useState(() => (startsVertical() ? ALIGNMENTS_VERTICAL.standard : ALIGNMENTS_HORIZONTAL.standard));
   const [prevFieldPositions, setPrevFieldPositions] = useState([]);
 
   // Broadcast TV Mode state (Rivals, Ball, Phases, Telestrator vectors)
