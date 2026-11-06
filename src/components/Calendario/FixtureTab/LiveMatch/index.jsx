@@ -169,7 +169,7 @@ function LiveMatch({
             onClick={onClose}
             style={{ color: 'var(--color-primary)', textDecoration: 'underline', background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.8rem' }}
           >
-            Campaña y Fixture
+            Partidos
           </button>
         </p>
       </div>

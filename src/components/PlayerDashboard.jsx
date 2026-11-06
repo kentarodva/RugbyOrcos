@@ -44,6 +44,7 @@ function PlayerDashboard() {
   const isMobile = useIsMobile();
   const isPlayerAccount = profile?.system_role === 'jugador';
   const [activeTab, setActiveTab] = useState('agenda');
+  const [entrenoView, setEntrenoView] = useState('hoy');
   const [showAvatarPicker, setShowAvatarPicker] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [showTickets, setShowTickets] = useState(false);
@@ -569,6 +570,17 @@ function PlayerDashboard() {
 
           {activeTab === 'entreno' && (
             <motion.div key="entreno" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={{ duration: 0.2 }}>
+              <div className="segmented" role="tablist" aria-label="Entreno" style={{ marginBottom: '14px' }}>
+                {[['hoy', 'Rutina de hoy'], ['progreso', 'Mi progreso']].map(([id, label]) => (
+                  <button key={id} type="button" role="tab" aria-selected={entrenoView === id}
+                    className={entrenoView === id ? 'is-on' : ''} onClick={() => setEntrenoView(id)}>{label}</button>
+                ))}
+              </div>
+              {entrenoView === 'progreso' ? (
+                <Suspense fallback={<Skeleton rows={4} />}>
+                  <PlayerProgressTab playerId={player.id} />
+                </Suspense>
+              ) : (
               <WorkoutLogger
                 player={player}
                 logWorkout={logWorkout}
@@ -577,6 +589,7 @@ function PlayerDashboard() {
                 onGeneratePlan={handleGeneratePlan}
                 generatingPlan={generatingPlan}
               />
+              )}
               {showRoutineBuilder && (
                 <RoutineBuilder
                   player={player}
@@ -601,14 +614,6 @@ function PlayerDashboard() {
                 player={player}
                 recordWellness={recordWellness}
               />
-            </motion.div>
-          )}
-
-          {activeTab === 'progreso' && (
-            <motion.div key="progreso" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={{ duration: 0.2 }}>
-              <Suspense fallback={<Skeleton rows={4} />}>
-                <PlayerProgressTab playerId={player.id} />
-              </Suspense>
             </motion.div>
           )}
 

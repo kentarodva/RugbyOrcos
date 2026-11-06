@@ -58,7 +58,7 @@ export const FINANCE_SUB_TABS = [
 ];
 
 export const MAIN_SUB_TABS = [
-  { id: 'finances', label: 'Caja Chica y Membresías', activeColor: 'var(--color-primary)' },
-  { id: 'fundraising', label: 'Campañas, Rifas y Uniformes', activeColor: 'var(--color-gold)' },
+  { id: 'finances', label: 'Caja y cuotas', activeColor: 'var(--color-primary)' },
+  { id: 'fundraising', label: 'Ventas y rifas', activeColor: 'var(--color-gold)' },
   { id: 'inventory', label: 'Inventario', activeColor: 'var(--color-blue)' },
 ];

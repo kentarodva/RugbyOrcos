@@ -195,6 +195,7 @@ function App() {
     <div className="app-container" style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
 
       <Header
+        onOpenMyProfile={() => setActiveTab('mi_ficha')}
         sidebarOpen={sidebarOpen}
         setSidebarOpen={setSidebarOpen}
         profile={profile}

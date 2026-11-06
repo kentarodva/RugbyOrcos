@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Calendar, Dumbbell, HeartPulse, TrendingUp, Wallet, Bot, LogOut } from 'lucide-react';
+import { Calendar, Dumbbell, HeartPulse, Wallet, Bot, LogOut } from 'lucide-react';
 import { OrcosTackleShieldIcon } from './common/OrcosIcons';
 import BottomNav from './shell/BottomNav';
 import Sheet, { SheetItem, SheetSection } from './shell/Sheet';
@@ -12,7 +12,6 @@ export const PRIMARY_TABS = [
 ];
 
 export const MORE_TABS = [
-  { id: 'progreso', Icon: TrendingUp, label: 'Fuerza & Rendimiento' },
   { id: 'finanzas', Icon: Wallet, label: 'Membresía & Cuotas' },
   { id: 'ia', Icon: Bot, label: 'Coach Táctico IA' },
 ];

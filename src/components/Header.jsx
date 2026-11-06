@@ -52,6 +52,7 @@ export default function Header({
   triggerImportClick,
   handleLogout,
   exportData,
+  onOpenMyProfile,
 }) {
   const { teams } = useContext(ClubContext);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -133,6 +134,9 @@ export default function Header({
         </SheetSection>
 
         <SheetSection label="Gestión">
+          {onOpenMyProfile && (
+            <SheetItem icon={Shield} label="Mi ficha de jugador" onClick={run(onOpenMyProfile)} />
+          )}
           {hasPermission('admin_panel') && (
             <SheetItem
               icon={ShieldAlert}

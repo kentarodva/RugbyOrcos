@@ -6,18 +6,15 @@ import { useToast } from '../context/ToastContext';
 import { useFilterByView } from '../context/hooks/useFilterByView';
 import {
   MetricsCards,
-  ChampionshipCountdown,
   RecentMatches,
   AddChampionshipModal,
 } from './Dashboard/index';
 import AgendaSemanal from './Dashboard/AgendaSemanal';
 import ActivityFeed from './Dashboard/ActivityFeed';
-import MiniRanking from './Dashboard/MiniRanking';
 
 function Dashboard({ onNavigate }) {
   const {
     players,
-    championships,
     fixtures,
     addChampionship,
     activeTeam,
@@ -42,7 +39,6 @@ function Dashboard({ onNavigate }) {
   }, []);
 
   const teamPlayers = filterByView(players);
-  const teamChamps = filterByView(championships);
 
   const panelTitle =
     viewMode === 'makgora'
@@ -142,22 +138,13 @@ function Dashboard({ onNavigate }) {
                 <Compass size={18} /> Pizarra XV
               </button>
               <button type="button" className="btn-outline" onClick={() => setShowAddChamp(true)}>
-                <Plus size={18} /> Nuevo hito
+                <Plus size={18} /> Nuevo campeonato
               </button>
             </div>
           </section>
         )}
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 320px), 1fr))', gap: '12px' }}>
-          <ChampionshipCountdown
-            teamChamps={teamChamps}
-            currentTime={time}
-            onAddChampionship={() => setShowAddChamp(true)}
-          />
-          <RecentMatches fixtures={fixtures} activeTeam={activeTeam} />
-        </div>
-
-        <MiniRanking teamPlayers={teamPlayers} />
+        <RecentMatches fixtures={fixtures} activeTeam={activeTeam} />
 
         <ActivityFeed players={teamPlayers} fixtures={fixtures} finances={finances} schedule={schedule} />
       </div>

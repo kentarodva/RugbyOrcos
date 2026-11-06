@@ -47,51 +47,17 @@ function Tribunal() {
   return (
     <div className="animated-fade" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
 
-      <div style={{ display: 'flex', gap: '10px', width: '100%', borderBottom: '1px solid var(--border-glass)', paddingBottom: '15px', flexWrap: 'wrap' }}>
-        <button
-          onClick={() => setActiveSubTab('control')}
-          className="btn-outline"
-          style={{
-            background: activeSubTab === 'control' ? 'var(--color-primary)' : 'transparent',
-            color: activeSubTab === 'control' ? '#000' : '#fff',
-            borderColor: activeSubTab === 'control' ? 'var(--color-primary)' : 'var(--border-glass)',
-            fontWeight: activeSubTab === 'control' ? 800 : 500,
-            padding: '8px 16px',
-            fontSize: '0.85rem'
-          }}
-        >
-          Control y Asistencia
-        </button>
-
-        <button
-          onClick={() => setActiveSubTab('faltas')}
-          className="btn-outline"
-          style={{
-            background: activeSubTab === 'faltas' ? 'var(--color-red)' : 'transparent',
-            color: activeSubTab === 'faltas' ? '#fff' : '#fff',
-            borderColor: activeSubTab === 'faltas' ? 'var(--color-red)' : 'var(--border-glass)',
-            fontWeight: activeSubTab === 'faltas' ? 800 : 500,
-            padding: '8px 16px',
-            fontSize: '0.85rem'
-          }}
-        >
-          Libro de Faltas
-        </button>
-        <button
-          onClick={() => setActiveSubTab('rankings')}
-          className="btn-outline"
-          style={{
-            background: activeSubTab === 'rankings' ? 'var(--color-blue)' : 'transparent',
-            color: activeSubTab === 'rankings' ? '#000' : '#fff',
-            borderColor: activeSubTab === 'rankings' ? 'var(--color-blue)' : 'var(--border-glass)',
-            fontWeight: activeSubTab === 'rankings' ? 800 : 500,
-            padding: '8px 16px',
-            fontSize: '0.85rem'
-          }}
-        >
-          Rankings del Clan
-        </button>
+      <div className="segmented" role="tablist" aria-label="Secciones del tribunal" style={{ alignSelf: 'flex-start' }}>
+        {[['control', 'Asistencia'], ['faltas', 'Faltas y castigos']].map(([id, label]) => (
+          <button key={id} type="button" role="tab" aria-selected={activeSubTab === id}
+            className={activeSubTab === id ? 'is-on' : ''} onClick={() => setActiveSubTab(id)}>{label}</button>
+        ))}
       </div>
+      <p style={{ margin: 0, fontSize: '0.875rem', color: 'var(--color-text-muted)' }}>
+        {activeSubTab === 'faltas'
+          ? 'Arriba quién acumula más; abajo cada falta registrada y su castigo pendiente.'
+          : 'Elige el entreno, marca presente, tarde o falta, y guarda. También puedes anotar una infracción.'}
+      </p>
 
       {activeSubTab === 'control' && (
         <ControlTab
@@ -133,15 +99,6 @@ function Tribunal() {
       )}
 
       {activeSubTab === 'faltas' && (
-        <FaultBookTab
-          teamPlayers={teamPlayers}
-          penalizedPlayers={penalizedPlayers}
-          redeemPenalty={handleRedeemPenalty}
-          onShareBlacklist={handleShareBlacklistWhatsApp}
-        />
-      )}
-
-      {activeSubTab === 'rankings' && (
         <RankingsTab
           honorOrcs={honorOrcs}
           mvpLeaders={mvpLeaders}
@@ -150,6 +107,16 @@ function Tribunal() {
           dungeonOrcs={dungeonOrcs}
         />
       )}
+
+      {activeSubTab === 'faltas' && (
+        <FaultBookTab
+          teamPlayers={teamPlayers}
+          penalizedPlayers={penalizedPlayers}
+          redeemPenalty={handleRedeemPenalty}
+          onShareBlacklist={handleShareBlacklistWhatsApp}
+        />
+      )}
+
     </div>
   );
 }

@@ -1,5 +1,5 @@
 import React, { useContext, useMemo, useState, useRef, useCallback } from 'react';
-import { BarChart3, Dumbbell, Swords, HeartPulse, ClipboardCheck, Shield, Trophy, Users, Cake } from 'lucide-react';
+import { BarChart3, Dumbbell, Swords, Trophy, Users, Cake } from 'lucide-react';
 import { ClubContext } from '../../context/ClubContext';
 import { useTeamPlayers } from '../../context/hooks/useFilterByView';
 import { formatLocalDate } from '../../utils/dates.js';
@@ -20,20 +20,31 @@ import EstadisticasSkeleton from '../Skeletons/EstadisticasSkeleton';
 import { getUpcomingBirthdays } from '../../services/statsService';
 
 const TABS = [
-  { id: 'demografia', label: 'Demografía', Icon: BarChart3 },
-  { id: 'fisico', label: 'Físico', Icon: Dumbbell },
-  { id: 'atributos', label: 'Atributos', Icon: Swords },
-  { id: 'salud', label: 'Salud', Icon: HeartPulse },
-  { id: 'cobertura', label: 'Cobertura', Icon: ClipboardCheck },
-  { id: 'equipos', label: 'Equipos', Icon: Shield },
+  { id: 'plantilla', label: 'Plantilla', Icon: BarChart3 },
+  { id: 'rendimiento', label: 'Rendimiento', Icon: Dumbbell },
   { id: 'salon', label: 'Salón de la Fama', Icon: Trophy },
 ];
+
+const TAB_HELP = {
+  plantilla: 'Quiénes son: edades, divisiones, cuántos hay por posición y cómo se reparten entre equipos.',
+  rendimiento: 'Cómo están: físico y marcas de gimnasio, atributos de juego y reportes de salud.',
+  salon: 'Los mejores del club en tries, MVPs y asistencia.',
+};
+
+function Block({ title, children }) {
+  return (
+    <section style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+      <h2 className="section-title">{title}</h2>
+      {children}
+    </section>
+  );
+}
 
 function Estadisticas() {
   const { players, makgoraTeams, syncStatus, recordWellness } = useContext(ClubContext);
   const teamPlayers = useTeamPlayers();
   const searchInputRef = useRef(null);
-  const [activeTab, setActiveTab] = useState('demografia');
+  const [activeTab, setActiveTab] = useState('plantilla');
 
   useRegisterSearchHandler(useCallback(() => {
     searchInputRef.current?.focus();
@@ -120,6 +131,7 @@ function Estadisticas() {
           <FilterBar filters={filters} onChange={setFilters} uniqueEps={uniqueEps} searchInputRef={searchInputRef} />
         )}
         <Tabs tabs={TABS} active={activeTab} onChange={setActiveTab} />
+        <p style={{ margin: '0 0 12px', fontSize: '0.875rem', color: 'var(--color-text-muted)' }}>{TAB_HELP[activeTab]}</p>
         {activeTab === 'salon' ? (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
             <LeaderboardTab players={players} />
@@ -128,14 +140,22 @@ function Estadisticas() {
         ) : filteredPlayers.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '30px', color: 'var(--text-muted)', fontSize: '0.82rem' }}>No hay jugadores que coincidan con los filtros actuales.</div>
         ) : (
-          <>
-            {activeTab === 'demografia' && <Demografia players={filteredPlayers} />}
-            {activeTab === 'fisico' && <Fisico players={filteredPlayers} />}
-            {activeTab === 'atributos' && <Atributos players={filteredPlayers} allPlayers={players} />}
-            {activeTab === 'salud' && <Salud players={filteredPlayers} recordWellness={recordWellness} />}
-            {activeTab === 'cobertura' && <Cobertura players={filteredPlayers} />}
-            {activeTab === 'equipos' && <EquiposTab players={filteredPlayers} makgoraTeams={makgoraTeams} />}
-          </>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+            {activeTab === 'plantilla' && (
+              <>
+                <Block title="Demografía"><Demografia players={filteredPlayers} /></Block>
+                <Block title="Cobertura por posición"><Cobertura players={filteredPlayers} /></Block>
+                <Block title="Equipos"><EquiposTab players={filteredPlayers} makgoraTeams={makgoraTeams} /></Block>
+              </>
+            )}
+            {activeTab === 'rendimiento' && (
+              <>
+                <Block title="Físico"><Fisico players={filteredPlayers} /></Block>
+                <Block title="Atributos"><Atributos players={filteredPlayers} allPlayers={players} /></Block>
+                <Block title="Salud"><Salud players={filteredPlayers} recordWellness={recordWellness} /></Block>
+              </>
+            )}
+          </div>
         )}
       </div>
     </div>

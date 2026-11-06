@@ -24,7 +24,7 @@ export function FundraisingTab({ isStaff, currentPlayerId }) {
       <div className="pro-section-header">
         <div className="pro-section-title">
           <Ticket size={20} color="var(--color-gold)" />
-          <span>Campañas, Rifas, Actividades y Uniformes</span>
+          <span>Ventas y rifas</span>
         </div>
         <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
           <button onClick={() => setShowHistory(true)} className="btn-outline" style={{ padding: '8px 14px', fontSize: '0.8rem', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>

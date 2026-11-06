@@ -15,6 +15,7 @@ import FixtureTab from './FixtureTab';
 import FutureTab from './FutureTab';
 import LiveMatch from './FixtureTab/LiveMatch';
 import MatchSquadModal from './FixtureTab/MatchSquadModal';
+import ChampionshipsSection from './ChampionshipsSection';
 
 const LiveMatchInline = LiveMatch;
 
@@ -45,6 +46,7 @@ function Calendario() {
   }, [players, profile?.display_name, user?.email]);
 
   const canManageEvents = hasPermission('manage_schedule');
+  const canManageMatch = hasPermission('admin_panel') || profile?.role === 'coach' || profile?.role === 'capitan';
 
   const [activeTab, setActiveTab] = useState('agenda');
   const [showAddForm, setShowAddForm] = useState(false);
@@ -274,6 +276,8 @@ function Calendario() {
     showToast('Calendario .ICS descargado. Ábrelo en tu teléfono para sincronizar.', 'success');
   };
 
+  const hasActiveMatch = !!liveMatch && liveMatch.status !== 'finished';
+
   if (syncStatus === 'idle' || syncStatus === 'syncing') {
     return <CalendarioSkeleton activeTab={activeTab} />;
   }
@@ -281,7 +285,7 @@ function Calendario() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
-        <CalendarioTabs activeTab={activeTab} onChange={setActiveTab} hasActiveMatch={!!liveMatch && liveMatch.status !== 'finished'} />
+        <CalendarioTabs activeTab={activeTab} onChange={setActiveTab} hasActiveMatch={hasActiveMatch} />
         <button
           onClick={handleExportIcs}
           className="btn-outline"
@@ -298,6 +302,22 @@ function Calendario() {
           📅 Exportar a mi calendario
         </button>
       </div>
+
+      {hasActiveMatch && activeTab !== 'envivo' && (
+        <button
+          type="button"
+          onClick={() => setActiveTab('envivo')}
+          className="glass-panel"
+          style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '12px 14px', border: '1px solid var(--color-red)', color: 'var(--color-text)', font: 'inherit', textAlign: 'left', cursor: 'pointer', width: '100%' }}
+        >
+          <span style={{ width: '10px', height: '10px', borderRadius: '50%', background: 'var(--color-red)', flexShrink: 0, animation: 'pulse 2s infinite' }} />
+          <span style={{ flex: 1, minWidth: 0 }}>
+            <strong>Partido en juego</strong>{liveMatch.opponent_name ? ` vs ${liveMatch.opponent_name}` : ''}
+            <span style={{ display: 'block', fontSize: '0.8125rem', color: 'var(--color-text-muted)' }}>Toca para abrir el marcador en vivo.</span>
+          </span>
+          <span aria-hidden="true">›</span>
+        </button>
+      )}
 
       {activeTab === 'agenda' && (
         <AgendaTab
@@ -328,7 +348,24 @@ function Calendario() {
         />
       )}
 
-      {activeTab === 'fixture' && (
+      {activeTab === 'partidos' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+          <p style={{ margin: 0, fontSize: '0.875rem', color: 'var(--color-text-muted)' }}>
+            Arriba los partidos por jugar (convocatoria e invitación al rival). Abajo los ya jugados y sus resultados.
+          </p>
+          <FutureTab
+            futureFixtures={filteredFutureFixtures}
+            rivals={rivals}
+            handleSaveFutureFixture={handleSaveFutureFixture}
+            deleteFutureFixture={deleteFutureFixture}
+            showToast={showToast}
+          />
+          <ChampionshipsSection />
+          {canManageMatch && !hasActiveMatch && (
+            <button type="button" className="btn-outline" style={{ alignSelf: 'flex-start' }} onClick={() => setActiveTab('envivo')}>
+              ▶ Iniciar partido en vivo
+            </button>
+          )}
         <FixtureTab
           fixtures={filteredFixtures}
           activeTeamPlayers={activeTeamPlayers}
@@ -343,8 +380,13 @@ function Calendario() {
           handleEditFixture={handleEditFixture}
           onStartMatch={handleStartLiveMatch}
           onSquad={setSquadFixture}
-          hasActiveMatch={!!liveMatch && liveMatch.status !== 'finished'}
+          hasActiveMatch={hasActiveMatch}
         />
+          <details className="disclosure glass-panel">
+            <summary>Invitaciones enviadas a rivales</summary>
+            <div style={{ padding: '0 16px 16px' }}><Invitaciones /></div>
+          </details>
+        </div>
       )}
 
       {activeTab === 'envivo' && (
@@ -358,13 +400,13 @@ function Calendario() {
           onSetScorer={setDesignatedScorer}
           onEnd={handleEndLiveMatch}
           onDelete={handleDeleteLiveMatch}
-          onClose={() => setActiveTab('fixture')}
+          onClose={() => setActiveTab('partidos')}
           onStart={handleStartLiveMatch}
           addFixture={addFixture}
           showToast={showToast}
           currentUser={user}
           currentProfile={profile}
-          canManageMatch={hasPermission('admin_panel') || profile?.role === 'coach' || profile?.role === 'capitan'}
+          canManageMatch={canManageMatch}
         />
       )}
 
@@ -378,18 +420,7 @@ function Calendario() {
         />
       )}
 
-      {activeTab === 'proximos' && (
-        <FutureTab
-          futureFixtures={filteredFutureFixtures}
-          rivals={rivals}
-          handleSaveFutureFixture={handleSaveFutureFixture}
-          deleteFutureFixture={deleteFutureFixture}
-          showToast={showToast}
-        />
-      )}
-
       {activeTab === 'rivales' && <Rivales />}
-      {activeTab === 'invitaciones' && <Invitaciones />}
     </div>
   );
 }

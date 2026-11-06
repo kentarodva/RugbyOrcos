@@ -42,7 +42,6 @@ function MakgoraHub() {
         {[
           ...TABS.map((t) => ({ id: t.id, label: t.label, on: state.tab === t.id, go: () => { state.setTab(t.id); state.setActiveTournament(null); } })),
           ...(canEditTeams ? [{ id: 'teams-manager', label: 'Gestión de equipos', on: state.tab === 'teams-manager', go: () => state.setTab('teams-manager') }] : []),
-          { id: 'champions', label: 'Campeones', on: state.tab === 'champions', go: () => state.setTab('champions') },
           ...(state.activeTournament ? [
             { id: 'fixture', label: 'Fixture', on: state.tab === 'fixture', go: () => state.setTab('fixture') },
             { id: 'standings', label: 'Tabla', on: state.tab === 'standings', go: () => state.setTab('standings') },
@@ -77,6 +76,13 @@ function MakgoraHub() {
           onSelect={state.selectTournament}
           onEdit={(t) => setEditTournament(t)}
           onTeamCreated={() => state.loadTeams()}
+        />
+      )}
+      {state.tab === 'tournaments' && (
+        <ChampionsHistory
+          tournaments={state.tournaments}
+          teams={state.teams}
+          onSelect={state.selectTournament}
         />
       )}
 
@@ -145,13 +151,6 @@ function MakgoraHub() {
         />
       )}
 
-      {state.tab === 'champions' && (
-        <ChampionsHistory
-          tournaments={state.tournaments}
-          teams={state.teams}
-          onSelect={state.selectTournament}
-        />
-      )}
 
       {editFixture && state.activeTournament && (
         <FixtureEditor

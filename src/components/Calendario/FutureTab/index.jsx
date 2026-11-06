@@ -43,7 +43,7 @@ function FutureTab({
     <div className="animated-fade" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <h3 style={{ fontSize: '1.2rem', fontWeight: 600, color: 'var(--color-text)' }}>
-          Próximos Partidos
+          Por jugar
         </h3>
         <button
           onClick={() => setShowFutureForm(!showFutureForm)}

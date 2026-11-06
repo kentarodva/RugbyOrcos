@@ -63,7 +63,7 @@ export default function CalendarioSkeleton({ activeTab = 'agenda' }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
       <div style={{ display: 'flex', gap: '8px', padding: '10px 15px', overflowX: 'auto' }}>
-        {['agenda', 'fixture', 'proximos', 'rivales'].map(tab => (
+        {['agenda', 'partidos', 'rivales'].map(tab => (
           <SkeletonLine
             key={tab}
             width={tab === activeTab ? '110px' : '90px'}
@@ -74,8 +74,7 @@ export default function CalendarioSkeleton({ activeTab = 'agenda' }) {
       </div>
       <div className="animated-fade">
         {activeTab === 'agenda' && <AgendaSkeleton />}
-        {activeTab === 'fixture' && <FixtureSkeleton />}
-        {activeTab === 'proximos' && <FutureSkeleton />}
+        {activeTab === 'partidos' && <><FutureSkeleton /><FixtureSkeleton /></>}
         {activeTab === 'rivales' && <SkeletonBlock height={200} />}
       </div>
     </div>

@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Calendar, Dumbbell, HeartPulse, TrendingUp, Wallet, Bot, LogOut } from 'lucide-react';
+import { Calendar, Dumbbell, HeartPulse, Wallet, Bot, LogOut } from 'lucide-react';
 import { PlayerPhoto } from './PlayerPhoto';
 import { getRpgRole } from '../context/ClubContext.jsx';
 import { formatHeightM, formatWeightKg } from '../utils/inputFormatters';
@@ -21,7 +21,6 @@ export default function PlayerSidebar({ player, activeTab, onTabChange, onOpenAv
     { id: 'agenda', Icon: Calendar, label: 'Agenda & Partidos' },
     { id: 'entreno', Icon: Dumbbell, label: 'Entrenamiento' },
     { id: 'bienestar', Icon: HeartPulse, label: 'Estado Físico & Fatiga' },
-    { id: 'progreso', Icon: TrendingUp, label: 'Fuerza & Rendimiento' },
     { id: 'finanzas', Icon: Wallet, label: 'Membresía & Cuotas' },
     { id: 'ia', Icon: Bot, label: 'Coach Táctico IA' },
   ];

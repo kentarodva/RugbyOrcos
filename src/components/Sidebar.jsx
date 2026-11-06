@@ -24,7 +24,6 @@ export const ALL_GROUPS = [
       { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
       { id: 'roster', label: 'Guerreros', icon: Users },
       { id: 'estadisticas', label: 'Estadísticas', icon: BarChart3 },
-      { id: 'mi_ficha', label: 'Mi Ficha', icon: Shield },
     ],
   },
   {
