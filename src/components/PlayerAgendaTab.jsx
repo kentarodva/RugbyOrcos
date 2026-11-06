@@ -6,6 +6,7 @@ import { Calendar, List, CheckCircle2, HelpCircle, XCircle, MapPin, Clock, Users
 import { formatLocalDate } from '../utils/dates';
 import { getEventTypeMeta } from '../utils/eventTypes';
 import WeeklyView from './Calendario/AgendaTab/WeeklyView';
+import PushOptIn from './common/PushOptIn';
 
 const AVAILABILITY_OPTIONS = [
   { key: 'going', label: 'Disponible', Icon: CheckCircle2, color: 'var(--color-primary)' },
@@ -28,6 +29,7 @@ function PlayerAgendaTab({
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
+      <PushOptIn />
       {/* Epic Match Day / Upcoming Matches Hero Section */}
       {myUpcomingMatches.length > 0 && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>

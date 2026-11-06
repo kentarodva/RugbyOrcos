@@ -95,7 +95,8 @@ export async function registerWebPush() {
     }
 
     const subscriptionJson = JSON.stringify(subscription);
-    await saveTokenToSupabase(subscriptionJson, 'web');
+    const saved = await saveTokenToSupabase(subscriptionJson, 'web');
+    if (saved?.error) return { success: false, error: saved.error };
     return { success: true };
   } catch (err) {
     handleError(err, 'pushNotifications.registerWeb', { notifyUser: true });
@@ -134,7 +135,7 @@ export async function getWebPushStatus() {
 async function saveTokenToSupabase(token) {
   try {
     const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
+    if (!user) return { error: 'Inicia sesión para activar notificaciones.' };
 
     const { data: player } = await supabase
       .from('players')
@@ -142,9 +143,9 @@ async function saveTokenToSupabase(token) {
       .eq('user_id', user.id)
       .maybeSingle();
 
-    if (!player) return;
+    if (!player) return { error: 'Tu cuenta no está vinculada a una ficha de jugador.' };
 
-    await supabase.from('push_tokens').upsert({
+    const { error } = await supabase.from('push_tokens').upsert({
       token,
       player_id: player.id,
       user_id: user.id,
@@ -152,8 +153,11 @@ async function saveTokenToSupabase(token) {
       makgora_team_id: player.makgora_team_id,
       position: player.position,
     }, { onConflict: 'token' });
+    if (error) return { error: error.message };
+    return { ok: true };
   } catch (err) {
     handleError(err, 'pushNotifications.saveToken', { silent: true });
+    return { error: err.message };
   }
 }
 
