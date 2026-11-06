@@ -144,11 +144,11 @@ export function HorizontalBar({ data, title, subtitle, color = '#448aff', height
       {subtitle && <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', marginBottom: '10px' }}>{subtitle}</p>}
       <div style={{ width: '100%', height: Math.max(data.length * height + 20, 60) }}>
         <ResponsiveContainer width="100%" height="100%">
-          <ReBarChart data={data} layout="vertical" margin={{ top: 0, right: 30, left: 135, bottom: 0 }} barCategoryGap={6}>
+          <ReBarChart data={data} layout="vertical" margin={{ top: 0, right: 32, left: 0, bottom: 0 }} barCategoryGap={6}>
             <XAxis type="number" hide />
-            <YAxis type="category" dataKey="label" tick={AXIS_TICK} width={130} />
+            <YAxis type="category" dataKey="label" tick={AXIS_TICK} width={112} />
             <Tooltip content={makeBarTooltip(suffix)} />
-            <Bar dataKey="value" radius={[0, 4, 4, 0]} maxBarSize={height - 8} animationDuration={500}>
+            <Bar dataKey="value" radius={[0, 4, 4, 0]} maxBarSize={height - 8} animationDuration={500} label={{ position: 'right', fill: 'var(--color-text-muted)', fontSize: 12 }}>
               {data.map((d, i) => <Cell key={i} fill={d.color || color} />)}
             </Bar>
           </ReBarChart>
