@@ -4,6 +4,9 @@ import { ClubContext } from '../../context/ClubContext';
 import { useTeamPlayers } from '../../context/hooks/useFilterByView';
 import { usePitchState } from './usePitchState';
 import PitchField from './PitchField';
+import DrawingLayer from './DrawingLayer';
+import DrawToolbar from './DrawToolbar';
+import { useDrawings } from './useDrawings';
 import PitchControls from './PitchControls';
 import PlaybookBar from './PlaybookBar';
 import BenchPanel from './BenchPanel';
@@ -187,6 +190,7 @@ function CanchaTactica() {
       highlightZone: toH(highlightZone),
       activePhaseInfo,
       tacticalNotes,
+      drawings: drawings.strokes,
     });
   };
 
@@ -213,6 +217,9 @@ function CanchaTactica() {
   };
 
   const [pitchView, setPitchView] = React.useState('half');
+  const [drawing, setDrawing] = React.useState(false);
+  const [drawTool, setDrawTool] = React.useState('run');
+  const drawings = useDrawings(effectiveScope);
   const [mobilePanel, setMobilePanel] = React.useState('tactica');
   const [fullscreen, setFullscreen] = React.useState(false);
 
@@ -341,7 +348,9 @@ function CanchaTactica() {
       view={isMobile ? pitchView : 'full'}
       fitHeight={fit}
       availabilities={nextMatch?.availabilities || {}}
-    />
+    >
+      <DrawingLayer strokes={drawings.strokes} orientation={pitchOrientation} active={drawing} tool={drawTool} onAdd={drawings.add} />
+    </PitchField>
   );
   const modalLayer = (
     <>
@@ -350,7 +359,7 @@ function CanchaTactica() {
           selectedSlot={selectedSlot}
           teamPlayers={teamPlayers}
           isPlayerAligned={isPlayerAligned}
-        lineup={lineup}
+          lineup={lineup}
           availabilities={nextMatch?.availabilities || {}}
           onAssign={assignPlayer}
           onClose={() => setShowSelectModal(false)}
@@ -395,11 +404,23 @@ function CanchaTactica() {
 
   const viewToggle = (
     <div className="segmented" role="group" aria-label="Vista de la cancha" style={{ flex: 1 }}>
-      {[['half', 'Media cancha'], ['full', 'Completa']].map(([v, l]) => (
+      {[['half', 'Mitad'], ['full', 'Completa']].map(([v, l]) => (
         <button key={v} type="button" aria-pressed={pitchView === v}
           className={pitchView === v ? 'is-on' : ''} onClick={() => setPitchView(v)}>{l}</button>
       ))}
     </div>
+  );
+
+  const drawToggle = (
+    <button type="button" aria-pressed={drawing} onClick={() => setDrawing(d => !d)}
+      className={drawing ? 'btn-neon btn-sm' : 'btn-outline btn-sm'} style={{ flexShrink: 0 }}>
+      {drawing ? 'Listo' : '✎ Dibujar'}
+    </button>
+  );
+  const drawToolbar = drawing && (
+    <DrawToolbar tool={drawTool} onTool={setDrawTool}
+      canUndo={drawings.canUndo} canRedo={drawings.canRedo} canClear={drawings.strokes.length > 0}
+      onUndo={drawings.undo} onRedo={drawings.redo} onClear={drawings.clear} />
   );
 
   if (isMobile) {
@@ -416,11 +437,15 @@ function CanchaTactica() {
 
         <div style={{ display: 'flex', gap: '8px', alignItems: 'stretch' }}>
           {viewToggle}
+          {drawToggle}
           <button type="button" className="btn-outline btn-sm" onClick={() => setFullscreen(true)}
             aria-label="Pantalla completa" title="Pantalla completa" style={{ minWidth: '44px', fontSize: '1rem' }}>⛶</button>
         </div>
+        {drawToolbar}
         <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', margin: 0 }}>
-          Toca una posición para elegir jugador. Arrastra el círculo para moverla.
+          {drawing
+            ? 'Arrastra el dedo sobre la cancha para trazar. Toca «Listo» para volver a mover jugadores.'
+            : 'Toca una posición para elegir jugador. Arrastra el círculo para moverla.'}
         </p>
 
         <div className="segmented" role="tablist" aria-label="Herramientas de la pizarra" style={{ gridTemplateColumns: 'repeat(4, minmax(0, 1fr))' }}>
@@ -452,8 +477,10 @@ function CanchaTactica() {
           <div className="pz-fullscreen" role="dialog" aria-label="Pizarra en pantalla completa">
             <div style={{ display: 'flex', gap: '8px', alignItems: 'stretch' }}>
               {viewToggle}
-              <button type="button" className="btn-neon btn-sm" onClick={() => setFullscreen(false)}>Salir</button>
+              {drawToggle}
+              <button type="button" className="btn-outline btn-sm" onClick={() => setFullscreen(false)}>Salir</button>
             </div>
+            {drawToolbar}
             <div style={{ flex: 1, minHeight: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <div style={{ width: '100%' }}>{renderPitch(true)}</div>
             </div>
@@ -500,6 +527,10 @@ function CanchaTactica() {
 
           {renderPlaybook('all')}
 
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>{drawToggle}</div>
+            {drawToolbar}
+          </div>
           {renderPitch(false)}
         </div>
 

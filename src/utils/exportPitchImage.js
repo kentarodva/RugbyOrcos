@@ -1,4 +1,5 @@
 import { POS_ABREVIATIONS } from '../components/CanchaTactica/constants';
+import { DRAW_TOOLS } from '../components/CanchaTactica/drawing';
 
 function drawArrowhead(ctx, fromX, fromY, toX, toY, radius, color) {
   const angle = Math.atan2(toY - fromY, toX - fromX);
@@ -33,6 +34,7 @@ export async function generateTacticalPitchImageBlob({
   highlightZone = null,
   activePhaseInfo = null,
   tacticalNotes = '',
+  drawings = [],
 }) {
   const W = 1600;
   const H = 980;
@@ -226,6 +228,29 @@ export async function generateTacticalPitchImageBlob({
       drawArrowhead(ctx, midX, midY, p2.x, p2.y, 13, '#E8B931');
     }
   }
+
+  // 8b. Coach drawings (runs, passes, marks)
+  drawings.forEach(stroke => {
+    const style = DRAW_TOOLS[stroke.tool] || DRAW_TOOLS.run;
+    const pts = (stroke.points || []).map(toPx);
+    if (pts.length < 2) return;
+    ctx.save();
+    ctx.strokeStyle = style.color;
+    ctx.lineWidth = style.width * 1.6;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.setLineDash(style.dash ? style.dash.split(' ').map(n => Number(n) * 1.6) : []);
+    ctx.beginPath();
+    ctx.moveTo(pts[0].x, pts[0].y);
+    pts.slice(1).forEach(pt => ctx.lineTo(pt.x, pt.y));
+    ctx.stroke();
+    ctx.restore();
+    if (style.arrow) {
+      const tip = pts[pts.length - 1];
+      const from = pts[Math.max(0, pts.length - 4)];
+      drawArrowhead(ctx, from.x, from.y, tip.x, tip.y, 16, style.color);
+    }
+  });
 
   // 9. Rival Nodes
   if (showRivals) {

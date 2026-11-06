@@ -33,6 +33,7 @@ function PitchField({
   view = 'full',
   fitHeight = false,
   availabilities = {},
+  children = null,
 }) {
   const isMobile = useIsMobile();
   const fit = fitHeight || pitchSize === 'large';
@@ -174,6 +175,7 @@ function PitchField({
           />
         );
       })}
+      {children}
     </div>
     </div>
   );
