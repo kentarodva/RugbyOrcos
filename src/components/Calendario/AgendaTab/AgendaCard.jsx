@@ -1,8 +1,12 @@
 import React from 'react';
 import { formatLocalDate } from '../../../utils/dates.js';
+import { getEventTypeMeta } from '../../../utils/eventTypes.js';
+import { formatEventTime } from '../../../utils/agendaItems.js';
 
-function AgendaCard({ event, onDelete, onEdit, onWhatsApp, onDetail }) {
-  const isMatch = event.title.toUpperCase().includes('PARTIDO');
+function AgendaCard({ event, onDelete, onEdit, onWhatsApp, onDetail, onOpenFixture }) {
+  const isFixture = !!event.isFixture; // partido programado: se gestiona en "Próximos Partidos"
+  const isMatch = isFixture || event.type === 'partido';
+  const typeLabel = isFixture ? 'Partido programado' : getEventTypeMeta(event.type).label;
   const eventDate = new Date(event.date + 'T00:00:00');
   const isPast = eventDate < new Date(new Date().toDateString());
   const dateFormatted = formatLocalDate(eventDate, {
@@ -29,7 +33,7 @@ function AgendaCard({ event, onDelete, onEdit, onWhatsApp, onDetail }) {
         <div>
           <div style={{ display: 'flex', gap: '6px', alignItems: 'center', marginBottom: '5px', flexWrap: 'wrap' }}>
             <span className="badge badge-active" style={{ background: 'var(--bg-dark)', color: isPast ? 'var(--color-text-muted)' : isMatch ? 'var(--color-gold)' : 'var(--color-primary)', fontSize: '0.65rem' }}>
-              {isPast ? 'Completado' : isMatch ? 'Partido Competitivo' : 'Entrenamiento Tactico'}
+              {isPast ? 'Completado' : typeLabel}
             </span>
             {event.recurrence && event.recurrence !== 'none' && (
               <span className="badge" style={{ background: 'rgba(100,100,255,0.1)', border: '1px solid var(--color-blue)', color: 'var(--color-blue)', fontSize: '0.6rem' }}>
@@ -50,6 +54,16 @@ function AgendaCard({ event, onDelete, onEdit, onWhatsApp, onDetail }) {
           <h4 style={{ fontSize: '1.05rem', fontWeight: 800 }}>{event.title}</h4>
         </div>
 
+        {isFixture ? (
+          <button
+            onClick={() => onOpenFixture?.(event)}
+            className="btn-outline"
+            style={{ padding: '4px 8px', fontSize: '0.7rem', color: 'var(--color-gold)', borderColor: 'rgba(255,179,0,0.2)' }}
+            title="Gestionar en Próximos Partidos"
+          >
+            Ver convocatoria
+          </button>
+        ) : (
         <div style={{ display: 'flex', gap: '6px', alignItems: 'flex-start' }}>
           <button
             onClick={() => onDetail(event)}
@@ -76,6 +90,7 @@ function AgendaCard({ event, onDelete, onEdit, onWhatsApp, onDetail }) {
             Borrar
           </button>
         </div>
+        )}
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', fontSize: '0.8rem' }}>
@@ -87,8 +102,12 @@ function AgendaCard({ event, onDelete, onEdit, onWhatsApp, onDetail }) {
               <span>{formatLocalDate(new Date(event.endDate + 'T00:00:00'), { month: 'short', day: 'numeric' })}</span>
             </>
           )}
-          <span style={{ color: 'var(--color-text-muted)' }}>|</span>
-          <strong style={{ color: 'var(--color-gold)' }}>{event.time} PM</strong>
+          {event.time && (
+            <>
+              <span style={{ color: 'var(--color-text-muted)' }}>|</span>
+              <strong style={{ color: 'var(--color-gold)' }}>{formatEventTime(event.time)}</strong>
+            </>
+          )}
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -131,6 +150,7 @@ function AgendaCard({ event, onDelete, onEdit, onWhatsApp, onDetail }) {
         </div>
       )}
 
+      {!isFixture && (
       <div style={{ marginTop: '5px', paddingTop: '12px', borderTop: '1px solid rgba(255,255,255,0.03)' }}>
         <button
           onClick={() => onWhatsApp(event)}
@@ -147,6 +167,7 @@ function AgendaCard({ event, onDelete, onEdit, onWhatsApp, onDetail }) {
           Copiar y Convocar por WhatsApp →
         </button>
       </div>
+      )}
     </div>
   );
 }

@@ -4,6 +4,7 @@ import TeamCrest from './common/TeamCrest';
 import { findRivalForFixture, resolveCrestUrl } from '../utils/crests';
 import { Calendar, List, CheckCircle2, HelpCircle, XCircle, MapPin, Clock, Users } from 'lucide-react';
 import { formatLocalDate } from '../utils/dates';
+import { formatEventTime } from '../utils/agendaItems';
 import { getEventTypeMeta } from '../utils/eventTypes';
 import WeeklyView from './Calendario/AgendaTab/WeeklyView';
 import PushOptIn from './common/PushOptIn';
@@ -203,14 +204,14 @@ function PlayerAgendaTab({
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <Clock size={16} color="var(--color-gold)" />
                     <span style={{ fontSize: '0.82rem', fontWeight: 700, color: '#fff' }}>
-                      {f.time || '15:30'} COL
+                      {f.time ? formatEventTime(f.time) : 'Hora por confirmar'}
                     </span>
                   </div>
 
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <MapPin size={16} color="var(--color-primary)" />
                     <span style={{ fontSize: '0.82rem', fontWeight: 700, color: '#fff' }}>
-                      {f.location || 'Estadio San Francisco'}
+                      {f.location || 'Cancha por confirmar'}
                     </span>
                   </div>
                 </div>
@@ -364,7 +365,7 @@ function PlayerAgendaTab({
                             {isMultiDay && (
                               <> → {formatLocalDate(new Date(e.endDate + 'T00:00:00'), { day: 'numeric', month: 'short' })}</>
                             )}
-                            {' · '}🕒 {e.time || '19:00'}
+                            {e.time && <>{' · '}🕒 {formatEventTime(e.time)}</>}
                           </span>
 
                           {e.recurrence && e.recurrence !== 'none' && (
@@ -382,9 +383,11 @@ function PlayerAgendaTab({
                       </div>
 
                       <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                        <div style={{ fontSize: '0.74rem', color: 'var(--color-text-muted)', fontWeight: 600 }}>
-                          📍 {e.location || 'San Francisco'}
-                        </div>
+                        {e.location && (
+                          <div style={{ fontSize: '0.74rem', color: 'var(--color-text-muted)', fontWeight: 600 }}>
+                            📍 {e.location}
+                          </div>
+                        )}
                         {e.mapsLink && (
                           <a
                             href={e.mapsLink}
