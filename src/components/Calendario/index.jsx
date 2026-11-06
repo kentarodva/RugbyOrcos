@@ -20,6 +20,7 @@ const LiveMatchInline = LiveMatch;
 
 import CalendarioSkeleton from '../Skeletons/CalendarioSkeleton';
 import { downloadCalendarIcs } from '../../utils/exportCalendarIcs';
+import { isUpcomingEvent, mergeAgenda } from '../../utils/agendaItems';
 
 function Calendario() {
   const {
@@ -104,6 +105,17 @@ function Calendario() {
 
   const filteredFixtures = useMemo(() => filterByView(fixtures), [fixtures, filterByView]);
   const filteredFutureFixtures = useMemo(() => filterByView(futureFixtures), [futureFixtures, filterByView]);
+
+  // La agenda muestra también los partidos programados (viven en otra tabla).
+  // Lista: solo lo que no ha pasado. Vistas semanal/mensual: todo, para ver la semana completa.
+  const agendaEvents = useMemo(() => {
+    const now = new Date();
+    return mergeAgenda(teamEvents, (filteredFutureFixtures || []).filter(f => isUpcomingEvent(f, now)));
+  }, [teamEvents, filteredFutureFixtures]);
+  const calendarEvents = useMemo(
+    () => mergeAgenda(scheduleInView, filteredFutureFixtures),
+    [scheduleInView, filteredFutureFixtures],
+  );
 
   const getMatchStats = (fixture) => {
     if (!fixture) return [];
@@ -303,7 +315,9 @@ function Calendario() {
 
       {activeTab === 'agenda' && (
         <AgendaTab
-          teamEvents={teamEvents}
+          teamEvents={agendaEvents}
+          calendarEvents={calendarEvents}
+          onOpenFixture={() => setActiveTab('proximos')}
           showAddForm={showAddForm}
           setShowAddForm={setShowAddForm}
           showWeeklyView={showWeeklyView}

@@ -8,6 +8,8 @@ import EventDetailModal from './EventDetailModal';
 
 function AgendaTab({
   teamEvents,
+  calendarEvents,
+  onOpenFixture,
   showAddForm,
   setShowAddForm,
   showWeeklyView,
@@ -63,6 +65,7 @@ function AgendaTab({
           onToggleMonthly={() => setShowMonthlyView(!showMonthlyView)}
           showMonthly={showMonthlyView}
           onDetail={handleOpenDetail}
+          onOpenFixture={onOpenFixture}
         />
         )}
         {showWeeklyView && (
@@ -71,7 +74,7 @@ function AgendaTab({
               style={{ padding: '6px 14px', fontSize: '0.8rem', borderColor: 'var(--color-blue)', color: 'var(--color-blue)' }}>
               ← Volver a Lista
             </button>
-            <WeeklyView teamEvents={teamEvents} />
+            <WeeklyView teamEvents={calendarEvents || teamEvents} />
           </>
         )}
         {showMonthlyView && (
@@ -80,7 +83,7 @@ function AgendaTab({
               style={{ padding: '6px 14px', fontSize: '0.8rem', borderColor: 'var(--color-gold)', color: 'var(--color-gold)' }}>
               ← Volver a Lista
             </button>
-            <MonthlyView teamEvents={teamEvents} />
+            <MonthlyView teamEvents={calendarEvents || teamEvents} />
           </>
         )}
       </div>
