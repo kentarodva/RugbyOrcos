@@ -1,5 +1,5 @@
 import React, { useContext, useState, useEffect } from 'react';
-import { TriangleAlert, Compass, Plus, ClipboardCheck, Megaphone, Timer } from 'lucide-react';
+import { TriangleAlert, Compass, Plus, ClipboardCheck, Megaphone } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { ClubContext } from '../context/ClubContext';
 import { useToast } from '../context/ToastContext';
@@ -7,7 +7,6 @@ import { useFilterByView } from '../context/hooks/useFilterByView';
 import {
   MetricsCards,
   ChampionshipCountdown,
-  SinBinConsole,
   RecentMatches,
   AddChampionshipModal,
 } from './Dashboard/index';
@@ -148,17 +147,6 @@ function Dashboard({ onNavigate }) {
             </div>
           </section>
         )}
-
-        <details className="glass-panel disclosure">
-          <summary>
-            <Timer size={18} aria-hidden="true" />
-            <span style={{ flex: 1 }}>Consola Sin-Bin</span>
-            <span style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', fontWeight: 400 }}>Día de partido</span>
-          </summary>
-          <div style={{ padding: '0 4px 4px' }}>
-            <SinBinConsole teamPlayers={teamPlayers} showToast={showToast} />
-          </div>
-        </details>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 320px), 1fr))', gap: '12px' }}>
           <ChampionshipCountdown
