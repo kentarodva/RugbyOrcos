@@ -44,9 +44,9 @@ function FixtureForm({ players, onSave, initialData, onCancel }) {
   const isEditing = !!initialData;
 
   return (
-    <div className="glass-panel animated-slide" style={{ padding: '25px' }}>
-      <h3 className="neon-text-gold" style={{ marginBottom: '20px', fontFamily: 'var(--font-display)' }}>
-        {isEditing ? 'Editar Resultado' : 'Registrar Resultado'}
+    <div className="glass-panel animated-slide" style={{ padding: '16px' }}>
+      <h3 className="section-title" style={{ marginBottom: '14px' }}>
+        {isEditing ? 'Editar resultado' : 'Nuevo resultado'}
       </h3>
 
       <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
@@ -127,8 +127,8 @@ function FixtureForm({ players, onSave, initialData, onCancel }) {
         </div>
 
         <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
-          <button type="submit" className="btn-gold" style={{ justifyContent: 'center', flex: 1 }}>
-            {isEditing ? 'Guardar Cambios' : 'Publicar Hazana de Partido'}
+          <button type="submit" className="btn-neon" style={{ justifyContent: 'center', flex: 1 }}>
+            {isEditing ? 'Guardar cambios' : 'Registrar resultado'}
           </button>
           {isEditing && (
             <button type="button" onClick={onCancel} className="btn-outline" style={{ justifyContent: 'center' }}>

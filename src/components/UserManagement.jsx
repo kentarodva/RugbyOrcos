@@ -126,15 +126,14 @@ function UserManagement() {
   return (
     <div>
       <div style={{ marginBottom: '20px' }}>
-        <button onClick={() => setShowCreate(!showCreate)} className="btn-neon"
-          style={{ padding: '10px 20px', fontSize: '0.85rem' }}>
-          {showCreate ? 'Cancelar' : '+ Reclutar Miembro del Reino'}
+        <button type="button" onClick={() => setShowCreate(!showCreate)} className={showCreate ? 'btn-outline btn-sm' : 'btn-neon btn-sm'}>
+          {showCreate ? 'Cancelar' : '+ Nuevo miembro'}
         </button>
       </div>
 
       {showCreate && (
         <form onSubmit={handleCreateUser} style={{
-          background: 'rgba(255,255,255,0.03)', padding: '20px', borderRadius: 'var(--radius-md)',
+          background: 'var(--bg-elevated)', padding: '16px', borderRadius: 'var(--radius-md)',
           marginBottom: '20px', display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '12px'
         }}>
           <div style={{ gridColumn: 'span 2' }}>
@@ -148,7 +147,7 @@ function UserManagement() {
               placeholder="guerrero@orcos.com" style={inputS} />
           </div>
           <div>
-            <label style={labelS}>Contrasena</label>
+            <label style={labelS}>Contraseña</label>
             <input type="password" value={form.password} onChange={e => setForm({...form, password: e.target.value})}
               placeholder="Min. 6 caracteres" style={inputS} />
           </div>
@@ -174,7 +173,7 @@ function UserManagement() {
           {error && <p style={{ gridColumn: 'span 2', color: 'var(--color-red)', fontSize: '0.8rem', fontWeight: 600 }}>{error}</p>}
           <button type="submit" className="btn-neon" disabled={saving}
             style={{ gridColumn: 'span 2', padding: '12px', fontSize: '0.9rem', opacity: saving ? 0.7 : 1 }}>
-            {saving ? 'Reclutando...' : 'Reclutar'}
+            {saving ? 'Creando…' : 'Crear miembro'}
           </button>
         </form>
       )}
@@ -185,72 +184,52 @@ function UserManagement() {
         <div>
           <div style={{ marginBottom: '12px' }}>
             <input type="text" value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
-              placeholder="🔍 Buscar miembro por nombre, rol o club..."
-              className="form-input" style={{ padding: '8px 12px', fontSize: '0.8rem', width: '100%', boxSizing: 'border-box' }} />
+              placeholder="Buscar por nombre, rol o club"
+              className="form-input" style={{ width: '100%', boxSizing: 'border-box' }} />
           </div>
-          <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
-            <thead>
-              <tr style={{ borderBottom: '1px solid var(--border-glass)', textAlign: 'left' }}>
-                <th style={thS}>Nombre</th>
-                <th style={thS}>Rango RPG</th>
-                <th style={thS}>Club</th>
-                <th style={thS}>Estado</th>
-                <th style={thS}>Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              {users.filter(u => !searchQuery || u.display_name?.toLowerCase().includes(searchQuery.toLowerCase()) || u.system_role?.toLowerCase().includes(searchQuery.toLowerCase()) || u.club_scope?.toLowerCase().includes(searchQuery.toLowerCase())).map(u => (
-                <tr key={u.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', opacity: u.is_active ? 1 : 0.5 }}>
-                  <td style={tdS}>
-                    <span style={{ color: u.rpg.color, marginRight: '6px' }}>{u.rpg.icon}</span>
-                    {u.display_name}
-                  </td>
-                  <td style={{...tdS, color: u.rpg.color, fontWeight: 700}}>{u.rpg.rpg} - {u.rpg.original}</td>
-                  <td style={{...tdS, color: 'var(--color-text-muted)'}}>{u.club_scope || 'Todos'}</td>
-                  <td style={tdS}>
-                    <span style={{
-                      padding: '3px 10px', borderRadius: '10px', fontSize: '0.75rem', fontWeight: 700,
-                      background: u.is_active ? 'rgba(46, 229, 122,0.1)' : 'rgba(255, 92, 77,0.1)',
-                      color: u.is_active ? 'var(--color-primary)' : 'var(--color-red)'
-                    }}>{u.is_active ? 'Activo' : 'Inactivo'}</span>
-                  </td>
-                  <td style={tdS}>
-                    <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
-                    {u.system_role !== 'desarrollador' && (
-                      <>
-                        <button onClick={() => handleToggleActive(u.user_id, u.is_active)}
-                          style={{
-                            background: u.is_active ? 'rgba(255, 92, 77,0.1)' : 'rgba(46, 229, 122,0.1)',
-                            border: `1px solid ${u.is_active ? 'var(--color-red)' : 'var(--color-primary)'}`,
-                            color: u.is_active ? 'var(--color-red)' : 'var(--color-primary)',
-                            padding: '4px 10px', borderRadius: 'var(--radius-sm)', cursor: 'pointer', fontSize: '0.7rem', fontWeight: 700
-                          }}>{u.is_active ? 'Desactivar' : 'Activar'}</button>
-                        <select value={u.system_role} onChange={e => handleRoleChange(u.user_id, e.target.value)}
-                          style={{...inputS, padding: '4px 8px', fontSize: '0.75rem', width: 'auto' }}>
-                          {Object.entries(RPG_ROLES).filter(([k]) => k !== 'desarrollador').map(([key, val]) => (
-                            <option key={key} value={key}>{val.icon} {val.rpg} - {val.original}</option>
-                          ))}
-                        </select>
-                      </>
-                    )}
-                      <button onClick={() => setResetModal({ open: true, userId: u.user_id, userName: u.display_name, newPass: '' })}
-                        style={{ background: 'rgba(232, 185, 49,0.1)', border: '1px solid rgba(232, 185, 49,0.3)', color: '#E8B931', padding: '4px 10px', borderRadius: 'var(--radius-sm)', cursor: 'pointer', fontSize: '0.7rem', fontWeight: 700 }}>🔑</button>
+          <div className="glass-panel" style={{ overflow: 'hidden' }}>
+            {users.filter(u => !searchQuery || u.display_name?.toLowerCase().includes(searchQuery.toLowerCase()) || u.system_role?.toLowerCase().includes(searchQuery.toLowerCase()) || u.club_scope?.toLowerCase().includes(searchQuery.toLowerCase())).map((u, i) => (
+              <div key={u.id} style={{ padding: '12px 14px', borderTop: i ? '1px solid var(--border-glass)' : 'none', display: 'flex', flexDirection: 'column', gap: '10px', opacity: u.is_active ? 1 : 0.6 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: 0 }}>
+                  <span aria-hidden="true" style={{ fontSize: '1.1rem', flexShrink: 0 }}>{u.rpg.icon}</span>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: '0.9375rem', fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{u.display_name}</div>
+                    <div style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)' }}>
+                      {u.rpg.original} · {u.club_scope || 'Todos los clubes'}
                     </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+                  </div>
+                  <span className={`badge ${u.is_active ? '' : 'badge-inactive'}`} style={{ flexShrink: 0 }}>{u.is_active ? 'Activo' : 'Inactivo'}</span>
+                </div>
+                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
+                  {u.system_role !== 'desarrollador' && (
+                    <>
+                      <select value={u.system_role} onChange={e => handleRoleChange(u.user_id, e.target.value)}
+                        aria-label={`Rol de ${u.display_name}`}
+                        className="form-select" style={{ flex: '1 1 180px', minWidth: 0, minHeight: '36px', fontSize: '0.8125rem' }}>
+                        {Object.entries(RPG_ROLES).filter(([k]) => k !== 'desarrollador').map(([key, val]) => (
+                          <option key={key} value={key}>{val.rpg} - {val.original}</option>
+                        ))}
+                      </select>
+                      <button type="button" onClick={() => handleToggleActive(u.user_id, u.is_active)} className="btn-outline btn-sm">
+                        {u.is_active ? 'Desactivar' : 'Activar'}
+                      </button>
+                    </>
+                  )}
+                  <button type="button" onClick={() => setResetModal({ open: true, userId: u.user_id, userName: u.display_name, newPass: '' })}
+                    className="btn-outline btn-sm">
+                    Contraseña
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       )}
 
       {resetModal.open && (
         <div className="modal-overlay" onClick={() => setResetModal({ ...resetModal, open: false })}>
           <div className="modal-content glass-panel animated-slide" style={{ maxWidth: '400px', textAlign: 'center', padding: '25px' }} onClick={e => e.stopPropagation()}>
-            <div style={{ fontSize: '2rem', marginBottom: '10px' }}>🔑</div>
-            <h3 style={{ color: 'var(--color-gold)', fontFamily: 'var(--font-display)', marginBottom: '8px' }}>Restablecer Contrasena</h3>
+            <h3 className="section-title" style={{ fontSize: '1.125rem', marginBottom: '6px' }}>Restablecer contraseña</h3>
             <p style={{ color: 'var(--color-text-muted)', fontSize: '0.85rem', marginBottom: '15px' }}>{resetModal.userName}</p>
             <input type="password" value={resetModal.newPass} onChange={e => setResetModal({ ...resetModal, newPass: e.target.value })}
               placeholder="Nueva contrasena (min. 6)" className="form-input"
@@ -258,7 +237,7 @@ function UserManagement() {
             {error && <p style={{ color: 'var(--color-red)', fontSize: '0.8rem', marginBottom: '10px' }}>{error}</p>}
             <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
               <button onClick={() => { setResetModal({ ...resetModal, open: false }); setError(''); }} className="btn-outline">Cancelar</button>
-              <button onClick={handleResetPassword} className="btn-gold">Restablecer</button>
+              <button type="button" onClick={handleResetPassword} className="btn-neon">Restablecer</button>
             </div>
           </div>
         </div>
@@ -267,9 +246,7 @@ function UserManagement() {
   );
 }
 
-const labelS = { fontSize: '0.75rem', color: 'var(--color-gold)', fontWeight: 700, textTransform: 'uppercase', marginBottom: '6px', display: 'block' };
+const labelS = { fontSize: '0.8125rem', color: 'var(--color-text-soft)', fontWeight: 500, marginBottom: '6px', display: 'block' };
 const inputS = { width: '100%', boxSizing: 'border-box', background: 'var(--bg-input)', border: '1px solid var(--border-glass)', borderRadius: 'var(--radius-sm)', color: 'var(--color-text)', padding: '10px 14px', fontSize: '0.85rem', outline: 'none' };
-const thS = { padding: '10px 12px', color: 'var(--color-gold)', fontWeight: 700, textTransform: 'uppercase', fontSize: '0.75rem' };
-const tdS = { padding: '10px 12px', color: 'var(--color-text)' };
 
 export default UserManagement;

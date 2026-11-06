@@ -259,13 +259,13 @@ function App() {
               ({liveMatch.delay_reason})
             </span>
           )}
-          <span style={{ color: 'var(--color-gold)', fontSize: '0.72rem', border: '1px solid var(--color-gold)', padding: '2px 8px', borderRadius: '4px', textTransform: 'uppercase' }}>
-            Ver Partido ➔
+          <span style={{ color: 'var(--color-text)', fontSize: '0.75rem', fontWeight: 600, border: '1px solid var(--border-strong)', padding: '2px 10px', borderRadius: 'var(--radius-pill)' }}>
+            Ver partido →
           </span>
         </div>
       )}
       {showAdminPanel && hasPermission('admin_panel') && (
-        <motion.div key="admin" initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.2 }}>
+        <motion.div key="admin" className="app-main" style={{ paddingBottom: 0, flex: 'none' }} initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.2 }}>
         <AdminPanel
           hasPermission={hasPermission}
           adminSubTab={adminSubTab}

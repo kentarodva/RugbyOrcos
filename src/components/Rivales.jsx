@@ -167,15 +167,15 @@ function Rivales() {
     <div className="animated-fade" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
 
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
-        <h3 style={{ fontSize: '1.2rem', fontWeight: 600 }}>🛡️ Gestión de Equipos Rivales</h3>
-        <div style={{ display: 'flex', gap: '8px' }}>
-          <button onClick={printArbitroSheet} className="btn-outline" style={{ padding: '8px 14px', fontSize: '0.8rem', borderColor: 'var(--color-blue)', color: 'var(--color-blue)' }}>
-            🖨️ Imprimir Planilla
+        <h2 className="section-title" style={{ fontSize: '1.125rem' }}>Equipos rivales</h2>
+        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+          <button type="button" onClick={printArbitroSheet} className="btn-outline btn-sm">
+            Imprimir planilla
           </button>
-          <button onClick={generateArbitroSheet} className="btn-outline" style={{ padding: '8px 14px', fontSize: '0.8rem', borderColor: 'var(--color-primary)' }}>
-            📋 Planilla Árbitro (WA)
+          <button type="button" onClick={generateArbitroSheet} className="btn-outline btn-sm">
+            Planilla árbitro (WhatsApp)
           </button>
-          <button onClick={() => { resetForm(); setShowForm(!showForm); }} className="btn-neon" style={{ padding: '8px 14px', fontSize: '0.8rem' }}>
+          <button type="button" onClick={() => { resetForm(); setShowForm(!showForm); }} className="btn-neon btn-sm">
             {showForm ? 'Cancelar' : '+ Agregar Rival'}
           </button>
         </div>
