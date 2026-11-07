@@ -184,9 +184,8 @@ export function useSyncPull(
             playerQuery.eq('team_id', profile.team_id);
           } else if (profile?.club_scope) {
             playerQuery.ilike('team_category', profile.club_scope + '%');
-          } else {
-            playerQuery.eq('user_id', user.id);
           }
+          // No team or scope: staff loads every player in the club.
         }
         const { data: dbPlayers, error: playerError } = await playerQuery;
         if (import.meta.env.DEV) console.log('[Sync] Resultado players:', { count: dbPlayers?.length, error: playerError?.message });
