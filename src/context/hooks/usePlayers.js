@@ -155,11 +155,9 @@ export function usePlayers(activeTeam, sendLocalNotification, pushPlayerToSupaba
       }
     }
 
-    const summaryUpserts = [];
-    const penaltyUpserts = [];
-
+    // Local state only, for an instant UI. The database recomputes the
+    // summary and applies burpees in a trigger on attendance (migration 87).
     setPlayers(prev => prev.map(player => {
-      if (player.teamCategory !== activeTeam) return player;
       const uiStatus = attendanceList[player.id];
       if (!uiStatus) return player;
 
@@ -190,35 +188,12 @@ export function usePlayers(activeTeam, sendLocalNotification, pushPlayerToSupaba
       newPenalties.burpees = Math.max(0, newPenalties.burpees - oldBurpees + newBurpees);
       if (uiStatus === 'falta_injustificada') newPenalties.cones = true;
 
-      summaryUpserts.push({
-        player_id: player.id,
-        total: newAttendance.total || 0,
-        present: newAttendance.present || 0,
-        late: newAttendance.late || 0,
-        absent_unjustified: newAttendance.absentUnjustified || 0,
-        absent_justified: newAttendance.absentJustified || 0,
-        updated_at: new Date().toISOString(),
-      });
-      penaltyUpserts.push({
-        player_id: player.id,
-        burpees: newPenalties.burpees || 0,
-        cones: Boolean(newPenalties.cones),
-        updated_at: new Date().toISOString(),
-      });
-
       return { ...player, attendance: newAttendance, penalties: newPenalties };
     }));
 
-    if (summaryUpserts.length > 0) {
-      supabase.from('player_attendance_summary').upsert(summaryUpserts, { onConflict: 'player_id' }).then(() => {}, () => {});
-    }
-    if (penaltyUpserts.length > 0) {
-      supabase.from('penalties').upsert(penaltyUpserts, { onConflict: 'player_id' }).then(() => {}, () => {});
-    }
-
     sendLocalNotification('Asistencia Guardada', `Se registró la asistencia del evento del ${sessionDate}.`);
     return true;
-  }, [activeTeam, sendLocalNotification]);
+  }, [sendLocalNotification]);
 
   const recordMatchInfractions = useCallback((matchDate, infractionsList) => {
     const penaltyRecords = [];
