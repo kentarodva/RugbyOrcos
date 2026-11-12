@@ -209,7 +209,7 @@ describe('usePlayers — Attendance', () => {
     expect(p.penalties.cones).toBe(true);
   });
 
-  it('no afecta jugadores de otro equipo', async () => {
+  it('registra a un jugador marcado aunque sea de otra división ("Todas las divisiones")', async () => {
     const { result } = setup();
 
     await act(async () => {
@@ -223,7 +223,44 @@ describe('usePlayers — Attendance', () => {
       result.current.recordAttendance('2026-05-31', { [playerId]: 'falta_injustificada' });
     });
 
-    expect(result.current.players[0].attendance.total).toBe(0);
+    expect(result.current.players[0].attendance.total).toBe(1);
+  });
+
+  it('no toca a jugadores que no se marcaron', async () => {
+    const { result } = setup();
+
+    await act(async () => {
+      await result.current.addPlayer({ name: 'Marcado' });
+      await result.current.addPlayer({ name: 'Sin marcar' });
+    });
+
+    const [a, b] = result.current.players;
+
+    await act(async () => {
+      await result.current.recordAttendance('2026-05-31', { [a.id]: 'presente' });
+    });
+
+    expect(result.current.players.find(p => p.id === b.id).attendance.total).toBe(0);
+  });
+
+  it('guarda solo la asistencia; resumen y burpees los calcula la base de datos', async () => {
+    const { supabase } = await import('../../../supabaseClient.js');
+    const { result } = setup();
+
+    await act(async () => {
+      await result.current.addPlayer({ name: 'Trigger' });
+    });
+    const playerId = result.current.players[0].id;
+    supabase.from.mockClear();
+
+    await act(async () => {
+      await result.current.recordAttendance('2026-05-31', { [playerId]: 'tarde' });
+    });
+
+    const tables = supabase.from.mock.calls.map(c => c[0]);
+    expect(tables).toContain('attendance');
+    expect(tables).not.toContain('player_attendance_summary');
+    expect(tables).not.toContain('penalties');
   });
 });
 
