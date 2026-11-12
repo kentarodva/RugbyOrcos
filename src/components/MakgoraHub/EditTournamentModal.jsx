@@ -59,7 +59,7 @@ export function EditTournamentModal({ tournament, onClose, onSaved }) {
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content" onClick={e => e.stopPropagation()} style={{ maxWidth: '500px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-          <h3 style={{ color: 'var(--color-gold)', fontFamily: 'Outfit' }}>Editar Torneo</h3>
+          <h3 style={{ color: 'var(--color-gold)', fontFamily: 'var(--font-display)' }}>Editar Torneo</h3>
           <button onClick={onClose} style={{ background: 'none', border: 'none', color: 'var(--color-text-muted)', fontSize: '1.5rem', cursor: 'pointer' }}>×</button>
         </div>
 
@@ -68,7 +68,7 @@ export function EditTournamentModal({ tournament, onClose, onSaved }) {
             <label style={STYLE.lbl}>Nombre</label>
             <input type="text" value={name} onChange={e => setName(e.target.value)} style={STYLE.inp} required />
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '10px' }}>
             <div>
               <label style={STYLE.lbl}>Inicio</label>
               <input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} style={STYLE.inp} required />
@@ -94,7 +94,7 @@ export function EditTournamentModal({ tournament, onClose, onSaved }) {
               ✕ Cancelar Torneo
             </button>
           )}
-          <button onClick={handleDeleteTournament} className="btn-outline" style={{ padding: '8px 16px', fontSize: '0.8rem', borderColor: '#ff3d00', color: '#ff3d00' }}>
+          <button onClick={handleDeleteTournament} className="btn-outline" style={{ padding: '8px 16px', fontSize: '0.8rem', borderColor: '#FF5C4D', color: '#FF5C4D' }}>
             🗑 Eliminar
           </button>
         </div>

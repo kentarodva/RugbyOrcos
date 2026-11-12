@@ -1,3 +1,4 @@
+import { localDateKey } from './agendaItems';
 // ── Generador y Exportador de Calendario .ICS (RFC 5545) ──
 // Compatible con Google Calendar, Apple Calendar (iPhone/Mac), Outlook y Android
 
@@ -78,7 +79,7 @@ export function downloadCalendarIcs({ matches = [], teamLabel = 'Rugby Orcos Neg
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `calendario_rugby_orcos_${new Date().toISOString().split('T')[0]}.ics`;
+  a.download = `calendario_rugby_orcos_${localDateKey()}.ics`;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);

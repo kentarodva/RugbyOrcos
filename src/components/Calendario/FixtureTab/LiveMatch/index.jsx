@@ -7,6 +7,7 @@ import EventTimeline from './EventTimeline';
 import LivePlayerStats from './LivePlayerStats';
 import { playRugbyWhistle } from '../../../../utils/rugbyAudio';
 import { ThirdTimeModal } from '../../../CanchaTactica/ThirdTimeModal';
+import { liveScore } from '../../../../utils/liveScore';
 
 function LiveMatch({
   liveMatch: initialMatch,
@@ -20,7 +21,6 @@ function LiveMatch({
   onEnd,
   onDelete,
   onClose,
-  addFixture,
   showToast,
   currentUser,
   currentProfile,
@@ -95,32 +95,14 @@ function LiveMatch({
   }, [onAddEvent, showToast]);
 
   const handleEnd = useCallback(async () => {
+    // El cierre (resultado, estadísticas, partido programado jugado) lo hace la BD.
     setConsolidating(true);
-    await onEnd();
-
-    if (liveMatch?.fixture_id && addFixture) {
-      const score = (() => {
-        let orcos = 0;
-        for (const ev of liveEvents) {
-          const pts = ({ try: 5, conversion: 2, penalty: 3, drop_goal: 3 })[ev.event_type] || 0;
-          if (ev.team === 'orcos') orcos += pts;
-        }
-        return { orcos, opponent: liveMatch?.opponent_score || 0 };
-      })();
-
-      addFixture({
-        opponent: liveMatch.opponent_name || 'Rival',
-        orcosScore: score.orcos,
-        opponentScore: score.opponent,
-        date: new Date(liveMatch.started_at).toISOString().split('T')[0],
-        tries: liveEvents.filter(e => e.event_type === 'try').length,
-        mvp: '',
-      });
-      showToast?.('Partido finalizado y guardado en historial.', 'success');
+    try {
+      await onEnd();
+    } finally {
+      setConsolidating(false);
     }
-
-    setConsolidating(false);
-  }, [onEnd, liveMatch, liveEvents, addFixture, showToast]);
+  }, [onEnd]);
 
   if (loading) {
     return (
@@ -169,7 +151,7 @@ function LiveMatch({
             onClick={onClose}
             style={{ color: 'var(--color-primary)', textDecoration: 'underline', background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.8rem' }}
           >
-            Campaña y Fixture
+            Partidos
           </button>
         </p>
       </div>
@@ -195,8 +177,8 @@ function LiveMatch({
           match={{
             id: liveMatch?.id,
             rival: liveMatch?.opponent_name || opponentName || 'Rival Visitante',
-            score_orcos: liveMatch?.orcos_score || 0,
-            score_rival: liveMatch?.opponent_score || 0,
+            score_orcos: (liveEvents.length ? liveScore(liveEvents).orcos : liveMatch?.orcos_score) || 0,
+            score_rival: (liveEvents.length ? liveScore(liveEvents).opponent : liveMatch?.opponent_score) || 0,
             third_time: liveMatch?.third_time,
           }}
           squad={players || []}

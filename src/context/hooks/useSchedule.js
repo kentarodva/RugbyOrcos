@@ -5,6 +5,7 @@ import { wrapCatch, handleError } from '../../utils/errorHandler';
 import { formatLocalDate } from '../../utils/dates.js';
 import { EQUIPOS_LABELS } from '../constants';
 import { generateId, sanitize } from '../../utils/ids.js';
+import { localDateKey } from '../../utils/agendaItems';
 
 export function useSchedule(activeTeam, sendLocalNotification, scheduleReminder, pushEntityToSupabase, user) {
   const [schedule, setSchedule] = useState(() => []);
@@ -35,7 +36,7 @@ export function useSchedule(activeTeam, sendLocalNotification, scheduleReminder,
           const diff = (targetDay - currentDay + 7) % 7;
           target.setDate(target.getDate() + diff);
           if (target >= startDate) {
-            const dateStr = target.toISOString().split('T')[0];
+            const dateStr = localDateKey(target);
             if (!seen.has(dateStr)) {
               seen.add(dateStr);
               events.push({
@@ -57,7 +58,7 @@ export function useSchedule(activeTeam, sendLocalNotification, scheduleReminder,
         const daysToAdd = recurrence === 'quincenal' ? i * 14 : i * 7;
         eventDate.setDate(eventDate.getDate() + daysToAdd);
         const newEvent = {
-          ...baseEvent, id: generateId(), date: eventDate.toISOString().split('T')[0],
+          ...baseEvent, id: generateId(), date: localDateKey(eventDate),
           linkedRoutine: event.linkedRoutine || null,
           recurrenceGroup
         };

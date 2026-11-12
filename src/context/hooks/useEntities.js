@@ -2,6 +2,7 @@ import { useState, useCallback } from 'react';
 import { supabase } from '../../supabaseClient.js';
 import { handleError } from '../../utils/errorHandler';
 import { generateId, sanitize } from '../../utils/ids.js';
+import { localDateKey } from '../../utils/agendaItems.js';
 
 export function useChampionships(activeTeam, pushEntityToSupabase, user) {
   const [championships, setChampionships] = useState(() => []);
@@ -22,42 +23,58 @@ export function useChampionships(activeTeam, pushEntityToSupabase, user) {
   return { championships, setChampionships, addChampionship };
 }
 
+export const mapFinanceRow = (f) => ({
+  id: f.id, type: f.type, desc: f.descripcion, amount: f.amount, date: f.date,
+  category: f.category, teamCategory: f.team_category, teamId: f.team_id, paymentId: f.payment_id || null,
+});
+
+// Supabase resolves with { error } instead of rejecting, so `.then(() => {})` hid
+// every failed save. Throw it so the caller (and the user) finds out.
+const failOnError = ({ error }) => { if (error) throw error; };
+
 export function useFinances(activeTeam, pushEntityToSupabase, sendLocalNotification, user) {
   const [finances, setFinances] = useState(() => []);
 
   const addFinanceRecord = useCallback((record) => {
     const newRecord = {
       ...record, desc: sanitize(record.desc), id: generateId(),
-      date: record.date || new Date().toISOString().split('T')[0], teamCategory: activeTeam
+      date: record.date || localDateKey(), teamCategory: activeTeam
     };
     setFinances(prev => [...prev, newRecord]);
-    supabase.from('finances').upsert({
+    return supabase.from('finances').insert({
       id: newRecord.id, type: newRecord.type, descripcion: newRecord.desc,
       amount: newRecord.amount, date: newRecord.date, category: newRecord.category,
       team_category: newRecord.teamCategory, user_id: user?.id,
-    }).then(() => {}).catch(err => handleError(err, 'useEntities', { notifyUser: true }));
+    }).then(failOnError).catch(err => {
+      setFinances(prev => prev.filter(r => r.id !== newRecord.id));
+      handleError(err, 'useEntities.addFinanceRecord', { notifyUser: true });
+    });
   }, [activeTeam, user?.id]);
 
-  const addMembershipPayment = useCallback((playerName, amount, date, paymentId) => {
-    const record = {
-      desc: `Abono Membresia - ${playerName || 'Jugador'} [pid:${paymentId}]`, amount, type: 'ingreso',
-      date, id: generateId(), category: 'mensualidad', teamCategory: activeTeam
-    };
-    setFinances(prev => [...prev, record]);
-    supabase.from('finances').upsert({
-      id: record.id, type: record.type, descripcion: record.desc,
-      amount: record.amount, date: record.date, category: record.category,
-      team_category: record.teamCategory, user_id: user?.id,
-    }).then(() => {}).catch(err => handleError(err, 'useEntities', { notifyUser: true }));
+  // The database creates the ledger entry of every payment (migration 88).
+  // Fetch it so the cash book shows it without reloading.
+  const loadPaymentLedger = useCallback(async (paymentId) => {
+    if (!paymentId) return;
+    const { data, error } = await supabase.from('finances').select('*').eq('payment_id', paymentId);
+    if (error) { handleError(error, 'useEntities.loadPaymentLedger'); return; }
+    if (!data?.length) return;
+    const rows = data.map(mapFinanceRow);
+    setFinances(prev => [...prev.filter(r => !rows.some(n => n.id === r.id)), ...rows]);
+  }, []);
+
+  const addMembershipPayment = useCallback(async (amount, paymentId) => {
+    await loadPaymentLedger(paymentId);
     sendLocalNotification('Abono Registrado', `Se registro un abono de $${amount.toLocaleString()} COP.`);
-  }, [activeTeam, sendLocalNotification, user?.id]);
+  }, [loadPaymentLedger, sendLocalNotification]);
 
   const deleteFinanceRecord = useCallback((recordId) => {
     setFinances(prev => prev.filter(r => r.id !== recordId));
-    supabase.from('finances').delete().eq('id', recordId).then(() => {}).catch(err => handleError(err, 'useEntities.deleteFinanceRecord', { notifyUser: true }));
+    return supabase.from('finances').delete().eq('id', recordId)
+      .then(failOnError)
+      .catch(err => handleError(err, 'useEntities.deleteFinanceRecord', { notifyUser: true }));
   }, []);
 
-  return { finances, setFinances, addFinanceRecord, addMembershipPayment, deleteFinanceRecord };
+  return { finances, setFinances, addFinanceRecord, addMembershipPayment, loadPaymentLedger, deleteFinanceRecord };
 }
 
 export function useInventory(pushEntityToSupabase, user) {

@@ -18,7 +18,7 @@ function AddChampionshipModal({ onClose, onAdd }) {
   return (
     <div className="modal-overlay">
       <div className="modal-content glass-panel animated-slide">
-        <h3 className="neon-text-primary" style={{ marginBottom: '20px', fontFamily: 'Outfit' }}>Agendar Hito de Campeonato</h3>
+        <h3 className="neon-text-primary" style={{ marginBottom: '20px', fontFamily: 'var(--font-display)' }}>Agendar Hito de Campeonato</h3>
 
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
           <div className="form-group">

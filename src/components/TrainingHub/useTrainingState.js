@@ -5,7 +5,7 @@ import { normalizeAIOutput } from '../../engine/planNormalizer';
 import { persistPlan } from '../../engine/trainingPlanService';
 
 export function useTrainingState(teamPlayers, logWorkout, schedule, activeTeam, showToast) {
-  const [activeTab, setActiveTab] = useState('plan');
+  const [activeTab, setActiveTab] = useState('team');
   const [activeCategory, setActiveCategory] = useState('forwards');
   const [selectedPlayerId, setSelectedPlayerId] = useState(null);
 

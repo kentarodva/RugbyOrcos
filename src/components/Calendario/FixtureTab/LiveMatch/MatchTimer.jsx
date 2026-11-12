@@ -42,7 +42,7 @@ function MatchTimer({ liveMatch, status }) {
 
   return (
     <div style={{ textAlign: 'center', padding: '10px 0' }}>
-      <div style={{ fontSize: '2.5rem', fontWeight: 900, fontFamily: 'Outfit', letterSpacing: '2px' }}>
+      <div style={{ fontSize: '2.5rem', fontWeight: 900, fontFamily: 'var(--font-display)', letterSpacing: '2px' }}>
         {formatTime(elapsed)}
       </div>
       <div style={{

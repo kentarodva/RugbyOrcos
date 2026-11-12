@@ -65,7 +65,7 @@ export default function PlanOnboarding({ onGenerate, onClose, savedPrefs }) {
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content glass-panel animated-slide" onClick={e => e.stopPropagation()} style={{ maxWidth: '540px', maxHeight: '90vh', overflowY: 'auto', padding: '24px' }}>
         <button onClick={onClose} style={{ position: 'absolute', top: '12px', right: '14px', background: 'none', border: 'none', color: 'var(--color-text-muted)', cursor: 'pointer', fontSize: '1.1rem', lineHeight: 1 }}>✕</button>
-        <h3 style={{ color: 'var(--color-blue)', fontSize: '1rem', fontWeight: 700, marginBottom: '4px', fontFamily: 'Outfit' }}>
+        <h3 style={{ color: 'var(--color-text)', fontSize: '1rem', fontWeight: 600, marginBottom: '4px' }}>
           🧠 Personalizar Plan de Entreno
         </h3>
         <p style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)', marginBottom: '16px' }}>
@@ -85,7 +85,7 @@ export default function PlanOnboarding({ onGenerate, onClose, savedPrefs }) {
         </Section>
 
         {/* Goal + Season */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '10px' }}>
           <Section label="⭐ Meta principal">
             <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
               {GOALS.map(g => (
@@ -109,7 +109,7 @@ export default function PlanOnboarding({ onGenerate, onClose, savedPrefs }) {
         </div>
 
         {/* Days + Duration */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '10px' }}>
           <Section label="📅 Días por semana">
             <select value={daysPerWeek} onChange={e => setDaysPerWeek(Number(e.target.value))} className="form-select" style={{ padding: '6px 8px', fontSize: '0.72rem' }}>
               {DAYS.map(d => <option key={d} value={d}>{d} día{d !== 1 ? 's' : ''}</option>)}

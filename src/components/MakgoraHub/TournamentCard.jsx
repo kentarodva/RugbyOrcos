@@ -17,12 +17,12 @@ export function TournamentCard({ tournament, teamName, onSelect, onEdit }) {
       <div style={{ textAlign: 'right', display: 'flex', alignItems: 'center', gap: '8px' }}>
         <span style={{
           padding: '4px 12px', borderRadius: '10px', fontSize: '0.7rem', fontWeight: 700,
-          background: tournament.status === 'finalizado' ? 'rgba(0,230,118,0.1)' : tournament.status === 'en_curso' ? 'rgba(255,179,0,0.1)' : tournament.status === 'cancelado' ? 'rgba(255,61,0,0.1)' : 'rgba(255,255,255,0.05)',
+          background: tournament.status === 'finalizado' ? 'rgba(46, 229, 122,0.1)' : tournament.status === 'en_curso' ? 'rgba(232, 185, 49,0.1)' : tournament.status === 'cancelado' ? 'rgba(255, 92, 77,0.1)' : 'rgba(255,255,255,0.05)',
           color: statusInfo.color
         }}>
           {statusInfo.label}
         </span>
-        {tournament.winner_team_id && <p style={{ fontSize: '0.7rem', color: '#ffb300', margin: 0 }}>Campeon: {teamName(tournament.winner_team_id)}</p>}
+        {tournament.winner_team_id && <p style={{ fontSize: '0.7rem', color: '#E8B931', margin: 0 }}>Campeon: {teamName(tournament.winner_team_id)}</p>}
         {onEdit && (
           <button onClick={(e) => { e.stopPropagation(); onEdit(tournament); }}
             style={{ background: 'none', border: '1px solid var(--border-glass)', borderRadius: '4px', color: 'var(--color-text-muted)', cursor: 'pointer', padding: '4px 8px', fontSize: '0.7rem' }}>

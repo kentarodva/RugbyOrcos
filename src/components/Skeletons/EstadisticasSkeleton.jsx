@@ -51,7 +51,7 @@ export default function EstadisticasSkeleton() {
         <SkeletonLine width="220px" height={18} />
         <SkeletonLine width="120px" height={14} />
       </div>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '10px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 180px), 1fr))', gap: '10px' }}>
         {[1, 2, 3, 4].map(i => (
           <KpiCardSkeleton key={i} />
         ))}

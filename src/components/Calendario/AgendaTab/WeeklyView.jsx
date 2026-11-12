@@ -1,4 +1,5 @@
 import React from 'react';
+import { localDateKey, formatEventTime } from '../../../utils/agendaItems.js';
 
 function WeeklyView({ teamEvents }) {
   const today = new Date();
@@ -8,20 +9,20 @@ function WeeklyView({ teamEvents }) {
 
   return (
     <div className="glass-panel" style={{ padding: '20px', marginTop: '10px' }}>
-      <h4 style={{ fontSize: '1rem', fontWeight: 700, fontFamily: 'Outfit', marginBottom: '15px', color: 'var(--color-blue)' }}>
+      <h4 style={{ fontSize: '1rem', fontWeight: 600, marginBottom: '15px', color: 'var(--color-text)' }}>
         Cronograma Semanal
       </h4>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
         {days.map((dayName, i) => {
           const date = new Date(startOfWeek);
           date.setDate(startOfWeek.getDate() + i);
-          const dateStr = date.toISOString().split('T')[0];
-          const dayEvents = teamEvents.filter(e => e.date === dateStr).sort((a, b) => a.time.localeCompare(b.time));
-          const isToday = date.toISOString().split('T')[0] === today.toISOString().split('T')[0];
+          const dateStr = localDateKey(date);
+          const dayEvents = teamEvents.filter(e => e.date === dateStr).sort((a, b) => formatEventTime(a.time).localeCompare(formatEventTime(b.time)));
+          const isToday = dateStr === localDateKey(today);
           return (
             <div key={i} style={{
               display: 'flex', alignItems: 'stretch', gap: '8px',
-              padding: '8px', background: isToday ? 'rgba(0, 230, 118, 0.04)' : 'rgba(255,255,255,0.01)',
+              padding: '8px', background: isToday ? 'rgba(46, 229, 122, 0.04)' : 'rgba(255,255,255,0.01)',
               border: `1px solid ${isToday ? 'var(--color-primary)' : 'var(--border-glass)'}`,
               borderRadius: 'var(--radius-sm)'
             }}>
@@ -40,11 +41,11 @@ function WeeklyView({ teamEvents }) {
                   dayEvents.map(e => (
                     <span key={e.id} style={{
                       fontSize: '0.72rem', padding: '3px 8px', borderRadius: 'var(--radius-sm)',
-                      background: e.type === 'partido' ? 'rgba(212, 175, 55, 0.1)' : 'rgba(0, 230, 118, 0.06)',
+                      background: e.type === 'partido' ? 'rgba(212, 175, 55, 0.1)' : 'rgba(46, 229, 122, 0.06)',
                       color: e.type === 'partido' ? 'var(--color-gold)' : 'var(--color-primary)',
-                      border: `1px solid ${e.type === 'partido' ? 'rgba(212, 175, 55, 0.2)' : 'rgba(0, 230, 118, 0.1)'}`
+                      border: `1px solid ${e.type === 'partido' ? 'rgba(212, 175, 55, 0.2)' : 'rgba(46, 229, 122, 0.1)'}`
                     }}>
-                      {e.type === 'partido' ? '🏉' : '🏋️'} {e.time} - {e.title}
+                      {e.type === 'partido' ? '🏉' : '🏋️'} {e.time ? `${formatEventTime(e.time)} - ` : ''}{e.title}
                       {e.linkedRoutine && <span style={{ fontSize: '0.6rem', marginLeft: '4px', color: 'var(--color-text-muted)' }}>(rutina vinculada)</span>}
                     </span>
                   ))

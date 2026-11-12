@@ -1,102 +1,83 @@
-import React from 'react';
-import { KeyRound } from 'lucide-react';
+import React, { useState } from 'react';
+import { KeyRound, MoreVertical, Plus, Search, Swords, Archive, Printer, FileSpreadsheet, ListChecks } from 'lucide-react';
+import Sheet, { SheetItem, SheetSection } from '../shell/Sheet';
 
-function RosterControls({ search, onSearchChange, divisionView, onDivisionViewChange, teams, makgoraFilter, onMakgoraFilterChange, onAdd, onPrint, onExportCsv, onToggleBulk, bulkMode, searchInputRef, onCompare, showDeleted, onToggleDeleted, onBulkCredentials }) {
+const FILTERS = [
+  { value: 'all', label: 'Todos' },
+  { value: 'assigned', label: "Con clan Mak'Gora" },
+  { value: 'unassigned', label: 'Sin clan' },
+];
+
+/** Roster toolbar: title + primary action, search, filter chips; secondary tools live in the ⋯ sheet. */
+function RosterControls({
+  count, search, onSearchChange, makgoraFilter, onMakgoraFilterChange, onAdd, onPrint, onExportCsv,
+  onToggleBulk, bulkMode, searchInputRef, onCompare, showDeleted, onToggleDeleted, onBulkCredentials,
+}) {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const run = (fn) => () => { setMenuOpen(false); fn(); };
+
   return (
-    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '15px' }}>
-      <div style={{ display: 'flex', gap: '10px', flex: 1, maxWidth: '700px', flexWrap: 'wrap' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <div style={{ flex: 1, display: 'flex', alignItems: 'baseline', gap: '10px', minWidth: 0 }}>
+          <h2 className="page-title">Guerreros</h2>
+          {count != null && <span style={{ fontSize: '0.875rem', color: 'var(--color-text-muted)' }}>{count}</span>}
+        </div>
+        <button type="button" className="btn-neon btn-sm" onClick={onAdd}>
+          <Plus size={16} /> Nuevo
+        </button>
+        <button type="button" className="icon-btn" aria-label="Más opciones de la plantilla" onClick={() => setMenuOpen(true)}>
+          <MoreVertical size={20} />
+        </button>
+      </div>
+
+      <label className="search-field">
+        <Search size={18} aria-hidden="true" />
         <input
           ref={searchInputRef}
-          type="text"
-          placeholder="Buscar por nombre, apodo o camiseta..."
+          type="search"
+          placeholder="Buscar por nombre, apodo o número"
+          aria-label="Buscar guerrero"
           value={search}
           onChange={(e) => onSearchChange(e.target.value)}
-          className="form-input"
-          style={{ width: '100%', minWidth: '200px', paddingLeft: '15px', flex: 1 }}
         />
-        {teams && teams.length > 0 && (
-          <select
-            value={divisionView || 'all'}
-            onChange={(e) => onDivisionViewChange(e.target.value)}
-            className="form-select"
-            style={{
-              background: 'var(--bg-input)',
-              border: '1px solid var(--border-glass)',
-              color: 'var(--color-text)',
-              fontWeight: '600',
-              padding: '8px 12px',
-              borderRadius: 'var(--radius-sm)',
-              cursor: 'pointer',
-              fontSize: '0.8rem',
-              minWidth: '130px'
-            }}
+      </label>
+
+      <div className="chip-row" role="group" aria-label="Filtrar plantilla">
+        {FILTERS.map((f) => (
+          <button
+            key={f.value}
+            type="button"
+            className={`pro-subtab-btn${makgoraFilter === f.value ? ' active' : ''}`}
+            aria-pressed={makgoraFilter === f.value}
+            onClick={() => onMakgoraFilterChange(f.value)}
           >
-            <option value="all">🌐 Todas las divisiones</option>
-            {teams.map((team) => (
-              <option key={team.id} value={team.division}>
-                {team.label || team.category}
-              </option>
-            ))}
-          </select>
+            {f.label}
+          </button>
+        ))}
+        {showDeleted && (
+          <button type="button" className="pro-subtab-btn active" onClick={onToggleDeleted}>
+            Papelera ✕
+          </button>
         )}
-        <select
-          value={makgoraFilter}
-          onChange={(e) => onMakgoraFilterChange(e.target.value)}
-          className="form-select"
-          style={{
-            background: 'var(--bg-input)',
-            border: '1px solid var(--border-glass)',
-            color: 'var(--color-gold)',
-            fontWeight: '600',
-            padding: '8px 12px',
-            borderRadius: 'var(--radius-sm)',
-            cursor: 'pointer',
-            fontSize: '0.8rem',
-            minWidth: '140px'
-          }}
-        >
-          <option value="all">Todos</option>
-          <option value="assigned">Con equipo Mak'Gora</option>
-          <option value="unassigned">Sin equipo Mak'Gora</option>
-        </select>
       </div>
 
-      <div style={{ display: 'flex', gap: '8px' }}>
-        <button onClick={onCompare} className="btn-outline" style={{ padding: '8px 14px', fontSize: '0.8rem', color: 'var(--color-blue)', borderColor: 'var(--color-blue)' }}>
-          ⚔️ Comparar
-        </button>
-        <button onClick={onToggleDeleted} className={showDeleted ? 'btn-neon' : 'btn-outline'} style={{ padding: '8px 14px', fontSize: '0.8rem', borderColor: showDeleted ? undefined : '#9ca3af', color: showDeleted ? undefined : '#9ca3af' }}>
-          📦 {showDeleted ? 'Ocultar papelera' : 'Papelera'}
-        </button>
-        <button onClick={onPrint} className="btn-outline" style={{ padding: '8px 14px', fontSize: '0.8rem' }}>
-          Imprimir
-        </button>
-        {onExportCsv && (
-          <button
-            onClick={onExportCsv}
-            className="btn-outline"
-            style={{ padding: '8px 14px', fontSize: '0.8rem', color: '#00e676', borderColor: 'rgba(0, 230, 118, 0.4)', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
-            title="Exportar nómina oficial en CSV/Excel para planillas de torneo"
-          >
-            📊 Planilla Torneo
-          </button>
-        )}
+      <Sheet open={menuOpen} title="Plantilla" onClose={() => setMenuOpen(false)}>
+        <SheetSection>
+          <SheetItem icon={Swords} label="Comparar guerreros" onClick={run(onCompare)} />
+          <SheetItem icon={ListChecks} label={bulkMode ? 'Cancelar asignación' : 'Asignar posiciones en lote'} active={bulkMode} onClick={run(onToggleBulk)} />
+          <SheetItem icon={Archive} label={showDeleted ? 'Ocultar papelera' : 'Ver papelera'} active={showDeleted} onClick={run(onToggleDeleted)} />
+        </SheetSection>
+        <SheetSection label="Exportar">
+          <SheetItem icon={Printer} label="Imprimir plantilla" onClick={run(onPrint)} />
+          {onExportCsv && <SheetItem icon={FileSpreadsheet} label="Planilla de torneo (CSV)" onClick={run(onExportCsv)} />}
+        </SheetSection>
         {onBulkCredentials && (
-          <button
-            onClick={onBulkCredentials}
-            className="btn-outline"
-            style={{ padding: '8px 14px', fontSize: '0.8rem', color: 'var(--color-gold)', borderColor: 'rgba(255, 179, 0, 0.35)', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
-          >
-            <KeyRound size={14} /> Accesos del Club
-          </button>
+          <SheetSection label="Accesos">
+            <SheetItem icon={KeyRound} label="Accesos del club" hint="Crear usuarios para los jugadores" onClick={run(onBulkCredentials)} />
+          </SheetSection>
         )}
-        <button onClick={onToggleBulk} className={bulkMode ? 'btn-neon' : 'btn-outline'} style={{ padding: '8px 14px', fontSize: '0.8rem', borderColor: bulkMode ? undefined : 'var(--color-purple)', color: bulkMode ? undefined : 'var(--color-purple)' }}>
-          {bulkMode ? 'Cancelar Asignacion' : 'Asignar Posiciones'}
-        </button>
-        <button onClick={onAdd} className="btn-neon">
-          Reclutar Orco
-        </button>
-      </div>
+      </Sheet>
     </div>
   );
 }

@@ -2,6 +2,7 @@ import React, { useState, useContext, useRef, useEffect, Suspense } from 'react'
 import { motion, AnimatePresence } from 'framer-motion';
 import { ClubContext } from './context/ClubContext';
 import { useAuth } from './context/AuthContext';
+import { useLiveNotices } from './context/hooks/useLiveNotices';
 import { useToast } from './context/ToastContext';
 import Login from './components/Login';
 import Dashboard from './components/Dashboard';
@@ -13,6 +14,7 @@ import AnnouncementModal from './components/AnnouncementModal';
 import BirthdayCelebration from './components/BirthdayCelebration';
 import ImportCSVModal from './components/Admin/ImportCSVModal';
 import Sidebar, { QuickNavBar } from './components/Sidebar';
+import StaffBottomNav from './components/shell/StaffBottomNav';
 import { ChangePasswordModal } from './components/Auth/ChangePasswordModal';
 import apisupabase, { supabasePlayerToReact } from './data/supabaseApi';
 
@@ -20,6 +22,7 @@ import { useGlobalShortcuts } from './utils/keyboardShortcuts';
 import { addPushNavigateListener } from './utils/pushNotifications';
 import ErrorBoundary from './components/ErrorBoundary';
 import { lazyWithRetry } from './utils/lazyWithRetry';
+import { findOwnPlayer } from './utils/currentPlayer';
 
 const Roster = lazyWithRetry(() => import('./components/Roster'));
 const Tribunal = lazyWithRetry(() => import('./components/Tribunal'));
@@ -42,13 +45,15 @@ function App() {
     getAllClubsLabels, addClub, deleteClub, dynamicClubs, syncStatus,
     viewMode, setViewMode, divisionView, setDivisionView,
     makgoraTeamId, setMakgoraTeamId, makgoraTeams, setPlayers,
-    liveMatch,
+    liveMatch, players, sendLocalNotification,
   } = useContext(ClubContext);
   const { isAuthenticated, signOut, profile, user, requirePasswordChange, clearPasswordChangeFlag } = useAuth();
   const { showToast } = useToast();
   const [activeTab, setActiveTab] = useState('dashboard');
   const [showSettings, setShowSettings] = useState(false);
   const [showAnnouncements, setShowAnnouncements] = useState(true);
+  // Cambia con cada anuncio en vivo para que el modal (si ya estaba abierto) recargue.
+  const [announcementKey, setAnnouncementKey] = useState(0);
   const [showAdminPanel, setShowAdminPanel] = useState(false);
   const [adminSubTab, setAdminSubTab] = useState('users');
   const [showImportCSV, setShowImportCSV] = useState(false);
@@ -66,6 +71,24 @@ function App() {
   }, [theme]);
 
   useGlobalShortcuts(activeTab, setActiveTab);
+
+  // Avisos en vivo: anuncios, entrenos, partidos, jugadas y convocatorias que crea otro rol.
+  const isPlayerAccount = profile?.system_role === 'jugador';
+  const ownPlayer = isPlayerAccount ? findOwnPlayer(players, user) : null;
+  useLiveNotices(
+    { userId: user?.id, playerId: ownPlayer?.id, teamCategory: ownPlayer?.teamCategory || null, isPlayer: isPlayerAccount },
+    {
+      notify: (title, body) => {
+        showToast(body ? `${title} — ${body}` : title, 'info');
+        sendLocalNotification?.(title, body);
+      },
+      onNotice: (notice) => {
+        if (notice.kind !== 'announcement') return;
+        setAnnouncementKey(k => k + 1);
+        setShowAnnouncements(true);
+      },
+    }
+  );
 
   useEffect(() => {
     return addPushNavigateListener(({ tab }) => {
@@ -92,6 +115,9 @@ function App() {
       <div className="app-container" style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
         <PlayerDashboard />
         <Footer />
+        {showAnnouncements && (
+          <AnnouncementModal key={announcementKey} onClose={() => setShowAnnouncements(false)} />
+        )}
       </div>
     );
   }
@@ -101,7 +127,7 @@ function App() {
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', background: 'var(--bg-root)', padding: '20px' }}>
         <div className="glass-panel" style={{ maxWidth: '440px', padding: '40px', textAlign: 'center', display: 'flex', flexDirection: 'column', gap: '20px' }}>
           <span style={{ fontSize: '3rem' }}>🛡️</span>
-          <h2 style={{ fontFamily: 'Outfit', fontWeight: 800, fontSize: '1.3rem', color: 'var(--color-gold)' }}>
+          <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: '1.3rem', color: 'var(--color-gold)' }}>
             Sin rango en el Reino
           </h2>
           <p style={{ color: 'var(--color-text-muted)', fontSize: '0.85rem', lineHeight: 1.6 }}>
@@ -194,6 +220,7 @@ function App() {
     <div className="app-container" style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
 
       <Header
+        onOpenMyProfile={() => setActiveTab('mi_ficha')}
         sidebarOpen={sidebarOpen}
         setSidebarOpen={setSidebarOpen}
         profile={profile}
@@ -219,16 +246,20 @@ function App() {
         exportData={exportData}
       />
 
-      {isAuthenticated && <QuickNavBar activeTab={activeTab} setActiveTab={setActiveTab} hasPermission={hasPermission} profile={profile} onOpenDrawer={() => setSidebarOpen(true)} />}
+      {isAuthenticated && (
+        <div className="only-desktop">
+          <QuickNavBar activeTab={activeTab} setActiveTab={setActiveTab} hasPermission={hasPermission} profile={profile} onOpenDrawer={() => setSidebarOpen(true)} />
+        </div>
+      )}
 
       {isAuthenticated && liveMatch && (liveMatch.status === 'live' || liveMatch.status === 'paused' || liveMatch.status === 'delayed') && (
         <div
           onClick={() => setActiveTab('calendario')}
           style={{
             background: liveMatch.status === 'delayed'
-              ? 'linear-gradient(90deg, rgba(255, 171, 0, 0.25) 0%, rgba(10, 20, 32, 0.95) 50%, rgba(255, 171, 0, 0.25) 100%)'
-              : 'linear-gradient(90deg, rgba(255, 23, 68, 0.22) 0%, rgba(10, 20, 32, 0.95) 50%, rgba(0, 230, 118, 0.22) 100%)',
-            borderBottom: `1px solid ${liveMatch.status === 'delayed' ? 'var(--color-orange, #ffab00)' : 'var(--color-primary)'}`,
+              ? 'linear-gradient(90deg, rgba(255, 171, 0, 0.25) 0%, rgba(21, 24, 22, 0.95) 50%, rgba(255, 171, 0, 0.25) 100%)'
+              : 'linear-gradient(90deg, rgba(255, 92, 77, 0.22) 0%, rgba(21, 24, 22, 0.95) 50%, rgba(46, 229, 122, 0.22) 100%)',
+            borderBottom: `1px solid ${liveMatch.status === 'delayed' ? 'var(--color-orange, #F59E3D)' : 'var(--color-primary)'}`,
             padding: '8px 16px',
             display: 'flex',
             alignItems: 'center',
@@ -242,8 +273,8 @@ function App() {
           }}
           title="Clic para ir directamente a la transmisión del partido en vivo"
         >
-          <span style={{ color: liveMatch.status === 'delayed' ? '#ffab00' : '#ff1744', display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: liveMatch.status === 'delayed' ? '#ffab00' : '#ff1744', display: 'inline-block' }} />
+          <span style={{ color: liveMatch.status === 'delayed' ? '#F59E3D' : '#FF5C4D', display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: liveMatch.status === 'delayed' ? '#F59E3D' : '#FF5C4D', display: 'inline-block' }} />
             {liveMatch.status === 'live' ? 'PARTIDO EN VIVO' : liveMatch.status === 'delayed' ? 'PARTIDO EN ESPERA (COROZAL)' : 'PARTIDO PAUSADO'}:
           </span>
           <span style={{ color: 'var(--color-primary)' }}>Orcos {liveMatch.orcos_score ?? 0}</span>
@@ -254,13 +285,13 @@ function App() {
               ({liveMatch.delay_reason})
             </span>
           )}
-          <span style={{ color: 'var(--color-gold)', fontSize: '0.72rem', border: '1px solid var(--color-gold)', padding: '2px 8px', borderRadius: '4px', textTransform: 'uppercase' }}>
-            Ver Partido ➔
+          <span style={{ color: 'var(--color-text)', fontSize: '0.75rem', fontWeight: 600, border: '1px solid var(--border-strong)', padding: '2px 10px', borderRadius: 'var(--radius-pill)' }}>
+            Ver partido →
           </span>
         </div>
       )}
       {showAdminPanel && hasPermission('admin_panel') && (
-        <motion.div key="admin" initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.2 }}>
+        <motion.div key="admin" className="app-main" style={{ paddingBottom: 0, flex: 'none' }} initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.2 }}>
         <AdminPanel
           hasPermission={hasPermission}
           adminSubTab={adminSubTab}
@@ -276,7 +307,7 @@ function App() {
         </motion.div>
       )}
 
-      <main style={{ flex: 1, padding: '15px 15px 40px 15px' }}>
+      <main className="app-main">
         <AnimatePresence mode="wait">
         <ErrorBoundary>
         <Suspense fallback={<motion.div key="suspense" className="glass-panel" style={{ padding: '40px', textAlign: 'center', color: 'var(--color-text-muted)' }}
@@ -321,7 +352,7 @@ function App() {
       {showAnnouncements && isAuthenticated && (
         <motion.div key="announcements"
           initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
-          <AnnouncementModal onClose={() => setShowAnnouncements(false)} />
+          <AnnouncementModal key={announcementKey} onClose={() => setShowAnnouncements(false)} />
         </motion.div>
       )}
       </AnimatePresence>
@@ -335,6 +366,8 @@ function App() {
         hasPermission={hasPermission}
         profile={profile}
       />
+
+      <StaffBottomNav activeTab={activeTab} setActiveTab={setActiveTab} hasPermission={hasPermission} />
 
       <Footer />
 

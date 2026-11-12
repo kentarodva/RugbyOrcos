@@ -94,11 +94,11 @@ export function ThirdTimeModal({ match, squad = [], onSaveThirdTime, onClose }) 
         {/* Cabecera */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '18px', borderBottom: '1px solid rgba(255,215,64,0.2)', paddingBottom: '12px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <div style={{ background: 'rgba(255,215,64,0.15)', padding: '8px', borderRadius: '10px', color: '#ffd740' }}>
+            <div style={{ background: 'rgba(255,215,64,0.15)', padding: '8px', borderRadius: '10px', color: '#E8B931' }}>
               <Beer size={24} />
             </div>
             <div>
-              <h3 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 900, color: '#ffd740', fontFamily: 'Outfit' }}>
+              <h3 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 600, color: '#E8B931' }}>
                 Tercer Tiempo & MVP de la Batalla
               </h3>
               <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>
@@ -112,10 +112,10 @@ export function ThirdTimeModal({ match, squad = [], onSaveThirdTime, onClose }) 
         </div>
 
         {/* Formulario de 2 Columnas */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px', marginBottom: '20px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))', gap: '16px', marginBottom: '20px' }}>
           {/* Tarjeta Orcos */}
-          <div style={{ background: 'rgba(0, 230, 118, 0.05)', border: '1px solid rgba(0, 230, 118, 0.3)', borderRadius: '12px', padding: '16px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px', color: '#00e676', fontWeight: 800, fontSize: '0.9rem' }}>
+          <div style={{ background: 'rgba(46, 229, 122, 0.05)', border: '1px solid rgba(46, 229, 122, 0.3)', borderRadius: '12px', padding: '16px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px', color: '#2EE57A', fontWeight: 800, fontSize: '0.9rem' }}>
               <Trophy size={16} />
               <span>MVP ORCOS NEGROS</span>
             </div>
@@ -148,7 +148,7 @@ export function ThirdTimeModal({ match, squad = [], onSaveThirdTime, onClose }) 
               style={{ width: '100%', fontSize: '0.82rem', marginBottom: '10px' }}
             />
 
-            <div style={{ fontSize: '0.75rem', color: '#ffd740', background: 'rgba(255,215,64,0.1)', padding: '6px 10px', borderRadius: '6px', fontWeight: 700 }}>
+            <div style={{ fontSize: '0.75rem', color: '#E8B931', background: 'rgba(255,215,64,0.1)', padding: '6px 10px', borderRadius: '6px', fontWeight: 700 }}>
               ⭐ Otorga +150 XP de Honor Makgora automático
             </div>
           </div>
@@ -172,7 +172,7 @@ export function ThirdTimeModal({ match, squad = [], onSaveThirdTime, onClose }) 
               style={{ width: '100%', fontSize: '0.85rem', marginBottom: '10px' }}
             />
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '10px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '8px', marginBottom: '10px' }}>
               <div>
                 <label style={{ fontSize: '0.78rem', color: 'var(--color-text-muted)', display: 'block', marginBottom: '4px' }}>
                   N° Camiseta:
@@ -218,7 +218,7 @@ export function ThirdTimeModal({ match, squad = [], onSaveThirdTime, onClose }) 
           <button
             onClick={handleSave}
             className="btn-outline"
-            style={{ padding: '8px 16px', fontSize: '0.82rem', borderColor: 'var(--color-gold)', color: '#ffd740' }}
+            style={{ padding: '8px 16px', fontSize: '0.82rem', borderColor: 'var(--color-gold)', color: '#E8B931' }}
           >
             💾 Guardar Registro
           </button>
@@ -227,7 +227,7 @@ export function ThirdTimeModal({ match, squad = [], onSaveThirdTime, onClose }) 
             onClick={handleExportBanner}
             disabled={generating}
             className="btn-outline"
-            style={{ padding: '8px 16px', fontSize: '0.82rem', borderColor: '#00e676', color: '#00e676', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+            style={{ padding: '8px 16px', fontSize: '0.82rem', borderColor: '#2EE57A', color: '#2EE57A', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
           >
             <Download size={14} />
             <span>{generating ? 'Generando Placa...' : 'Placa Oficial PNG'}</span>

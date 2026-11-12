@@ -32,38 +32,29 @@ function MakgoraHub() {
   const [editFixture, setEditFixture] = useState(false);
 
   return (
-    <div style={{ padding: '15px' }}>
-      <div className="glass-panel" style={{ padding: '25px', borderRadius: 'var(--radius-lg)', marginBottom: '20px', textAlign: 'center' }}>
-        <h2 style={{ color: 'var(--color-gold)', fontSize: '1.4rem', fontWeight: 800, fontFamily: 'Outfit' }}>
-          Torneo MAK'GORA
-        </h2>
-        <p style={{ color: 'var(--color-text-muted)', fontSize: '0.85rem', marginTop: '5px' }}>
-          El torneo interno del Reino Orco
-        </p>
-      </div>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+      <header style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+        <span className="page-eyebrow">Torneo interno del club</span>
+        <h1 className="page-title">Mak&apos;Gora</h1>
+      </header>
 
-      <div style={{ display: 'flex', gap: '10px', marginBottom: '20px', flexWrap: 'wrap' }}>
-        {TABS.map(t => (
-          <button key={t.id} onClick={() => { state.setTab(t.id); state.setActiveTournament(null); }} className={state.tab === t.id ? 'btn-neon' : 'btn-outline'} style={{ padding: '8px 16px', fontSize: '0.85rem' }}>{t.label}</button>
-        ))}
-        {canEditTeams && (
-          <button onClick={() => state.setTab('teams-manager')} className={state.tab === 'teams-manager' ? 'btn-neon' : 'btn-outline'} style={{ padding: '8px 16px', fontSize: '0.85rem', color: 'var(--color-gold)', borderColor: 'var(--color-gold)' }}>
-            Gestión Equipos
+      <nav className="pro-subtabs chip-row" aria-label="Secciones de Mak'Gora">
+        {[
+          ...TABS.map((t) => ({ id: t.id, label: t.label, on: state.tab === t.id, go: () => { state.setTab(t.id); state.setActiveTournament(null); } })),
+          ...(canEditTeams ? [{ id: 'teams-manager', label: 'Gestión de equipos', on: state.tab === 'teams-manager', go: () => state.setTab('teams-manager') }] : []),
+          ...(state.activeTournament ? [
+            { id: 'fixture', label: 'Fixture', on: state.tab === 'fixture', go: () => state.setTab('fixture') },
+            { id: 'standings', label: 'Tabla', on: state.tab === 'standings', go: () => state.setTab('standings') },
+            { id: 'stats', label: 'Stats', on: showStats, go: () => { setShowStats(!showStats); setShowH2H(false); } },
+            { id: 'h2h', label: 'H2H', on: showH2H, go: () => { setShowH2H(!showH2H); setShowStats(false); } },
+            { id: 'edit', label: 'Editar torneo', on: false, go: () => setEditTournament(state.activeTournament) },
+          ] : []),
+        ].map((t) => (
+          <button key={t.id} type="button" onClick={t.go} aria-pressed={t.on} className={`pro-subtab-btn${t.on ? ' active' : ''}`}>
+            {t.label}
           </button>
-        )}
-        <button onClick={() => state.setTab('champions')} className={state.tab === 'champions' ? 'btn-neon' : 'btn-outline'} style={{ padding: '8px 16px', fontSize: '0.85rem', color: 'var(--color-gold)', borderColor: 'var(--color-gold)' }}>
-          Campeones
-        </button>
-        {state.activeTournament && (
-          <>
-            <button onClick={() => state.setTab('fixture')} className={state.tab === 'fixture' ? 'btn-neon' : 'btn-outline'} style={{ padding: '8px 16px', fontSize: '0.85rem' }}>Fixture</button>
-            <button onClick={() => state.setTab('standings')} className={state.tab === 'standings' ? 'btn-neon' : 'btn-outline'} style={{ padding: '8px 16px', fontSize: '0.85rem' }}>Tabla</button>
-            <button onClick={() => { setShowStats(!showStats); setShowH2H(false); }} className={showStats ? 'btn-neon' : 'btn-outline'} style={{ padding: '8px 16px', fontSize: '0.85rem' }}>Stats</button>
-            <button onClick={() => { setShowH2H(!showH2H); setShowStats(false); }} className={showH2H ? 'btn-neon' : 'btn-outline'} style={{ padding: '8px 16px', fontSize: '0.85rem' }}>H2H</button>
-            <button onClick={() => setEditTournament(state.activeTournament)} className="btn-outline" style={{ padding: '8px 16px', fontSize: '0.85rem' }}>Editar</button>
-          </>
-        )}
-      </div>
+        ))}
+      </nav>
 
       {state.tab === 'teams' && (
         <TeamsGrid teams={state.teams} records={state.clanRecords} players={state.players} onTeamClick={(t) => setDetailTeam(t.id)} />
@@ -85,6 +76,13 @@ function MakgoraHub() {
           onSelect={state.selectTournament}
           onEdit={(t) => setEditTournament(t)}
           onTeamCreated={() => state.loadTeams()}
+        />
+      )}
+      {state.tab === 'tournaments' && (
+        <ChampionsHistory
+          tournaments={state.tournaments}
+          teams={state.teams}
+          onSelect={state.selectTournament}
         />
       )}
 
@@ -153,13 +151,6 @@ function MakgoraHub() {
         />
       )}
 
-      {state.tab === 'champions' && (
-        <ChampionsHistory
-          tournaments={state.tournaments}
-          teams={state.teams}
-          onSelect={state.selectTournament}
-        />
-      )}
 
       {editFixture && state.activeTournament && (
         <FixtureEditor

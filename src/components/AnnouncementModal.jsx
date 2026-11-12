@@ -91,7 +91,7 @@ function AnnouncementModal({ onClose }) {
     <div className="modal-overlay">
       <div className="modal-content glass-panel animated-slide" style={{ maxWidth: '500px', textAlign: 'center' }}>
         <div style={{ fontSize: '2.5rem', marginBottom: '10px' }}>📢</div>
-        <h2 style={{ color: 'var(--color-gold)', fontSize: '1.2rem', fontWeight: 800, fontFamily: 'Outfit', marginBottom: '5px' }}>
+        <h2 style={{ color: 'var(--color-gold)', fontSize: '1.2rem', fontWeight: 800, fontFamily: 'var(--font-display)', marginBottom: '5px' }}>
           Anuncio del Reino
         </h2>
         <p style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)', marginBottom: '15px' }}>
@@ -99,8 +99,8 @@ function AnnouncementModal({ onClose }) {
         </p>
 
         <div style={{
-          background: 'rgba(255,179,0,0.05)',
-          border: '1px solid rgba(255,179,0,0.15)',
+          background: 'rgba(232, 185, 49,0.05)',
+          border: '1px solid rgba(232, 185, 49,0.15)',
           borderRadius: 'var(--radius-md)',
           padding: '20px',
           marginBottom: '15px',

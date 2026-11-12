@@ -47,7 +47,10 @@ const apisupabase = {
         if (clubScope) {
           return query.ilike('team_category', clubScope + '%');
         }
-        return query.eq('user_id', userId);
+        // Staff without a team or scope sees the whole club (RLS already
+        // allows tier <= 3 to read it). Filtering by user_id here hid
+        // everything someone else created.
+        return query;
       }
       return query;
     };
@@ -122,7 +125,8 @@ const apisupabase = {
       .from('players')
       .upsert({
         id: player.id,
-        user_id: player.user_id || player.userId || userId,
+        // user_id = cuenta del jugador, nunca quien edita (created_by lo pone la BD).
+        ...((player.user_id || player.userId) ? { user_id: player.user_id || player.userId } : {}),
         ...(player.username !== undefined ? { username: player.username } : {}),
         legacy_id: player.legacy_id,
         first_name: player.first_name,
@@ -492,6 +496,46 @@ export async function deleteCustomTactic(id) {
 
   if (error) {
     handleError(error, 'supabaseApi.deleteTactic', { notifyUser: true });
+    return false;
+  }
+  return true;
+}
+
+// ─── Tactical Plays (jugadas propias de la Pizarra) ─────────────
+
+const isMissingTable = (error) => ['PGRST205', '42P01'].includes(error?.code);
+
+/** Returns { plays, available }. available=false means the table isn't deployed yet. */
+export async function fetchTacticalPlays(scope) {
+  const { data, error } = await supabase
+    .from('tactical_plays')
+    .select('id, name, scope, phases, user_id, created_at')
+    .or(`scope.eq.all,scope.eq.${scope}`)
+    .order('created_at', { ascending: false });
+  if (error) {
+    if (!isMissingTable(error)) handleError(error, 'supabaseApi.fetchTacticalPlays', { silent: true });
+    return { plays: [], available: !isMissingTable(error) };
+  }
+  return { plays: data || [], available: true };
+}
+
+export async function createTacticalPlay({ name, scope, phases }) {
+  const { data, error } = await supabase
+    .from('tactical_plays')
+    .insert({ name, scope, phases })
+    .select('id, name, scope, phases, user_id, created_at')
+    .single();
+  if (error) {
+    handleError(error, 'supabaseApi.createTacticalPlay', { notifyUser: true });
+    return null;
+  }
+  return data;
+}
+
+export async function deleteTacticalPlay(id) {
+  const { error } = await supabase.from('tactical_plays').delete().eq('id', id);
+  if (error) {
+    handleError(error, 'supabaseApi.deleteTacticalPlay', { notifyUser: true });
     return false;
   }
   return true;

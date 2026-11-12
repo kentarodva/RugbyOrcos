@@ -92,7 +92,7 @@ export function RaffleAssignmentModal({ campaign, players, onClose }) {
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content animated-slide" style={{ maxWidth: '600px' }} onClick={e => e.stopPropagation()}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-          <h3 style={{ fontSize: '1.2rem', fontWeight: 800, fontFamily: 'Outfit' }}>🎟️ Asignar Números — {campaign.name}</h3>
+          <h3 style={{ fontSize: '1.2rem', fontWeight: 600 }}>🎟️ Asignar Números — {campaign.name}</h3>
           <button onClick={onClose} className="btn-outline" style={{ padding: '4px 10px', fontSize: '0.75rem' }}>✕</button>
         </div>
 

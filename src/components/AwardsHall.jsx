@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useTeamPlayers } from '../context/hooks/useFilterByView';
 import { formatLocalDate } from '../utils/dates.js';
 import { MENSUALIDAD_BASE } from './Finanzas/constants';
+import { membershipStatus } from '../utils/membership';
 
 const HONOR_AWARDS = [
   { id: 'mvp', name: 'MVP Legendario', icon: '🏆', desc: 'Mas MVPs', calc: p => (p.matchStats || []).filter(m => m.mvp).length, higher: true },
@@ -30,7 +31,7 @@ const TAVERN_AWARDS = [
   { id: 'fridge', name: 'Nevera del Año', icon: '🧊', desc: 'Mas semanas lesionado', calc: p => (p.injuryLog || []).reduce((s, i) => s + (i.weeks || 0), 0), higher: true },
   { id: 'slip', name: 'Resbalon de Oro', icon: '🍌', desc: 'Turnovers perdidos', calc: p => -(p.matchStats || []).reduce((s, m) => s + (m.turnovers || 0), 0), higher: false },
   { id: 'ghost', name: 'El Fantasma', icon: '💨', desc: '0 tackles', calc: p => (p.matchStats || []).reduce((s, m) => s + (m.tackles || 0), 0) === 0 && (p.matchStats || []).length > 0 ? 1 : 0, higher: true },
-  { id: 'debt', name: 'Moroso del Año', icon: '💸', desc: 'Mayor deuda membresia', calc: p => { const m = p.memberships || {}; return Math.max(0, (m.due || MENSUALIDAD_BASE) - (m.paid || 0)); }, higher: true },
+  { id: 'debt', name: 'Moroso del Año', icon: '💸', desc: 'Mayor deuda membresia', calc: p => membershipStatus(p, MENSUALIDAD_BASE).owed, higher: true },
   { id: 'sleepy', name: 'Dormilon', icon: '😴', desc: 'Promedio mas bajo sueño', calc: p => { const w = p.wellnessLogs || []; if (!w.length) return 5; return w.reduce((s, x) => s + (x.sleep || 0), 0) / w.length; }, higher: false },
   { id: 'stressed', name: 'Estresado Cronico', icon: '😰', desc: 'Promedio mas alto estres', calc: p => { const w = p.wellnessLogs || []; if (!w.length) return 1; return w.reduce((s, x) => s + (x.stress || 0), 0) / w.length; }, higher: true },
   { id: 'latelate', name: 'Golpeador de Puertas', icon: '🚪', desc: 'Mas llegadas tarde', calc: p => (p.attendance || {}).late || 0, higher: true },
@@ -74,7 +75,7 @@ function AwardsHall() {
   return (
     <div style={{ padding: '15px' }}>
       <div className="glass-panel" style={{ padding: '25px', borderRadius: 'var(--radius-lg)', marginBottom: '20px', textAlign: 'center' }}>
-        <h2 style={{ color: 'var(--color-gold)', fontSize: '1.4rem', fontWeight: 800, fontFamily: 'Outfit' }}>
+        <h2 style={{ color: 'var(--color-gold)', fontSize: '1.4rem', fontWeight: 800, fontFamily: 'var(--font-display)' }}>
           Salon de la Fama del Reino
         </h2>
         <p style={{ color: 'var(--color-text-muted)', fontSize: '0.85rem', marginTop: '5px' }}>
@@ -93,20 +94,20 @@ function AwardsHall() {
         </button>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(380px, 1fr))', gap: '15px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 380px), 1fr))', gap: '15px' }}>
         {allAwards.map(award => (
           <div key={award.id} className="glass-panel" style={{ padding: '18px', borderRadius: 'var(--radius-md)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
               <span style={{ fontSize: '1.5rem' }}>{award.icon}</span>
               <div>
-                <h4 style={{ color: 'var(--color-gold)', fontSize: '0.9rem', fontWeight: 700, fontFamily: 'Outfit' }}>{award.name}</h4>
+                <h4 style={{ color: 'var(--color-text)', fontSize: '0.9rem', fontWeight: 600 }}>{award.name}</h4>
                 <p style={{ color: 'var(--color-text-muted)', fontSize: '0.7rem' }}>{award.desc}</p>
               </div>
             </div>
 
             {award.top.map((player, idx) => {
               const medal = idx === 0 ? '🥇' : idx === 1 ? '🥈' : '🥉';
-              const colors = ['#ffb300', '#b0bec5', '#cd7f32'];
+              const colors = ['#E8B931', '#b0bec5', '#cd7f32'];
               const score = typeof player._score === 'number' && player._score % 1 !== 0 && !award.higher && award.id !== 'sleepy'
                 ? (player._score * 100).toFixed(0) + '%'
                 : typeof player._score === 'number'
@@ -167,18 +168,18 @@ function renderPrintCert(player, award) {
     <style>
       @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&display=swap');
       * { margin: 0; padding: 0; box-sizing: border-box; }
-      body { font-family: 'Outfit', sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; background: #0a0c10; }
-      .cert { width: 750px; padding: 60px 40px; background: linear-gradient(135deg, #0f1624, #1a1f2e); border: 4px solid #00e676; border-radius: 16px; text-align: center; box-shadow: 0 0 40px rgba(0,230,118,0.15); }
-      .logo { font-size: 3rem; filter: drop-shadow(0 0 10px #00e676); margin-bottom: 10px; }
-      .title { font-size: 2.2rem; font-weight: 800; color: #00e676; text-shadow: 0 0 15px rgba(0,230,118,0.4); margin-bottom: 10px; letter-spacing: 2px; }
-      .subtitle { font-size: 1rem; color: #ffb300; font-weight: 600; margin-bottom: 30px; text-transform: uppercase; letter-spacing: 3px; }
-      .award-name { font-size: 1.8rem; font-weight: 800; color: #ffb300; margin-bottom: 8px; }
+      body { font-family: var(--font-display); display: flex; justify-content: center; align-items: center; min-height: 100vh; background: #0D100E; }
+      .cert { width: 750px; padding: 60px 40px; background: linear-gradient(135deg, #181B19, #222523); border: 4px solid #2EE57A; border-radius: 16px; text-align: center; box-shadow: 0 0 40px rgba(46, 229, 122,0.15); }
+      .logo { font-size: 3rem; filter: drop-shadow(0 0 10px #2EE57A); margin-bottom: 10px; }
+      .title { font-size: 2.2rem; font-weight: 800; color: #2EE57A; text-shadow: 0 0 15px rgba(46, 229, 122,0.4); margin-bottom: 10px; letter-spacing: 2px; }
+      .subtitle { font-size: 1rem; color: #E8B931; font-weight: 600; margin-bottom: 30px; text-transform: uppercase; letter-spacing: 3px; }
+      .award-name { font-size: 1.8rem; font-weight: 800; color: #E8B931; margin-bottom: 8px; }
       .award-icon { font-size: 3rem; margin-bottom: 10px; }
       .player-name { font-size: 2.5rem; font-weight: 800; color: #ffffff; margin: 20px 0; text-shadow: 0 0 20px rgba(255,255,255,0.2); }
-      .line { width: 200px; height: 2px; background: linear-gradient(90deg, transparent, #00e676, transparent); margin: 20px auto; }
+      .line { width: 200px; height: 2px; background: linear-gradient(90deg, transparent, #2EE57A, transparent); margin: 20px auto; }
       .footer { margin-top: 40px; font-size: 0.8rem; color: #6b7280; }
-      .footer span { display: block; margin-top: 5px; color: #00e676; font-weight: 600; }
-      @media print { body { background: #0a0c10; } }
+      .footer span { display: block; margin-top: 5px; color: #2EE57A; font-weight: 600; }
+      @media print { body { background: #0D100E; } }
     </style></head><body>
     <div class="cert">
       <div class="logo">🛡️</div>

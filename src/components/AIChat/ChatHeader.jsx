@@ -5,7 +5,7 @@ export function ChatHeader({ configured, activeProvInfo, settingsReady, teamFixt
   return (
     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
       <div>
-        <h2 style={{ fontSize: '1.3rem', fontWeight: 800, fontFamily: 'Outfit, sans-serif' }} className="neon-text-primary">
+        <h2 style={{ fontSize: '1.3rem', fontWeight: 800, fontFamily: 'var(--font-display)' }} className="neon-text-primary">
           <Icon name="ai" size={22} /> Chat Tactico
         </h2>
         <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>

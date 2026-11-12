@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { localDateKey } from '../../../utils/agendaItems';
 
 const MONTHS = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
 const DAY_LABELS = ['Dom','Lun','Mar','Mie','Jue','Vie','Sab'];
@@ -37,23 +38,23 @@ function MonthlyView({ teamEvents }) {
     <div className="glass-panel" style={{ padding: '20px', marginTop: '10px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
         <button onClick={prevMonth} className="btn-outline" style={{ padding: '4px 12px', fontSize: '0.78rem' }}>‹ Mes anterior</button>
-        <h4 style={{ fontSize: '1rem', fontWeight: 700, fontFamily: 'Outfit', color: 'var(--color-gold)' }}>
+        <h4 style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--color-text)' }}>
           {MONTHS[viewDate.getMonth()]} {viewDate.getFullYear()}
         </h4>
         <button onClick={nextMonth} className="btn-outline" style={{ padding: '4px 12px', fontSize: '0.78rem' }}>Mes siguiente ›</button>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '4px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, minmax(0, 1fr))', gap: '4px' }}>
         {DAY_LABELS.map(d => (
           <div key={d} style={{ textAlign: 'center', fontSize: '0.68rem', fontWeight: 700, color: 'var(--color-text-muted)', padding: '6px 0' }}>{d}</div>
         ))}
         {calendarDays.map((day, i) => {
           if (!day) return <div key={`empty-${i}`} />;
-          const isToday = today.toISOString().split('T')[0] === day.date;
+          const isToday = localDateKey(today) === day.date;
           return (
             <div key={day.date} style={{
               minHeight: '70px', padding: '4px', borderRadius: 'var(--radius-sm)',
-              background: isToday ? 'rgba(0,230,118,0.06)' : 'rgba(255,255,255,0.01)',
+              background: isToday ? 'rgba(46, 229, 122,0.06)' : 'rgba(255,255,255,0.01)',
               border: `1px solid ${isToday ? 'var(--color-primary)' : 'var(--border-glass)'}`,
               fontSize: '0.65rem', overflow: 'hidden',
             }}>
@@ -63,7 +64,7 @@ function MonthlyView({ teamEvents }) {
               {day.events.slice(0, 2).map(e => (
                 <div key={e.id} style={{
                   padding: '1px 3px', marginBottom: '1px', borderRadius: '2px',
-                  background: e.type === 'partido' ? 'rgba(255,61,0,0.15)' : 'rgba(0,176,255,0.12)',
+                  background: e.type === 'partido' ? 'rgba(255, 92, 77,0.15)' : 'rgba(90, 169, 255,0.12)',
                   whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
                   fontSize: '0.58rem', fontWeight: 500,
                 }}>

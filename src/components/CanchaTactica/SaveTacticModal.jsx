@@ -24,7 +24,7 @@ function SaveTacticModal({
   return (
     <div className="modal-overlay">
       <div className="modal-content glass-panel animated-slide" style={{ maxWidth: '420px' }}>
-        <h3 className="neon-text-primary" style={{ marginBottom: '15px', fontFamily: 'Outfit' }}>
+        <h3 className="neon-text-primary" style={{ marginBottom: '15px', fontFamily: 'var(--font-display)' }}>
           Guardar Táctica
         </h3>
 

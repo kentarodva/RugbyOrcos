@@ -54,28 +54,28 @@ function RestTimer({ endsAt, total, label, onAdjust, onSkip, onFinish }) {
         position: 'fixed', left: '50%', transform: 'translateX(-50%)', zIndex: 900,
         bottom: 'calc(84px + env(safe-area-inset-bottom, 0px))',
         width: 'min(440px, calc(100% - 24px))', padding: '12px 14px', borderRadius: '18px',
-        background: 'rgba(10,15,24,0.96)', border: '1.5px solid rgba(0,230,118,0.45)',
-        boxShadow: '0 10px 40px rgba(0,0,0,0.6), 0 0 24px rgba(0,230,118,0.18)', backdropFilter: 'blur(12px)',
+        background: 'rgba(16, 19, 17,0.96)', border: '1.5px solid rgba(46, 229, 122,0.45)',
+        boxShadow: '0 10px 40px rgba(0,0,0,0.6), 0 0 24px rgba(46, 229, 122,0.18)', backdropFilter: 'blur(12px)',
       }}
     >
       <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-        <Timer size={22} color="#00e676" aria-hidden="true" />
+        <Timer size={22} color="#2EE57A" aria-hidden="true" />
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ fontSize: '0.66rem', textTransform: 'uppercase', letterSpacing: '0.6px', color: 'var(--color-text-muted)', fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
             Descanso · {label}
           </div>
-          <div role="timer" style={{ fontFamily: 'Outfit', fontSize: '1.8rem', fontWeight: 900, color: remaining <= 10 ? '#ffd700' : '#fff', lineHeight: 1.1, fontVariantNumeric: 'tabular-nums' }}>
+          <div role="timer" style={{ fontFamily: 'var(--font-display)', fontSize: '1.8rem', fontWeight: 900, color: remaining <= 10 ? '#E8B931' : '#fff', lineHeight: 1.1, fontVariantNumeric: 'tabular-nums' }}>
             {formatRest(remaining)}
           </div>
         </div>
         <button type="button" aria-label="Restar 15 segundos" onClick={() => onAdjust(-15)} style={ctrlBtn}><Minus size={14} />15</button>
         <button type="button" aria-label="Sumar 15 segundos" onClick={() => onAdjust(15)} style={ctrlBtn}><Plus size={14} />15</button>
-        <button type="button" aria-label="Saltar descanso" onClick={onSkip} style={{ ...ctrlBtn, background: '#00e676', color: '#000', border: 'none' }}>
+        <button type="button" aria-label="Saltar descanso" onClick={onSkip} style={{ ...ctrlBtn, background: '#2EE57A', color: '#000', border: 'none' }}>
           <SkipForward size={18} />
         </button>
       </div>
       <div style={{ height: '4px', marginTop: '10px', background: 'rgba(255,255,255,0.08)', borderRadius: '2px', overflow: 'hidden' }}>
-        <div style={{ height: '100%', width: `${pct}%`, background: remaining <= 10 ? '#ffd700' : '#00e676', transition: 'width 0.25s linear' }} />
+        <div style={{ height: '100%', width: `${pct}%`, background: remaining <= 10 ? '#E8B931' : '#2EE57A', transition: 'width 0.25s linear' }} />
       </div>
     </div>
   );

@@ -3,6 +3,7 @@ import MatchTimer from './MatchTimer';
 import MatchDelayModal from './MatchDelayModal';
 import { buildMatchWhatsAppText, copyOrDownloadMatchBanner } from '../../../../utils/exportMatchBanner';
 import { playRugbyWhistle, isSoundEnabled, setSoundEnabled } from '../../../../utils/rugbyAudio';
+import { liveScore } from '../../../../utils/liveScore';
 import {
   OrcosWhistleIcon,
   OrcosDelayClockIcon,
@@ -18,15 +19,10 @@ function MatchHeader({ liveMatch, liveEvents, onPause, onResume, onDelay, onEnd,
   const [showDelayModal, setShowDelayModal] = useState(false);
 
   const status = liveMatch?.status || 'finished';
-  const score = (() => {
-    let orcos = liveMatch?.orcos_score || 0, opponent = liveMatch?.opponent_score || 0;
-    const SCORING = { try: 5, conversion: 2, penalty: 3, drop_goal: 3 };
-    for (const ev of liveEvents) {
-      const pts = SCORING[ev.event_type] || 0;
-      if (ev.team === 'orcos') orcos += pts;
-    }
-    return { orcos, opponent };
-  })();
+  // Solo desde los eventos (misma regla que la BD); sin eventos, lo guardado.
+  const score = liveEvents?.length
+    ? liveScore(liveEvents)
+    : { orcos: liveMatch?.orcos_score || 0, opponent: liveMatch?.opponent_score || 0 };
 
   const opponentName = liveMatch?.opponent_name || 'Rival';
 
@@ -112,14 +108,14 @@ function MatchHeader({ liveMatch, liveEvents, onPause, onResume, onDelay, onEnd,
     <div className="glass-panel" style={{ padding: '20px', textAlign: 'center', position: 'relative' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
         <span className="badge" style={{
-          background: status === 'live' ? 'rgba(0, 230, 118, 0.1)' : status === 'delayed' ? 'rgba(255, 171, 0, 0.15)' : status === 'paused' ? 'rgba(255, 234, 0, 0.1)' : 'rgba(255, 61, 0, 0.1)',
-          color: status === 'live' ? 'var(--color-primary)' : status === 'delayed' ? 'var(--color-orange, #ffab00)' : status === 'paused' ? 'var(--color-gold)' : 'var(--color-text-muted)',
-          border: `1px solid ${status === 'live' ? 'var(--color-primary)' : status === 'delayed' ? 'var(--color-orange, #ffab00)' : status === 'paused' ? 'var(--color-gold)' : 'var(--color-border)'}`,
+          background: status === 'live' ? 'rgba(46, 229, 122, 0.1)' : status === 'delayed' ? 'rgba(255, 171, 0, 0.15)' : status === 'paused' ? 'rgba(255, 234, 0, 0.1)' : 'rgba(255, 92, 77, 0.1)',
+          color: status === 'live' ? 'var(--color-primary)' : status === 'delayed' ? 'var(--color-orange, #F59E3D)' : status === 'paused' ? 'var(--color-gold)' : 'var(--color-text-muted)',
+          border: `1px solid ${status === 'live' ? 'var(--color-primary)' : status === 'delayed' ? 'var(--color-orange, #F59E3D)' : status === 'paused' ? 'var(--color-gold)' : 'var(--color-border)'}`,
           fontSize: '0.65rem', fontWeight: 800,
           display: 'inline-flex', alignItems: 'center', gap: '5px'
         }}>
           {status === 'live' && <>🔴 EN VIVO</>}
-          {status === 'delayed' && <><OrcosDelayClockIcon size={14} color="var(--color-orange, #ffab00)" /> ⏳ EN ESPERA / RETRASADO</>}
+          {status === 'delayed' && <><OrcosDelayClockIcon size={14} color="var(--color-orange, #F59E3D)" /> ⏳ EN ESPERA / RETRASADO</>}
           {status === 'paused' && <>⏸ PAUSADO</>}
           {status === 'finished' && <>✅ FINALIZADO</>}
         </span>
@@ -151,7 +147,7 @@ function MatchHeader({ liveMatch, liveEvents, onPause, onResume, onDelay, onEnd,
       {status === 'delayed' && (
         <div style={{
           background: 'rgba(255, 171, 0, 0.1)',
-          border: '1px solid var(--color-orange, #ffab00)',
+          border: '1px solid var(--color-orange, #F59E3D)',
           borderRadius: '8px',
           padding: '10px 14px',
           margin: '10px 0 14px',
@@ -160,9 +156,9 @@ function MatchHeader({ liveMatch, liveEvents, onPause, onResume, onDelay, onEnd,
           gap: '10px',
           textAlign: 'left'
         }}>
-          <OrcosDelayClockIcon size={24} color="var(--color-orange, #ffab00)" />
+          <OrcosDelayClockIcon size={24} color="var(--color-orange, #F59E3D)" />
           <div style={{ flex: 1 }}>
-            <div style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--color-orange, #ffab00)' }}>
+            <div style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--color-orange, #F59E3D)' }}>
               PARTIDO EN ESPERA EN COROZAL, SUCRE
             </div>
             <div style={{ fontSize: '0.74rem', color: '#fff' }}>
@@ -182,21 +178,21 @@ function MatchHeader({ liveMatch, liveEvents, onPause, onResume, onDelay, onEnd,
       <MatchTimer liveMatch={liveMatch} status={status} />
 
       <div style={{
-        display: 'grid', gridTemplateColumns: '1fr auto 1fr',
+        display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) auto minmax(0, 1fr)',
         gap: '15px', alignItems: 'center', margin: '15px 0',
       }}>
         <div style={{ textAlign: 'center' }}>
           <div style={{ fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px', color: 'var(--color-text-muted)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
             <OrcosRugbyBallIcon size={14} color="var(--color-primary)" /> Orcos
           </div>
-          <div style={{ fontSize: '3rem', fontWeight: 900, fontFamily: 'Outfit', color: 'var(--color-primary)', textShadow: '0 0 20px rgba(0, 230, 118, 0.3)' }}>
+          <div style={{ fontSize: '3rem', fontWeight: 900, fontFamily: 'var(--font-display)', color: 'var(--color-primary)', textShadow: '0 0 20px rgba(46, 229, 122, 0.3)' }}>
             {score.orcos}
           </div>
         </div>
         <div style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--color-text-muted)' }}>VS</div>
         <div style={{ textAlign: 'center' }}>
           <div style={{ fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px', color: 'var(--color-text-muted)' }}>{opponentName}</div>
-          <div style={{ fontSize: '3rem', fontWeight: 900, fontFamily: 'Outfit', color: 'var(--color-text)' }}>
+          <div style={{ fontSize: '3rem', fontWeight: 900, fontFamily: 'var(--font-display)', color: 'var(--color-text)' }}>
             {score.opponent}
           </div>
         </div>
@@ -230,7 +226,7 @@ function MatchHeader({ liveMatch, liveEvents, onPause, onResume, onDelay, onEnd,
           <button
             onClick={() => setShowDelayModal(true)}
             className="btn-outline"
-            style={{ fontSize: '0.75rem', padding: '8px 14px', borderColor: 'rgba(255, 171, 0, 0.4)', color: 'var(--color-orange, #ffab00)' }}
+            style={{ fontSize: '0.75rem', padding: '8px 14px', borderColor: 'rgba(255, 171, 0, 0.4)', color: 'var(--color-orange, #F59E3D)' }}
             title="Registrar retraso logístico o de transporte en Corozal"
           >
             ⏳ Retraso / Espera
@@ -249,7 +245,7 @@ function MatchHeader({ liveMatch, liveEvents, onPause, onResume, onDelay, onEnd,
           style={{
             fontSize: '0.75rem',
             padding: '8px 14px',
-            borderColor: 'rgba(0, 230, 118, 0.4)',
+            borderColor: 'rgba(46, 229, 122, 0.4)',
             color: 'var(--color-primary)',
             fontWeight: 800,
             display: 'inline-flex',

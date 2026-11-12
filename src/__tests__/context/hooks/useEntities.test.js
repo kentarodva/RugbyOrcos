@@ -1,13 +1,21 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 
+const db = vi.hoisted(() => ({ insertError: null, ledgerRows: [] }));
+
 vi.mock('../../../supabaseClient.js', () => ({
   supabase: {
     from: vi.fn(() => ({
       upsert: vi.fn(() => Promise.resolve({ data: null, error: null })),
+      insert: vi.fn(() => Promise.resolve({ data: null, error: db.insertError })),
+      select: vi.fn(() => ({
+        eq: vi.fn(() => Promise.resolve({ data: db.ledgerRows, error: null })),
+      })),
     })),
   },
 }));
+
+vi.mock('../../../utils/errorHandler', () => ({ handleError: vi.fn() }));
 
 function sanitize(value) {
   if (typeof value !== 'string') return value;
@@ -17,6 +25,8 @@ function sanitize(value) {
 describe('useEntities — Finanzas', () => {
   beforeEach(() => {
     localStorage.clear();
+    db.insertError = null;
+    db.ledgerRows = [];
   });
 
   it('addFinanceRecord agrega un registro con ID y teamCategory', async () => {
@@ -63,36 +73,51 @@ describe('useEntities — Finanzas', () => {
     expect(supabase.from).toHaveBeenCalledWith('finances');
   });
 
-  it('addMembershipPayment crea registro de membresia', async () => {
-    const pushMock = vi.fn();
-    const notifyMock = vi.fn();
+  it('addFinanceRecord quita el registro y avisa si Supabase devuelve error', async () => {
+    db.insertError = { message: 'new row violates row-level security policy' };
     const { useFinances } = await import('../../../context/hooks/useEntities');
-    const { result } = renderHook(() => useFinances('test', pushMock, notifyMock, { id: 'user-1' }));
+    const { handleError } = await import('../../../utils/errorHandler');
+    const { result } = renderHook(() => useFinances('test', vi.fn(), vi.fn(), { id: 'user-1' }));
 
     await act(async () => {
-      result.current.addMembershipPayment('Juan Perez', 10000, '2026-06-01');
+      await result.current.addFinanceRecord({ desc: 'Cancha', amount: 80000, type: 'egreso' });
+    });
+
+    expect(result.current.finances).toHaveLength(0);
+    expect(handleError).toHaveBeenCalledWith(db.insertError, 'useEntities.addFinanceRecord', { notifyUser: true });
+  });
+
+  it('addMembershipPayment trae el movimiento que creó la base de datos', async () => {
+    db.ledgerRows = [{
+      id: 'f-1', type: 'ingreso', descripcion: 'Abono Membresía - Juan Perez', amount: 10000,
+      date: '2026-06-01', category: 'mensualidad', team_category: 'test', payment_id: 'pay-1',
+    }];
+    const notifyMock = vi.fn();
+    const { useFinances } = await import('../../../context/hooks/useEntities');
+    const { result } = renderHook(() => useFinances('test', vi.fn(), notifyMock, { id: 'user-1' }));
+
+    await act(async () => {
+      await result.current.addMembershipPayment(10000, 'pay-1');
     });
 
     expect(result.current.finances).toHaveLength(1);
     const record = result.current.finances[0];
     expect(record.desc).toContain('Juan Perez');
-    expect(record.amount).toBe(10000);
-    expect(record.type).toBe('ingreso');
     expect(record.category).toBe('mensualidad');
+    expect(record.paymentId).toBe('pay-1');
     expect(notifyMock).toHaveBeenCalled();
   });
 
-  it('addMembershipPayment usa "Jugador" si no hay nombre', async () => {
-    const pushMock = vi.fn();
-    const notifyMock = vi.fn();
+  it('loadPaymentLedger no duplica un movimiento ya cargado', async () => {
+    db.ledgerRows = [{ id: 'f-1', type: 'ingreso', descripcion: 'Rifa X - Ana', amount: 2000, category: 'pro_fondos', payment_id: 'pay-2' }];
     const { useFinances } = await import('../../../context/hooks/useEntities');
-    const { result } = renderHook(() => useFinances('test', pushMock, notifyMock, { id: 'user-1' }));
+    const { result } = renderHook(() => useFinances('test', vi.fn(), vi.fn(), { id: 'user-1' }));
 
-    await act(async () => {
-      result.current.addMembershipPayment(null, 5000, '2026-06-01');
-    });
+    await act(async () => { await result.current.loadPaymentLedger('pay-2'); });
+    await act(async () => { await result.current.loadPaymentLedger('pay-2'); });
 
-    expect(result.current.finances[0].desc).toContain('Jugador');
+    expect(result.current.finances).toHaveLength(1);
+    expect(result.current.finances[0].category).toBe('pro_fondos');
   });
 });
 

@@ -113,7 +113,7 @@ export function printOfficialMatchSheet({
     const isCap = player?.rol === 'Capitan';
     return `<tr>
       <td style="text-align:center;font-weight:900;font-size:13px;background:#eef7ee">${slot.num}</td>
-      <td><strong>${esc(name)}</strong>${isCap ? ' <span style="background:#ffd740;color:#000;font-size:10px;padding:1px 5px;border-radius:3px;font-weight:900">CAP</span>' : ''}</td>
+      <td><strong>${esc(name)}</strong>${isCap ? ' <span style="background:#E8B931;color:#000;font-size:10px;padding:1px 5px;border-radius:3px;font-weight:900">CAP</span>' : ''}</td>
       <td style="font-size:12px;color:#444">${esc(slot.name)}</td>
       <td style="font-family:monospace;font-size:12px">${esc(doc)}</td>
       <td style="font-size:12px">${esc(eps)}</td>

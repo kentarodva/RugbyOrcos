@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import { EVENT_TYPES, normalizeEventType } from '../../../utils/eventTypes';
+import { localDateKey } from '../../../utils/agendaItems';
 
 const DAYS = [
   { num: 1, label: 'Lun' },
@@ -67,7 +68,7 @@ function AgendaForm({ initialData, onClose, onSave, existingEvents, currentTeamC
         const diff = (targetDay - currentDay + 7) % 7;
         target.setDate(target.getDate() + diff);
         if (target >= startDate) {
-          dates.push({ date: target.toISOString().split('T')[0], time: form.time });
+          dates.push({ date: localDateKey(target), time: form.time });
         }
       }
     }
@@ -133,7 +134,7 @@ function AgendaForm({ initialData, onClose, onSave, existingEvents, currentTeamC
 
   return (
     <div className="glass-panel animated-slide" style={{ padding: '25px' }}>
-      <h3 className="neon-text-primary" style={{ marginBottom: '20px', fontFamily: 'Outfit' }}>
+      <h3 className="neon-text-primary" style={{ marginBottom: '20px', fontFamily: 'var(--font-display)' }}>
         {isEditing ? 'Editar Sesion' : 'Programar Sesion'}
       </h3>
 
@@ -150,7 +151,7 @@ function AgendaForm({ initialData, onClose, onSave, existingEvents, currentTeamC
           />
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '10px' }}>
           <div className="form-group">
             <label>Fecha</label>
             <input type="date" value={form.date} onChange={set('date')} className="form-input" required />
@@ -161,7 +162,7 @@ function AgendaForm({ initialData, onClose, onSave, existingEvents, currentTeamC
           </div>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '10px' }}>
           <div className="form-group">
             <label>Tipo de Evento</label>
             <select value={form.type} onChange={set('type')} className="form-select">
@@ -220,8 +221,8 @@ function AgendaForm({ initialData, onClose, onSave, existingEvents, currentTeamC
             {previewDates.length > 0 && (
               <div style={{
                 fontSize: '0.7rem', color: 'var(--color-gold)',
-                background: 'rgba(255,179,0,0.05)', padding: '8px 10px',
-                borderRadius: 'var(--radius-sm)', border: '1px solid rgba(255,179,0,0.1)',
+                background: 'rgba(232, 185, 49,0.05)', padding: '8px 10px',
+                borderRadius: 'var(--radius-sm)', border: '1px solid rgba(232, 185, 49,0.1)',
               }}>
                 <strong>{previewDates.length} eventos:</strong>{' '}
                 {previewDates.slice(0, 6).map(d => {
@@ -236,7 +237,7 @@ function AgendaForm({ initialData, onClose, onSave, existingEvents, currentTeamC
 
         {conflictWarning && (
           <div style={{
-            background: 'rgba(255,61,0,0.08)', border: '1px solid rgba(255,61,0,0.3)',
+            background: 'rgba(255, 92, 77,0.08)', border: '1px solid rgba(255, 92, 77,0.3)',
             padding: '10px 12px', borderRadius: 'var(--radius-sm)',
             fontSize: '0.72rem', color: 'var(--color-red)'
           }}>
@@ -251,7 +252,7 @@ function AgendaForm({ initialData, onClose, onSave, existingEvents, currentTeamC
           </div>
         )}
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '10px' }}>
           <div className="form-group">
             <label>Fecha Fin (opcional)</label>
             <input type="date" value={form.endDate} onChange={set('endDate')} className="form-input" min={form.date} />

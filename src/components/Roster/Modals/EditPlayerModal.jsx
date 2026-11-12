@@ -65,14 +65,14 @@ function EditPlayerModal({ player, onClose, onSubmit, makgoraTeams, SYSTEM_ROLES
         initial={{ opacity: 0, y: 24, scale: 0.97 }} animate={{ opacity: 1, y: 0, scale: 1 }}
         exit={{ opacity: 0, y: -16, scale: 0.97 }}
         transition={{ duration: 0.25, ease: [0.2, 0.8, 0.2, 1] }}>
-        <h3 className="neon-text-gold" style={{ marginBottom: '20px', fontFamily: 'Outfit' }}>Editar Datos de Guerrero</h3>
+        <h3 className="neon-text-gold" style={{ marginBottom: '20px', fontFamily: 'var(--font-display)' }}>Editar Datos de Guerrero</h3>
 
         <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '15px' }}>
           <PlayerPhoto player={player} size={64} />
         </div>
 
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '10px' }}>
             <div className="form-group">
               <label>Nombre Completo</label>
               <input type="text" value={form.name} onChange={set('name')} className="form-input" required />
@@ -83,7 +83,7 @@ function EditPlayerModal({ player, onClose, onSubmit, makgoraTeams, SYSTEM_ROLES
             </div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '10px' }}>
             <div className="form-group">
               <label>Numero de Camiseta</label>
               <input type="number" value={form.camiseta} onChange={set('camiseta')} className="form-input" />
@@ -115,7 +115,7 @@ function EditPlayerModal({ player, onClose, onSubmit, makgoraTeams, SYSTEM_ROLES
             />
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr)', gap: '10px' }}>
             <div className="form-group" style={{ margin: 0 }}>
               <label style={{ fontSize: '0.72rem' }}>Peso (KG)</label>
               <WeightInput value={form.weight} onChange={set('weight')} placeholder="95" style={{ padding: '6px 8px', fontSize: '0.78rem' }} />
@@ -140,7 +140,7 @@ function EditPlayerModal({ player, onClose, onSubmit, makgoraTeams, SYSTEM_ROLES
             </select>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '10px' }}>
             <div className="form-group">
               <label>Celular / WhatsApp</label>
               <input type="text" value={form.phone} onChange={set('phone')} className="form-input" />

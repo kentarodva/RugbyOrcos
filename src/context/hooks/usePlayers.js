@@ -7,6 +7,7 @@ import { calculateAttributes } from '../../engine/attributeCalculator.js';
 import { playerSchema } from '../../schemas/player.js';
 import { parseFullName } from '../../utils/nameParser.js';
 import { generateId, sanitize } from '../../utils/ids.js';
+import { localDateKey } from '../../utils/agendaItems';
 
 const normalizePlayer = (p) => ({
   ...p,
@@ -15,7 +16,7 @@ const normalizePlayer = (p) => ({
   infractionLog: p.infractionLog || [],
 });
 
-export function usePlayers(activeTeam, sendLocalNotification, pushPlayerToSupabase, pushEntityToSupabase, user, mensualidadBase = 10000) {
+export function usePlayers(activeTeam, sendLocalNotification, pushPlayerToSupabase, pushEntityToSupabase, user) {
   const [players, setPlayers] = useState(() => []);
 
   const saveAttributeHistory = (playerId, date, attrs, source = 'auto') => {
@@ -36,7 +37,7 @@ export function usePlayers(activeTeam, sendLocalNotification, pushPlayerToSupaba
       console.warn('[usePlayers.addPlayer] Schema validation:', validation.error.issues.map(i => `${i.path.join('.')}: ${i.message}`).join('; '));
     }
     const computedAttrs = player.attributes || calculateAttributes(player);
-    const today = new Date().toISOString().split('T')[0];
+    const today = localDateKey();
 
     const parsed = player.name ? parseFullName(player.name) : null;
     const firstName = player.firstName ?? parsed?.firstName ?? '';
@@ -102,7 +103,7 @@ export function usePlayers(activeTeam, sendLocalNotification, pushPlayerToSupaba
     );
     if (physicalChanged) {
       const newAttrs = calculateAttributes(safePlayer);
-      const today = new Date().toISOString().split('T')[0];
+      const today = localDateKey();
       safePlayer.attributes = newAttrs;
       safePlayer.history = [...(prevPlayer.history || []), { date: today, source: 'auto', ...newAttrs }];
       saveAttributeHistory(safePlayer.id, today, newAttrs, 'auto');
@@ -124,17 +125,18 @@ export function usePlayers(activeTeam, sendLocalNotification, pushPlayerToSupaba
     }
   }, [players, sendLocalNotification, user?.id]);
 
-  const recordAttendance = useCallback(async (sessionDate, attendanceList, eventId) => {
+  // eventId: evento del calendario; fixtureId: partido programado (migración 93). Uno u otro.
+  const recordAttendance = useCallback(async (sessionDate, attendanceList, eventId, fixtureId = null) => {
     const statusMap = { presente: 'present', tarde: 'late', falta_injustificada: 'absent_unjustified', falta_justificada: 'absent_justified' };
     const penaltyByStatus = { present: 0, late: 15, absent_unjustified: 50, absent_justified: 0 };
     const reverseStatusMap = Object.fromEntries(Object.entries(statusMap).map(([k, v]) => [v, k]));
 
     let existingByPlayer = {};
-    if (eventId) {
+    if (eventId || fixtureId) {
       const { data: existing } = await supabase
         .from('attendance')
         .select('player_id, status')
-        .eq('event_id', eventId);
+        .eq(fixtureId ? 'fixture_id' : 'event_id', fixtureId || eventId);
       if (existing) {
         existing.forEach(r => { existingByPlayer[r.player_id] = r.status; });
       }
@@ -144,22 +146,21 @@ export function usePlayers(activeTeam, sendLocalNotification, pushPlayerToSupaba
       player_id: playerId,
       event_date: sessionDate,
       status: statusMap[status] || status,
-      event_id: eventId || null
+      event_id: fixtureId ? null : (eventId || null),
+      ...(fixtureId ? { fixture_id: fixtureId } : {}),
     }));
 
     if (records.length > 0) {
-      const { error } = await supabase.from('attendance').upsert(records, { onConflict: 'player_id,event_id' });
+      const { error } = await supabase.from('attendance').upsert(records, { onConflict: fixtureId ? 'player_id,fixture_id' : 'player_id,event_id' });
       if (error) {
         handleError(error, 'usePlayers.recordAttendance', { notifyUser: true });
         return false;
       }
     }
 
-    const summaryUpserts = [];
-    const penaltyUpserts = [];
-
+    // Local state only, for an instant UI. The database recomputes the
+    // summary and applies burpees in a trigger on attendance (migration 87).
     setPlayers(prev => prev.map(player => {
-      if (player.teamCategory !== activeTeam) return player;
       const uiStatus = attendanceList[player.id];
       if (!uiStatus) return player;
 
@@ -190,35 +191,12 @@ export function usePlayers(activeTeam, sendLocalNotification, pushPlayerToSupaba
       newPenalties.burpees = Math.max(0, newPenalties.burpees - oldBurpees + newBurpees);
       if (uiStatus === 'falta_injustificada') newPenalties.cones = true;
 
-      summaryUpserts.push({
-        player_id: player.id,
-        total: newAttendance.total || 0,
-        present: newAttendance.present || 0,
-        late: newAttendance.late || 0,
-        absent_unjustified: newAttendance.absentUnjustified || 0,
-        absent_justified: newAttendance.absentJustified || 0,
-        updated_at: new Date().toISOString(),
-      });
-      penaltyUpserts.push({
-        player_id: player.id,
-        burpees: newPenalties.burpees || 0,
-        cones: Boolean(newPenalties.cones),
-        updated_at: new Date().toISOString(),
-      });
-
       return { ...player, attendance: newAttendance, penalties: newPenalties };
     }));
 
-    if (summaryUpserts.length > 0) {
-      supabase.from('player_attendance_summary').upsert(summaryUpserts, { onConflict: 'player_id' }).then(() => {}, () => {});
-    }
-    if (penaltyUpserts.length > 0) {
-      supabase.from('penalties').upsert(penaltyUpserts, { onConflict: 'player_id' }).then(() => {}, () => {});
-    }
-
     sendLocalNotification('Asistencia Guardada', `Se registró la asistencia del evento del ${sessionDate}.`);
     return true;
-  }, [activeTeam, sendLocalNotification]);
+  }, [sendLocalNotification]);
 
   const recordMatchInfractions = useCallback((matchDate, infractionsList) => {
     const penaltyRecords = [];
@@ -268,7 +246,7 @@ export function usePlayers(activeTeam, sendLocalNotification, pushPlayerToSupaba
     }));
   }, []);
 
-  const recordInjury = useCallback((playerId, diagnosis, weeks, date = new Date().toISOString().split('T')[0]) => {
+  const recordInjury = useCallback((playerId, diagnosis, weeks, date = localDateKey()) => {
     setPlayers(prev => prev.map(p => {
       if (p.id !== playerId) return p;
       supabase.from('injury_log').upsert({ player_id: playerId, injury_date: date, diagnosis: sanitize(diagnosis), recovery_weeks: weeks, phase: 1 }).then(() => {}).catch(err => handleError(err, 'usePlayers', { notifyUser: true }));
@@ -302,7 +280,7 @@ export function usePlayers(activeTeam, sendLocalNotification, pushPlayerToSupaba
   const recordWellness = useCallback((playerId, wellnessData) => {
     setPlayers(prev => prev.map(p => {
       if (p.id !== playerId) return p;
-      supabase.from('wellness_logs').upsert({ player_id: playerId, log_date: wellnessData.date || new Date().toISOString().split('T')[0], sleep_quality: wellnessData.sleep, muscle_soreness: wellnessData.soreness, stress_level: wellnessData.stress }).then(() => {}).catch(err => handleError(err, 'usePlayers', { notifyUser: true }));
+      supabase.from('wellness_logs').upsert({ player_id: playerId, log_date: wellnessData.date || localDateKey(), sleep_quality: wellnessData.sleep, muscle_soreness: wellnessData.soreness, stress_level: wellnessData.stress }).then(() => {}).catch(err => handleError(err, 'usePlayers', { notifyUser: true }));
       const logs = p.wellnessLogs || [];
       return { ...p, wellnessLogs: [...logs, { id: generateId('wl_'), ...wellnessData }].slice(-30) };
     }));
@@ -312,7 +290,7 @@ export function usePlayers(activeTeam, sendLocalNotification, pushPlayerToSupaba
     setPlayers(prev => prev.map(p => {
       if (p.id !== playerId) return p;
       const currentHia = p.hiaAssessments || [];
-      const today = new Date().toISOString().split('T')[0];
+      const today = localDateKey();
       const symptoms = symptomsDetected ? ['Sintomas detectados'] : ['Sin sintomas'];
       supabase.from('hia_assessments').upsert({ player_id: playerId, assessment_date: today, symptoms }).then(() => {}).catch(err => handleError(err, 'usePlayers', { notifyUser: true }));
       let newEstado = p.estado;
@@ -331,7 +309,7 @@ export function usePlayers(activeTeam, sendLocalNotification, pushPlayerToSupaba
   const logWorkout = useCallback((playerId, workoutData) => {
     setPlayers(prev => prev.map(p => {
       if (p.id !== playerId) return p;
-      const today = new Date().toISOString().split('T')[0];
+      const today = localDateKey();
       supabase.from('workout_logs').upsert({
         player_id: playerId, workout_date: today,
         routine_name: workoutData.routineName || workoutData.routine || null,
@@ -357,7 +335,7 @@ export function usePlayers(activeTeam, sendLocalNotification, pushPlayerToSupaba
   }, [pushPlayerToSupabase]);
 
   const updateGymStats = useCallback((playerId, gymStats) => {
-    const today = new Date().toISOString().split('T')[0];
+    const today = localDateKey();
     const squat = Number(gymStats.squat || 0);
     const bench = Number(gymStats.bench || 0);
     const deadlift = Number(gymStats.deadlift || 0);
@@ -384,18 +362,15 @@ export function usePlayers(activeTeam, sendLocalNotification, pushPlayerToSupaba
   }, [pushPlayerToSupabase]);
 
   const recordMembershipPayment = useCallback(async (playerId, amount) => {
-    const today = new Date().toISOString().split('T')[0];
+    const today = localDateKey();
     let playerName = '';
-    let updatedPlayer = null;
+    // Vista optimista; los totales reales los recalcula la BD al insertar el pago (migración 92).
     setPlayers(prev => prev.map(p => {
       if (p.id !== playerId) return p;
       playerName = p.name;
       const current = p.memberships || { paid: 0, due: 0 };
-      const newPaid = (current.paid || 0) + amount;
-      updatedPlayer = { ...p, memberships: { paid: newPaid, due: current.due || mensualidadBase, lastPayment: today, lastAmount: amount } };
-      return updatedPlayer;
+      return { ...p, memberships: { ...current, paid: (current.paid || 0) + amount, lastPayment: today, lastAmount: amount } };
     }));
-    if (updatedPlayer) pushPlayerToSupabase(updatedPlayer);
     const paymentId = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => { const r = Math.random() * 16 | 0; return (c === 'x' ? r : r & 0x3 | 0x8).toString(16); });
     const { error: insertError } = await supabase.from('player_payments').insert({
       id: paymentId, player_id: playerId, amount,
@@ -404,18 +379,15 @@ export function usePlayers(activeTeam, sendLocalNotification, pushPlayerToSupaba
     });
     if (insertError) handleError(insertError, 'usePlayers.recordMembershipPayment', { notifyUser: true });
     return { playerName, date: today, paymentId };
-  }, [pushPlayerToSupabase, mensualidadBase]);
+  }, []);
 
   const reverseMembershipPayment = useCallback((playerId, amount) => {
     setPlayers(prev => prev.map(p => {
       if (p.id !== playerId) return p;
       const current = p.memberships || { paid: 0, due: 0 };
-      const newPaid = Math.max(0, (current.paid || 0) - amount);
-      const updated = { ...p, memberships: { ...current, paid: newPaid } };
-      pushPlayerToSupabase(updated);
-      return updated;
+      return { ...p, memberships: { ...current, paid: Math.max(0, (current.paid || 0) - amount) } };
     }));
-  }, [pushPlayerToSupabase]);
+  }, []);
 
   const createPlayerCredentials = useCallback(async (playerId) => {
     const player = players.find(p => p.id === playerId);
@@ -464,18 +436,29 @@ export function usePlayers(activeTeam, sendLocalNotification, pushPlayerToSupaba
     }
   }, [user?.id]);
 
-  const applyMonthlyCharge = useCallback(async (playerIds, amount) => {
-    let count = 0;
-    setPlayers(prev => prev.map(p => {
-      if (!playerIds.includes(p.id)) return p;
-      count++;
-      const current = p.memberships || { paid: 0, due: 0 };
-      const updated = { ...p, memberships: { ...current, due: (current.due || 0) + amount } };
-      pushPlayerToSupabase(updated);
-      return updated;
-    }));
-    return count;
-  }, [pushPlayerToSupabase]);
+  // Cobro mensual en la BD: un cobro por jugador y mes, con la cuota configurada del club.
+  // Devuelve cuántos quedaron cobrados (los ya cobrados este mes no cuentan) o lanza el error.
+  const applyMonthlyCharge = useCallback(async (playerIds) => {
+    if (!playerIds?.length) return 0;
+    const { data: count, error } = await supabase.rpc('apply_monthly_charge', { p_player_ids: playerIds });
+    if (error) throw error;
+    const { data: rows } = await supabase
+      .from('players')
+      .select('id, memberships_due, memberships_paid, last_payment_date, last_payment_amount')
+      .in('id', playerIds);
+    if (rows?.length) {
+      const byId = new Map(rows.map(r => [r.id, r]));
+      setPlayers(prev => prev.map(p => {
+        const r = byId.get(p.id);
+        if (!r) return p;
+        return { ...p, memberships: {
+          due: Number(r.memberships_due) || 0, paid: Number(r.memberships_paid) || 0,
+          lastPayment: r.last_payment_date || null, lastAmount: r.last_payment_amount || null,
+        } };
+      }));
+    }
+    return count || 0;
+  }, []);
 
   return {
     players, setPlayers, normalizePlayer,

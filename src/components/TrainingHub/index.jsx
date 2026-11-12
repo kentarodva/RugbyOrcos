@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import { ClubContext } from '../../context/ClubContext';
 import { useToast } from '../../context/ToastContext';
 import { useTeamPlayers } from '../../context/hooks/useFilterByView';
@@ -26,58 +26,28 @@ function TrainingHub() {
     handleSaveWorkout,
     handleSelectPlayer,
   } = useTrainingState(teamPlayers, logWorkout, schedule, activeTeam, showToast);
+  const [createMode, setCreateMode] = useState('plan');
 
   return (
     <div className="animated-fade" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
 
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '15px' }}>
-        <div>
-          <h2 style={{ fontSize: '1.5rem', fontWeight: 800, fontFamily: 'Outfit, sans-serif' }} className="neon-text-primary">
-            Centro de Entrenamientos Especificos
-          </h2>
-          <p style={{ color: 'var(--color-text-muted)', fontSize: '0.85rem' }}>
-            Rutinas tácticas y físicas personalizadas reactivamente según la posición y el rol de cada guerrero.
-          </p>
-        </div>
-      </div>
+      <header style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+        <span className="page-eyebrow">Rutinas según posición y rol</span>
+        <h1 className="page-title">Entrenamientos</h1>
+      </header>
 
-      <div style={{ display: 'flex', gap: '10px', borderBottom: '1px solid var(--border-glass)', paddingBottom: '12px', flexWrap: 'wrap' }}>
-        <button
-          onClick={() => setActiveTab('team')}
-          className={`tab-btn ${activeTab === 'team' ? 'active' : ''}`}
-          style={{ fontSize: '0.9rem', padding: '10px 20px' }}
-        >
-          📊 Vista Equipo
-        </button>
-        <button
-          onClick={() => setActiveTab('plan')}
-          className={`tab-btn ${activeTab === 'plan' ? 'active' : ''}`}
-          style={{ fontSize: '0.9rem', padding: '10px 20px' }}
-        >
-          Plan Inteligente
-        </button>
-        <button
-          onClick={() => setActiveTab('players')}
-          className={`tab-btn ${activeTab === 'players' ? 'active' : ''}`}
-          style={{ fontSize: '0.9rem', padding: '10px 20px' }}
-        >
-          Rutinas por Jugador
-        </button>
-        <button
-          onClick={() => setActiveTab('builder')}
-          className={`tab-btn ${activeTab === 'builder' ? 'active' : ''}`}
-          style={{ fontSize: '0.9rem', padding: '10px 20px' }}
-        >
-          🛠️ Constructor
-        </button>
-        <button
-          onClick={() => setActiveTab('catalog')}
-          className={`tab-btn ${activeTab === 'catalog' ? 'active' : ''}`}
-          style={{ fontSize: '0.9rem', padding: '10px 20px' }}
-        >
-          Catálogo General
-        </button>
-      </div>
+      <nav className="pro-subtabs chip-row" aria-label="Secciones de entrenamientos">
+        {[
+          { id: 'team', label: 'Equipo' },
+          { id: 'create', label: 'Crear rutina' },
+          { id: 'players', label: 'Por jugador' },
+        ].map((t) => (
+          <button key={t.id} type="button" onClick={() => setActiveTab(t.id)} aria-pressed={activeTab === t.id}
+            className={`pro-subtab-btn${activeTab === t.id ? ' active' : ''}`}>
+            {t.label}
+          </button>
+        ))}
+      </nav>
 
       {activeTab === 'team' && (
         <TeamOverview
@@ -86,7 +56,23 @@ function TrainingHub() {
         />
       )}
 
-      {activeTab === 'plan' && (
+      {activeTab === 'create' && (
+        <div className="segmented" role="tablist" aria-label="Cómo crear la rutina" style={{ gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', width: 'min(100%, 380px)' }}>
+          {[['plan', 'Automática'], ['builder', 'A mano'], ['catalog', 'Ejercicios']].map(([id, label]) => (
+            <button key={id} type="button" role="tab" aria-selected={createMode === id}
+              className={createMode === id ? 'is-on' : ''} onClick={() => setCreateMode(id)}>{label}</button>
+          ))}
+        </div>
+      )}
+      {activeTab === 'create' && (
+        <p style={{ margin: 0, fontSize: '0.875rem', color: 'var(--color-text-muted)' }}>
+          {createMode === 'plan' && 'La app arma una rutina según la posición y el estado del jugador. Puedes ajustarla después en "A mano".'}
+          {createMode === 'builder' && 'Arma la rutina tú mismo, ejercicio por ejercicio.'}
+          {createMode === 'catalog' && 'Todos los ejercicios disponibles, para consultar antes de armar una rutina.'}
+        </p>
+      )}
+
+      {activeTab === 'create' && createMode === 'plan' && (
         <PlanTab
           teamPlayers={teamPlayers}
           planPlayerId={planPlayerId}
@@ -120,14 +106,14 @@ function TrainingHub() {
         />
       )}
 
-      {activeTab === 'builder' && (
+      {activeTab === 'create' && createMode === 'builder' && (
         <BuilderTab
           teamPlayers={teamPlayers}
           onBuilderPlanSaved={() => showToast('Plan guardado exitosamente.', 'success')}
         />
       )}
 
-      {activeTab === 'catalog' && (
+      {activeTab === 'create' && createMode === 'catalog' && (
         <CatalogTab
           activeCategory={activeCategory}
           onCategoryChange={setActiveCategory}

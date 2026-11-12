@@ -2,7 +2,37 @@
 
 > **Formato:** [YYYY-MM-DD] — Categoría: Descripción  
 > **Versión actual:** v4.5  
-> **Última actualización:** 2026-07-28
+> **Última actualización:** 2026-11-06
+
+---
+
+## 2026-11-06 — Rediseño "Vestuario nocturno", Pizarra y navegación simplificada
+
+### UI / UX
+
+- **[UI]** Nuevo sistema visual: superficies oscuras neutras, un solo acento verde, tipografías Inter + Barlow Condensed; sin glows ni gradientes
+- **[UI]** Nuevo shell móvil: header fijo con hoja de cuenta, navegación inferior (staff y jugador) con hoja "Más" y componente `Sheet` compartido
+- **[UI]** Rediseñados Inicio, Guerreros, Agenda, Mensajes, Tribunal, Mak'Gora, Estadísticas, Finanzas, Entrenos, Físico, Ficha, Campaña y Fixture, Rivales y el panel de admin (miembros en tarjetas)
+- **[FIX]** `.btn-primary` sin estilos tras el cambio de tokens; barras horizontales de estadísticas de ~35 px en móvil; 0 px de overflow horizontal en las pantallas auditadas
+
+### Navegación
+
+- **[NAV]** Agenda: 3 pestañas (Calendario, Partidos, Rivales); "En vivo" solo aparece durante un partido
+- **[NAV]** Entrenos: Plan inteligente + Constructor + Catálogo → "Crear rutina"
+- **[NAV]** Estadísticas: 7 pestañas → Plantilla, Rendimiento, Salón de la Fama
+- **[NAV]** Tribunal: Asistencia + Faltas y castigos. Mi Ficha (staff) pasa al menú de cuenta. Jugador: Fuerza & Rendimiento → Entreno › "Mi progreso"
+- **[NAV]** Inicio: eliminados ranking y campeonatos duplicados y la consola Sin-Bin (el cronómetro de sin-bin del partido en vivo se mantiene)
+
+### Pizarra Táctica
+
+- **[PIZARRA]** Móvil "cancha primero": la cancha bajo el selector de equipo y cuatro pestañas debajo (táctica, jugadas, banca, compartir); vertical por defecto, media cancha y pantalla completa
+- **[PIZARRA]** Selector de jugador en hoja inferior con búsqueda, orden por posición y disponibilidad; marca de lesionado/duda y de capitán
+- **[PIZARRA]** Modo Dibujar: Carrera, Pase y Marcar con deshacer/rehacer; los trazos siguen orientación y vista y salen en la imagen compartida
+- **[PIZARRA]** 13 jugadas de ejemplo agrupadas por estilo y "Mis jugadas": capturar fases, nombrar y guardar para todo el club
+
+### Base de Datos
+
+- **[DB]** Migración `81_tactical_plays.sql` (aplicada): tabla `tactical_plays` con RLS — lectura del equipo, escritura solo admin/entrenador como autor, tope de 30 fases y 150 KB por jugada. Sin conexión la jugada queda en el dispositivo y se sube después
 
 ---
 

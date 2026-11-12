@@ -1,7 +1,7 @@
 import React, { useState, useContext } from 'react';
 import { MessageCircle } from 'lucide-react';
 import { ClubContext } from '../../context/ClubContext';
-import { MENSUALIDAD_BASE, ABONOS_RAPIDOS } from './constants';
+import { ABONOS_RAPIDOS } from './constants';
 import { CopInput } from '../common/FormattedInputs';
 import { buildWhatsAppUrl, buildDebtReminderText } from '../../utils/whatsappUtils';
 
@@ -10,12 +10,8 @@ export function MembershipCard({ player, getMembershipStatus, onRequestConfirm, 
   const [customAmount, setCustomAmount] = useState('');
   const [fundraisingDebts, setFundraisingDebts] = useState(null);
 
-  const m = player.memberships || { paid: 0, due: MENSUALIDAD_BASE };
-  const due = m.due > 0 ? m.due : MENSUALIDAD_BASE;
-  const paid = m.paid || 0;
-  const remaining = Math.max(0, due - paid);
-  const progress = Math.min(100, (paid / due) * 100);
   const status = getMembershipStatus(player);
+  const { due, paid, owed: remaining, progress } = status;
 
   const handleLoadDebts = async () => {
     if (fundraisingDebts) return;
@@ -47,7 +43,7 @@ export function MembershipCard({ player, getMembershipStatus, onRequestConfirm, 
     <div style={{
       display: 'flex', flexDirection: 'column', gap: '12px',
       padding: '18px', background: 'rgba(255,255,255,0.01)',
-      border: '1px solid ' + (status.color === 'var(--color-red)' ? 'rgba(255, 61, 0, 0.2)' : 'var(--border-glass)'),
+      border: '1px solid ' + (status.color === 'var(--color-red)' ? 'rgba(255, 92, 77, 0.2)' : 'var(--border-glass)'),
       borderRadius: 'var(--radius-md)'
     }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -81,9 +77,9 @@ export function MembershipCard({ player, getMembershipStatus, onRequestConfirm, 
         </span>
       </div>
 
-      {m.lastPayment && (
+      {status.lastPayment && (
         <div style={{ fontSize: '0.65rem', color: 'var(--color-text-muted)' }}>
-          Ultimo abono: ${(m.lastAmount || 0).toLocaleString()} el {m.lastPayment}
+          Ultimo abono: ${(Number(status.lastAmount) || 0).toLocaleString()} el {String(status.lastPayment).slice(0, 10)}
         </div>
       )}
 

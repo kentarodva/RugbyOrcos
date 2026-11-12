@@ -2,14 +2,22 @@ import React from 'react';
 
 export default function FilterBar({ filters, onChange, uniqueEps, searchInputRef }) {
   const set = (patch) => onChange({ ...filters, ...patch });
-  const selStyle = { fontSize: '0.78rem', padding: '3px 8px', background: 'var(--bg-input)', border: '1px solid var(--border-color)', borderRadius: '6px', color: 'var(--text-primary)', minWidth: '100px' };
-  const inpStyle = { ...selStyle, minWidth: '70px' };
-  const anyActive = Object.entries(filters).some(([_k, v]) => v !== '' && v !== 'todos' && v !== false);
+  const selStyle = { fontSize: '0.875rem', minHeight: '40px', width: '100%', minWidth: 0 };
+  const activeCount = Object.entries(filters).filter(([k, v]) => k !== 'busqueda' && v !== '' && v !== 'todos' && v !== false).length;
+  const anyActive = activeCount > 0 || !!filters.busqueda;
+  const grid = { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 140px), 1fr))', gap: '8px', padding: '0 14px 14px' };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginBottom: '14px', background: 'var(--bg-dark)', borderRadius: '10px', padding: '8px 12px' }}>
-      <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', alignItems: 'center' }}>
-        <span style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', fontWeight: 700, textTransform: 'uppercase' }}>Filtros</span>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '14px' }}>
+      <div className="search-field">
+        <span aria-hidden="true">⌕</span>
+        <input ref={searchInputRef} value={filters.busqueda} onChange={e => set({ busqueda: e.target.value })} placeholder="Buscar jugador por nombre" aria-label="Buscar jugador por nombre" />
+      </div>
+      <details className="disclosure" style={{ background: 'var(--bg-elevated)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-glass)' }}>
+        <summary>
+          <span style={{ flex: 1 }}>Filtros{activeCount > 0 && <span className="badge" style={{ marginLeft: '8px' }}>{activeCount} activos</span>}</span>
+        </summary>
+      <div style={grid}>
         <select value={filters.estado} onChange={e => set({ estado: e.target.value })} className="form-select" style={selStyle}>
           <option value="todos">Estado</option>
           <option value="activo">Activos</option>
@@ -35,9 +43,6 @@ export default function FilterBar({ filters, onChange, uniqueEps, searchInputRef
           <option value="TI">TI</option>
           <option value="OTRO">Otro</option>
         </select>
-        <input ref={searchInputRef} value={filters.busqueda} onChange={e => set({ busqueda: e.target.value })} placeholder="Buscar nombre..." style={{ ...inpStyle, minWidth: '140px' }} />
-      </div>
-      <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', alignItems: 'center' }}>
         <select value={filters.edadMin} onChange={e => set({ edadMin: e.target.value })} className="form-select" style={selStyle}>
           <option value="">Edad ≥</option>
           <option value="14">14</option><option value="18">18</option><option value="23">23</option><option value="28">28</option><option value="33">33</option>
@@ -62,13 +67,11 @@ export default function FilterBar({ filters, onChange, uniqueEps, searchInputRef
           <option value="">Altura ≤</option>
           <option value="1.6">1.60</option><option value="1.7">1.70</option><option value="1.8">1.80</option><option value="1.9">1.90</option>
         </select>
-      </div>
-      <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', alignItems: 'center' }}>
-        <select value={filters.eps} onChange={e => set({ eps: e.target.value })} className="form-select" style={{ ...selStyle, minWidth: '120px' }}>
+        <select value={filters.eps} onChange={e => set({ eps: e.target.value })} className="form-select" style={selStyle}>
           <option value="">EPS</option>
           {uniqueEps.map(e => <option key={e} value={e}>{e}</option>)}
         </select>
-        <label style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '4px', cursor: 'pointer' }}>
+        <label style={{ fontSize: '0.875rem', color: 'var(--color-text-soft)', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', minHeight: '40px' }}>
           <input type="checkbox" checked={filters.sinEPS} onChange={e => set({ sinEPS: e.target.checked, eps: e.target.checked ? '' : filters.eps })} />
           Sin EPS
         </label>
@@ -94,11 +97,12 @@ export default function FilterBar({ filters, onChange, uniqueEps, searchInputRef
             eps: '', sinEPS: false, fracturas: 'todos', alergias: 'todos',
             enfermedades: 'todos', rol: '', tipoDoc: '', busqueda: '',
           })}
-            style={{ background: 'none', border: '1px solid #ff5252', borderRadius: '6px', color: '#ff5252', cursor: 'pointer', fontSize: '0.78rem', padding: '3px 10px', fontWeight: 600, whiteSpace: 'nowrap' }}>
-            Limpiar
+            type="button" className="btn-outline btn-sm" style={{ minHeight: '40px' }}>
+            Limpiar filtros
           </button>
         )}
       </div>
+      </details>
     </div>
   );
 }

@@ -47,7 +47,7 @@ export function HeadToHead({ teams }) {
 
   return (
     <div className="glass-panel" style={{ padding: '20px', borderRadius: 'var(--radius-md)' }}>
-      <h4 style={{ color: 'var(--color-gold)', marginBottom: '15px', fontFamily: 'Outfit' }}>Historial de Confrontaciones</h4>
+      <h4 style={{ color: 'var(--color-gold)', marginBottom: '15px', fontFamily: 'var(--font-display)' }}>Historial de Confrontaciones</h4>
 
       <div style={{ display: 'flex', gap: '10px', marginBottom: '15px', flexWrap: 'wrap' }}>
         <select value={teamA} onChange={e => setTeamA(e.target.value)} style={{ flex: 1, minWidth: '140px', background: 'var(--bg-input)', border: '1px solid var(--border-glass)', borderRadius: 'var(--radius-sm)', color: 'var(--color-text)', padding: '8px', fontSize: '0.8rem' }}>
@@ -69,7 +69,7 @@ export function HeadToHead({ teams }) {
 
       {!loading && matches.length > 0 && (
         <div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', gap: '10px', marginBottom: '15px', textAlign: 'center' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) auto minmax(0, 1fr)', gap: '10px', marginBottom: '15px', textAlign: 'center' }}>
             <div style={{ padding: '12px', background: 'rgba(255,255,255,0.03)', borderRadius: 'var(--radius-sm)' }}>
               <div style={{ fontSize: '1.3rem', fontWeight: 800, color: 'var(--color-primary)' }}>{winsA}</div>
               <div style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)' }}>{teamAName}</div>

@@ -1,7 +1,7 @@
 import React from 'react';
 import FutureCard from './FutureCard';
 
-function FutureList({ fixtures, onDelete }) {
+function FutureList({ fixtures, onDelete, onStartMatch }) {
   const sorted = [...fixtures].sort((a, b) => new Date(a.date) - new Date(b.date));
 
   if (sorted.length === 0) {
@@ -19,6 +19,7 @@ function FutureList({ fixtures, onDelete }) {
           key={f.id}
           future={f}
           onDelete={onDelete}
+          onStartMatch={onStartMatch}
         />
       ))}
     </div>

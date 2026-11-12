@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { EVENT_TYPES } from '../../../utils/eventTypes';
 import { getSetting, setSetting, loadSettings } from '../../../data/clubSettings';
+import { localDateKey } from '../../../utils/agendaItems';
 
 const DAYS = [
   { num: 1, label: 'Lun', title: 'Lunes' },
@@ -121,7 +122,7 @@ function QuickTrainingPanel({ onCreate, existingLocations, currentTeamCategory, 
         }
       }
     }
-    return [...new Set(dates.map(d => d.toISOString().split('T')[0]))].sort();
+    return [...new Set(dates.map(d => localDateKey(d)))].sort();
   }, [selectedDays, weeks]);
 
   const previewText = useMemo(() => {
@@ -150,7 +151,7 @@ function QuickTrainingPanel({ onCreate, existingLocations, currentTeamCategory, 
     await onCreate({
       recurrenceDays: selectedDays,
       recurrenceWeeks: weeks,
-      date: new Date().toISOString().split('T')[0],
+      date: localDateKey(),
       time: hour,
       location: resolvedLocation,
       title: customTitle || 'Entrenamiento',
@@ -166,7 +167,7 @@ function QuickTrainingPanel({ onCreate, existingLocations, currentTeamCategory, 
 
   return (
     <div className="glass-panel" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
-      <h3 style={{ fontSize: '1rem', fontWeight: 700, fontFamily: 'Outfit', color: 'var(--color-primary)' }}>
+      <h3 style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--color-text)' }}>
         🏋️ Entreno Rapido
       </h3>
 
@@ -181,7 +182,7 @@ function QuickTrainingPanel({ onCreate, existingLocations, currentTeamCategory, 
             <button type="button" onClick={() => setPreset([6])} className="btn-outline"
               style={{ padding: '2px 6px', fontSize: '0.6rem' }}>Sab</button>
             <button type="button" onClick={() => setPreset([])} className="btn-outline"
-              style={{ padding: '2px 6px', fontSize: '0.6rem', color: 'var(--color-red)', borderColor: 'rgba(255,61,0,0.2)' }}>Ninguno</button>
+              style={{ padding: '2px 6px', fontSize: '0.6rem', color: 'var(--color-red)', borderColor: 'rgba(255, 92, 77,0.2)' }}>Ninguno</button>
           </div>
         </div>
         <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
@@ -207,7 +208,7 @@ function QuickTrainingPanel({ onCreate, existingLocations, currentTeamCategory, 
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '10px' }}>
         <div className="form-group" style={{ margin: 0 }}>
           <label style={{ fontSize: '0.72rem' }}>Hora</label>
           <select value={hour} onChange={handleHourChange} className="form-select" style={{ padding: '6px 8px', fontSize: '0.78rem' }}>
@@ -314,8 +315,8 @@ function QuickTrainingPanel({ onCreate, existingLocations, currentTeamCategory, 
       {previewText && (
         <div style={{
           fontSize: '0.68rem', color: 'var(--color-gold)',
-          background: 'rgba(255,179,0,0.05)', padding: '6px 10px',
-          borderRadius: 'var(--radius-sm)', border: '1px solid rgba(255,179,0,0.1)',
+          background: 'rgba(232, 185, 49,0.05)', padding: '6px 10px',
+          borderRadius: 'var(--radius-sm)', border: '1px solid rgba(232, 185, 49,0.1)',
         }}>
           {previewText}
         </div>

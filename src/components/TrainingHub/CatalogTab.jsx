@@ -115,12 +115,12 @@ function CatalogTab({ activeCategory, onCategoryChange }) {
               </button>
             ))}
           </div>
-          <div className="grid-cards" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))' }}>
+          <div className="grid-cards" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 340px), 1fr))' }}>
             {WORKOUTS[activeCategory]?.map((w, index) => (
               <div key={index} className="glass-panel animated-slide" style={{ padding: '25px', borderLeft: `4px solid ${borderColor}` }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '10px', marginBottom: '15px' }}>
                   <div>
-                    <h4 style={{ fontSize: '1.1rem', fontWeight: 800, fontFamily: 'Outfit' }}>{w.title}</h4>
+                    <h4 style={{ fontSize: '1.1rem', fontWeight: 600 }}>{w.title}</h4>
                     <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginTop: '4px' }}>
                       Posiciones: <strong>{w.focus}</strong>
                     </p>
@@ -185,7 +185,7 @@ function CatalogTab({ activeCategory, onCategoryChange }) {
             )}
           </div>
 
-          <div className="grid-cards" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '10px' }}>
+          <div className="grid-cards" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 280px), 1fr))', gap: '10px' }}>
             {loading ? (
               <p style={{ color: 'var(--color-text-muted)', padding: '20px', textAlign: 'center', gridColumn: '1/-1' }}>Cargando ejercicios...</p>
             ) : filtered.length === 0 ? (
@@ -198,7 +198,7 @@ function CatalogTab({ activeCategory, onCategoryChange }) {
                   onMouseEnter={e => { e.currentTarget.style.borderLeftColor = 'var(--color-gold)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
                   onMouseLeave={e => { e.currentTarget.style.borderLeftColor = CATEGORY_COLORS_MAP[ex.category] || 'var(--color-primary)'; e.currentTarget.style.transform = ''; }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                    <div style={{ fontWeight: 700, fontSize: '0.82rem', fontFamily: 'Outfit', flex: 1, lineHeight: 1.2 }}>
+                    <div style={{ fontWeight: 700, fontSize: '0.82rem', fontFamily: 'var(--font-display)', flex: 1, lineHeight: 1.2 }}>
                       {ex.name_local}
                     </div>
                     {ex.source === 'dataset' && (
@@ -223,7 +223,7 @@ function CatalogTab({ activeCategory, onCategoryChange }) {
                   className="tab-btn" style={{ padding: '4px 10px', fontSize: '0.65rem', opacity: page <= 1 ? 0.3 : 1 }}>
                   «
                 </button>
-                <span style={{ fontSize: '0.72rem', fontWeight: 700, color: 'var(--color-text)', fontFamily: 'Outfit', minWidth: '100px', textAlign: 'center' }}>
+                <span style={{ fontSize: '0.72rem', fontWeight: 700, color: 'var(--color-text)', fontFamily: 'var(--font-display)', minWidth: '100px', textAlign: 'center' }}>
                   Pág {page} de {totalPages}
                 </span>
                 <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page >= totalPages}

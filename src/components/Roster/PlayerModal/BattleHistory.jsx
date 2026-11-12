@@ -19,8 +19,8 @@ function BattleHistory({ player }) {
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '8px', textAlign: 'center' }} className="tabular-nums">
-          <div style={{ background: 'rgba(0, 230, 118, 0.02)', border: '1px solid rgba(0, 230, 118, 0.1)', padding: '8px 4px', borderRadius: 'var(--radius-sm)' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, minmax(0, 1fr))', gap: '8px', textAlign: 'center' }} className="tabular-nums">
+          <div style={{ background: 'rgba(46, 229, 122, 0.02)', border: '1px solid rgba(46, 229, 122, 0.1)', padding: '8px 4px', borderRadius: 'var(--radius-sm)' }}>
             <span style={{ fontSize: '0.55rem', color: 'var(--color-text-muted)', display: 'block' }}>ENSAYOS</span>
             <strong style={{ fontSize: '1rem', color: 'var(--color-primary)' }}>{totalTries}</strong>
           </div>
@@ -28,7 +28,7 @@ function BattleHistory({ player }) {
             <span style={{ fontSize: '0.55rem', color: 'var(--color-text-muted)', display: 'block' }}>CONV.</span>
             <strong style={{ fontSize: '1rem', color: '#fff' }}>{totalConversions}</strong>
           </div>
-          <div style={{ background: 'rgba(255, 179, 0, 0.02)', border: '1px solid rgba(255, 179, 0, 0.1)', padding: '8px 4px', borderRadius: 'var(--radius-sm)' }}>
+          <div style={{ background: 'rgba(232, 185, 49, 0.02)', border: '1px solid rgba(232, 185, 49, 0.1)', padding: '8px 4px', borderRadius: 'var(--radius-sm)' }}>
             <span style={{ fontSize: '0.55rem', color: 'var(--color-text-muted)', display: 'block' }}>PLACAJES</span>
             <strong style={{ fontSize: '1rem', color: 'var(--color-gold)' }}>{totalTackles}</strong>
           </div>

@@ -11,7 +11,7 @@ export function TeamManager({ teams, onTeamsChanged, players = [], chiefs = [], 
   const { showToast } = useToast();
   const [newName, setNewName] = useState('');
   const [newRpgName, setNewRpgName] = useState('');
-  const [newColor, setNewColor] = useState('#00e676');
+  const [newColor, setNewColor] = useState('#2EE57A');
   const [editing, setEditing] = useState(null);
   const [editName, setEditName] = useState('');
   const [editRpgName, setEditRpgName] = useState('');
@@ -34,7 +34,7 @@ export function TeamManager({ teams, onTeamsChanged, players = [], chiefs = [], 
     });
     if (error) { showToast(error.message, 'error'); return; }
     showToast(`Equipo "${newName}" creado`, 'success');
-    setNewName(''); setNewRpgName(''); setNewColor('#00e676');
+    setNewName(''); setNewRpgName(''); setNewColor('#2EE57A');
     onTeamsChanged?.();
   };
 
@@ -82,7 +82,7 @@ export function TeamManager({ teams, onTeamsChanged, players = [], chiefs = [], 
 
   return (
     <div className="glass-panel" style={{ padding: '20px', borderRadius: 'var(--radius-md)' }}>
-      <h4 style={{ color: 'var(--color-gold)', marginBottom: '15px', fontFamily: 'Outfit' }}>Gestión de Equipos</h4>
+      <h4 style={{ color: 'var(--color-gold)', marginBottom: '15px', fontFamily: 'var(--font-display)' }}>Gestión de Equipos</h4>
 
       <form onSubmit={handleCreate} style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: '20px', padding: '15px', background: 'rgba(255,255,255,0.03)', borderRadius: 'var(--radius-sm)' }}>
         <input type="text" value={newName} onChange={e => setNewName(e.target.value)} placeholder="Nombre equipo externo" style={{ ...STYLE.inp, flex: 2, minWidth: '150px' }} required />
@@ -98,13 +98,13 @@ export function TeamManager({ teams, onTeamsChanged, players = [], chiefs = [], 
             <div key={t.id} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 12px', borderBottom: '1px solid rgba(255,255,255,0.05)', fontSize: '0.8rem', flexWrap: 'wrap' }}>
               {editing === t.id ? editRow(t) : (
                 <>
-                  <TeamCrest url={clanCrestUrl(t)} name={t.rpg_name || t.name} color={t.emblem_color || '#00e676'} size={40} />
+                  <TeamCrest url={clanCrestUrl(t)} name={t.rpg_name || t.name} color={t.emblem_color || '#2EE57A'} size={40} />
                   <div style={{ flex: 1, minWidth: '120px' }}>
                     <div style={{ color: 'var(--color-text)', fontWeight: 700 }}>{t.rpg_name || t.name}</div>
                     <div style={{ fontSize: '0.65rem', color: 'var(--color-text-muted)' }}>{t.motto ? `«${t.motto}»` : t.name}</div>
                   </div>
                   <CrestUploadButton kind="clans" id={t.id} currentUrl={t.crest_url} compact onUploaded={(url) => handleCrest(t.id, url)} />
-                  <button type="button" onClick={() => startEdit(t, '#00e676')} className="btn-outline" style={{ padding: '4px 10px', fontSize: '0.68rem', minHeight: '32px' }}>Editar</button>
+                  <button type="button" onClick={() => startEdit(t, '#2EE57A')} className="btn-outline" style={{ padding: '4px 10px', fontSize: '0.68rem', minHeight: '32px' }}>Editar</button>
                   <ClanChiefsRow team={t} players={players} chiefs={chiefs} canAssign={canAssignChiefs} onChanged={onChiefsChanged} />
                 </>
               )}
@@ -123,10 +123,10 @@ export function TeamManager({ teams, onTeamsChanged, players = [], chiefs = [], 
                   <TeamCrest url={clanCrestUrl(t)} name={t.rpg_name || t.name} color={t.emblem_color || '#ff6d00'} size={36} />
                   <span style={{ flex: 1, color: 'var(--color-text)' }}>{t.rpg_name || t.name}</span>
                   <span style={{ fontSize: '0.65rem', color: 'var(--color-text-muted)' }}>{t.name}</span>
-                  <span style={{ fontSize: '0.6rem', padding: '2px 6px', borderRadius: '6px', background: 'rgba(255,179,0,0.1)', color: '#ffb300' }}>Invitado</span>
+                  <span style={{ fontSize: '0.6rem', padding: '2px 6px', borderRadius: '6px', background: 'rgba(232, 185, 49,0.1)', color: '#E8B931' }}>Invitado</span>
                   <CrestUploadButton kind="clans" id={t.id} currentUrl={t.crest_url} compact onUploaded={(url) => handleCrest(t.id, url)} />
                   <button onClick={() => startEdit(t, '#ff6d00')} className="btn-outline" style={{ padding: '3px 8px', fontSize: '0.65rem' }}>Editar</button>
-                  <button onClick={() => handleDelete(t.id)} className="btn-outline" style={{ padding: '3px 8px', fontSize: '0.65rem', borderColor: '#ff3d00', color: '#ff3d00' }}>×</button>
+                  <button onClick={() => handleDelete(t.id)} className="btn-outline" style={{ padding: '3px 8px', fontSize: '0.65rem', borderColor: '#FF5C4D', color: '#FF5C4D' }}>×</button>
                 </>
               )}
             </div>

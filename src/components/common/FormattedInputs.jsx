@@ -20,11 +20,11 @@ const badgeStyle = {
   letterSpacing: '0.04em',
   padding: '2px 5px',
   borderRadius: '4px',
-  background: 'rgba(0, 230, 118, 0.12)',
+  background: 'rgba(46, 229, 122, 0.12)',
   color: 'var(--color-primary)',
-  border: '1px solid rgba(0, 230, 118, 0.25)',
+  border: '1px solid rgba(46, 229, 122, 0.25)',
   pointerEvents: 'none',
-  fontFamily: 'Outfit, sans-serif',
+  fontFamily: 'var(--font-display)',
 };
 
 /**
@@ -170,7 +170,7 @@ export function CopInput({
           fontWeight: 800,
           color: 'var(--color-gold)',
           pointerEvents: 'none',
-          fontFamily: 'Outfit, sans-serif',
+          fontFamily: 'var(--font-display)',
         }}
       >
         $
@@ -190,9 +190,9 @@ export function CopInput({
       <span
         style={{
           ...badgeStyle,
-          background: 'rgba(255, 179, 0, 0.14)',
+          background: 'rgba(232, 185, 49, 0.14)',
           color: 'var(--color-gold)',
-          border: '1px solid rgba(255, 179, 0, 0.28)',
+          border: '1px solid rgba(232, 185, 49, 0.28)',
         }}
       >
         COP

@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Calendar, Dumbbell, HeartPulse, TrendingUp, Wallet, Bot, LogOut } from 'lucide-react';
+import { Calendar, Dumbbell, HeartPulse, Wallet, Bot, LogOut } from 'lucide-react';
 import { PlayerPhoto } from './PlayerPhoto';
 import { getRpgRole } from '../context/ClubContext.jsx';
 import { formatHeightM, formatWeightKg } from '../utils/inputFormatters';
@@ -10,10 +10,10 @@ export default function PlayerSidebar({ player, activeTab, onTabChange, onOpenAv
   const rpgRole = getRpgRole(player.systemRole || 'jugador');
   const attrs = player.attributes || {};
   const attrList = [
-    { key: 'FUE', val: attrs.force || 0, color: '#ff1744' },
-    { key: 'VEL', val: attrs.speed || 0, color: '#00e676' },
-    { key: 'RES', val: attrs.stamina || 0, color: '#00b0ff' },
-    { key: 'TEC', val: attrs.technique || 0, color: '#ffd740' },
+    { key: 'FUE', val: attrs.force || 0, color: '#FF5C4D' },
+    { key: 'VEL', val: attrs.speed || 0, color: '#2EE57A' },
+    { key: 'RES', val: attrs.stamina || 0, color: '#5AA9FF' },
+    { key: 'TEC', val: attrs.technique || 0, color: '#E8B931' },
   ];
 
   const tabs = [
@@ -21,7 +21,6 @@ export default function PlayerSidebar({ player, activeTab, onTabChange, onOpenAv
     { id: 'agenda', Icon: Calendar, label: 'Agenda & Partidos' },
     { id: 'entreno', Icon: Dumbbell, label: 'Entrenamiento' },
     { id: 'bienestar', Icon: HeartPulse, label: 'Estado Físico & Fatiga' },
-    { id: 'progreso', Icon: TrendingUp, label: 'Fuerza & Rendimiento' },
     { id: 'finanzas', Icon: Wallet, label: 'Membresía & Cuotas' },
     { id: 'ia', Icon: Bot, label: 'Coach Táctico IA' },
   ];
@@ -35,8 +34,8 @@ export default function PlayerSidebar({ player, activeTab, onTabChange, onOpenAv
         gap: '12px',
         padding: '16px 12px',
         height: '100%',
-        background: 'linear-gradient(180deg, rgba(8, 16, 26, 0.95) 0%, rgba(4, 9, 15, 0.98) 100%)',
-        borderRight: '1px solid rgba(0, 230, 118, 0.2)',
+        background: 'linear-gradient(180deg, rgba(17, 20, 18, 0.95) 0%, rgba(9, 12, 10, 0.98) 100%)',
+        borderRight: '1px solid rgba(46, 229, 122, 0.2)',
         boxShadow: '4px 0 24px rgba(0, 0, 0, 0.5)',
       }}
     >
@@ -80,7 +79,7 @@ export default function PlayerSidebar({ player, activeTab, onTabChange, onOpenAv
                       alignItems: 'center',
                       justifyContent: 'center',
                       borderRadius: '8px',
-                      background: isActive ? 'rgba(0, 230, 118, 0.15)' : 'transparent',
+                      background: isActive ? 'rgba(46, 229, 122, 0.15)' : 'transparent',
                       color: isActive ? 'var(--color-primary)' : 'var(--color-text-muted)',
                       border: `1px solid ${isActive ? 'var(--color-primary)' : 'transparent'}`,
                       cursor: 'pointer',
@@ -106,7 +105,7 @@ export default function PlayerSidebar({ player, activeTab, onTabChange, onOpenAv
                   justifyContent: 'center',
                   borderRadius: '8px',
                   background: 'rgba(239, 68, 68, 0.1)',
-                  color: '#ff5252',
+                  color: '#FF5C4D',
                   border: '1px solid rgba(239, 68, 68, 0.3)',
                   cursor: 'pointer',
                   transition: 'all 0.2s',
@@ -126,8 +125,8 @@ export default function PlayerSidebar({ player, activeTab, onTabChange, onOpenAv
                 cursor: 'pointer',
                 borderRadius: '50%',
                 padding: '4px',
-                background: 'linear-gradient(135deg, rgba(0, 230, 118, 0.6) 0%, rgba(255, 215, 64, 0.4) 100%)',
-                boxShadow: '0 0 20px rgba(0, 230, 118, 0.25)',
+                background: 'linear-gradient(135deg, rgba(46, 229, 122, 0.6) 0%, rgba(255, 215, 64, 0.4) 100%)',
+                boxShadow: '0 0 20px rgba(46, 229, 122, 0.25)',
                 transition: 'transform 0.2s',
               }}
               onClick={() => onOpenAvatarPicker?.()}
@@ -138,7 +137,7 @@ export default function PlayerSidebar({ player, activeTab, onTabChange, onOpenAv
 
             {/* Name, Jersey and Position */}
             <div style={{ textAlign: 'center', width: '100%' }}>
-              <h2 style={{ fontSize: '0.95rem', fontWeight: 900, color: '#fff', fontFamily: 'Outfit', lineHeight: 1.2, margin: 0 }}>
+              <h2 style={{ fontSize: '0.95rem', fontWeight: 900, color: '#fff', fontFamily: 'var(--font-display)', lineHeight: 1.2, margin: 0 }}>
                 {player.name}
               </h2>
               {player.apodo && (
@@ -155,9 +154,9 @@ export default function PlayerSidebar({ player, activeTab, onTabChange, onOpenAv
                     letterSpacing: '0.6px',
                     padding: '2px 8px',
                     borderRadius: '4px',
-                    background: 'rgba(0, 230, 118, 0.12)',
+                    background: 'rgba(46, 229, 122, 0.12)',
                     color: 'var(--color-primary)',
-                    border: '1px solid rgba(0, 230, 118, 0.3)',
+                    border: '1px solid rgba(46, 229, 122, 0.3)',
                   }}
                 >
                   {rpgRole.rpg}
@@ -183,7 +182,7 @@ export default function PlayerSidebar({ player, activeTab, onTabChange, onOpenAv
               style={{
                 width: '100%',
                 display: 'grid',
-                gridTemplateColumns: '1fr 1fr',
+                gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)',
                 gap: '6px',
                 background: 'rgba(255, 255, 255, 0.02)',
                 border: '1px solid rgba(255, 255, 255, 0.06)',
@@ -236,9 +235,9 @@ export default function PlayerSidebar({ player, activeTab, onTabChange, onOpenAv
                       gap: '10px',
                       padding: '9px 12px',
                       borderRadius: '8px',
-                      background: isActive ? 'linear-gradient(90deg, rgba(0, 230, 118, 0.16) 0%, rgba(0, 230, 118, 0.04) 100%)' : 'transparent',
+                      background: isActive ? 'linear-gradient(90deg, rgba(46, 229, 122, 0.16) 0%, rgba(46, 229, 122, 0.04) 100%)' : 'transparent',
                       color: isActive ? 'var(--color-primary)' : 'var(--color-text-muted)',
-                      border: `1px solid ${isActive ? 'rgba(0, 230, 118, 0.4)' : 'transparent'}`,
+                      border: `1px solid ${isActive ? 'rgba(46, 229, 122, 0.4)' : 'transparent'}`,
                       cursor: 'pointer',
                       fontSize: '0.78rem',
                       fontWeight: isActive ? 800 : 600,
@@ -266,7 +265,7 @@ export default function PlayerSidebar({ player, activeTab, onTabChange, onOpenAv
                   padding: '9px 12px',
                   borderRadius: '8px',
                   background: 'rgba(239, 68, 68, 0.08)',
-                  color: '#ff5252',
+                  color: '#FF5C4D',
                   border: '1px solid rgba(239, 68, 68, 0.3)',
                   cursor: 'pointer',
                   fontSize: '0.78rem',

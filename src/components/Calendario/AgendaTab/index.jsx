@@ -8,6 +8,8 @@ import EventDetailModal from './EventDetailModal';
 
 function AgendaTab({
   teamEvents,
+  calendarEvents,
+  onOpenFixture,
   showAddForm,
   setShowAddForm,
   showWeeklyView,
@@ -49,7 +51,7 @@ function AgendaTab({
   const existingLocations = [...new Set(teamEvents.map(e => e.location).filter(Boolean))];
 
   return (
-    <div className="animated-fade" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '20px', width: '100%' }}>
+    <div className="animated-fade" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 320px), 1fr))', gap: '20px', width: '100%' }}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
         {!showWeeklyView && !showMonthlyView && (
         <AgendaList
@@ -63,24 +65,23 @@ function AgendaTab({
           onToggleMonthly={() => setShowMonthlyView(!showMonthlyView)}
           showMonthly={showMonthlyView}
           onDetail={handleOpenDetail}
+          onOpenFixture={onOpenFixture}
         />
         )}
         {showWeeklyView && (
           <>
-            <button onClick={() => setShowWeeklyView(false)} className="btn-outline"
-              style={{ padding: '6px 14px', fontSize: '0.8rem', borderColor: 'var(--color-blue)', color: 'var(--color-blue)' }}>
-              ← Volver a Lista
+            <button onClick={() => setShowWeeklyView(false)} className="btn-outline btn-sm" style={{ alignSelf: 'flex-start' }}>
+              ← Volver a la lista
             </button>
-            <WeeklyView teamEvents={teamEvents} />
+            <WeeklyView teamEvents={calendarEvents || teamEvents} />
           </>
         )}
         {showMonthlyView && (
           <>
-            <button onClick={() => setShowMonthlyView(false)} className="btn-outline"
-              style={{ padding: '6px 14px', fontSize: '0.8rem', borderColor: 'var(--color-gold)', color: 'var(--color-gold)' }}>
-              ← Volver a Lista
+            <button onClick={() => setShowMonthlyView(false)} className="btn-outline btn-sm" style={{ alignSelf: 'flex-start' }}>
+              ← Volver a la lista
             </button>
-            <MonthlyView teamEvents={teamEvents} />
+            <MonthlyView teamEvents={calendarEvents || teamEvents} />
           </>
         )}
       </div>

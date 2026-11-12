@@ -16,8 +16,8 @@ export const FAULT_TYPES = [
 ];
 
 export const ATTENDANCE_STATUS = {
-  presente: { label: 'Presente', color: 'var(--color-primary)', bg: 'rgba(0, 230, 118, 0.12)', penalty: '' },
+  presente: { label: 'Presente', color: 'var(--color-primary)', bg: 'rgba(46, 229, 122, 0.12)', penalty: '' },
   tarde: { label: 'Tarde', color: 'var(--color-yellow)', bg: 'rgba(255, 234, 0, 0.12)', penalty: '+15 Burpees' },
-  falta_injustificada: { label: 'Falta', color: 'var(--color-red)', bg: 'rgba(255, 61, 0, 0.12)', penalty: '+50 Burpees, recoge conos' },
+  falta_injustificada: { label: 'Falta', color: 'var(--color-red)', bg: 'rgba(255, 92, 77, 0.12)', penalty: '+50 Burpees, recoge conos' },
   falta_justificada: { label: 'Falta Just.', color: 'var(--color-text-muted)', bg: 'rgba(255,255,255,0.05)', penalty: '' }
 };

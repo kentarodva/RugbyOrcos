@@ -4,6 +4,20 @@ import apisupabase, { supabasePlayerToReact } from '../../data/supabaseApi.js';
 import { handleError } from '../../utils/errorHandler';
 import { playerSchema } from '../../schemas/player.js';
 import { parseFullName } from '../../utils/nameParser.js';
+import { mapFinanceRow } from './useEntities.js';
+import { startRealtimeBridge } from '../../services/realtimeBridge.js';
+
+const RESYNC_DEBOUNCE_MS = 1200;
+
+// Tablas cuyo estado vive en ClubContext (las demás las recarga cada pantalla
+// con useDataListener: mensajes, campañas, torneos...).
+export const CONTEXT_TABLES = new Set([
+  'players', 'injury_log', 'hia_assessments', 'wellness_logs', 'workout_logs',
+  'attribute_history', 'match_stats', 'infractions', 'player_attendance_summary',
+  'penalties', 'player_payments', 'schedule_events', 'championships', 'finances',
+  'inventory', 'fixtures', 'rivals', 'future_fixtures', 'match_invitations',
+  'guest_players', 'player_loans',
+]);
 
 export function useSyncPush(user) {
   const convertPlayerToSupabase = useCallback((player) => {
@@ -59,10 +73,7 @@ export function useSyncPush(user) {
       emergency_contact_phone: player.emergency_contact_phone || null,
       avatar_id: player.avatar_id || null,
       photo_url: player.photo_url || null,
-      memberships_paid: player.memberships?.paid ?? 0,
-      memberships_due: player.memberships?.due ?? 0,
-      last_payment_date: player.memberships?.lastPayment || null,
-      last_payment_amount: player.memberships?.lastAmount || null,
+      // memberships_* y last_payment_* los mantiene la BD (migración 92): no se envían.
       ...(player.userId !== undefined ? { user_id: player.userId } : {}),
       ...(player.username !== undefined ? { username: player.username } : {}),
       ...(player.deleted_at !== undefined ? { deleted_at: player.deleted_at } : {}),
@@ -171,8 +182,8 @@ export function useSyncPull(
   useEffect(() => {
     if (!user?.id) return;
 
-    const syncFromSupabase = async () => {
-      setSyncStatus('syncing');
+    const syncFromSupabase = async ({ silent = false } = {}) => {
+      if (!silent) setSyncStatus('syncing');
       if (import.meta.env.DEV) console.log('[Sync] Iniciando sync para user:', user.id);
 
       try {
@@ -184,9 +195,8 @@ export function useSyncPull(
             playerQuery.eq('team_id', profile.team_id);
           } else if (profile?.club_scope) {
             playerQuery.ilike('team_category', profile.club_scope + '%');
-          } else {
-            playerQuery.eq('user_id', user.id);
           }
+          // No team or scope: staff loads every player in the club.
         }
         const { data: dbPlayers, error: playerError } = await playerQuery;
         if (import.meta.env.DEV) console.log('[Sync] Resultado players:', { count: dbPlayers?.length, error: playerError?.message });
@@ -194,27 +204,7 @@ export function useSyncPull(
         if (!playerError && dbPlayers?.length > 0) {
           const normalized = dbPlayers.map(supabasePlayerToReact);
 
-          const { data: payments, error: paymentsError } = await supabase
-            .from('player_payments')
-            .select('player_id, amount')
-            .eq('source', 'membership');
-
-          if (paymentsError) {
-            console.error('[Sync] Error al cargar pagos:', paymentsError);
-          } else if (payments?.length > 0) {
-            if (import.meta.env.DEV) console.log('[Sync] Pagos de membresia cargados:', payments.length);
-            const paymentTotals = {};
-            payments.forEach(p => {
-              paymentTotals[p.player_id] = (paymentTotals[p.player_id] || 0) + Number(p.amount);
-            });
-            normalized.forEach(player => {
-              const paid = paymentTotals[player.id] || 0;
-              if (paid > 0) player.memberships.paid = paid;
-              if (!player.memberships.due || player.memberships.due <= 0) {
-                player.memberships.due = mensualidadBase;
-              }
-            });
-          }
+          // Cuotas: memberships_due/paid vienen calculadas por la BD (migración 92).
 
           const { data: attendanceSummaries } = await supabase
             .from('player_attendance_summary')
@@ -366,10 +356,7 @@ export function useSyncPull(
         } else { setChampionships([]); }
 
         if (appData.finances) {
-          const mapped = appData.finances.map(f => ({
-            id: f.id, type: f.type, desc: f.descripcion, amount: f.amount,
-            date: f.date, category: f.category, teamCategory: f.team_category, teamId: f.team_id
-          }));
+          const mapped = appData.finances.map(mapFinanceRow);
           setFinances(mapped);
         } else { setFinances([]); }
 
@@ -406,6 +393,7 @@ export function useSyncPull(
             rivalId: f.rival_id,
             availabilities: f.availabilities || {},
             squad: f.squad || [],
+            resultFixtureId: f.result_fixture_id || null,
           }));
           setFutureFixtures(mapped);
         } else { setFutureFixtures([]); }
@@ -446,6 +434,30 @@ export function useSyncPull(
     };
 
     syncFromSupabase();
+
+    // Lo que cambia otro usuario llega por Realtime (realtimeBridge) y se recarga en
+    // silencio. Varias filas seguidas (p. ej. una asistencia de 30 jugadores) se
+    // agrupan en una sola recarga.
+    const stopBridge = startRealtimeBridge(user.id);
+    let timer = null;
+    const scheduleResync = () => {
+      clearTimeout(timer);
+      timer = setTimeout(() => syncFromSupabase({ silent: true }), RESYNC_DEBOUNCE_MS);
+    };
+    const onRemoteChange = (e) => {
+      if (e.detail?.remote && CONTEXT_TABLES.has(e.detail.table)) scheduleResync();
+    };
+    // Al volver a la app (el teléfono suspende el socket en segundo plano).
+    const onVisible = () => { if (document.visibilityState === 'visible') scheduleResync(); };
+    window.addEventListener('data:changed', onRemoteChange);
+    document.addEventListener('visibilitychange', onVisible);
+
+    return () => {
+      clearTimeout(timer);
+      stopBridge();
+      window.removeEventListener('data:changed', onRemoteChange);
+      document.removeEventListener('visibilitychange', onVisible);
+    };
   }, [user?.id, userTier, profile?.system_role, profile?.club_scope, profile?.team_id, mensualidadBase]);
 
   return { syncStatus };

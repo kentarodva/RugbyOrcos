@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { KeyRound, CheckCircle2, Copy, MessageCircle, FileSpreadsheet, ShieldCheck } from 'lucide-react';
 import { useToast } from '../../../context/ToastContext';
 import { buildWhatsAppUrl } from '../../../utils/whatsappUtils';
+import { localDateKey } from '../../../utils/agendaItems';
 
 export default function BulkCredentialsModal({ players = [], onClose, createPlayerCredentials }) {
   const { showToast } = useToast();
@@ -124,7 +125,7 @@ export default function BulkCredentialsModal({ players = [], onClose, createPlay
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.setAttribute('download', `Accesos_Rugby_Orcos_${new Date().toISOString().slice(0, 10)}.csv`);
+    link.setAttribute('download', `Accesos_Rugby_Orcos_${localDateKey()}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -143,13 +144,13 @@ export default function BulkCredentialsModal({ players = [], onClose, createPlay
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <div style={{
               width: '38px', height: '38px', borderRadius: '10px',
-              background: 'rgba(255, 179, 0, 0.12)', border: '1px solid rgba(255, 179, 0, 0.35)',
+              background: 'rgba(232, 185, 49, 0.12)', border: '1px solid rgba(232, 185, 49, 0.35)',
               display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-gold)'
             }}>
               <KeyRound size={19} />
             </div>
             <div>
-              <h3 style={{ fontSize: '1.08rem', fontWeight: 800, fontFamily: 'Outfit', margin: 0 }}>
+              <h3 style={{ fontSize: '1.08rem', fontWeight: 600, margin: 0 }}>
                 Generador Masivo de Accesos del Club
               </h3>
               <p style={{ fontSize: '0.73rem', color: 'var(--color-text-muted)', margin: 0 }}>
@@ -185,7 +186,7 @@ export default function BulkCredentialsModal({ players = [], onClose, createPlay
         {generatedList.length > 0 && (
           <div style={{
             padding: '14px', borderRadius: 'var(--radius-sm)',
-            background: 'rgba(0, 230, 118, 0.05)', border: '1px solid rgba(0, 230, 118, 0.25)',
+            background: 'rgba(46, 229, 122, 0.05)', border: '1px solid rgba(46, 229, 122, 0.25)',
             marginBottom: '16px', display: 'flex', flexDirection: 'column', gap: '10px'
           }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>

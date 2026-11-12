@@ -7,6 +7,7 @@ import { useToast } from '../context/ToastContext';
 import { HeightInput, WeightInput } from './common/FormattedInputs';
 import { formatHeightM, formatWeightKg } from '../utils/inputFormatters';
 import { TRACKABLE_EXERCISES } from '../constants/exerciseConstants';
+import { localDateKey } from '../utils/agendaItems';
 export { TRACKABLE_EXERCISES };
 
 const DEMO_DATA = [
@@ -48,7 +49,7 @@ function ChartContent({ data, activeExercises, visibleLines, onToggleLine }) {
           <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
           <XAxis dataKey="date" tick={{ fontSize: 10, fill: 'var(--color-text-muted)' }} />
           <YAxis tick={{ fontSize: 10, fill: 'var(--color-text-muted)' }} />
-          <Tooltip contentStyle={{ background: '#0e1623', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '8px', fontSize: '0.75rem' }} />
+          <Tooltip contentStyle={{ background: '#181B19', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '8px', fontSize: '0.75rem' }} />
           <Legend wrapperStyle={{ fontSize: '0.75rem' }} />
           {visibleLines.weight && (
             <Line type="monotone" dataKey="weight" stroke="#26c6da" strokeWidth={2} strokeDasharray="4 2" dot={{ r: 3 }} name="Peso Corporal (kg)" />
@@ -339,7 +340,7 @@ function PlayerProgressTab({ playerId }) {
             </div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '12px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 150px), 1fr))', gap: '12px' }}>
             {activeExercises.map(ex => {
               const currVal = getMetricValue(latest, ex.key) || Number(liftForm[ex.key] || 0);
               const firstVal = getMetricValue(first, ex.key);
@@ -351,7 +352,7 @@ function PlayerProgressTab({ playerId }) {
                   </div>
                   <div style={{ fontSize: '0.68rem', color: 'var(--color-text-muted)', textTransform: 'uppercase', marginTop: '2px' }}>{ex.label}</div>
                   {history.length > 1 && firstVal > 0 && (
-                    <div style={{ fontSize: '0.7rem', color: diffPct >= 0 ? '#00e676' : '#ff3d00', marginTop: '4px', fontWeight: 700 }}>
+                    <div style={{ fontSize: '0.7rem', color: diffPct >= 0 ? '#2EE57A' : '#FF5C4D', marginTop: '4px', fontWeight: 700 }}>
                       {diffPct >= 0 ? '↑' : '↓'} {Math.abs(diffPct)}% (desde {firstVal}kg)
                     </div>
                   )}
@@ -397,14 +398,14 @@ function PlayerProgressTab({ playerId }) {
         <div className="modal-overlay" onClick={() => setShowCheckInModal(false)}>
           <div className="modal-content glass-panel animated-slide" style={{ maxWidth: '560px', maxHeight: '90vh', overflowY: 'auto' }} onClick={e => e.stopPropagation()}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
-              <h3 style={{ fontSize: '1.05rem', fontWeight: 800, fontFamily: 'Outfit', color: 'var(--color-gold)', margin: 0 }}>
+              <h3 style={{ fontSize: '1.05rem', fontWeight: 600, color: 'var(--color-text)', margin: 0 }}>
                 Registrar Control de Peso y Ejercicios
               </h3>
               <button onClick={() => setShowCheckInModal(false)} className="btn-outline" style={{ padding: '4px 10px', fontSize: '0.75rem' }}>✕</button>
             </div>
 
             <form onSubmit={handleSaveCheckIn} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '10px' }}>
                 <div className="form-group" style={{ marginBottom: 0 }}>
                   <label>Peso Corporal Actual (KG)</label>
                   <WeightInput
@@ -436,8 +437,8 @@ function PlayerProgressTab({ playerId }) {
                         style={{
                           display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '10px',
                           padding: '8px 12px', borderRadius: '8px',
-                          background: isSelected ? 'rgba(0, 230, 118, 0.06)' : 'rgba(255,255,255,0.02)',
-                          border: `1px solid ${isSelected ? 'rgba(0, 230, 118, 0.25)' : 'var(--border-glass)'}`
+                          background: isSelected ? 'rgba(46, 229, 122, 0.06)' : 'rgba(255,255,255,0.02)',
+                          border: `1px solid ${isSelected ? 'rgba(46, 229, 122, 0.25)' : 'var(--border-glass)'}`
                         }}
                       >
                         <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', flex: 1, margin: 0, fontSize: '0.82rem', fontWeight: isSelected ? 700 : 500 }}>
@@ -495,10 +496,10 @@ function WorkoutStats({ playerId }) {
         if (!data || !data.length) return;
         const dates = [...new Set(data.map(d => d.workout_date))].sort().reverse();
         let streak = 0;
-        const today = new Date().toISOString().split('T')[0];
+        const today = localDateKey();
         for (let i = 0; i < dates.length; i++) {
           const d = new Date(); d.setDate(d.getDate() - i);
-          if (dates[i] === d.toISOString().split('T')[0] || (i === 0 && dates[0] === today)) streak++;
+          if (dates[i] === localDateKey(d) || (i === 0 && dates[0] === today)) streak++;
           else break;
         }
         const lastLog = data[0].exercise_logs || [];
@@ -511,7 +512,7 @@ function WorkoutStats({ playerId }) {
 
   return (
     <div className="glass-panel" style={{ padding: '20px', borderRadius: 'var(--radius-lg)' }}>
-      <h3 style={{ color: 'var(--color-gold)', fontSize: '1rem', fontWeight: 700, marginBottom: '12px', fontFamily: 'Outfit' }}>
+      <h3 style={{ color: 'var(--color-text)', fontSize: '1rem', fontWeight: 600, marginBottom: '12px' }}>
         Rendimiento de Entreno
       </h3>
       <div className="pro-kpi-grid">
@@ -521,7 +522,7 @@ function WorkoutStats({ playerId }) {
         </div>
         <div className="pro-kpi-card">
           <div className="pro-kpi-label">Días seguidos</div>
-          <div className="pro-kpi-value" style={{ color: '#00e676' }}>{stats.streak}</div>
+          <div className="pro-kpi-value" style={{ color: '#2EE57A' }}>{stats.streak}</div>
         </div>
         <div className="pro-kpi-card">
           <div className="pro-kpi-label">Planes creados</div>

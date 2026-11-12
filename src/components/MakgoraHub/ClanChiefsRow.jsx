@@ -42,18 +42,18 @@ export function ClanChiefsRow({ team, players = [], chiefs = [], canAssign = fal
 
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap', width: '100%', paddingLeft: '50px' }}>
-      <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '0.66rem', fontWeight: 800, color: '#ffd700' }}>
+      <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '0.66rem', fontWeight: 800, color: '#E8B931' }}>
         <Crown size={12} aria-hidden="true" /> JEFES
       </span>
       {teamChiefs.length === 0 && <span style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)' }}>Sin jefe</span>}
       {teamChiefs.map(c => {
         const p = players.find(x => x.id === c.player_id) || players.find(x => x.userId === c.user_id);
         return (
-          <span key={c.id} style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', padding: '2px 4px 2px 10px', borderRadius: '999px', fontSize: '0.72rem', color: '#ffd700', background: 'rgba(255,215,0,0.1)', border: '1px solid rgba(255,215,0,0.3)' }}>
+          <span key={c.id} style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', padding: '2px 4px 2px 10px', borderRadius: '999px', fontSize: '0.72rem', color: '#E8B931', background: 'rgba(232, 185, 49,0.1)', border: '1px solid rgba(232, 185, 49,0.3)' }}>
             {playerName(p)}
             {canAssign && (
               <button type="button" onClick={() => remove(c)} disabled={busy} aria-label={`Retirar a ${playerName(p)} como jefe`}
-                style={{ width: '24px', height: '24px', display: 'grid', placeItems: 'center', background: 'none', border: 'none', color: '#ffd700', cursor: 'pointer' }}>
+                style={{ width: '24px', height: '24px', display: 'grid', placeItems: 'center', background: 'none', border: 'none', color: '#E8B931', cursor: 'pointer' }}>
                 <X size={12} aria-hidden="true" />
               </button>
             )}

@@ -10,7 +10,7 @@ function PlayersTab({
   const activePlayerId = selectedPlayerId || null;
 
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: '320px 1fr', gap: '20px', minHeight: '500px' }} className="animated-fade">
+    <div style={{ display: 'grid', gridTemplateColumns: '320px minmax(0, 1fr)', gap: '20px', minHeight: '500px' }} className="animated-fade">
 
       <div className="glass-panel" style={{ padding: '15px', display: 'flex', flexDirection: 'column', gap: '10px', maxHeight: '600px', overflowY: 'auto' }}>
         <h3 style={{ fontSize: '0.95rem', fontWeight: 800, letterSpacing: '1px', textTransform: 'uppercase', color: 'var(--color-primary)', borderBottom: '1px solid var(--border-glass)', paddingBottom: '8px', marginBottom: '8px' }}>
@@ -109,7 +109,7 @@ function PlayersTab({
             </div>
 
             {generatedPlan.aiAnalysis && (
-              <div style={{ padding: '15px', background: 'rgba(255,179,0,0.05)', border: '1px solid rgba(255,179,0,0.15)', borderRadius: 'var(--radius-sm)', fontSize: '0.8rem', color: 'var(--color-gold)', lineHeight: 1.5 }}>
+              <div style={{ padding: '15px', background: 'rgba(232, 185, 49,0.05)', border: '1px solid rgba(232, 185, 49,0.15)', borderRadius: 'var(--radius-sm)', fontSize: '0.8rem', color: 'var(--color-gold)', lineHeight: 1.5 }}>
                 <strong>Análisis IA:</strong> {generatedPlan.aiAnalysis}
                 {generatedPlan.aiRisks?.length > 0 && <div style={{ marginTop: '8px', color: 'var(--color-red)' }}>⚠️ Riesgos: {generatedPlan.aiRisks.join(' | ')}</div>}
                 {generatedPlan.aiGoals?.length > 0 && <div style={{ marginTop: '6px', color: 'var(--color-primary)' }}>🎯 Metas: {generatedPlan.aiGoals.join(' | ')}</div>}
@@ -123,15 +123,15 @@ function PlayersTab({
               </div>
             )}
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '20px' }}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                <h3 style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--color-primary)', fontFamily: 'Outfit' }}>Campo ({generatedPlan.plan.campo.length})</h3>
+                <h3 style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--color-text)' }}>Campo ({generatedPlan.plan.campo.length})</h3>
                 {generatedPlan.plan.campo.map((ex, i) => (
                   <ExerciseCard key={i} exercise={ex} isDone={completedExercises[ex.id]} onToggle={onToggleExercise} borderColor={ex.fromAI ? 'var(--color-gold)' : 'var(--color-primary)'} />
                 ))}
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                <h3 style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--color-gold)', fontFamily: 'Outfit' }}>Gym ({generatedPlan.plan.gym.length})</h3>
+                <h3 style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--color-text)' }}>Gym ({generatedPlan.plan.gym.length})</h3>
                 {generatedPlan.plan.gym.map((ex, i) => (
                   <ExerciseCard key={i} exercise={ex} isDone={completedExercises[ex.id]} onToggle={onToggleExercise} borderColor={ex.fromAI ? 'var(--color-gold)' : 'var(--color-blue)'} />
                 ))}
@@ -140,8 +140,8 @@ function PlayersTab({
 
             {generatedPlan.plan.recuperacion.length > 0 && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                <h3 style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--color-blue)', fontFamily: 'Outfit' }}>Recuperación ({generatedPlan.plan.recuperacion.length})</h3>
-                <div className="grid-cards" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))' }}>
+                <h3 style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--color-text)' }}>Recuperación ({generatedPlan.plan.recuperacion.length})</h3>
+                <div className="grid-cards" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))' }}>
                   {generatedPlan.plan.recuperacion.map((ex, i) => (
                     <ExerciseCard key={i} exercise={ex} isDone={completedExercises[ex.id]} onToggle={onToggleExercise} borderColor="var(--color-blue)" />
                   ))}

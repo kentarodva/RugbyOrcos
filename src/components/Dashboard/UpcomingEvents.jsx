@@ -7,7 +7,7 @@ function UpcomingEvents({ teamSchedule }) {
 
   return (
     <div className="glass-panel" style={{ padding: '25px', display: 'flex', flexDirection: 'column', gap: '15px' }}>
-      <h3 style={{ fontSize: '1.1rem', fontWeight: 700, fontFamily: 'Outfit' }}>Proximas Citas (Agenda)</h3>
+      <h3 style={{ fontSize: '1.1rem', fontWeight: 600 }}>Proximas Citas (Agenda)</h3>
 
       {upcoming.length === 0 ? (
         <p style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)', textAlign: 'center', padding: '20px 0' }}>
@@ -19,7 +19,7 @@ function UpcomingEvents({ teamSchedule }) {
             const isMatch = e.title.includes('PARTIDO');
             return (
               <div key={e.id} style={{ padding: '12px', background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border-glass)', borderRadius: 'var(--radius-sm)', display: 'flex', gap: '12px', alignItems: 'center' }}>
-                <div style={{ background: isMatch ? 'rgba(255,179,0,0.1)' : 'rgba(0,230,118,0.1)', border: '1px solid rgba(255,255,255,0.05)', width: '45px', height: '45px', borderRadius: 'var(--radius-sm)', display: 'flex', justifyContent: 'center', alignItems: 'center', fontSize: '1.25rem' }}>
+                <div style={{ background: isMatch ? 'rgba(232, 185, 49,0.1)' : 'rgba(46, 229, 122,0.1)', border: '1px solid rgba(255,255,255,0.05)', width: '45px', height: '45px', borderRadius: 'var(--radius-sm)', display: 'flex', justifyContent: 'center', alignItems: 'center', fontSize: '1.25rem' }}>
                   {isMatch ? '🏉' : '🏃‍♂️'}
                 </div>
                 <div style={{ flex: 1 }}>

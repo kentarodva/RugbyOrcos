@@ -67,7 +67,6 @@ describe('useSyncPush — pushPlayerToSupabase', () => {
         allergies: null, medical_conditions: null, health_insurance: null,
         emergency_contact_name: null, emergency_contact_phone: null,
         avatar_id: null, photo_url: null,
-        memberships_paid: 0, memberships_due: 0, last_payment_date: null, last_payment_amount: null,
         source: 'manual',
       },
       'user-1'

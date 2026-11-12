@@ -6,6 +6,7 @@ import { useAuth } from '../context/AuthContext.jsx';
 import { useToast } from '../context/ToastContext.jsx';
 import { getOrGeneratePlan, getActivePlan } from '../engine/trainingPlanService';
 import { fetchEventRsvps, upsertRsvp, fetchPlayerRsvps } from '../services/dataService';
+import { isUpcomingEvent, mergeAgenda } from '../utils/agendaItems';
 import { useDataListener } from '../context/hooks/useDataListener';
 import { usePlayerAvatar } from '../hooks/usePlayerAvatar';
 import { AvatarPicker } from './AvatarPicker';
@@ -30,8 +31,8 @@ import { lazyWithRetry } from '../utils/lazyWithRetry';
 import { useIsMobile } from '../hooks/useIsMobile';
 import PlayerBottomNav from './PlayerBottomNav';
 import { PlayerPhoto } from './PlayerPhoto';
+import { findOwnPlayer } from '../utils/currentPlayer';
 
-const normalizeName = (s) => (s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/\s+/g, ' ').trim();
 
 const PlayerProgressTab = lazyWithRetry(() => import('./PlayerProgressTab'));
 const AIChat = lazyWithRetry(() => import('./AIChat'));
@@ -44,6 +45,7 @@ function PlayerDashboard() {
   const isMobile = useIsMobile();
   const isPlayerAccount = profile?.system_role === 'jugador';
   const [activeTab, setActiveTab] = useState('agenda');
+  const [entrenoView, setEntrenoView] = useState('hoy');
   const [showAvatarPicker, setShowAvatarPicker] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [showTickets, setShowTickets] = useState(false);
@@ -67,16 +69,7 @@ function PlayerDashboard() {
   // Staff-only manual pick (Mi Ficha from the admin panel). Never preselected, never offered to player accounts.
   const [adminSelectedPlayerId, setAdminSelectedPlayerId] = useState('');
 
-  const ownPlayer = players.find(p => p.userId && user?.id && p.userId === user.id)
-    ?? players.find(p => {
-      if (user?.email) {
-        const uEmail = user.email.toLowerCase();
-        if (p.contacto?.email && p.contacto.email.toLowerCase() === uEmail) return true;
-        if (p.email && p.email.toLowerCase() === uEmail) return true;
-      }
-      // Exact (accent/case-insensitive) name match only: partial matches could open another player's data.
-      return !!(profile?.display_name && p.name && normalizeName(p.name) === normalizeName(profile.display_name));
-    });
+  const ownPlayer = findOwnPlayer(players, user);
 
   const player = (!isPlayerAccount && adminSelectedPlayerId ? players.find(p => p.id === adminSelectedPlayerId) : null) ?? ownPlayer;
   const jersey = player ? (player.camiseta ?? player.jerseyNumber ?? player.position_id ?? null) : null;
@@ -105,7 +98,7 @@ function PlayerDashboard() {
         height: player.height || '',
         position_id: player.position_id || null,
         posicion: player.posicion || '',
-        health_insurance: player.health_insurance || '',
+        health_insurance: player.health_insurance === 'No tiene EPS' ? 'NO_TIENE' : (player.health_insurance || ''),
         custom_eps: '',
         contacto_phone: player.contacto?.phone || '',
         emergency_contact_name: player.emergency_contact_name || '',
@@ -180,7 +173,8 @@ function PlayerDashboard() {
       height: Number(f.height),
       clothingSizes: { jersey: f.jersey || 'M', shorts: f.shorts || 'M', socks: f.socks || '40-42' },
       gymStats: { squat: squatVal, bench: benchVal, deadlift: deadliftVal },
-      health_insurance: f.health_insurance === 'OTRA' ? (f.custom_eps || null) : f.health_insurance || null,
+      health_insurance: f.health_insurance === 'OTRA' ? (f.custom_eps || null)
+        : f.health_insurance === 'NO_TIENE' ? 'No tiene EPS' : f.health_insurance || null,
       contacto: { phone: f.contacto_phone || null, email: player.contacto?.email },
       emergency_contact_name: f.emergency_contact_name || null,
       emergency_contact_phone: f.emergency_contact_phone || null,
@@ -223,31 +217,19 @@ function PlayerDashboard() {
 
   const allCalendarEvents = useMemo(() => {
     if (!player?.teamCategory) return [];
-    const trainingEvents = schedule.filter(e => matchesPlayerScope(e));
-    const matchEvents = (futureFixtures || [])
-      .filter(f => !player.teamCategory || f.teamCategory === player.teamCategory)
-      .map(f => ({
-        id: f.id,
-        title: `🏉 Partido: Orcos vs ${f.opponent}`,
-        date: f.date,
-        time: f.time || '15:30',
-        location: f.location || 'San Francisco',
-        type: 'partido',
-        isMatch: true,
-        notes: `Convocatoria de combate contra ${f.opponent}`,
-        opponent: f.opponent,
-        availabilities: f.availabilities,
-      }));
-
-    return [...trainingEvents, ...matchEvents].sort((a, b) => {
-      const timeA = a.time || '00:00';
-      const timeB = b.time || '00:00';
-      return new Date(a.date + 'T' + timeA) - new Date(b.date + 'T' + timeB);
-    });
+    // Solo lo que todavía no pasó: nada de confirmar asistencia a entrenos viejos.
+    const now = new Date();
+    const trainingEvents = schedule.filter(e => matchesPlayerScope(e) && isUpcomingEvent(e, now));
+    const matches = (futureFixtures || [])
+      .filter(f => matchesPlayerScope(f) && isUpcomingEvent(f, now));
+    return mergeAgenda(trainingEvents, matches).map(e => (
+      e.isFixture ? { ...e, notes: `Convocatoria de combate contra ${e.opponent}` } : e
+    ));
   }, [schedule, futureFixtures, player?.teamCategory, matchesPlayerScope]);
 
   const handleOpenDetail = async (event) => {
     setSelectedEvent(event);
+    if (event.isFixture) { setRsvpList([]); return; } // los partidos usan su propia convocatoria
     try {
       const data = await fetchEventRsvps(event.id);
       if (data) setRsvpList(data);
@@ -404,7 +386,7 @@ function PlayerDashboard() {
     return (
       <div style={{ padding: '60px 20px', textAlign: 'center', maxWidth: '440px', margin: '0 auto' }}>
         <img src="/assets/orcos_crest_light.png" alt="" width={88} height={88} style={{ marginBottom: '14px' }} />
-        <h2 style={{ color: '#fff', fontFamily: 'Outfit', fontWeight: 900, marginBottom: '8px' }}>Tu ficha aún no está vinculada</h2>
+        <h2 style={{ color: '#fff', fontFamily: 'var(--font-display)', fontWeight: 900, marginBottom: '8px' }}>Tu ficha aún no está vinculada</h2>
         <p style={{ color: 'var(--color-text-muted)', fontSize: '0.88rem', lineHeight: 1.6, marginBottom: '20px' }}>
           Pide al staff que vincule tu usuario en <strong>Roster → Forjar Credenciales</strong>. En cuanto lo hagan, verás aquí tu entreno, partidos y estado físico.
         </p>
@@ -419,7 +401,7 @@ function PlayerDashboard() {
     return (
       <div style={{ padding: '60px 20px', textAlign: 'center', maxWidth: '480px', margin: '0 auto' }}>
         <div style={{ fontSize: '3rem', marginBottom: '12px' }}>👹</div>
-        <h2 style={{ color: 'var(--color-gold)', fontFamily: 'Outfit', fontWeight: 900, marginBottom: '8px' }}>
+        <h2 style={{ color: 'var(--color-gold)', fontFamily: 'var(--font-display)', fontWeight: 900, marginBottom: '8px' }}>
           Selecciona tu Guerrero
         </h2>
         <p style={{ color: 'var(--color-text-muted)', fontSize: '0.85rem', marginBottom: '20px' }}>
@@ -447,26 +429,22 @@ function PlayerDashboard() {
 
   const cardBusy = cardStatus.startsWith('Generando');
   const cardActions = (
-    <div className="glass-panel" style={{ padding: '14px 16px', borderRadius: '16px', marginBottom: '16px' }}>
-      <div style={{ fontSize: '0.68rem', textTransform: 'uppercase', letterSpacing: '0.6px', color: 'var(--color-text-muted)', fontWeight: 800, marginBottom: '10px' }}>
-        Descargas oficiales
-      </div>
+    <section style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '16px' }}>
+      <h3 className="section-title">Descargas</h3>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: '8px' }}>
-        <button type="button" onClick={() => handleExportPlayerCard('standard')} disabled={cardBusy} className="btn-outline"
-          style={{ minHeight: '48px', padding: '6px 4px', justifyContent: 'center', fontSize: '0.76rem', whiteSpace: 'nowrap', fontWeight: 800, borderColor: 'rgba(255,215,0,0.45)', color: '#ffd700' }}>
-          🎴 Ficha HD
-        </button>
-        <button type="button" onClick={() => handleExportPlayerCard('4k')} disabled={cardBusy} className="btn-outline"
-          style={{ minHeight: '48px', padding: '6px 4px', justifyContent: 'center', fontSize: '0.76rem', whiteSpace: 'nowrap', fontWeight: 800, borderColor: 'rgba(0,230,118,0.45)', color: '#00e676' }}>
-          💎 Ficha 4K
-        </button>
-        <button type="button" onClick={handlePrintPazYSalvo} className="btn-outline"
-          style={{ minHeight: '48px', padding: '6px 4px', justifyContent: 'center', fontSize: '0.76rem', whiteSpace: 'nowrap', fontWeight: 800, borderColor: 'rgba(255,255,255,0.18)', color: '#e6edf5' }}>
-          📜 Paz y Salvo
-        </button>
+        {[
+          { label: 'Ficha HD', onClick: () => handleExportPlayerCard('standard'), busy: cardBusy },
+          { label: 'Ficha 4K', onClick: () => handleExportPlayerCard('4k'), busy: cardBusy },
+          { label: 'Paz y salvo', onClick: handlePrintPazYSalvo, busy: false },
+        ].map((b) => (
+          <button key={b.label} type="button" onClick={b.onClick} disabled={b.busy} className="btn-outline"
+            style={{ minHeight: '44px', padding: '0 6px', justifyContent: 'center', fontSize: '0.8125rem', whiteSpace: 'nowrap' }}>
+            {b.label}
+          </button>
+        ))}
       </div>
-      {cardStatus && <p role="status" style={{ fontSize: '0.74rem', color: 'var(--color-text-muted)', margin: '8px 0 0' }}>{cardStatus}</p>}
-    </div>
+      {cardStatus && <p role="status" style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', margin: 0 }}>{cardStatus}</p>}
+    </section>
   );
 
   const jerseyLabel = `${jersey != null ? `#${jersey} · ` : ''}${player.posicion || 'Sin posición'}`;
@@ -475,7 +453,7 @@ function PlayerDashboard() {
     <div
       className="flex h-full min-h-0"
       style={{
-        background: 'radial-gradient(ellipse at top, rgba(14, 24, 36, 0.98) 0%, #0a0f18 100%)',
+        background: 'var(--bg-root)',
         minHeight: isMobile ? '100dvh' : 'calc(100vh - 75px)',
       }}
     >
@@ -504,10 +482,10 @@ function PlayerDashboard() {
         {/* Warrior header */}
         <header
           style={{
-            display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px',
-            padding: isMobile ? '10px 12px' : '12px 18px',
-            background: 'rgba(14, 24, 36, 0.8)', border: '1px solid rgba(255, 255, 255, 0.07)',
-            borderRadius: '16px', boxShadow: '0 4px 20px rgba(0, 0, 0, 0.35)',
+            display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '16px',
+            padding: isMobile ? '14px' : '16px 18px',
+            background: 'var(--bg-surface)', border: '1px solid var(--border-glass)',
+            borderRadius: '18px',
           }}
         >
           {isMobile && (
@@ -517,17 +495,17 @@ function PlayerDashboard() {
             </button>
           )}
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontFamily: 'Outfit', fontWeight: 900, fontSize: isMobile ? '1rem' : '1.05rem', color: '#fff', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+            <div style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '1.375rem', lineHeight: 1.1, color: 'var(--color-text)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
               {player.name}
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '2px', flexWrap: 'wrap' }}>
-              <span style={{ fontSize: '0.7rem', fontWeight: 800, color: '#00e676' }}>{jerseyLabel}</span>
+              <span style={{ fontSize: '0.8125rem', fontWeight: 500, color: 'var(--color-text-muted)' }}>{jerseyLabel}</span>
               {!isMobile && (
-                <span style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)' }}>· Orcos Rugby Club · Corozal, Sucre</span>
+                <span style={{ fontSize: '0.8125rem', color: 'var(--color-text-subtle)' }}>· Orcos Rugby Club · Corozal, Sucre</span>
               )}
             </div>
           </div>
-          <img src="/assets/orcos_crest_light.png" alt="Orcos Rugby Club" width={isMobile ? 38 : 44} height={isMobile ? 38 : 44} style={{ flexShrink: 0, objectFit: 'contain' }} />
+          <img src="/assets/orcos_crest_light.png" alt="Orcos Rugby Club" width={32} height={32} className="header-crest" />
         </header>
 
         {(!isMobile || activeTab === 'agenda') && (
@@ -573,6 +551,17 @@ function PlayerDashboard() {
 
           {activeTab === 'entreno' && (
             <motion.div key="entreno" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={{ duration: 0.2 }}>
+              <div className="segmented" role="tablist" aria-label="Entreno" style={{ marginBottom: '14px' }}>
+                {[['hoy', 'Rutina de hoy'], ['progreso', 'Mi progreso']].map(([id, label]) => (
+                  <button key={id} type="button" role="tab" aria-selected={entrenoView === id}
+                    className={entrenoView === id ? 'is-on' : ''} onClick={() => setEntrenoView(id)}>{label}</button>
+                ))}
+              </div>
+              {entrenoView === 'progreso' ? (
+                <Suspense fallback={<Skeleton rows={4} />}>
+                  <PlayerProgressTab playerId={player.id} />
+                </Suspense>
+              ) : (
               <WorkoutLogger
                 player={player}
                 logWorkout={logWorkout}
@@ -581,6 +570,7 @@ function PlayerDashboard() {
                 onGeneratePlan={handleGeneratePlan}
                 generatingPlan={generatingPlan}
               />
+              )}
               {showRoutineBuilder && (
                 <RoutineBuilder
                   player={player}
@@ -605,14 +595,6 @@ function PlayerDashboard() {
                 player={player}
                 recordWellness={recordWellness}
               />
-            </motion.div>
-          )}
-
-          {activeTab === 'progreso' && (
-            <motion.div key="progreso" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={{ duration: 0.2 }}>
-              <Suspense fallback={<Skeleton rows={4} />}>
-                <PlayerProgressTab playerId={player.id} />
-              </Suspense>
             </motion.div>
           )}
 
@@ -678,7 +660,7 @@ function PlayerDashboard() {
           <div className="modal-content glass-panel animated-slide" onClick={e => e.stopPropagation()} style={{ maxWidth: '580px', maxHeight: '90vh', overflowY: 'auto' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '10px' }}>
               <div>
-                <h3 style={{ color: 'var(--color-gold)', fontSize: '1.15rem', fontWeight: 800, marginBottom: '4px', fontFamily: 'Outfit' }}>
+                <h3 style={{ color: 'var(--color-text)', fontSize: '1.15rem', fontWeight: 600, marginBottom: '4px' }}>
                   Verifica tus Datos e Inicia tu Historial de Progreso
                 </h3>
                 <p style={{ fontSize: '0.78rem', color: 'var(--color-text-muted)', marginBottom: '14px' }}>
@@ -696,7 +678,7 @@ function PlayerDashboard() {
               </button>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '10px' }}>
                 <div className="form-group" style={{ margin: 0 }}>
                   <label style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)' }}>Fecha de nacimiento *</label>
                   <input type="date" value={setupForm.birth_date} onChange={e => setSetupForm(p => ({ ...p, birth_date: e.target.value }))}
@@ -706,7 +688,8 @@ function PlayerDashboard() {
                   <label style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)' }}>EPS / Seguro Médico</label>
                   <select value={setupForm.health_insurance} onChange={e => setSetupForm(p => ({ ...p, health_insurance: e.target.value }))}
                     className="form-input" style={{ padding: '6px 8px', fontSize: '0.78rem' }}>
-                    <option value="">No tiene EPS</option>
+                    <option value="" disabled>Selecciona tu EPS…</option>
+                    <option value="NO_TIENE">No tiene EPS</option>
                     <option value="Nueva EPS">Nueva EPS</option>
                     <option value="Sanitas">Sanitas</option>
                     <option value="Salud Total">Salud Total</option>
@@ -724,7 +707,7 @@ function PlayerDashboard() {
                   placeholder="Escribe tu EPS..." className="form-input" style={{ padding: '6px 8px', fontSize: '0.78rem' }} />
               )}
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr)', gap: '10px' }}>
                 <div className="form-group" style={{ margin: 0 }}>
                   <label style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)' }}>Posición en Cancha</label>
                   <PositionSelect
@@ -755,7 +738,7 @@ function PlayerDashboard() {
 
               <div style={{ padding: '10px 12px', borderRadius: '8px', background: 'rgba(64,196,255,0.05)', border: '1px solid rgba(64,196,255,0.18)' }}>
                 <div style={{ fontSize: '0.72rem', fontWeight: 700, color: '#40c4ff', marginBottom: '6px' }}>Tallas de Uniforme / Kit</div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr)', gap: '8px' }}>
                   <div className="form-group" style={{ margin: 0 }}>
                     <label style={{ fontSize: '0.65rem', color: 'var(--color-text-muted)' }}>Camiseta</label>
                     <SizeSelect
@@ -786,15 +769,15 @@ function PlayerDashboard() {
                 </div>
               </div>
 
-              <div style={{ padding: '10px 12px', borderRadius: '8px', background: 'rgba(0,230,118,0.04)', border: '1px solid rgba(0,230,118,0.18)' }}>
+              <div style={{ padding: '10px 12px', borderRadius: '8px', background: 'rgba(46, 229, 122,0.04)', border: '1px solid rgba(46, 229, 122,0.18)' }}>
                 <div style={{ fontSize: '0.74rem', fontWeight: 700, color: 'var(--color-primary)', marginBottom: '6px' }}>
                   ¿Qué ejercicios realizas y cuánto levantas hoy? (Desmarca los que no hagas)
                 </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '6px' }}>
                   {TRACKABLE_EXERCISES.map(ex => {
                     const isChecked = (setupForm.tracked_exercises || []).includes(ex.key);
                     return (
-                      <div key={ex.key} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '6px', padding: '5px 8px', borderRadius: '6px', background: isChecked ? 'rgba(0,230,118,0.06)' : 'rgba(255,255,255,0.02)', border: `1px solid ${isChecked ? 'rgba(0,230,118,0.22)' : 'var(--border-glass)'}` }}>
+                      <div key={ex.key} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '6px', padding: '5px 8px', borderRadius: '6px', background: isChecked ? 'rgba(46, 229, 122,0.06)' : 'rgba(255,255,255,0.02)', border: `1px solid ${isChecked ? 'rgba(46, 229, 122,0.22)' : 'var(--border-glass)'}` }}>
                         <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.73rem', cursor: 'pointer', margin: 0, flex: 1 }}>
                           <input
                             type="checkbox"
@@ -824,7 +807,7 @@ function PlayerDashboard() {
                 </div>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr)', gap: '8px' }}>
                 <div className="form-group" style={{ margin: 0 }}>
                   <label style={{ fontSize: '0.68rem', color: 'var(--color-text-muted)' }}>Teléfono</label>
                   <input type="text" value={setupForm.contacto_phone} onChange={e => setSetupForm(p => ({ ...p, contacto_phone: e.target.value }))}

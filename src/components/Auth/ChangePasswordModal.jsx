@@ -36,7 +36,7 @@ export function ChangePasswordModal({ onPasswordChanged }) {
     <div className="modal-overlay" style={{ zIndex: 99999, background: 'rgba(0,0,0,0.85)' }}>
       <div className="modal-content animated-slide" style={{ maxWidth: '440px', textAlign: 'center', border: '2px solid var(--color-gold)' }} onClick={e => e.stopPropagation()}>
         <div style={{ fontSize: '2.5rem', marginBottom: '10px' }}>🛡️</div>
-        <h2 style={{ fontSize: '1.3rem', fontWeight: 800, fontFamily: 'Outfit', color: 'var(--color-gold)', marginBottom: '8px' }}>
+        <h2 style={{ fontSize: '1.3rem', fontWeight: 800, fontFamily: 'var(--font-display)', color: 'var(--color-gold)', marginBottom: '8px' }}>
           Bienvenido a Rugby Orcos
         </h2>
         <p style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)', marginBottom: '20px', lineHeight: 1.5 }}>

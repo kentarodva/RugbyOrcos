@@ -100,6 +100,14 @@ function Login() {
         if (!player && players.length === 1) player = players[0];
       }
 
+      // El servidor solo entrega el email con el usuario exacto (migración 95): una
+      // coincidencia sin email es una sugerencia, no un inicio de sesión.
+      if (player && !player.email) {
+        setError(`Guerrero no encontrado. ¿Quisiste decir "${player.username}"? Escríbelo exacto.`);
+        setLoading(false);
+        return;
+      }
+
       if (!player) {
         setError(
           'Guerrero no encontrado. Verifica tu nombre de usuario o contacta a tu Comandante de Horda para que te cree credenciales en Roster.'
@@ -216,8 +224,8 @@ function Login() {
           alignItems: 'center',
           gap: '22px',
           borderRadius: '22px',
-          border: '1px solid rgba(0, 230, 118, 0.18)',
-          boxShadow: '0 20px 50px rgba(0, 0, 0, 0.65), 0 0 30px rgba(0, 230, 118, 0.06)',
+          border: '1px solid rgba(46, 229, 122, 0.18)',
+          boxShadow: '0 20px 50px rgba(0, 0, 0, 0.65), 0 0 30px rgba(46, 229, 122, 0.06)',
         }}
       >
         {/* Emblem + Title */}
@@ -227,8 +235,8 @@ function Login() {
               width: '96px',
               height: '96px',
               borderRadius: '24px',
-              background: 'radial-gradient(circle, rgba(0, 230, 118, 0.14) 0%, rgba(15, 22, 36, 0.4) 75%)',
-              border: '1px solid rgba(0, 230, 118, 0.22)',
+              background: 'radial-gradient(circle, rgba(46, 229, 122, 0.14) 0%, rgba(24, 27, 25, 0.4) 75%)',
+              border: '1px solid rgba(46, 229, 122, 0.22)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -258,12 +266,12 @@ function Login() {
                 marginTop: '6px',
                 padding: '3px 10px',
                 borderRadius: '999px',
-                background: 'rgba(255, 179, 0, 0.12)',
-                border: '1px solid rgba(255, 179, 0, 0.28)',
+                background: 'rgba(232, 185, 49, 0.12)',
+                border: '1px solid rgba(232, 185, 49, 0.28)',
                 fontSize: '0.73rem',
                 color: 'var(--color-gold)',
                 fontWeight: 700,
-                fontFamily: 'Outfit',
+                fontFamily: 'var(--font-display)',
                 letterSpacing: '0.8px',
                 textTransform: 'uppercase',
               }}
@@ -283,7 +291,7 @@ function Login() {
             width: '100%',
             height: '1px',
             background: `linear-gradient(90deg, transparent, ${
-              showRegister || showRecovery ? 'var(--color-gold)' : 'rgba(0, 230, 118, 0.25)'
+              showRegister || showRecovery ? 'var(--color-gold)' : 'rgba(46, 229, 122, 0.25)'
             }, transparent)`,
           }}
         />
@@ -328,10 +336,10 @@ function Login() {
                   color: 'var(--color-primary)',
                   fontSize: '0.8rem',
                   fontWeight: 600,
-                  background: 'rgba(0, 230, 118, 0.08)',
+                  background: 'rgba(46, 229, 122, 0.08)',
                   padding: '10px 12px',
                   borderRadius: '8px',
-                  border: '1px solid rgba(0, 230, 118, 0.25)',
+                  border: '1px solid rgba(46, 229, 122, 0.25)',
                 }}
               >
                 {recoveryStatus}
@@ -508,8 +516,8 @@ function Login() {
               <div
                 style={{
                   textAlign: 'center',
-                  background: 'rgba(255, 61, 0, 0.08)',
-                  border: '1px solid rgba(255, 61, 0, 0.25)',
+                  background: 'rgba(255, 92, 77, 0.08)',
+                  border: '1px solid rgba(255, 92, 77, 0.25)',
                   borderRadius: '10px',
                   padding: '10px 12px',
                 }}
@@ -601,7 +609,7 @@ function Login() {
                   padding: '11px',
                   fontSize: '0.85rem',
                   fontWeight: 700,
-                  borderColor: 'rgba(255, 179, 0, 0.35)',
+                  borderColor: 'rgba(232, 185, 49, 0.35)',
                   color: 'var(--color-gold)',
                 }}
               >

@@ -17,7 +17,7 @@ export default function NavBar({ onClick, open }) {
         justifyContent: 'center',
         borderRadius: '10px',
         borderColor: open ? 'var(--color-primary)' : 'var(--border-glass)',
-        background: open ? 'rgba(0, 230, 118, 0.1)' : 'rgba(255, 255, 255, 0.03)',
+        background: open ? 'rgba(46, 229, 122, 0.1)' : 'rgba(255, 255, 255, 0.03)',
         color: open ? 'var(--color-primary)' : 'var(--color-text)',
       }}
     >

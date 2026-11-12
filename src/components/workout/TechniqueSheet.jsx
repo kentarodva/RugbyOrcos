@@ -27,7 +27,7 @@ export default function TechniqueSheet({ exercise, onClose }) {
       <div role="dialog" aria-modal="true" aria-label={`Técnica: ${exercise.name}`} className="modal-content glass-panel"
         onClick={e => e.stopPropagation()} style={{ maxWidth: '520px', maxHeight: '85vh', overflowY: 'auto', padding: '22px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px', marginBottom: '14px' }}>
-          <h3 style={{ margin: 0, fontSize: '1rem', fontWeight: 800, fontFamily: 'Outfit', color: 'var(--color-primary)' }}>{exercise.name}</h3>
+          <h3 style={{ margin: 0, fontSize: '1rem', fontWeight: 600, color: 'var(--color-text)' }}>{exercise.name}</h3>
           <button type="button" onClick={onClose} aria-label="Cerrar" className="btn-outline" style={{ minWidth: '44px', minHeight: '44px', justifyContent: 'center' }}>✕</button>
         </div>
         {state.loading ? (
@@ -38,7 +38,7 @@ export default function TechniqueSheet({ exercise, onClose }) {
             <ol style={{ margin: 0, padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '10px' }}>
               {drills.map((d, i) => (
                 <li key={i} style={{ display: 'flex', gap: '12px', alignItems: 'flex-start', fontSize: '0.88rem', lineHeight: 1.5, color: '#e6edf5' }}>
-                  <span aria-hidden="true" style={{ flexShrink: 0, width: '28px', height: '28px', borderRadius: '50%', background: 'rgba(0,230,118,0.15)', border: '1px solid rgba(0,230,118,0.4)', color: '#00e676', fontWeight: 900, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8rem' }}>{i + 1}</span>
+                  <span aria-hidden="true" style={{ flexShrink: 0, width: '28px', height: '28px', borderRadius: '50%', background: 'rgba(46, 229, 122,0.15)', border: '1px solid rgba(46, 229, 122,0.4)', color: '#2EE57A', fontWeight: 900, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8rem' }}>{i + 1}</span>
                   <span>{d}</span>
                 </li>
               ))}

@@ -9,14 +9,14 @@ function AttendanceTimeline({ teamPlayers }) {
   const pct = Math.round(avgAtt * 100);
   return (
     <div className="glass-panel" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-      <h3 style={{ fontSize: '0.9rem', fontWeight: 700, fontFamily: 'Outfit', color: 'var(--color-gold)' }}>
+      <h3 style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--color-text)' }}>
         Asistencia del Clan
       </h3>
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
         <div style={{ flex: 1, height: '12px', background: 'var(--bg-dark)', borderRadius: '6px', overflow: 'hidden' }}>
           <div style={{ width: `${pct}%`, height: '100%', background: `var(--color-${pct >= 90 ? 'primary' : pct >= 70 ? 'gold' : 'red'})`, borderRadius: '6px', transition: 'width 0.8s' }} />
         </div>
-        <span style={{ fontWeight: 800, fontSize: '1.1rem', color: `var(--color-${pct >= 90 ? 'primary' : pct >= 70 ? 'gold' : 'red'})`, fontFamily: 'Outfit', minWidth: '45px', textAlign: 'right' }}>{pct}%</span>
+        <span style={{ fontWeight: 800, fontSize: '1.1rem', color: `var(--color-${pct >= 90 ? 'primary' : pct >= 70 ? 'gold' : 'red'})`, fontFamily: 'var(--font-display)', minWidth: '45px', textAlign: 'right' }}>{pct}%</span>
       </div>
       <p style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)', textAlign: 'right' }}>
         Promedio historico del equipo activo

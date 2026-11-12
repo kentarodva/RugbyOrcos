@@ -141,6 +141,9 @@ async function saveTokenToSupabase(token) {
       .from('players')
       .select('id, team_category, makgora_team_id, position')
       .eq('user_id', user.id)
+      .is('deleted_at', null)
+      .order('created_at', { ascending: true })
+      .limit(1)
       .maybeSingle();
 
     if (!player) return { error: 'Tu cuenta no está vinculada a una ficha de jugador.' };

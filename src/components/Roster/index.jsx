@@ -1,5 +1,5 @@
 import React, { useContext, useState, useEffect, useCallback, useRef, useMemo } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence } from 'framer-motion';
 import { ClubContext, SYSTEM_ROLES, SYSTEM_ROLES_LABELS, EQUIPOS_LABELS } from '../../context/ClubContext';
 import { supabase } from '../../supabaseClient.js';
 import { wrapCatch } from '../../utils/errorHandler';
@@ -23,6 +23,7 @@ import PositionSelect from './PositionSelect';
 import PlayerCompare from './PlayerCompare';
 
 import RosterSkeleton from '../Skeletons/RosterSkeleton';
+import { localDateKey } from '../../utils/agendaItems';
 
 function Roster() {
   const {
@@ -51,7 +52,7 @@ function Roster() {
     supabase.from('player_loans')
       .select('player_id, to_team_id, status')
       .eq('status', 'approved')
-      .gte('end_date', new Date().toISOString().split('T')[0])
+      .gte('end_date', localDateKey())
       .then(({ data }) => { if (data) setActiveLoans(data); })
       .catch(wrapCatch('Roster.fetchActiveLoans', { silent: true }));
   }, []);
@@ -130,7 +131,7 @@ function Roster() {
   };
 
   const handleTestSubmit = (stats) => {
-    const today = new Date().toISOString().split('T')[0];
+    const today = localDateKey();
     recordPhysicalTest(selectedPlayer.id, today, stats);
   };
 
@@ -227,10 +228,11 @@ function Roster() {
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-      <div className="animated-fade" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+      <div className="animated-fade" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
 
         <RosterControls
+          count={filteredPlayers.length}
           search={search}
           onSearchChange={setSearch}
           divisionView={divisionView}
@@ -252,26 +254,25 @@ function Roster() {
 
         {bulkMode && (
           <div className="glass-panel" style={{
-            padding: '12px 18px',
+            padding: '12px 14px',
             display: 'flex',
             alignItems: 'center',
-            gap: '14px',
+            gap: '12px',
             flexWrap: 'wrap',
-            borderLeft: '3px solid var(--color-primary)',
+            borderColor: 'var(--color-primary)',
           }}>
-            <span style={{ fontWeight: 700, fontSize: '0.85rem', color: 'var(--color-text)' }}>
+            <span style={{ fontWeight: 600, fontSize: '0.875rem', color: 'var(--color-text)' }}>
               {selectedPlayerIds.size} seleccionados
             </span>
             <PositionSelect
               value={bulkPositionId}
               onChange={handleBulkPositionChange}
-              style={{ minWidth: '200px' }}
+              style={{ flex: '1 1 200px', minWidth: 0 }}
             />
             <button
               onClick={handleApplyBulkPosition}
               disabled={selectedPlayerIds.size === 0 || !bulkPositionId || bulkApplying}
-              className="btn-neon"
-              style={{ padding: '8px 18px', fontSize: '0.82rem' }}
+              className="btn-neon btn-sm"
             >
               {bulkApplying ? 'Aplicando...' : `Asignar a ${selectedPlayerIds.size} guerreros`}
             </button>
@@ -279,30 +280,12 @@ function Roster() {
         )}
 
         {filteredPlayers.length === 0 ? (
-          <div className="glass-panel" style={{ padding: '40px', textAlign: 'center', color: 'var(--color-text-muted)' }}>
-            No hay guerreros registrados con ese filtro en esta categoria.
+          <div className="glass-panel" style={{ padding: '32px 16px', textAlign: 'center', color: 'var(--color-text-muted)' }}>
+            {search ? `Ningún guerrero coincide con «${search}».` : 'No hay guerreros en esta vista.'}
           </div>
         ) : (
-          <div className="grid-cards">
-            {filteredPlayers.map((p, i) => (
-              <motion.div
-                key={p.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: Math.min(i * 0.03, 0.6), duration: 0.3, ease: [0.2, 0.8, 0.2, 1] }}
-                style={{ position: 'relative' }}
-              >
-              {p.deleted_at && (
-                <div style={{ position: 'absolute', top: -8, right: -8, zIndex: 2, display: 'flex', gap: '4px' }}>
-                  <span style={{ fontSize: '0.6rem', padding: '2px 8px', borderRadius: '8px', background: 'rgba(239,68,68,0.2)', color: '#ef4444', fontWeight: 600 }}>
-                    🗑️ Inactivo
-                  </span>
-                  <button onClick={(e) => { e.stopPropagation(); handleRecuperar(p); }}
-                    style={{ fontSize: '0.6rem', padding: '2px 8px', borderRadius: '8px', background: 'rgba(34,197,94,0.2)', color: '#22c55e', border: 'none', cursor: 'pointer', fontWeight: 600 }}>
-                    🔄 Recuperar
-                  </button>
-                </div>
-              )}
+          <div className="roster-list glass-panel">
+            {filteredPlayers.map((p) => (
               <PlayerCard
                 key={p.id}
                 player={p}
@@ -311,13 +294,13 @@ function Roster() {
                   setSelectedPlayer(player);
                   setShowDetailModal(true);
                 }}
+                onRestore={handleRecuperar}
                 activeLoans={activeLoans}
                 makgoraTeams={makgoraTeams}
                 bulkMode={bulkMode}
                 isSelected={selectedPlayerIds.has(p.id)}
                 onSelect={handleBulkSelect}
               />
-              </motion.div>
             ))}
           </div>
         )}

@@ -89,9 +89,9 @@ function Invitaciones() {
 
   const statusBadge = (status) => {
     const map = {
-      active: { label: 'Activa', color: 'var(--color-primary)', bg: 'rgba(0,230,118,0.08)' },
-      completed: { label: 'Completada', color: 'var(--color-blue)', bg: 'rgba(0,176,255,0.08)' },
-      expired: { label: 'Expirada', color: 'var(--color-red)', bg: 'rgba(255,61,0,0.08)' },
+      active: { label: 'Activa', color: 'var(--color-primary)', bg: 'rgba(46, 229, 122,0.08)' },
+      completed: { label: 'Completada', color: 'var(--color-blue)', bg: 'rgba(90, 169, 255,0.08)' },
+      expired: { label: 'Expirada', color: 'var(--color-red)', bg: 'rgba(255, 92, 77,0.08)' },
     };
     const s = map[status] || map.expired;
     return (
@@ -118,7 +118,7 @@ function Invitaciones() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
-        <h3 style={{ fontSize: '1.2rem', fontWeight: 800, fontFamily: 'Outfit', color: 'var(--color-gold)' }}>
+        <h3 style={{ fontSize: '1.2rem', fontWeight: 600, color: 'var(--color-text)' }}>
           📨 Invitaciones a Rivales
         </h3>
         <div style={{ display: 'flex', gap: '8px' }}>
@@ -198,7 +198,7 @@ function Invitaciones() {
           </p>
         </div>
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(380px, 1fr))', gap: '15px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 380px), 1fr))', gap: '15px' }}>
           {displayList.map((inv) => {
             const fixture = inv.futureFixture;
             const fixtureDate = fixture?.date
@@ -222,7 +222,7 @@ function Invitaciones() {
               >
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                   <div>
-                    <h4 style={{ fontSize: '1rem', fontWeight: 800, fontFamily: 'Outfit' }}>
+                    <h4 style={{ fontSize: '1rem', fontWeight: 600 }}>
                       vs {inv.rivalName || fixture?.opponent || 'Rival'}
                     </h4>
                     {fixtureDate && (
@@ -316,7 +316,7 @@ function Invitaciones() {
                               window.open(`https://api.whatsapp.com/send?text=${texto}`, '_blank');
                             }}
                             style={{
-                              background: 'rgba(255,179,0,0.1)', border: '1px solid var(--color-gold)',
+                              background: 'rgba(232, 185, 49,0.1)', border: '1px solid var(--color-gold)',
                               color: 'var(--color-gold)', padding: '6px 12px', borderRadius: 'var(--radius-sm)',
                               cursor: 'pointer', fontSize: '0.75rem', fontWeight: 700,
                             }}
@@ -330,7 +330,7 @@ function Invitaciones() {
                     <button
                       onClick={() => handleCancelar(inv)}
                       style={{
-                        background: 'rgba(255,61,0,0.08)', border: '1px solid var(--color-red)',
+                        background: 'rgba(255, 92, 77,0.08)', border: '1px solid var(--color-red)',
                         color: 'var(--color-red)', padding: '6px 12px', borderRadius: 'var(--radius-sm)',
                         cursor: 'pointer', fontSize: '0.75rem', fontWeight: 700,
                       }}
@@ -362,7 +362,7 @@ function Invitaciones() {
                             key={g.id}
                             style={{
                               display: 'flex', gap: '10px', alignItems: 'center',
-                              padding: '7px 10px', background: 'rgba(255,179,0,0.03)',
+                              padding: '7px 10px', background: 'rgba(232, 185, 49,0.03)',
                               border: '1px solid var(--border-glass)', borderRadius: 'var(--radius-sm)',
                               fontSize: '0.78rem',
                             }}

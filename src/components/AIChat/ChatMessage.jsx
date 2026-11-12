@@ -42,8 +42,8 @@ export function ChatMessage({ msg }) {
       <div style={{
         padding: '12px 15px',
         borderRadius: 'var(--radius-md)',
-        background: msg.isError ? 'rgba(255, 61, 0, 0.05)' : msg.role === 'user' ? 'rgba(0, 230, 118, 0.05)' : 'var(--bg-surface-solid)',
-        border: '1px solid ' + (msg.isError ? 'var(--color-red)' : msg.role === 'user' ? 'rgba(0, 230, 118, 0.2)' : 'var(--border-glass)'),
+        background: msg.isError ? 'rgba(255, 92, 77, 0.05)' : msg.role === 'user' ? 'rgba(46, 229, 122, 0.05)' : 'var(--bg-surface-solid)',
+        border: '1px solid ' + (msg.isError ? 'var(--color-red)' : msg.role === 'user' ? 'rgba(46, 229, 122, 0.2)' : 'var(--border-glass)'),
         fontSize: '0.82rem',
         lineHeight: 1.6,
         color: msg.isError ? 'var(--color-red)' : 'var(--color-text)'

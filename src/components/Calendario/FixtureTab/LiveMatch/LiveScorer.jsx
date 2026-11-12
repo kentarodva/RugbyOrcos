@@ -113,8 +113,8 @@ function LiveScorer({
     <div className="glass-panel" style={{ padding: '20px' }}>
       {/* Mesa de Control Oficial Banner */}
       <div style={{
-        background: isLocked ? 'rgba(0, 230, 118, 0.08)' : 'rgba(255, 255, 255, 0.03)',
-        border: `1px solid ${isLocked ? 'rgba(0, 230, 118, 0.3)' : 'var(--color-border)'}`,
+        background: isLocked ? 'rgba(46, 229, 122, 0.08)' : 'rgba(255, 255, 255, 0.03)',
+        border: `1px solid ${isLocked ? 'rgba(46, 229, 122, 0.3)' : 'var(--color-border)'}`,
         borderRadius: '8px',
         padding: '10px 14px',
         marginBottom: '16px',
@@ -182,7 +182,7 @@ function LiveScorer({
 
       {!canScore && (
         <div style={{
-          background: 'rgba(255, 61, 0, 0.1)',
+          background: 'rgba(255, 92, 77, 0.1)',
           border: '1px solid var(--color-red)',
           borderRadius: '6px',
           padding: '8px 12px',
@@ -222,7 +222,7 @@ function LiveScorer({
       </div>
 
       {/* Main Scoring Buttons */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '12px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '8px', marginBottom: '12px' }}>
         {ACTIONS.map(action => {
           const IconComp = action.icon;
           return (
@@ -257,7 +257,7 @@ function LiveScorer({
       </div>
 
       {/* Cards & Discipline Row */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '16px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '8px', marginBottom: '16px' }}>
         <button
           onClick={() => handleCardEvent('yellow_card')}
           disabled={actionsDisabled}
@@ -277,7 +277,7 @@ function LiveScorer({
             color: 'var(--color-gold)',
           }}
         >
-          <OrcosCardIcon size={16} color="#ffd740" />
+          <OrcosCardIcon size={16} color="#E8B931" />
           Tarjeta Amarilla (Sin-Bin 10m)
         </button>
 
@@ -285,8 +285,8 @@ function LiveScorer({
           onClick={() => handleCardEvent('red_card')}
           disabled={actionsDisabled}
           style={{
-            background: 'rgba(255, 23, 68, 0.1)',
-            border: '1px solid rgba(255, 23, 68, 0.4)',
+            background: 'rgba(255, 92, 77, 0.1)',
+            border: '1px solid rgba(255, 92, 77, 0.4)',
             borderRadius: 'var(--radius-sm)',
             padding: '8px',
             cursor: actionsDisabled ? 'not-allowed' : 'pointer',
@@ -300,7 +300,7 @@ function LiveScorer({
             color: 'var(--color-red)',
           }}
         >
-          <OrcosCardIcon size={16} color="#ff1744" />
+          <OrcosCardIcon size={16} color="#FF5C4D" />
           Tarjeta Roja (Expulsión)
         </button>
       </div>

@@ -88,7 +88,7 @@ function Settings({ onClose, theme, setTheme }) {
         onClick={(e) => e.stopPropagation()}
       >
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-          <h3 style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 800, fontSize: '1.2rem', color: 'var(--color-primary)' }}>
+          <h3 style={{ fontWeight: 600, fontSize: '1.2rem', color: 'var(--color-text)' }}>
             ⚙️ Configuración
           </h3>
           <button onClick={onClose} className="btn-outline" style={{ padding: '4px 10px', fontSize: '0.75rem' }}>✕</button>
@@ -175,8 +175,8 @@ function Settings({ onClose, theme, setTheme }) {
 
           {/* OpenRouter */}
           <div style={{
-            background: 'rgba(0, 230, 118, 0.05)',
-            border: '1px solid rgba(0, 230, 118, 0.2)',
+            background: 'rgba(46, 229, 122, 0.05)',
+            border: '1px solid rgba(46, 229, 122, 0.2)',
             padding: '15px', borderRadius: 'var(--radius-md)',
             display: 'flex', flexDirection: 'column', gap: '8px'
           }}>
@@ -184,7 +184,7 @@ function Settings({ onClose, theme, setTheme }) {
               <div>
                 <span style={{ fontSize: '0.85rem', fontWeight: 800 }}>🌐 OpenRouter (Edge Function)</span>
                 <span className="badge" style={{
-                  marginLeft: '8px', background: 'rgba(0, 230, 118, 0.1)',
+                  marginLeft: '8px', background: 'rgba(46, 229, 122, 0.1)',
                   color: 'var(--color-primary)', border: '1px solid var(--color-primary)',
                   fontSize: '0.6rem', fontWeight: 700
                 }}>Siempre activo</span>
@@ -194,7 +194,7 @@ function Settings({ onClose, theme, setTheme }) {
               Conexión segura via Supabase Edge Function. Modelos gratuitos: DeepSeek R1, Llama 3, Nemotron, Gemma y más.
             </div>
             <div style={{
-              background: 'rgba(0, 230, 118, 0.03)', border: '1px solid var(--border-glass)',
+              background: 'rgba(46, 229, 122, 0.03)', border: '1px solid var(--border-glass)',
               borderRadius: 'var(--radius-sm)', padding: '8px 12px', fontSize: '0.68rem', color: 'var(--color-text-muted)'
             }}>
               <strong style={{ color: 'var(--color-text)' }}>Estado:</strong>{' '}

@@ -33,7 +33,7 @@ function PlayerAttributes({ player, onTestSubmit }) {
         </button>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '15px' }}>
         {[
           { label: 'Fuerza', val: player.attributes?.force || 50, barClass: 'force' },
           { label: 'Velocidad', val: player.attributes?.speed || 50, barClass: 'speed' },
@@ -53,7 +53,7 @@ function PlayerAttributes({ player, onTestSubmit }) {
       </div>
 
       {showForm && (
-        <form onSubmit={handleSubmit} style={{ marginTop: '20px', padding: '20px', background: 'rgba(0,230,118,0.02)', border: '1px dashed var(--color-primary)', borderRadius: 'var(--radius-md)', display: 'flex', flexDirection: 'column', gap: '15px' }}>
+        <form onSubmit={handleSubmit} style={{ marginTop: '20px', padding: '20px', background: 'rgba(46, 229, 122,0.02)', border: '1px dashed var(--color-primary)', borderRadius: 'var(--radius-md)', display: 'flex', flexDirection: 'column', gap: '15px' }}>
           <div>
             <h5 style={{ fontSize: '0.9rem', color: 'var(--color-primary)', fontWeight: 800 }}>REGISTRO DE TEST CLINICO Y ATHLETIC COMBINE</h5>
             <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginTop: '4px' }}>
@@ -61,7 +61,7 @@ function PlayerAttributes({ player, onTestSubmit }) {
             </p>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '15px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '15px', borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '15px' }}>
             <div className="form-group" style={{ margin: 0 }}>
               <label style={{ fontSize: '0.8rem', color: 'var(--color-text)' }}>Fuerza: 1RM Sentadilla (kg)</label>
               <input type="number" min="30" max="300" value={test.squat} onChange={set('squat')} className="form-input" required />
@@ -72,7 +72,7 @@ function PlayerAttributes({ player, onTestSubmit }) {
             </div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '15px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '15px', borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '15px' }}>
             <div className="form-group" style={{ margin: 0 }}>
               <label style={{ fontSize: '0.8rem', color: 'var(--color-text)' }}>Velocidad: Sprint 40m (seg)</label>
               <input type="number" step="0.01" min="4.0" max="10.0" value={test.sprint} onChange={set('sprint')} className="form-input" required />
@@ -87,7 +87,7 @@ function PlayerAttributes({ player, onTestSubmit }) {
             <label style={{ fontSize: '0.8rem', color: 'var(--color-text)', display: 'block', marginBottom: '8px', fontWeight: 700 }}>
               Resistencia: Tiempo Test Bronco (1.2km Shuttles)
             </label>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '10px' }}>
               <div className="form-group" style={{ margin: 0 }}>
                 <span style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)' }}>Minutos</span>
                 <input type="number" min="3" max="8" value={test.broncoMin} onChange={set('broncoMin')} className="form-input" required />

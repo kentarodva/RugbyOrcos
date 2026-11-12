@@ -49,7 +49,7 @@ export function EditCampaignModal({ campaign, onSave, onClose }) {
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content animated-slide" style={{ maxWidth: '500px' }} onClick={e => e.stopPropagation()}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-          <h3 style={{ fontSize: '1.2rem', fontWeight: 800, fontFamily: 'Outfit' }}>✏️ Editar Campaña</h3>
+          <h3 style={{ fontSize: '1.2rem', fontWeight: 600 }}>✏️ Editar Campaña</h3>
           <button onClick={onClose} className="btn-outline" style={{ padding: '4px 10px', fontSize: '0.75rem' }}>✕</button>
         </div>
 
@@ -71,7 +71,7 @@ export function EditCampaignModal({ campaign, onSave, onClose }) {
 
           {isRaffle && (
             <>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '10px' }}>
                 <div className="form-group">
                   <label>Valor por Boleto</label>
                   <input type="number" value={campaign.ticket_price || ''} className="form-input" disabled style={{ opacity: 0.5 }} />
@@ -121,7 +121,7 @@ export function EditCampaignModal({ campaign, onSave, onClose }) {
                         <button
                           onClick={() => setEditPrizes(prev => prev.filter((_, idx) => idx !== i))}
                           className="btn-outline"
-                          style={{ padding: '4px 8px', fontSize: '0.65rem', color: 'var(--color-red)', borderColor: 'rgba(255,61,0,0.3)' }}
+                          style={{ padding: '4px 8px', fontSize: '0.65rem', color: 'var(--color-red)', borderColor: 'rgba(255, 92, 77,0.3)' }}
                         >
                           ✕
                         </button>

@@ -215,7 +215,7 @@ export function FundraisingCampaignCard({ campaign, players, isStaff, currentPla
           </div>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-              <h4 style={{ fontSize: '1.02rem', fontWeight: 800, fontFamily: 'Outfit', margin: 0 }}>{campaign.name}</h4>
+              <h4 style={{ fontSize: '1.02rem', fontWeight: 600, margin: 0 }}>{campaign.name}</h4>
               <span className="pro-chip pro-chip-muted">{typeLabel}</span>
             </div>
             <div style={{ fontSize: '0.74rem', color: 'var(--color-text-muted)', marginTop: '2px' }} className="tabular-nums">
@@ -253,7 +253,7 @@ export function FundraisingCampaignCard({ campaign, players, isStaff, currentPla
                 });
               }}
               className="btn-outline"
-              style={{ padding: '6px 10px', fontSize: '0.72rem', color: 'var(--color-primary)', borderColor: 'rgba(0,230,118,0.3)', display: 'inline-flex', alignItems: 'center', gap: '5px' }}
+              style={{ padding: '6px 10px', fontSize: '0.72rem', color: 'var(--color-primary)', borderColor: 'rgba(46, 229, 122,0.3)', display: 'inline-flex', alignItems: 'center', gap: '5px' }}
               title="Copiar resumen de campaña para el grupo de WhatsApp"
             >
               <Share2 size={13} />
@@ -271,7 +271,7 @@ export function FundraisingCampaignCard({ campaign, players, isStaff, currentPla
             </button>
           )}
           {isStaff && (
-            <button onClick={() => setShowDeleteConfirm(true)} className="btn-outline" style={{ padding: '6px 9px', fontSize: '0.72rem', color: 'var(--color-red)', borderColor: 'rgba(255,61,0,0.3)' }} title="Eliminar campaña">
+            <button onClick={() => setShowDeleteConfirm(true)} className="btn-outline" style={{ padding: '6px 9px', fontSize: '0.72rem', color: 'var(--color-red)', borderColor: 'rgba(255, 92, 77,0.3)' }} title="Eliminar campaña">
               <Trash2 size={14} />
             </button>
           )}
@@ -382,7 +382,7 @@ export function FundraisingCampaignCard({ campaign, players, isStaff, currentPla
                       <span>Descargar Orden de Confección (CSV)</span>
                     </button>
                   </div>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '10px', fontSize: '0.76rem' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 180px), 1fr))', gap: '10px', fontSize: '0.76rem' }}>
                     <div>
                       <span style={{ color: 'var(--color-text-muted)', fontWeight: 700 }}>Camisetas: </span>
                       {Object.entries(uniformSummary.jersey).map(([size, count]) => (
@@ -660,7 +660,7 @@ export function FundraisingCampaignCard({ campaign, players, isStaff, currentPla
       {showDeleteConfirm && (
         <div className="modal-overlay" onClick={() => setShowDeleteConfirm(false)}>
           <div className="modal-content animated-slide" style={{ maxWidth: '380px' }} onClick={e => e.stopPropagation()}>
-            <h3 style={{ fontSize: '1.1rem', fontWeight: 800, fontFamily: 'Outfit', marginBottom: '15px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <h3 style={{ fontSize: '1.1rem', fontWeight: 600, marginBottom: '15px', display: 'flex', alignItems: 'center', gap: '8px' }}>
               <Trash2 size={18} color="var(--color-red)" /> Eliminar Campaña
             </h3>
             <p style={{ fontSize: '0.9rem', color: 'var(--color-text-muted)', marginBottom: '10px' }}>

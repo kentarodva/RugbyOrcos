@@ -9,6 +9,7 @@
  */
 
 import { supabase } from '../supabaseClient.js';
+import { localDateKey } from '../utils/agendaItems';
 
 const emit = (table, action, payload) => {
   window.dispatchEvent(new CustomEvent('data:changed', {
@@ -60,7 +61,7 @@ export async function persistTrainingPlan(playerId, plan, source = 'custom') {
     ai_risks: plan.aiRisks || null,
     ai_goals: plan.aiGoals || null,
     ai_recommendations: plan.aiRecommendations || null,
-    week_start: new Date().toISOString().split('T')[0],
+    week_start: localDateKey(),
     updated_at: new Date().toISOString(),
   }, { onConflict: 'player_id, week_start' }).select().single();
 
@@ -150,7 +151,7 @@ export async function recordMembershipPayment(playerId, amount, method = 'efecti
       amount,
       method,
       source: 'membership',
-      payment_date: new Date().toISOString().split('T')[0],
+      payment_date: localDateKey(),
     }).select().single();
   if (error) throw error;
 
@@ -160,7 +161,7 @@ export async function recordMembershipPayment(playerId, amount, method = 'efecti
     category: 'mensualidad',
     description: `Pago membresía — ${method}`,
     payment_id: payment.id,
-    date: new Date().toISOString().split('T')[0],
+    date: localDateKey(),
   });
 
   const { data: currentPlayer } = await supabase
@@ -171,7 +172,7 @@ export async function recordMembershipPayment(playerId, amount, method = 'efecti
 
   await supabase.from('players').update({
     memberships_paid: (Number(currentPlayer?.memberships_paid) || 0) + Number(amount),
-    last_payment_date: new Date().toISOString().split('T')[0],
+    last_payment_date: localDateKey(),
     last_payment_amount: amount,
   }).eq('id', playerId);
 

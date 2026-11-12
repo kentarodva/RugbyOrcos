@@ -17,12 +17,12 @@ export function OrcosShieldSVG({ size = 44, className = '', style = {} }) {
     >
       <defs>
         <linearGradient id="orcosShieldGrad" x1="32" y1="16" x2="224" y2="240" gradientUnits="userSpaceOnUse">
-          <stop offset="0%" stopColor="#142238" />
-          <stop offset="55%" stopColor="#0b1322" />
-          <stop offset="100%" stopColor="#060b14" />
+          <stop offset="0%" stopColor="#252826" />
+          <stop offset="55%" stopColor="#151816" />
+          <stop offset="100%" stopColor="#0C0F0D" />
         </linearGradient>
         <linearGradient id="orcosEmeraldGrad" x1="64" y1="32" x2="192" y2="224" gradientUnits="userSpaceOnUse">
-          <stop offset="0%" stopColor="#00e676" />
+          <stop offset="0%" stopColor="#2EE57A" />
           <stop offset="100%" stopColor="#00994d" />
         </linearGradient>
         <linearGradient id="orcosGoldGrad" x1="48" y1="24" x2="208" y2="216" gradientUnits="userSpaceOnUse">
@@ -43,7 +43,7 @@ export function OrcosShieldSVG({ size = 44, className = '', style = {} }) {
       {/* Inner Tactical Bevel */}
       <path
         d="M128 32L208 62V124C208 172 173 206 128 224C83 206 48 172 48 124V62L128 32Z"
-        stroke="rgba(255, 179, 0, 0.45)"
+        stroke="rgba(232, 185, 49, 0.45)"
         strokeWidth="4"
         strokeLinejoin="round"
       />
@@ -63,7 +63,7 @@ export function OrcosShieldSVG({ size = 44, className = '', style = {} }) {
         rx="32"
         ry="48"
         transform="rotate(-24 128 134)"
-        fill="#0b1626"
+        fill="#181B19"
         stroke="url(#orcosEmeraldGrad)"
         strokeWidth="9"
       />
@@ -94,7 +94,7 @@ export function OrcosShieldSVG({ size = 44, className = '', style = {} }) {
   );
 }
 
-export function ClanEmblemSVG({ name = '', color = '#ffb300', size = 28 }) {
+export function ClanEmblemSVG({ name = '', color = '#E8B931', size = 28 }) {
   const n = (name || '').toLowerCase();
 
   return (
@@ -109,7 +109,7 @@ export function ClanEmblemSVG({ name = '', color = '#ffb300', size = 28 }) {
     >
       <polygon
         points="32,4 56,16 56,42 32,60 8,42 8,16"
-        fill="rgba(15, 22, 36, 0.9)"
+        fill="rgba(24, 27, 25, 0.9)"
         stroke={color}
         strokeWidth="3.5"
         strokeLinejoin="round"

@@ -1,7 +1,7 @@
 import React from 'react';
 import { POS_ABREVIATIONS } from './constants';
 
-function PositionNode({ pos, player, isDraggingThis, isAnimating = false, animDuration = 1.9, onStartDrag, onEndDrag }) {
+function PositionNode({ pos, player, availability, isDraggingThis, isAnimating = false, animDuration = 1.9, onStartDrag, onEndDrag }) {
   const isForward = pos.id <= 8;
   const isReserve = pos.name.includes('Reserva');
   const departmentColor = isReserve
@@ -10,12 +10,21 @@ function PositionNode({ pos, player, isDraggingThis, isAnimating = false, animDu
       ? 'var(--color-gold)'
       : 'var(--color-primary)';
 
+  const unavailable = player && (player.estado === 'lesionado' || player.estado === 'suspendido');
+  const warn = unavailable || availability === 'not_going'
+    ? { color: 'var(--color-red)', label: unavailable ? `${player.name} está ${player.estado}` : `${player.name} no va al partido` }
+    : availability === 'maybe'
+      ? { color: 'var(--color-gold)', label: `${player.name} está en duda` }
+      : null;
+
   return (
     <div
       onMouseDown={(e) => onStartDrag(e, pos.id)}
       onTouchStart={(e) => onStartDrag(e, pos.id)}
       onMouseUp={() => onEndDrag(pos.id, pos.name)}
       onTouchEnd={() => onEndDrag(pos.id, pos.name)}
+      title={player ? `${pos.name}: ${player.name}` : pos.name}
+      aria-label={player ? `${pos.name}: ${player.name}` : pos.name}
       style={{
         position: 'absolute',
         left: `${pos.x}%`,
@@ -26,7 +35,6 @@ function PositionNode({ pos, player, isDraggingThis, isAnimating = false, animDu
         alignItems: 'center',
         cursor: isDraggingThis ? 'grabbing' : 'grab',
         zIndex: isDraggingThis ? 100 : 10,
-        width: '80px',
         touchAction: 'none',
         transition: isDraggingThis
           ? 'none'
@@ -62,7 +70,7 @@ function PositionNode({ pos, player, isDraggingThis, isAnimating = false, animDu
         boxShadow: isDraggingThis
           ? '0 0 15px var(--color-gold)'
           : player
-            ? `0 0 12px ${isForward ? 'rgba(255, 179, 0, 0.3)' : 'rgba(0, 230, 118, 0.3)'}`
+            ? `0 0 12px ${isForward ? 'rgba(232, 185, 49, 0.3)' : 'rgba(46, 229, 122, 0.3)'}`
             : 'none',
         scale: isDraggingThis ? '1.18' : '1',
         transition: 'border 0.2s, box-shadow 0.2s, scale 0.2s, background 0.2s',
@@ -76,7 +84,7 @@ function PositionNode({ pos, player, isDraggingThis, isAnimating = false, animDu
           width: '16px',
           height: '16px',
           borderRadius: '50%',
-          background: '#0a0d14',
+          background: '#0E110F',
           border: `1.2px solid ${departmentColor}`,
           color: player ? '#fff' : 'rgba(255,255,255,0.7)',
           fontSize: '0.55rem',
@@ -90,27 +98,42 @@ function PositionNode({ pos, player, isDraggingThis, isAnimating = false, animDu
         </div>
       </div>
 
-      <div style={{
-        marginTop: '6px',
-        background: player ? 'rgba(10, 25, 45, 0.92)' : 'rgba(0, 0, 0, 0.75)',
+      {player && (<div style={{
+        marginTop: '4px',
+        background: 'rgba(14, 17, 15, 0.92)',
         padding: '3px 6px',
         borderRadius: 'var(--radius-sm)',
-        fontSize: '0.62rem',
+        fontSize: '0.72rem',
         fontWeight: '700',
-        width: '80px',
+        maxWidth: '84px',
         textAlign: 'center',
         overflow: 'hidden',
         textOverflow: 'ellipsis',
         whiteSpace: 'nowrap',
         border: player
-          ? `1px solid ${isForward ? 'rgba(255,179,0,0.3)' : 'rgba(0,230,118,0.3)'}`
+          ? `1px solid ${isForward ? 'rgba(232, 185, 49,0.3)' : 'rgba(46, 229, 122,0.3)'}`
           : '1px solid rgba(255, 255, 255, 0.08)',
         color: player ? '#fff' : 'var(--color-text-muted)',
         boxShadow: isDraggingThis ? '0 4px 10px rgba(0,0,0,0.6)' : 'none',
         transition: 'background 0.2s, border 0.2s, color 0.2s'
       }}>
-        {player ? `🛡️ ${player.apodo || player.name.split(' ').slice(0, 2).join(' ')}` : pos.name}
-      </div>
+        {player.apodo || player.name.split(' ').slice(0, 2).join(' ')}
+      </div>)}
+      {warn && (
+        <span aria-label={warn.label} title={warn.label} style={{
+          position: 'absolute', top: '-4px', left: '50%', marginLeft: '-26px',
+          width: '16px', height: '16px', borderRadius: '50%', background: warn.color, color: '#0E110F',
+          fontSize: '0.65rem', fontWeight: 900, display: 'flex', alignItems: 'center', justifyContent: 'center',
+          boxShadow: '0 1px 4px rgba(0,0,0,0.6)', pointerEvents: 'none',
+        }}>!</span>
+      )}
+      {player?.rol === 'Capitan' && (
+        <span aria-label="Capitán" title="Capitán" style={{
+          position: 'absolute', top: '26px', left: '50%', marginLeft: '-27px',
+          width: '16px', height: '16px', borderRadius: '50%', background: 'var(--color-gold)', color: '#0E110F',
+          fontSize: '0.6rem', fontWeight: 900, display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none',
+        }}>C</span>
+      )}
     </div>
   );
 }

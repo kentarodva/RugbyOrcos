@@ -67,7 +67,7 @@ function ExerciseForm({ onCreated, onClose }) {
       <div className="modal-content animated-slide" style={{ maxWidth: '500px' }}
         onClick={e => e.stopPropagation()}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-          <h3 style={{ fontSize: '1rem', fontWeight: 800, fontFamily: 'Outfit' }}>✏️ Crear Ejercicio Personalizado</h3>
+          <h3 style={{ fontSize: '1rem', fontWeight: 600 }}>✏️ Crear Ejercicio Personalizado</h3>
           <button onClick={onClose} className="btn-outline" style={{ padding: '4px 10px', fontSize: '0.75rem' }}>✕</button>
         </div>
 
@@ -84,7 +84,7 @@ function ExerciseForm({ onCreated, onClose }) {
               onChange={e => handleChange('name_local', e.target.value)}
               placeholder="Ej: Sentadilla con Barra" />
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '10px' }}>
             <div className="form-group">
               <label style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>Categoría</label>
               <select className="form-select"
@@ -104,7 +104,7 @@ function ExerciseForm({ onCreated, onClose }) {
               </select>
             </div>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '10px' }}>
             <div className="form-group">
               <label style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>Dificultad</label>
               <select className="form-select"

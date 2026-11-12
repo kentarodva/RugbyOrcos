@@ -1,8 +1,10 @@
 import { useState, useMemo, useCallback } from 'react';
 import { MENSUALIDAD_BASE } from './constants';
+import { membershipStatus } from '../../utils/membership';
 import { useFilterByView } from '../../context/hooks/useFilterByView';
+import { localDateKey } from '../../utils/agendaItems';
 
-export function useFinanzasState({ finances, players, addFinanceRecord, recordMembershipPayment, updateInventoryItem, showToast }) {
+export function useFinanzasState({ finances, players, addFinanceRecord, recordMembershipPayment, updateInventoryItem, showToast, mensualidadBase }) {
   const [activeSubTab, setActiveSubTab] = useState('finances');
   const [financeSubTab, setFinanceSubTab] = useState('caja');
   const [showAddForm, setShowAddForm] = useState(false);
@@ -10,7 +12,7 @@ export function useFinanzasState({ finances, players, addFinanceRecord, recordMe
   const [finAmount, setFinAmount] = useState('');
   const [finType, setFinType] = useState('ingreso');
   const [finCategory, setFinCategory] = useState('general');
-  const [finDate, setFinDate] = useState(new Date().toISOString().split('T')[0]);
+  const [finDate, setFinDate] = useState(localDateKey());
   const filterByView = useFilterByView();
 
   const teamFinances = useMemo(
@@ -59,16 +61,10 @@ export function useFinanzasState({ finances, players, addFinanceRecord, recordMe
     showToast(`${amount.toLocaleString()} para ${player.name} registrado.`, 'success');
   }, [recordMembershipPayment, showToast]);
 
-  const getMembershipStatus = useCallback((player) => {
-    const m = player.memberships || { paid: 0, due: MENSUALIDAD_BASE };
-    const due = m.due > 0 ? m.due : MENSUALIDAD_BASE;
-    const paid = m.paid || 0;
-
-    if (paid >= due) return { label: 'AL DIA', color: 'var(--color-primary)', bg: 'rgba(0, 230, 118, 0.08)' };
-    if (paid > 0 && paid < due - 2000) return { label: 'PAGO PARCIAL', color: 'var(--color-gold)', bg: 'rgba(255, 179, 0, 0.08)' };
-    if (paid > 0) return { label: 'CASI AL DIA', color: 'var(--color-blue)', bg: 'rgba(64, 196, 255, 0.08)' };
-    return { label: 'MOROSO', color: 'var(--color-red)', bg: 'rgba(255, 61, 0, 0.06)' };
-  }, []);
+  const getMembershipStatus = useCallback(
+    (player) => membershipStatus(player, mensualidadBase || MENSUALIDAD_BASE),
+    [mensualidadBase]
+  );
 
   const handleStockChange = useCallback((itemId, currentTotal, diff) => {
     const newTotal = Math.max(0, currentTotal + diff);

@@ -13,7 +13,7 @@ export function InventoryTab({ inventory, players, onStockChange, onCustodianCha
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h3 style={{ fontSize: '1rem', fontWeight: 800, fontFamily: 'Outfit', color: 'var(--color-gold)' }}>
+        <h3 style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--color-text)' }}>
           {inventory.length} items
         </h3>
         <button

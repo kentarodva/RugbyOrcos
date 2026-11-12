@@ -28,7 +28,7 @@ export function AvatarPicker({ currentAvatarId, hasPhoto, photoUrl, onSelect, on
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content animated-slide" style={{ maxWidth: '600px' }} onClick={e => e.stopPropagation()}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-          <h3 style={{ fontSize: '1.1rem', fontWeight: 800, fontFamily: 'Outfit' }}>🎨 Elegir Avatar</h3>
+          <h3 style={{ fontSize: '1.1rem', fontWeight: 600 }}>🎨 Elegir Avatar</h3>
           <button onClick={onClose} className="btn-outline" style={{ padding: '4px 10px', fontSize: '0.75rem' }}>✕</button>
         </div>
 
@@ -59,7 +59,7 @@ export function AvatarPicker({ currentAvatarId, hasPhoto, photoUrl, onSelect, on
           )}
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(72px, 1fr))', gap: '8px', maxHeight: '400px', overflowY: 'auto' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 72px), 1fr))', gap: '8px', maxHeight: '400px', overflowY: 'auto' }}>
           {AVATARS.map(a => {
             const isSelected = currentAvatarId === a.id;
             return (
@@ -69,7 +69,7 @@ export function AvatarPicker({ currentAvatarId, hasPhoto, photoUrl, onSelect, on
                 style={{
                   display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px',
                   padding: '8px 4px', cursor: 'pointer', borderRadius: 'var(--radius-sm)',
-                  background: isSelected ? 'rgba(0,230,118,0.1)' : 'transparent',
+                  background: isSelected ? 'rgba(46, 229, 122,0.1)' : 'transparent',
                   border: '1px solid ' + (isSelected ? 'var(--color-primary)' : 'var(--border-glass)'),
                   transition: 'all 0.15s ease',
                 }}

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Dumbbell, Award, Edit3 } from 'lucide-react';
 import { useToast } from '../context/ToastContext';
-import { DIVISION_DISPLAY_NAMES } from '../context/constants';
+import { formatTeamCategory } from '../context/constants';
 import {
   OrcosRugbyBallIcon,
   OrcosBattleAxeHPostsIcon,
@@ -61,13 +61,13 @@ const RUGBY_POSITIONS_GROUPS = [
   },
 ];
 
-const attrColors = { force: '#ff1744', speed: '#00e676', stamina: '#00b0ff', technique: '#ffd740' };
+const attrColors = { force: '#FF5C4D', speed: '#2EE57A', stamina: '#5AA9FF', technique: '#E8B931' };
 const attrLabels = { force: 'Fuerza', speed: 'Velocidad', stamina: 'Resistencia', technique: 'Técnica' };
 const attrIcons = {
-  force: <OrcosBattleAxeHPostsIcon size={16} color="#ff1744" />,
-  speed: <OrcosRugbyBallIcon size={16} color="#00e676" />,
-  stamina: <OrcosTackleShieldIcon size={16} color="#00b0ff" />,
-  technique: <OrcosThirdTimeHornIcon size={16} color="#ffd740" />,
+  force: <OrcosBattleAxeHPostsIcon size={16} color="#FF5C4D" />,
+  speed: <OrcosRugbyBallIcon size={16} color="#2EE57A" />,
+  stamina: <OrcosTackleShieldIcon size={16} color="#5AA9FF" />,
+  technique: <OrcosThirdTimeHornIcon size={16} color="#E8B931" />,
 };
 
 function Section({ title, children, icon, defaultOpen = true }) {
@@ -75,31 +75,32 @@ function Section({ title, children, icon, defaultOpen = true }) {
   return (
     <div
       style={{
-        background: 'rgba(10, 20, 32, 0.65)',
-        border: '1px solid rgba(255, 255, 255, 0.08)',
-        borderRadius: '14px',
+        background: 'var(--bg-surface)',
+        border: '1px solid var(--border-glass)',
+        borderRadius: 'var(--radius-lg)',
         overflow: 'hidden',
-        marginBottom: '16px',
-        boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)',
       }}
     >
       <button
+        type="button"
+        aria-expanded={open}
         onClick={() => setOpen(o => !o)}
         style={{
           width: '100%',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          padding: '14px 18px',
+          minHeight: '52px',
+          padding: '0 16px',
           background: 'transparent',
           border: 'none',
           cursor: 'pointer',
-          borderBottom: open ? '1px solid rgba(255, 255, 255, 0.06)' : 'none',
+          borderBottom: open ? '1px solid var(--border-glass)' : 'none',
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           {icon}
-          <h3 style={{ margin: 0, fontSize: '0.86rem', fontWeight: 900, color: 'var(--color-gold)', fontFamily: 'Outfit', textTransform: 'uppercase', letterSpacing: '0.8px' }}>
+          <h3 style={{ margin: 0, fontSize: '0.9375rem', fontWeight: 600, color: 'var(--color-text)' }}>
             {title}
           </h3>
         </div>
@@ -113,16 +114,16 @@ function Section({ title, children, icon, defaultOpen = true }) {
           <path d="M4 6l4 4 4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
         </svg>
       </button>
-      {open && <div style={{ padding: '18px' }}>{children}</div>}
+      {open && <div style={{ padding: '14px 16px 16px' }}>{children}</div>}
     </div>
   );
 }
 
 function ProgressBar({ val, max, color }) {
   return (
-    <div style={{ height: '8px', background: 'rgba(255, 255, 255, 0.08)', borderRadius: '6px', overflow: 'hidden' }}>
+    <div style={{ height: '6px', background: 'var(--bg-elevated)', borderRadius: '6px', overflow: 'hidden' }}>
       <motion.div
-        style={{ height: '100%', borderRadius: '6px', background: color, boxShadow: `0 0 10px ${color}80` }}
+        style={{ height: '100%', borderRadius: '6px', background: color }}
         initial={{ width: 0 }}
         animate={{ width: `${Math.min(100, (val / max) * 100)}%` }}
         transition={{ duration: 0.5 }}
@@ -198,69 +199,35 @@ export default function PlayerProfileTab({ player, _players, updatePlayer, _camp
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-      {/* Epic Hero Header Card */}
-      <div
-        className="glass-panel"
-        style={{
-          padding: '24px',
-          borderRadius: '16px',
-          background: 'linear-gradient(135deg, rgba(0, 230, 118, 0.08) 0%, rgba(10, 22, 35, 0.95) 50%, rgba(255, 215, 64, 0.06) 100%)',
-          border: '1px solid rgba(0, 230, 118, 0.35)',
-          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4), inset 0 0 20px rgba(0, 230, 118, 0.05)',
-          position: 'relative',
-        }}
-      >
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-              <OrcosWarBannerIcon size={20} color="var(--color-primary)" />
-              <span style={{ fontSize: '0.72rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px', color: 'var(--color-primary)' }}>
-                ORCOS RUGBY CLUB · COROZAL, SUCRE
-              </span>
-            </div>
-            <h1 style={{ fontSize: '1.6rem', fontWeight: 900, fontFamily: 'Outfit', color: '#fff', margin: 0, lineHeight: 1.1 }}>
-              {player.name}
-            </h1>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '6px', flexWrap: 'wrap' }}>
-              <span style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--color-gold)', background: 'rgba(255, 215, 64, 0.12)', border: '1px solid rgba(255, 215, 64, 0.3)', padding: '2px 8px', borderRadius: '4px' }}>
-                {player.posicion || 'Sin posición'}{(player.camiseta ?? player.position_id) != null ? ` #${player.camiseta ?? player.position_id}` : ''}
-              </span>
-              <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-text-muted)' }}>
-                División: {DIVISION_DISPLAY_NAMES[player.teamCategory] || player.teamCategory || 'Sin categoría'}
-              </span>
-              {player.apodo && (
-                <span style={{ fontSize: '0.75rem', fontStyle: 'italic', color: '#38bdf8' }}>
-                  "{player.apodo}"
-                </span>
-              )}
-            </div>
+      {/* Profile header */}
+      <section className="glass-panel" style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', minWidth: 0 }}>
+          <span className="page-eyebrow" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <OrcosWarBannerIcon size={16} color="var(--color-text-subtle)" />
+            Orcos Rugby Club · {player.teamCategory ? formatTeamCategory(player.teamCategory) : 'Sin categoría'}
+          </span>
+          <h1 style={{ fontSize: '1.625rem', fontWeight: 700, fontFamily: 'var(--font-display)', color: 'var(--color-text)', margin: 0, lineHeight: 1.1, overflowWrap: 'anywhere' }}>
+            {player.name}
+          </h1>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', marginTop: '2px' }}>
+            <span className="badge">
+              {player.posicion || 'Sin posición'}{(player.camiseta ?? player.position_id) != null ? ` · #${player.camiseta ?? player.position_id}` : ''}
+            </span>
+            {player.apodo && (
+              <span style={{ fontSize: '0.875rem', color: 'var(--color-text-muted)' }}>«{player.apodo}»</span>
+            )}
           </div>
-
-          <button
-            onClick={() => {
-              if (editMode) {
-                setEditMode(false);
-              } else {
-                handleEditProfile();
-              }
-            }}
-            className="btn-outline"
-            style={{
-              padding: '8px 16px',
-              fontSize: '0.8rem',
-              fontWeight: 800,
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '6px',
-              borderColor: editMode ? 'var(--color-red)' : 'var(--color-primary)',
-              color: editMode ? 'var(--color-red)' : 'var(--color-primary)',
-            }}
-          >
-            <Edit3 size={14} />
-            {editMode ? 'Cancelar Edición' : 'Editar Mi Perfil'}
-          </button>
         </div>
-      </div>
+        <button
+          type="button"
+          onClick={() => (editMode ? setEditMode(false) : handleEditProfile())}
+          className="btn-outline btn-sm"
+          style={{ alignSelf: 'flex-start', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+        >
+          <Edit3 size={14} aria-hidden="true" />
+          {editMode ? 'Cancelar edición' : 'Editar mi perfil'}
+        </button>
+      </section>
 
       {/* Edit Profile Modal Dialog */}
       {editMode && (
@@ -289,18 +256,17 @@ export default function PlayerProfileTab({ player, _players, updatePlayer, _camp
               width: '100%',
               maxHeight: '90vh',
               overflowY: 'auto',
-              background: 'linear-gradient(180deg, rgba(14, 25, 40, 0.98) 0%, rgba(8, 14, 24, 0.99) 100%)',
-              border: '1px solid rgba(0, 230, 118, 0.4)',
-              borderRadius: '20px',
-              padding: '24px',
-              boxShadow: '0 20px 60px rgba(0, 0, 0, 0.7), 0 0 30px rgba(0, 230, 118, 0.1)',
+              background: 'var(--bg-surface)',
+              border: '1px solid var(--border-strong)',
+              borderRadius: 'var(--radius-lg)',
+              padding: '20px',
             }}
             onClick={e => e.stopPropagation()}
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', paddingBottom: '12px' }}>
               <div>
-                <h3 style={{ color: 'var(--color-primary)', fontWeight: 900, fontFamily: 'Outfit', fontSize: '1.2rem', margin: 0 }}>
-                  🛡️ Modificar Ficha de Guerrero
+                <h3 style={{ color: 'var(--color-text)', fontWeight: 600, fontSize: '1.2rem', margin: 0 }}>
+                  Editar mi ficha
                 </h3>
                 <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', margin: '4px 0 0 0' }}>
                   Datos oficiales del club. La posición en cancha está estandarizada según las 15 posiciones de World Rugby.
@@ -315,10 +281,10 @@ export default function PlayerProfileTab({ player, _players, updatePlayer, _camp
               </button>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '14px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 240px), 1fr))', gap: '14px' }}>
               {/* Apodo */}
               <div>
-                <label style={{ fontSize: '0.75rem', fontWeight: 700, color: '#fff', display: 'block', marginBottom: '4px' }}>
+                <label style={{ fontSize: '0.8125rem', fontWeight: 500, color: 'var(--color-text-soft)', display: 'block', marginBottom: '6px' }}>
                   Apodo / Alias de Combate
                 </label>
                 <input
@@ -327,7 +293,7 @@ export default function PlayerProfileTab({ player, _players, updatePlayer, _camp
                   onChange={e => setProfileForm(prev => ({ ...prev, apodo: e.target.value }))}
                   className="form-input"
                   placeholder="Ej: El Tanque, La Muralla..."
-                  style={{ width: '100%', padding: '9px 12px', fontSize: '0.82rem', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '8px', color: '#fff' }}
+                  style={{ width: '100%', minHeight: '44px', padding: '0 12px', fontSize: '0.9375rem', background: 'var(--bg-input)', border: '1px solid var(--border-strong)', borderRadius: 'var(--radius-sm)', color: 'var(--color-text)' }}
                 />
               </div>
 
@@ -352,13 +318,13 @@ export default function PlayerProfileTab({ player, _players, updatePlayer, _camp
                     }));
                   }}
                   className="form-select"
-                  style={{ width: '100%', padding: '9px 12px', fontSize: '0.82rem', background: '#0e1824', border: '1px solid rgba(255, 215, 64, 0.4)', borderRadius: '8px', color: '#fff' }}
+                  style={{ width: '100%', minHeight: '44px', padding: '0 12px', fontSize: '0.9375rem', background: 'var(--bg-input)', border: '1px solid var(--border-strong)', borderRadius: 'var(--radius-sm)', color: 'var(--color-text)' }}
                 >
                   <option value="">Selecciona tu posición oficial...</option>
                   {RUGBY_POSITIONS_GROUPS.map(group => (
-                    <optgroup key={group.group} label={group.group} style={{ background: '#0a1018', color: 'var(--color-gold)' }}>
+                    <optgroup key={group.group} label={group.group} style={{ background: '#111412', color: 'var(--color-gold)' }}>
                       {group.options.map(opt => (
-                        <option key={opt.id} value={opt.id} style={{ background: '#0e1824', color: '#fff' }}>
+                        <option key={opt.id} value={opt.id} style={{ background: 'var(--bg-input)', color: 'var(--color-text)' }}>
                           #{opt.num} - {opt.name}
                         </option>
                       ))}
@@ -372,7 +338,7 @@ export default function PlayerProfileTab({ player, _players, updatePlayer, _camp
 
               {/* Teléfono */}
               <div>
-                <label style={{ fontSize: '0.75rem', fontWeight: 700, color: '#fff', display: 'block', marginBottom: '4px' }}>
+                <label style={{ fontSize: '0.8125rem', fontWeight: 500, color: 'var(--color-text-soft)', display: 'block', marginBottom: '6px' }}>
                   📱 Celular / WhatsApp
                 </label>
                 <input
@@ -381,13 +347,13 @@ export default function PlayerProfileTab({ player, _players, updatePlayer, _camp
                   onChange={e => setProfileForm(prev => ({ ...prev, contacto_phone: e.target.value }))}
                   className="form-input"
                   placeholder="300 123 4567"
-                  style={{ width: '100%', padding: '9px 12px', fontSize: '0.82rem', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '8px', color: '#fff' }}
+                  style={{ width: '100%', minHeight: '44px', padding: '0 12px', fontSize: '0.9375rem', background: 'var(--bg-input)', border: '1px solid var(--border-strong)', borderRadius: 'var(--radius-sm)', color: 'var(--color-text)' }}
                 />
               </div>
 
               {/* Peso (kg) */}
               <div>
-                <label style={{ fontSize: '0.75rem', fontWeight: 700, color: '#fff', display: 'block', marginBottom: '4px' }}>
+                <label style={{ fontSize: '0.8125rem', fontWeight: 500, color: 'var(--color-text-soft)', display: 'block', marginBottom: '6px' }}>
                   ⚖️ Peso Corporal (kg)
                 </label>
                 <input
@@ -397,13 +363,13 @@ export default function PlayerProfileTab({ player, _players, updatePlayer, _camp
                   onChange={e => setProfileForm(prev => ({ ...prev, weight: e.target.value }))}
                   className="form-input"
                   placeholder="Ej: 110"
-                  style={{ width: '100%', padding: '9px 12px', fontSize: '0.82rem', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '8px', color: '#fff' }}
+                  style={{ width: '100%', minHeight: '44px', padding: '0 12px', fontSize: '0.9375rem', background: 'var(--bg-input)', border: '1px solid var(--border-strong)', borderRadius: 'var(--radius-sm)', color: 'var(--color-text)' }}
                 />
               </div>
 
               {/* Estatura (m) */}
               <div>
-                <label style={{ fontSize: '0.75rem', fontWeight: 700, color: '#fff', display: 'block', marginBottom: '4px' }}>
+                <label style={{ fontSize: '0.8125rem', fontWeight: 500, color: 'var(--color-text-soft)', display: 'block', marginBottom: '6px' }}>
                   📏 Estatura (m)
                 </label>
                 <input
@@ -413,20 +379,20 @@ export default function PlayerProfileTab({ player, _players, updatePlayer, _camp
                   onChange={e => setProfileForm(prev => ({ ...prev, height: e.target.value }))}
                   className="form-input"
                   placeholder="Ej: 1.83"
-                  style={{ width: '100%', padding: '9px 12px', fontSize: '0.82rem', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '8px', color: '#fff' }}
+                  style={{ width: '100%', minHeight: '44px', padding: '0 12px', fontSize: '0.9375rem', background: 'var(--bg-input)', border: '1px solid var(--border-strong)', borderRadius: 'var(--radius-sm)', color: 'var(--color-text)' }}
                 />
               </div>
 
               {/* EPS */}
               <div>
-                <label style={{ fontSize: '0.75rem', fontWeight: 700, color: '#fff', display: 'block', marginBottom: '4px' }}>
+                <label style={{ fontSize: '0.8125rem', fontWeight: 500, color: 'var(--color-text-soft)', display: 'block', marginBottom: '6px' }}>
                   🏥 Cobertura Médica / EPS
                 </label>
                 <select
                   value={profileForm.health_insurance}
                   onChange={e => setProfileForm(prev => ({ ...prev, health_insurance: e.target.value }))}
                   className="form-select"
-                  style={{ width: '100%', padding: '9px 12px', fontSize: '0.82rem', background: '#0e1824', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '8px', color: '#fff' }}
+                  style={{ width: '100%', minHeight: '44px', padding: '0 12px', fontSize: '0.9375rem', background: 'var(--bg-input)', border: '1px solid var(--border-strong)', borderRadius: 'var(--radius-sm)', color: 'var(--color-text)' }}
                 >
                   <option value="">Selecciona EPS...</option>
                   {EPS_LIST.map(eps => (
@@ -440,14 +406,14 @@ export default function PlayerProfileTab({ player, _players, updatePlayer, _camp
                     value={profileForm.custom_eps}
                     onChange={e => setProfileForm(prev => ({ ...prev, custom_eps: e.target.value }))}
                     placeholder="Escribe el nombre de tu EPS..."
-                    style={{ width: '100%', marginTop: '6px', padding: '7px 10px', fontSize: '0.78rem', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '6px', color: '#fff' }}
+                    style={{ width: '100%', marginTop: '6px', padding: '7px 10px', fontSize: '0.78rem', background: 'var(--bg-input)', border: '1px solid var(--border-strong)', borderRadius: 'var(--radius-sm)', color: 'var(--color-text)' }}
                   />
                 )}
               </div>
 
               {/* Contacto de Emergencia */}
               <div>
-                <label style={{ fontSize: '0.75rem', fontWeight: 700, color: '#fff', display: 'block', marginBottom: '4px' }}>
+                <label style={{ fontSize: '0.8125rem', fontWeight: 500, color: 'var(--color-text-soft)', display: 'block', marginBottom: '6px' }}>
                   🚨 Contacto de Emergencia (Nombre)
                 </label>
                 <input
@@ -456,13 +422,13 @@ export default function PlayerProfileTab({ player, _players, updatePlayer, _camp
                   onChange={e => setProfileForm(prev => ({ ...prev, emergency_contact_name: e.target.value }))}
                   className="form-input"
                   placeholder="Nombre de familiar"
-                  style={{ width: '100%', padding: '9px 12px', fontSize: '0.82rem', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '8px', color: '#fff' }}
+                  style={{ width: '100%', minHeight: '44px', padding: '0 12px', fontSize: '0.9375rem', background: 'var(--bg-input)', border: '1px solid var(--border-strong)', borderRadius: 'var(--radius-sm)', color: 'var(--color-text)' }}
                 />
               </div>
 
               {/* Teléfono de Emergencia */}
               <div>
-                <label style={{ fontSize: '0.75rem', fontWeight: 700, color: '#fff', display: 'block', marginBottom: '4px' }}>
+                <label style={{ fontSize: '0.8125rem', fontWeight: 500, color: 'var(--color-text-soft)', display: 'block', marginBottom: '6px' }}>
                   ☎️ Teléfono de Emergencia
                 </label>
                 <input
@@ -471,20 +437,20 @@ export default function PlayerProfileTab({ player, _players, updatePlayer, _camp
                   onChange={e => setProfileForm(prev => ({ ...prev, emergency_contact_phone: e.target.value }))}
                   className="form-input"
                   placeholder="300 000 0000"
-                  style={{ width: '100%', padding: '9px 12px', fontSize: '0.82rem', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '8px', color: '#fff' }}
+                  style={{ width: '100%', minHeight: '44px', padding: '0 12px', fontSize: '0.9375rem', background: 'var(--bg-input)', border: '1px solid var(--border-strong)', borderRadius: 'var(--radius-sm)', color: 'var(--color-text)' }}
                 />
               </div>
 
               {/* Talla Camiseta */}
               <div>
-                <label style={{ fontSize: '0.75rem', fontWeight: 700, color: '#fff', display: 'block', marginBottom: '4px' }}>
+                <label style={{ fontSize: '0.8125rem', fontWeight: 500, color: 'var(--color-text-soft)', display: 'block', marginBottom: '6px' }}>
                   👕 Talla Camiseta Oficial
                 </label>
                 <select
                   value={profileForm.jersey || ''}
                   onChange={e => setProfileForm(prev => ({ ...prev, jersey: e.target.value }))}
                   className="form-select"
-                  style={{ width: '100%', padding: '9px 12px', fontSize: '0.82rem', background: '#0e1824', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '8px', color: '#fff' }}
+                  style={{ width: '100%', minHeight: '44px', padding: '0 12px', fontSize: '0.9375rem', background: 'var(--bg-input)', border: '1px solid var(--border-strong)', borderRadius: 'var(--radius-sm)', color: 'var(--color-text)' }}
                 >
                   <option value="">Selecciona talla...</option>
                   {['S', 'M', 'L', 'XL', '2XL', '3XL', '4XL'].map(t => (
@@ -495,14 +461,14 @@ export default function PlayerProfileTab({ player, _players, updatePlayer, _camp
 
               {/* Talla Pantaloneta */}
               <div>
-                <label style={{ fontSize: '0.75rem', fontWeight: 700, color: '#fff', display: 'block', marginBottom: '4px' }}>
+                <label style={{ fontSize: '0.8125rem', fontWeight: 500, color: 'var(--color-text-soft)', display: 'block', marginBottom: '6px' }}>
                   🩳 Talla Pantaloneta
                 </label>
                 <select
                   value={profileForm.shorts || ''}
                   onChange={e => setProfileForm(prev => ({ ...prev, shorts: e.target.value }))}
                   className="form-select"
-                  style={{ width: '100%', padding: '9px 12px', fontSize: '0.82rem', background: '#0e1824', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '8px', color: '#fff' }}
+                  style={{ width: '100%', minHeight: '44px', padding: '0 12px', fontSize: '0.9375rem', background: 'var(--bg-input)', border: '1px solid var(--border-strong)', borderRadius: 'var(--radius-sm)', color: 'var(--color-text)' }}
                 >
                   <option value="">Selecciona talla...</option>
                   {['S', 'M', 'L', 'XL', '2XL', '3XL'].map(t => (
@@ -517,7 +483,7 @@ export default function PlayerProfileTab({ player, _players, updatePlayer, _camp
                 Cancelar
               </button>
               <button onClick={handleSaveProfile} className="btn-primary" style={{ fontSize: '0.82rem', padding: '9px 24px', fontWeight: 800 }}>
-                💾 Guardar Ficha Oficial
+                Guardar cambios
               </button>
             </div>
           </motion.div>
@@ -525,16 +491,12 @@ export default function PlayerProfileTab({ player, _players, updatePlayer, _camp
       )}
 
       {/* Battle Attributes (4 Pillars Grid) */}
-      <Section title="Atributos RPG de Batalla" icon={<OrcosTackleShieldIcon size={18} color="var(--color-primary)" />}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '14px' }}>
+      <Section title="Atributos" icon={<OrcosTackleShieldIcon size={18} color="var(--color-text-muted)" />}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 220px), 1fr))', gap: '14px' }}>
           {Object.entries(attrs).map(([key, val]) => (
             <div
               key={key}
               style={{
-                background: 'rgba(255, 255, 255, 0.02)',
-                border: `1px solid ${attrColors[key]}30`,
-                borderRadius: '12px',
-                padding: '14px',
                 display: 'flex',
                 flexDirection: 'column',
                 gap: '8px',
@@ -543,16 +505,16 @@ export default function PlayerProfileTab({ player, _players, updatePlayer, _camp
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                   {attrIcons[key]}
-                  <span style={{ fontSize: '0.82rem', fontWeight: 800, color: '#fff' }}>
+                  <span style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-text)' }}>
                     {attrLabels[key]}
                   </span>
                 </div>
-                <span style={{ fontSize: '1.1rem', fontWeight: 900, color: attrColors[key], fontFamily: 'Outfit' }}>
-                  {val}/100
+                <span className="stat-number" style={{ fontSize: '1.25rem' }}>
+                  {val}<span style={{ fontSize: '0.75rem', color: 'var(--color-text-subtle)', fontFamily: 'var(--font-ui)', fontWeight: 500 }}> / 100</span>
                 </span>
               </div>
               <ProgressBar val={val} max={100} color={attrColors[key]} />
-              <div style={{ fontSize: '0.68rem', color: 'var(--color-text-muted)', fontWeight: 600 }}>
+              <div style={{ fontSize: '0.75rem', color: 'var(--color-text-subtle)' }}>
                 {key === 'force' && 'Poder de empuje en scrum y choque'}
                 {key === 'speed' && 'Sprint lineal y reacción en carrera'}
                 {key === 'stamina' && 'Resistencia aeróbica durante 80 minutos'}
@@ -564,62 +526,57 @@ export default function PlayerProfileTab({ player, _players, updatePlayer, _camp
       </Section>
 
       {/* Gym 1RM Performance */}
-      <Section title="Rendimiento Físico & Cargas de Gimnasio (1RM)" icon={<Dumbbell size={18} color="var(--color-gold)" />}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px' }}>
+      <Section title="Gimnasio · 1RM" icon={<Dumbbell size={18} color="var(--color-text-muted)" />}>
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
           {[
-            { label: 'Sentadilla (Squat)', val: gym.squat || 0, color: '#ff1744', desc: 'Fuerza de piernas y empuje de scrum' },
-            { label: 'Press de Banca', val: gym.bench || 0, color: '#00b0ff', desc: 'Potencia de tren superior y hand-off' },
-            { label: 'Peso Muerto', val: gym.deadlift || 0, color: '#a855f7', desc: 'Estabilidad de cadena posterior y ruck' },
-          ].map(s => (
-            <div
-              key={s.label}
-              style={{
-                background: 'rgba(255, 255, 255, 0.02)',
-                border: `1px solid ${s.color}35`,
-                borderRadius: '12px',
-                padding: '16px',
-                textAlign: 'center',
-              }}
-            >
-              <div style={{ fontSize: '1.8rem', fontWeight: 900, color: s.color, fontFamily: 'Outfit', lineHeight: 1.1 }}>
-                {s.val} <span style={{ fontSize: '0.9rem', color: 'var(--color-text-muted)' }}>KG</span>
+            { label: 'Sentadilla', val: gym.squat || 0, desc: 'Piernas y empuje de scrum' },
+            { label: 'Press de banca', val: gym.bench || 0, desc: 'Tren superior y hand-off' },
+            { label: 'Peso muerto', val: gym.deadlift || 0, desc: 'Cadena posterior y ruck' },
+          ].map((s, i) => (
+            <div key={s.label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px', padding: '10px 0', borderTop: i ? '1px solid var(--border-glass)' : 'none' }}>
+              <div style={{ minWidth: 0 }}>
+                <div style={{ fontSize: '0.9375rem', fontWeight: 600 }}>{s.label}</div>
+                <div style={{ fontSize: '0.75rem', color: 'var(--color-text-subtle)' }}>{s.desc}</div>
               </div>
-              <div style={{ fontSize: '0.8rem', fontWeight: 800, color: '#fff', marginTop: '6px' }}>{s.label}</div>
-              <div style={{ fontSize: '0.68rem', color: 'var(--color-text-muted)', marginTop: '2px' }}>{s.desc}</div>
+              <span style={{ flexShrink: 0 }}>
+                <span className="stat-number" style={{ fontSize: '1.5rem' }}>{s.val}</span>
+                <span style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginLeft: '4px' }}>kg</span>
+              </span>
             </div>
           ))}
         </div>
       </Section>
 
       {/* Combat Stats */}
-      <Section title="Estadísticas Oficiales en Cancha" icon={<OrcosRugbyBallIcon size={18} color="var(--color-primary)" />}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '10px' }}>
+      <Section title="En cancha" icon={<OrcosRugbyBallIcon size={18} color="var(--color-text-muted)" />}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 120px), 1fr))', gap: '10px' }}>
           {[
-            { label: 'Tries de Gloria', val: totalTries, color: '#00e676' },
-            { label: 'Tackles Ganados', val: totalTackles, color: '#38bdf8' },
-            { label: 'Balones Recuperados', val: (player.matchStats || []).reduce((s, m) => s + (m.turnovers || 0), 0), color: '#a855f7' },
-            { label: 'Premios MVP', val: totalMvp, color: '#ffd740' },
-            { label: 'Partidos Jugados (Caps)', val: (player.matchStats || []).length, color: '#ff9100' },
+            { label: 'Tries', val: totalTries },
+            { label: 'Tackles', val: totalTackles },
+            { label: 'Recuperaciones', val: (player.matchStats || []).reduce((s, m) => s + (m.turnovers || 0), 0) },
+            { label: 'MVP', val: totalMvp },
+            { label: 'Partidos', val: (player.matchStats || []).length },
           ].map((s, i) => (
             <div
               key={i}
               style={{
-                background: 'rgba(255, 255, 255, 0.02)',
-                border: '1px solid rgba(255, 255, 255, 0.06)',
-                borderRadius: '10px',
-                padding: '12px',
-                textAlign: 'center',
+                background: 'var(--bg-elevated)',
+                borderRadius: 'var(--radius-md)',
+                padding: '10px 12px',
               }}
             >
-              <div style={{ fontSize: '1.6rem', fontWeight: 900, color: s.color, fontFamily: 'Outfit' }}>{s.val}</div>
-              <div style={{ fontSize: '0.72rem', fontWeight: 700, color: 'var(--color-text-muted)' }}>{s.label}</div>
+              <div style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)' }}>{s.label}</div>
+              <div className="stat-number" style={{ fontSize: '1.625rem', marginTop: '4px' }}>{s.val}</div>
             </div>
           ))}
         </div>
       </Section>
 
       {/* Badges and Medals */}
-      <Section title="Insignias y Medallas del Clan" icon={<Award size={18} color="var(--color-gold)" />}>
+      <Section title="Insignias" icon={<Award size={18} color="var(--color-text-muted)" />}>
+        {badges.length === 0 && (
+          <p style={{ margin: 0, fontSize: '0.875rem', color: 'var(--color-text-muted)' }}>Aún sin insignias. Se ganan con asistencia, tackles, tries y MVPs.</p>
+        )}
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
           {badges.map((b, i) => (
             <div
@@ -630,16 +587,16 @@ export default function PlayerProfileTab({ player, _players, updatePlayer, _camp
                 gap: '8px',
                 padding: '8px 14px',
                 borderRadius: '30px',
-                background: 'rgba(255, 215, 64, 0.08)',
-                border: '1px solid rgba(255, 215, 64, 0.35)',
-                color: '#fff',
-                fontSize: '0.8rem',
-                fontWeight: 700,
+                background: 'var(--bg-elevated)',
+                border: '1px solid var(--border-strong)',
+                color: 'var(--color-text)',
+                fontSize: '0.8125rem',
+                fontWeight: 600,
               }}
             >
               <span style={{ fontSize: '1.1rem' }}>{b.icon}</span>
               <div>
-                <span style={{ color: 'var(--color-gold)' }}>{b.name}</span>
+                <span>{b.name}</span>
                 <span style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)', marginLeft: '6px' }}>({b.desc})</span>
               </div>
             </div>

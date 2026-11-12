@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { localDateKey } from '../../utils/agendaItems';
 
 function WellnessForm({ teamPlayers, recordWellness }) {
   const [selectedPlayer, setSelectedPlayer] = useState('');
@@ -11,7 +12,7 @@ function WellnessForm({ teamPlayers, recordWellness }) {
     e.preventDefault();
     if (!selectedPlayer) return;
 
-    const today = new Date().toISOString().split('T')[0];
+    const today = localDateKey();
     recordWellness(selectedPlayer, {
       date: today,
       sleep: Number(sleep),
@@ -58,7 +59,7 @@ function WellnessForm({ teamPlayers, recordWellness }) {
 
   return (
     <div className="glass-panel" style={{ padding: '25px', display: 'flex', flexDirection: 'column', gap: '15px' }}>
-      <h3 style={{ fontSize: '1.1rem', fontWeight: 700, fontFamily: 'Outfit', color: 'var(--color-primary)' }}>
+      <h3 style={{ fontSize: '1.1rem', fontWeight: 600, color: 'var(--color-text)' }}>
         Test Wellness Diario (Fatiga)
       </h3>
       <p style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>
@@ -95,10 +96,10 @@ function WellnessForm({ teamPlayers, recordWellness }) {
                 padding: '8px',
                 fontSize: '0.8rem',
                 justifyContent: 'center',
-                background: 'linear-gradient(135deg, var(--color-primary), #00e676)',
+                background: 'linear-gradient(135deg, var(--color-primary), #2EE57A)',
                 color: '#000',
                 fontWeight: 700,
-                boxShadow: '0 4px 15px rgba(0, 230, 118, 0.2)'
+                boxShadow: '0 4px 15px rgba(46, 229, 122, 0.2)'
               }}
             >
               Registrar Bienestar

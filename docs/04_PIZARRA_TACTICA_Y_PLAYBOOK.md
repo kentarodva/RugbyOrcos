@@ -5,7 +5,7 @@ tags:
   - "orcos/tactica"
   - "orcos/pizarra"
   - "orcos/partido"
-updated: "2026-11-05"
+updated: "2026-11-06"
 ---
 
 # 04 — Pizarra Táctica, Formaciones y Playbook TV
@@ -78,6 +78,17 @@ El **Modo TV** permite reproducir en pantallas grandes o proyectores de vestuari
 * **Jugada 2 — Maul Dinámico:** Entrada al lineout, fijación del balón en el saltador y avance en cuña hasta zona de in-goal.
 * **Jugada 3 — 8-9 Pick and Go (6 Fases Animadas):** Ataque perimetral corto en la base del scrum para desgastar la primera línea defensiva y habilitar try en la esquina.
 * **Jugada 4 — Up and Under (Patada de Presión y Recuperación Aérea):** Patada alta de la apertura con persecución agresiva de los wings para ganar posesión bajo rebote.
+
+---
+
+## 3.1. Pizarra en el móvil, dibujo y jugadas propias (2026-11-06)
+
+* **Cancha primero:** en el teléfono la cancha va justo debajo del selector de equipo; táctica, jugadas, banca y compartir quedan en cuatro pestañas debajo. Arranca en vertical, nunca supera la altura de la pantalla, y ofrece **media cancha** (recorta al campo propio) y **pantalla completa** (Salir o Escape).
+* **Selector de jugador:** hoja inferior con búsqueda, ordenada por posición natural y disponibilidad; elegir a alguien que ya está en la cancha intercambia ambos. Punto de aviso para lesionado/duda/ausente y marca de capitán.
+* **Modo Dibujar:** Carrera (flecha amarilla), Pase (flecha discontinua) y Marcar (línea roja), con Deshacer, Rehacer y Borrar dibujos. Los trazos se guardan en coordenadas canónicas (siguen orientación y vista), se recuerdan por pizarra en el dispositivo y salen en la imagen compartida.
+* **Jugadas de ejemplo:** 13 jugadas agrupadas por estilo (balón parado, forwards, juego abierto, defensa, juego con el pie), con barra de fases bajo la cancha (anterior/reproducir/siguiente, explicación y velocidad).
+* **Mis jugadas:** capturar fases, quitar la última, nombrar y guardar. Se guardan en `tactical_plays` (migración `81_tactical_plays.sql`), visibles para todo el club; solo admin y entrenadores pueden crear. Sin conexión quedan en el dispositivo y se suben solas después.
+* **Compartir:** imagen, texto para WhatsApp, PDF y Academia en un solo panel.
 
 ---
 

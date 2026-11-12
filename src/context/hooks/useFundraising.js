@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
 import { supabase } from '../../supabaseClient.js';
 import { generateId } from '../../utils/ids.js';
+import { localDateKey } from '../../utils/agendaItems';
 
 const emit = (table, action, payload = {}) => {
   window.dispatchEvent(new CustomEvent('data:changed', {
@@ -152,7 +153,7 @@ export function useFundraising(activeTeam, _user) {
     await supabase.from('raffle_tickets').update({
       is_sold: true,
       sold_to_name: soldToName,
-      sold_at: new Date().toISOString().split('T')[0],
+      sold_at: localDateKey(),
     }).eq('id', ticketId);
   }, []);
 
@@ -169,7 +170,7 @@ export function useFundraising(activeTeam, _user) {
   }, [allPayments]);
 
   const registerPayment = useCallback(async ({ playerId, amount, source, assignmentId, campaignId, notes }) => {
-    const today = new Date().toISOString().split('T')[0];
+    const today = localDateKey();
     const payment = {
       id: generateId(),
       player_id: playerId,
@@ -183,25 +184,12 @@ export function useFundraising(activeTeam, _user) {
     const { error: insertError } = await supabase.from('player_payments').insert(payment);
     if (insertError) throw insertError;
     setAllPayments(prev => [payment, ...prev]);
-
-    if (assignmentId) {
-      const { data: assignment } = await supabase
-        .from('fundraising_assignments')
-        .select('amount_paid, amount_due')
-        .eq('id', assignmentId)
-        .single();
-      if (assignment) {
-        const newPaid = (assignment.amount_paid || 0) + amount;
-        const { error: updateError } = await supabase.from('fundraising_assignments').update({
-          amount_paid: newPaid,
-        }).eq('id', assignmentId);
-        if (updateError) throw updateError;
-      }
-    }
+    // amount_paid y el movimiento de caja los actualiza la BD (migración 88).
+    return payment.id;
   }, []);
 
   const sellTickets = useCallback(async ({ campaign, assignment, unsoldTickets, quantity, amount, soldToName }) => {
-    const today = new Date().toISOString().split('T')[0];
+    const today = localDateKey();
     const ticketsToSell = unsoldTickets.slice(0, quantity);
     const soldTicketIds = ticketsToSell.map(t => t.id);
 
@@ -229,13 +217,7 @@ export function useFundraising(activeTeam, _user) {
     const { error: payError } = await supabase.from('player_payments').insert(payment);
     if (payError) throw payError;
     setAllPayments(prev => [payment, ...prev]);
-
-    const newPaid = (assignment.amount_paid || 0) + amount;
-    const { error: updateError } = await supabase
-      .from('fundraising_assignments')
-      .update({ amount_paid: newPaid })
-      .eq('id', assignment.id);
-    if (updateError) throw updateError;
+    // amount_paid y el movimiento de caja los actualiza la BD (migración 88).
 
     return { soldCount: ticketsToSell.length, amount, paymentId };
   }, []);

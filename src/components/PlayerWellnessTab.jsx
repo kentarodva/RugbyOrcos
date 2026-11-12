@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { useToast } from '../context/ToastContext';
 import { HeartPulse, Moon, Zap, ShieldAlert, Brain, Droplets } from 'lucide-react';
+import { localDateKey } from '../utils/agendaItems';
 
 const WELLNESS_PILLARS = [
   {
@@ -20,7 +21,7 @@ const WELLNESS_PILLARS = [
     key: 'energy',
     title: 'Nivel de Energía y Vitalidad',
     Icon: Zap,
-    color: '#00e676',
+    color: '#2EE57A',
     descriptions: [
       '1 - Agotado, sin energía para entrenar',
       '2 - Cuerpo pesado, baja reacción',
@@ -33,7 +34,7 @@ const WELLNESS_PILLARS = [
     key: 'soreness',
     title: 'Dolor Muscular y Golpes (Tackle/Scrum)',
     Icon: ShieldAlert,
-    color: '#ff5252',
+    color: '#FF5C4D',
     descriptions: [
       '1 - Dolor severo por choque o golpes fuertes',
       '2 - Mucha rigidez y dolor en articulaciones',
@@ -59,7 +60,7 @@ const WELLNESS_PILLARS = [
     key: 'hydration',
     title: 'Hidratación y Recuperación',
     Icon: Droplets,
-    color: '#00b0ff',
+    color: '#5AA9FF',
     descriptions: [
       '1 - Muy deshidratado, calambres frecuentes',
       '2 - Poca ingesta de agua durante el día',
@@ -89,14 +90,14 @@ function PlayerWellnessTab({ player, recordWellness }) {
   }, [scores]);
 
   const readinessStatus = useMemo(() => {
-    if (readiness >= 80) return { label: 'Óptimo para Batalla', color: '#00e676', bg: 'rgba(0, 230, 118, 0.12)', border: '#00e676', msg: 'Tu cuerpo está en plenitud para rendir en el partido y los entrenamientos pesados.' };
+    if (readiness >= 80) return { label: 'Óptimo para Batalla', color: '#2EE57A', bg: 'rgba(46, 229, 122, 0.12)', border: '#2EE57A', msg: 'Tu cuerpo está en plenitud para rendir en el partido y los entrenamientos pesados.' };
     if (readiness >= 60) return { label: 'Cuidado / Fatiga Moderada', color: 'var(--color-gold)', bg: 'rgba(255, 215, 64, 0.12)', border: 'var(--color-gold)', msg: 'Rendimiento aceptable, pero monitorea hidratación y elongación tras el choque.' };
-    return { label: 'Sobrecarga / Riesgo de Lesión', color: '#ff5252', bg: 'rgba(255, 23, 68, 0.12)', border: '#ff1744', msg: 'Alerta de sobreentrenamiento o golpes acumulados. Notifica al entrenador.' };
+    return { label: 'Sobrecarga / Riesgo de Lesión', color: '#FF5C4D', bg: 'rgba(255, 92, 77, 0.12)', border: '#FF5C4D', msg: 'Alerta de sobreentrenamiento o golpes acumulados. Notifica al entrenador.' };
   }, [readiness]);
 
   const handleSubmit = () => {
     recordWellness(player.id, {
-      date: new Date().toISOString().split('T')[0],
+      date: localDateKey(),
       sleep: scores.sleep,
       soreness: scores.soreness,
       stress: scores.stress,
@@ -109,63 +110,28 @@ function PlayerWellnessTab({ player, recordWellness }) {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-      {/* Educational Banner */}
-      <div
-        className="glass-panel"
-        style={{
-          padding: '22px',
-          borderRadius: '16px',
-          background: 'linear-gradient(135deg, rgba(0, 176, 255, 0.08) 0%, rgba(10, 20, 32, 0.95) 100%)',
-          border: '1px solid rgba(0, 176, 255, 0.3)',
-        }}
-      >
-        <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-          <HeartPulse size={24} color="#00b0ff" style={{ marginTop: '2px', flexShrink: 0 }} />
-          <div>
-            <h3 style={{ fontSize: '1.1rem', fontWeight: 900, fontFamily: 'Outfit', color: '#fff', margin: 0 }}>
-              Control de Estado Físico & Fatiga de Combate
-            </h3>
-            <p style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', marginTop: '6px', lineHeight: 1.5 }}>
-              <strong>¿Para qué sirve?</strong> En el rugby de alto contacto, el choque físico en melés, tackles y rucks exige una recuperación inteligente. Este chequeo le avisa a los entrenadores si estás en plenitud física para el partido o si tu cuerpo acumula sobrecarga para evitar desgarros y lesiones graves.
-            </p>
-          </div>
+      {/* Readiness summary */}
+      <section className="glass-panel" style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <HeartPulse size={18} color="var(--color-text-muted)" aria-hidden="true" />
+          <h2 className="section-title">Estado físico</h2>
         </div>
-
-        {/* Readiness Index Card */}
-        <div
-          style={{
-            marginTop: '16px',
-            padding: '14px 18px',
-            borderRadius: '12px',
-            background: readinessStatus.bg,
-            border: `1px solid ${readinessStatus.border}`,
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            flexWrap: 'wrap',
-            gap: '12px',
-          }}
-        >
-          <div>
-            <span style={{ fontSize: '0.72rem', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 800, color: readinessStatus.color }}>
-              Índice de Recuperación de Combate
-            </span>
-            <div style={{ fontSize: '1.4rem', fontWeight: 900, fontFamily: 'Outfit', color: '#fff' }}>
-              {readiness}% &middot; {readinessStatus.label}
-            </div>
-            <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginTop: '2px' }}>
-              {readinessStatus.msg}
-            </div>
-          </div>
-
-          {lastWellness && (
-            <div style={{ textAlign: 'right', fontSize: '0.72rem', color: 'var(--color-text-muted)' }}>
-              Último control registrado:<br />
-              <strong style={{ color: '#fff' }}>{lastWellness.date}</strong>
-            </div>
-          )}
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: '10px', flexWrap: 'wrap' }}>
+          <span className="stat-number" style={{ fontSize: '2.25rem', color: readinessStatus.color }}>{readiness}%</span>
+          <span style={{ fontSize: '0.9375rem', fontWeight: 600 }}>{readinessStatus.label}</span>
         </div>
-      </div>
+        <p style={{ margin: 0, fontSize: '0.8125rem', color: 'var(--color-text-muted)', lineHeight: 1.5 }}>
+          {readinessStatus.msg}
+          {lastWellness && <> Último control: <strong style={{ color: 'var(--color-text-soft)' }}>{lastWellness.date}</strong>.</>}
+        </p>
+        <details style={{ fontSize: '0.8125rem', color: 'var(--color-text-subtle)' }}>
+          <summary style={{ cursor: 'pointer', minHeight: '32px', display: 'flex', alignItems: 'center' }}>¿Para qué sirve?</summary>
+          <p style={{ margin: '4px 0 0', lineHeight: 1.5 }}>
+            El choque en melés, tackles y rucks exige recuperarse bien. Este chequeo le avisa al cuerpo técnico si estás
+            en plenitud para el partido o si acumulas sobrecarga, para prevenir desgarros y lesiones.
+          </p>
+        </details>
+      </section>
 
       {/* 5 Evaluation Pillars */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -178,49 +144,45 @@ function PlayerWellnessTab({ player, recordWellness }) {
               key={pillar.key}
               className="glass-panel"
               style={{
-                padding: '16px 20px',
-                borderRadius: '14px',
+                padding: '14px 16px',
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center',
                 flexWrap: 'wrap',
                 gap: '12px',
-                border: '1px solid rgba(255, 255, 255, 0.08)',
-                background: 'rgba(10, 18, 28, 0.65)',
               }}
             >
-              <div style={{ flex: 1, minWidth: '220px' }}>
+              <div style={{ flex: '1 1 200px', minWidth: 0 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <PillarIcon size={18} color={pillar.color} />
-                  <span style={{ fontWeight: 800, fontSize: '0.88rem', color: '#fff' }}>
+                  <PillarIcon size={18} color="var(--color-text-muted)" aria-hidden="true" />
+                  <span style={{ fontWeight: 600, fontSize: '0.9375rem', color: 'var(--color-text)' }}>
                     {pillar.title}
                   </span>
                 </div>
-                <div style={{ fontSize: '0.72rem', color: pillar.color, marginTop: '4px', fontWeight: 600 }}>
+                <div style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', marginTop: '4px' }}>
                   {pillar.descriptions[currentVal - 1]}
                 </div>
               </div>
 
               {/* 1 to 5 Score Selector Buttons */}
-              <div style={{ display: 'flex', gap: '8px' }}>
+              <div role="group" aria-label={pillar.title} style={{ display: 'grid', gridTemplateColumns: 'repeat(5, minmax(0, 44px))', gap: '8px' }}>
                 {[1, 2, 3, 4, 5].map(num => {
                   const isSelected = currentVal === num;
                   return (
                     <button
                       key={num}
                       type="button"
+                      aria-pressed={isSelected}
                       onClick={() => setScores(prev => ({ ...prev, [pillar.key]: num }))}
                       style={{
-                        width: '38px',
-                        height: '38px',
-                        borderRadius: '10px',
-                        border: `1px solid ${isSelected ? pillar.color : 'rgba(255, 255, 255, 0.12)'}`,
-                        background: isSelected ? `${pillar.color}25` : 'rgba(255, 255, 255, 0.03)',
-                        color: isSelected ? '#fff' : 'var(--color-text-muted)',
-                        fontWeight: 900,
-                        fontSize: '0.9rem',
+                        height: '44px',
+                        borderRadius: 'var(--radius-sm)',
+                        border: `1px solid ${isSelected ? 'var(--color-text)' : 'var(--border-strong)'}`,
+                        background: isSelected ? 'var(--color-text)' : 'transparent',
+                        color: isSelected ? 'var(--bg-root)' : 'var(--color-text-muted)',
+                        fontWeight: 600,
+                        fontSize: '0.9375rem',
                         cursor: 'pointer',
-                        boxShadow: isSelected ? `0 0 12px ${pillar.color}50` : 'none',
                         transition: 'all 0.15s ease',
                       }}
                     >
@@ -237,18 +199,10 @@ function PlayerWellnessTab({ player, recordWellness }) {
       <button
         onClick={handleSubmit}
         className="btn-primary"
-        style={{
-          width: '100%',
-          padding: '14px',
-          fontSize: '0.9rem',
-          fontWeight: 800,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: '8px',
-        }}
+        type="button"
+        style={{ width: '100%' }}
       >
-        ⚔️ Registrar Reporte de Estado Físico
+        Enviar reporte
       </button>
     </div>
   );

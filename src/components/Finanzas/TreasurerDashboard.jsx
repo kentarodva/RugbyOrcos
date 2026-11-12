@@ -61,14 +61,14 @@ function TreasurerDashboard({ onClose }) {
   const fiadoAmount = pendingFiado.reduce((s, p) => s + Number(p.reported_price || 0), 0);
 
   const summaryCards = [
-    { label: 'Aprobaciones Pendientes', val: data.pending.length, color: '#ffb300', icon: '⏳' },
-    { label: 'Fiado Pendiente', val: `$${fiadoAmount.toLocaleString()}`, color: '#ff3d00', icon: '📝' },
-    { label: 'Por Confirmar (Pagado)', val: `$${(pendingAmount - fiadoAmount).toLocaleString()}`, color: '#00b0ff', icon: '💵' },
+    { label: 'Aprobaciones Pendientes', val: data.pending.length, color: '#E8B931', icon: '⏳' },
+    { label: 'Fiado Pendiente', val: `$${fiadoAmount.toLocaleString()}`, color: '#FF5C4D', icon: '📝' },
+    { label: 'Por Confirmar (Pagado)', val: `$${(pendingAmount - fiadoAmount).toLocaleString()}`, color: '#5AA9FF', icon: '💵' },
     { label: 'Total Campañas', val: data.campaigns.length, color: 'var(--color-primary)', icon: '🎟️' },
   ];
 
   const PlayerRow = ({ item }) => (
-    <div className="glass-panel" style={{ padding: '12px', marginBottom: '6px', borderLeft: `3px solid ${item.sale_status === 'fiado' ? '#ffb300' : '#00b0ff'}` }}>
+    <div className="glass-panel" style={{ padding: '12px', marginBottom: '6px', borderLeft: `3px solid ${item.sale_status === 'fiado' ? '#E8B931' : '#5AA9FF'}` }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', gap: '10px', flexWrap: 'wrap' }}>
         <div style={{ flex: 1, minWidth: '200px' }}>
           <div style={{ fontWeight: 700, fontSize: '0.85rem' }}>
@@ -93,7 +93,7 @@ function TreasurerDashboard({ onClose }) {
           </button>
           <button onClick={() => handleConfirm(item.ticket_id, 'rejected')}
             disabled={processing[item.ticket_id]}
-            className="btn-outline" style={{ padding: '6px 14px', fontSize: '0.75rem', color: '#ff3d00', borderColor: '#ff3d00' }}>
+            className="btn-outline" style={{ padding: '6px 14px', fontSize: '0.75rem', color: '#FF5C4D', borderColor: '#FF5C4D' }}>
             ❌ Rechazar
           </button>
         </div>
@@ -108,7 +108,7 @@ function TreasurerDashboard({ onClose }) {
         onClick={e => e.stopPropagation()}>
 
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
-          <h3 style={{ fontSize: '1.2rem', fontWeight: 800, fontFamily: 'Outfit' }}>
+          <h3 style={{ fontSize: '1.2rem', fontWeight: 600 }}>
             Panel de Tesorero
           </h3>
           <button onClick={onClose} className="btn-outline" style={{ padding: '4px 10px', fontSize: '0.75rem' }}>✕</button>
@@ -119,7 +119,7 @@ function TreasurerDashboard({ onClose }) {
         ) : (
           <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '16px' }}>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '10px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 150px), 1fr))', gap: '10px' }}>
               {summaryCards.map(c => (
                 <div key={c.label} className="glass-panel" style={{ padding: '14px', textAlign: 'center' }}>
                   <div style={{ fontSize: '1.5rem', fontWeight: 800, color: c.color }}>{c.val}</div>
@@ -153,7 +153,7 @@ function TreasurerDashboard({ onClose }) {
                   <>
                     {pendingFiado.length > 0 && (
                       <div style={{ marginBottom: '12px' }}>
-                        <h4 style={{ fontSize: '0.75rem', fontWeight: 700, color: '#ffb300', textTransform: 'uppercase', marginBottom: '6px' }}>
+                        <h4 style={{ fontSize: '0.75rem', fontWeight: 700, color: '#E8B931', textTransform: 'uppercase', marginBottom: '6px' }}>
                           Fiado ({pendingFiado.length}) — ${fiadoAmount.toLocaleString()}
                         </h4>
                         {pendingFiado.map(item => <PlayerRow key={item.ticket_id} item={item} />)}
@@ -161,7 +161,7 @@ function TreasurerDashboard({ onClose }) {
                     )}
                     {pendingPaid.length > 0 && (
                       <div>
-                        <h4 style={{ fontSize: '0.75rem', fontWeight: 700, color: '#00b0ff', textTransform: 'uppercase', marginBottom: '6px' }}>
+                        <h4 style={{ fontSize: '0.75rem', fontWeight: 700, color: '#5AA9FF', textTransform: 'uppercase', marginBottom: '6px' }}>
                           Pagado ({pendingPaid.length}) — ${(pendingAmount - fiadoAmount).toLocaleString()}
                         </h4>
                         {pendingPaid.map(item => <PlayerRow key={item.ticket_id} item={item} />)}
@@ -203,13 +203,13 @@ function TreasurerDashboard({ onClose }) {
                   data.deliveries.map(d => (
                     <div key={d.id} className="glass-panel" style={{
                       padding: '10px', marginBottom: '6px',
-                      borderLeft: `3px solid ${d.status === 'confirmed' ? '#00e676' : d.status === 'rejected' ? '#ff3d00' : '#ffb300'}`
+                      borderLeft: `3px solid ${d.status === 'confirmed' ? '#2EE57A' : d.status === 'rejected' ? '#FF5C4D' : '#E8B931'}`
                     }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem' }}>
                         <div>
                           <strong>{d.player?.nombre || '—'}</strong> en {d.campaign?.name || '—'}
                         </div>
-                        <span style={{ fontWeight: 700, color: d.status === 'confirmed' ? '#00e676' : d.status === 'rejected' ? '#ff3d00' : '#ffb300' }}>
+                        <span style={{ fontWeight: 700, color: d.status === 'confirmed' ? '#2EE57A' : d.status === 'rejected' ? '#FF5C4D' : '#E8B931' }}>
                           ${Number(d.amount).toLocaleString()}
                         </span>
                       </div>

@@ -1,3 +1,4 @@
+import { localDateKey } from './agendaItems';
 // ── Generador de Placa Oficial de Tercer Tiempo & MVP de la Batalla ──
 // Renderiza en Canvas 2D una tarjeta de honor de alta definición (1200x675px)
 // celebrando la hermandad entre Orcos Negros y el equipo rival visitante.
@@ -29,9 +30,9 @@ export async function generateThirdTimeBannerBlob(match = {}, thirdTime = {}) {
 
   // Fondo degradado carbón / verde orco
   const bg = ctx.createLinearGradient(0, 0, width, height);
-  bg.addColorStop(0, '#060d13');
-  bg.addColorStop(0.5, '#0c1a24');
-  bg.addColorStop(1, '#050a0e');
+  bg.addColorStop(0, '#0D100E');
+  bg.addColorStop(0.5, '#191C1A');
+  bg.addColorStop(1, '#0A0D0B');
   ctx.fillStyle = bg;
   ctx.fillRect(0, 0, width, height);
 
@@ -41,7 +42,7 @@ export async function generateThirdTimeBannerBlob(match = {}, thirdTime = {}) {
   ctx.lineWidth = 6;
   ctx.strokeRect(20, 20, width - 40, height - 40);
 
-  ctx.strokeStyle = 'rgba(0, 230, 118, 0.4)';
+  ctx.strokeStyle = 'rgba(46, 229, 122, 0.4)';
   ctx.lineWidth = 2;
   ctx.strokeRect(32, 32, width - 64, height - 64);
   ctx.restore();
@@ -52,7 +53,7 @@ export async function generateThirdTimeBannerBlob(match = {}, thirdTime = {}) {
   ctx.textAlign = 'center';
   ctx.fillText('RUGBY ORCOS NEGROS CLUB · TERCER TIEMPO OFICIAL', width / 2, 70);
 
-  ctx.fillStyle = '#ffd740';
+  ctx.fillStyle = '#E8B931';
   ctx.font = '900 36px "Outfit", Arial, sans-serif';
   ctx.fillText('HOMENAJE A LOS MEJORES GUERREROS DE LA BATALLA', width / 2, 115);
 
@@ -73,8 +74,8 @@ export async function generateThirdTimeBannerBlob(match = {}, thirdTime = {}) {
   // 1. Tarjeta Orcos (Izquierda)
   const x1 = 90;
   ctx.save();
-  ctx.fillStyle = 'rgba(0, 230, 118, 0.08)';
-  ctx.strokeStyle = '#00e676';
+  ctx.fillStyle = 'rgba(46, 229, 122, 0.08)';
+  ctx.strokeStyle = '#2EE57A';
   ctx.lineWidth = 3;
   ctx.beginPath();
   ctx.roundRect(x1, cardY, cardW, cardH, 16);
@@ -82,9 +83,9 @@ export async function generateThirdTimeBannerBlob(match = {}, thirdTime = {}) {
   ctx.stroke();
 
   // Badge MVP
-  ctx.fillStyle = '#00e676';
+  ctx.fillStyle = '#2EE57A';
   ctx.fillRect(x1 + 20, cardY + 20, 160, 32);
-  ctx.fillStyle = '#04070a';
+  ctx.fillStyle = '#070A08';
   ctx.font = '900 14px "Outfit", Arial, sans-serif';
   ctx.textAlign = 'center';
   ctx.fillText('MVP ORCOS NEGROS', x1 + 100, cardY + 41);
@@ -95,7 +96,7 @@ export async function generateThirdTimeBannerBlob(match = {}, thirdTime = {}) {
   ctx.textAlign = 'left';
   ctx.fillText(orcosMvpName, x1 + 25, cardY + 95);
 
-  ctx.fillStyle = '#00e676';
+  ctx.fillStyle = '#2EE57A';
   ctx.font = '700 16px "Outfit", Arial, sans-serif';
   ctx.fillText(`Camiseta #${thirdTime.orcos_mvp_number || '—'} · ${thirdTime.orcos_mvp_pos || 'Titular'}`, x1 + 25, cardY + 125);
 
@@ -116,9 +117,9 @@ export async function generateThirdTimeBannerBlob(match = {}, thirdTime = {}) {
   if (orcosImg) {
     ctx.drawImage(orcosImg, avatarCenterX - 55, avatarCenterY - 55, 110, 110);
   } else {
-    ctx.fillStyle = '#0a361c';
+    ctx.fillStyle = '#1F2220';
     ctx.fillRect(avatarCenterX - 55, avatarCenterY - 55, 110, 110);
-    ctx.fillStyle = '#00e676';
+    ctx.fillStyle = '#2EE57A';
     ctx.font = '900 36px "Outfit", Arial, sans-serif';
     ctx.textAlign = 'center';
     ctx.fillText('⚔️', avatarCenterX, avatarCenterY + 12);
@@ -126,7 +127,7 @@ export async function generateThirdTimeBannerBlob(match = {}, thirdTime = {}) {
   ctx.restore();
 
   // Honor Makgora Badge
-  ctx.fillStyle = '#ffd740';
+  ctx.fillStyle = '#E8B931';
   ctx.font = '800 15px "Outfit", Arial, sans-serif';
   ctx.textAlign = 'left';
   ctx.fillText('⭐ +150 XP de Honor Makgora Otorgados', x1 + 25, cardY + cardH - 30);
@@ -146,7 +147,7 @@ export async function generateThirdTimeBannerBlob(match = {}, thirdTime = {}) {
   // Badge MVP Rival
   ctx.fillStyle = '#38bdf8';
   ctx.fillRect(x2 + 20, cardY + 20, 160, 32);
-  ctx.fillStyle = '#04070a';
+  ctx.fillStyle = '#070A08';
   ctx.font = '900 14px "Outfit", Arial, sans-serif';
   ctx.textAlign = 'center';
   ctx.fillText('MVP RIVAL DE HONOR', x2 + 100, cardY + 41);
@@ -195,14 +196,14 @@ export async function generateThirdTimeBannerBlob(match = {}, thirdTime = {}) {
   ctx.restore();
 
   // Pie de Página
-  ctx.fillStyle = '#ffd740';
+  ctx.fillStyle = '#E8B931';
   ctx.font = 'italic 700 20px "Outfit", Arial, sans-serif';
   ctx.textAlign = 'center';
   ctx.fillText('«Rivales en la cancha, hermanos en el Tercer Tiempo»', width / 2, height - 60);
 
   ctx.fillStyle = '#64748b';
   ctx.font = '600 14px monospace';
-  ctx.fillText(`FECHA OFICIAL: ${match.date || new Date().toISOString().split('T')[0]} · TEMPORADA OFICIAL`, width / 2, height - 35);
+  ctx.fillText(`FECHA OFICIAL: ${match.date || localDateKey()} · TEMPORADA OFICIAL`, width / 2, height - 35);
 
   return new Promise((resolve) => {
     canvas.toBlob((blob) => resolve(blob), 'image/png');

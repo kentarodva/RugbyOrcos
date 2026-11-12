@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { MembershipCard } from './MembershipCard';
 import { MENSUALIDAD_BASE } from './constants';
+import { membershipStatus } from '../../utils/membership';
 
 const SORT_OPTIONS = [
   { value: 'default', label: 'Por defecto' },
@@ -18,18 +19,16 @@ const STATUS_CHIPS = [
 ];
 
 function getPlayerMembership(player) {
-  const m = player.memberships || {};
-  const due = (m.due > 0 ? m.due : MENSUALIDAD_BASE);
-  const paid = m.paid || 0;
-  const remaining = Math.max(0, due - paid);
-  return { due, paid, remaining };
+  const { due, paid, owed } = membershipStatus(player, MENSUALIDAD_BASE);
+  return { due, paid, remaining: owed };
 }
 
+// Filtros de la lista: al día / con saldo pendiente / debe una cuota o más.
 function getStatusKey(player) {
-  const { paid, due } = getPlayerMembership(player);
-  if (paid >= due) return 'aldia';
-  if (paid > 0) return 'parcial';
-  return 'morosos';
+  const { key } = membershipStatus(player, MENSUALIDAD_BASE);
+  if (key === 'aldia') return 'aldia';
+  if (key === 'moroso') return 'morosos';
+  return 'parcial';
 }
 
 export function MembershipList({ teamPlayers, getMembershipStatus, onRequestConfirm, onRequestHistory, isStaff }) {
@@ -141,7 +140,7 @@ export function MembershipList({ teamPlayers, getMembershipStatus, onRequestConf
               Ningún jugador coincide con los filtros.
             </p>
           ) : (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '15px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 350px), 1fr))', gap: '15px' }}>
               {filteredPlayers.map(p => (
                 <MembershipCard
                   key={p.id}

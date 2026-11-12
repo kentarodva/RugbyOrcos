@@ -26,7 +26,7 @@ function RankingPanel({ title, color, players, renderValue, label, emptyMessage 
 
 function RankingsTab({ honorOrcs, mvpLeaders, tryLeaders, tackleLeaders, dungeonOrcs }) {
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '20px' }}>
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 260px), 1fr))', gap: '20px' }}>
 
       <RankingPanel
         title="Orcos de Honor (Asistencia)"
@@ -48,7 +48,7 @@ function RankingsTab({ honorOrcs, mvpLeaders, tryLeaders, tackleLeaders, dungeon
 
       <RankingPanel
         title="Demoletries (Anotadores)"
-        color="#ff3d00"
+        color="#FF5C4D"
         players={tryLeaders}
         renderValue={(p) => p.totalTries}
         label="Tries"

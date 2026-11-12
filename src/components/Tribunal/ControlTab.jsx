@@ -40,7 +40,7 @@ function ControlTab({
   redeemPenalty
 }) {
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '20px' }}>
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 320px), 1fr))', gap: '20px' }}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
 
         <AttendanceForm
@@ -85,7 +85,7 @@ function ControlTab({
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-        <h3 style={{ fontSize: '1.1rem', fontWeight: 800, fontFamily: 'Outfit', color: 'var(--color-red)', margin: 0 }}>
+        <h3 style={{ fontSize: '1.1rem', fontWeight: 600, color: 'var(--color-text)', margin: 0 }}>
           La Redencion del Orco (Deudas Correctivas)
         </h3>
         <p style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)', margin: '0 0 10px 0' }}>
