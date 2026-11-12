@@ -8,6 +8,8 @@ import EventDetailModal from './EventDetailModal';
 
 function AgendaTab({
   teamEvents,
+  calendarEvents,
+  onOpenFixture,
   showAddForm,
   setShowAddForm,
   showWeeklyView,
@@ -63,6 +65,7 @@ function AgendaTab({
           onToggleMonthly={() => setShowMonthlyView(!showMonthlyView)}
           showMonthly={showMonthlyView}
           onDetail={handleOpenDetail}
+          onOpenFixture={onOpenFixture}
         />
         )}
         {showWeeklyView && (
@@ -70,7 +73,7 @@ function AgendaTab({
             <button onClick={() => setShowWeeklyView(false)} className="btn-outline btn-sm" style={{ alignSelf: 'flex-start' }}>
               ← Volver a la lista
             </button>
-            <WeeklyView teamEvents={teamEvents} />
+            <WeeklyView teamEvents={calendarEvents || teamEvents} />
           </>
         )}
         {showMonthlyView && (
@@ -78,7 +81,7 @@ function AgendaTab({
             <button onClick={() => setShowMonthlyView(false)} className="btn-outline btn-sm" style={{ alignSelf: 'flex-start' }}>
               ← Volver a la lista
             </button>
-            <MonthlyView teamEvents={teamEvents} />
+            <MonthlyView teamEvents={calendarEvents || teamEvents} />
           </>
         )}
       </div>

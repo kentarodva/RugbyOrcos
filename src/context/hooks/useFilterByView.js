@@ -54,7 +54,9 @@ export function useViewFilter() {
       return items.filter(x => divisionMatch(x, divisionView));
     }
     if (viewMode === 'makgora' && makgoraTeamId) {
-      let filtered = items.filter(x => x.makgora_team_id === makgoraTeamId);
+      // Jugadores llevan makgora_team_id; los eventos dirigidos a un clan lo llevan en scopeValue.
+      let filtered = items.filter(x => x.makgora_team_id === makgoraTeamId
+        || x.scopeValue?.makgora_team_id === makgoraTeamId);
       if (divisionView !== 'all') {
         filtered = filtered.filter(x => divisionMatch(x, divisionView));
       }

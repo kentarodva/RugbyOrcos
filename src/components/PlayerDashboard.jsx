@@ -6,6 +6,7 @@ import { useAuth } from '../context/AuthContext.jsx';
 import { useToast } from '../context/ToastContext.jsx';
 import { getOrGeneratePlan, getActivePlan } from '../engine/trainingPlanService';
 import { fetchEventRsvps, upsertRsvp, fetchPlayerRsvps } from '../services/dataService';
+import { isUpcomingEvent, mergeAgenda } from '../utils/agendaItems';
 import { useDataListener } from '../context/hooks/useDataListener';
 import { usePlayerAvatar } from '../hooks/usePlayerAvatar';
 import { AvatarPicker } from './AvatarPicker';
@@ -224,31 +225,19 @@ function PlayerDashboard() {
 
   const allCalendarEvents = useMemo(() => {
     if (!player?.teamCategory) return [];
-    const trainingEvents = schedule.filter(e => matchesPlayerScope(e));
-    const matchEvents = (futureFixtures || [])
-      .filter(f => !player.teamCategory || f.teamCategory === player.teamCategory)
-      .map(f => ({
-        id: f.id,
-        title: `🏉 Partido: Orcos vs ${f.opponent}`,
-        date: f.date,
-        time: f.time || '15:30',
-        location: f.location || 'San Francisco',
-        type: 'partido',
-        isMatch: true,
-        notes: `Convocatoria de combate contra ${f.opponent}`,
-        opponent: f.opponent,
-        availabilities: f.availabilities,
-      }));
-
-    return [...trainingEvents, ...matchEvents].sort((a, b) => {
-      const timeA = a.time || '00:00';
-      const timeB = b.time || '00:00';
-      return new Date(a.date + 'T' + timeA) - new Date(b.date + 'T' + timeB);
-    });
+    // Solo lo que todavía no pasó: nada de confirmar asistencia a entrenos viejos.
+    const now = new Date();
+    const trainingEvents = schedule.filter(e => matchesPlayerScope(e) && isUpcomingEvent(e, now));
+    const matches = (futureFixtures || [])
+      .filter(f => matchesPlayerScope(f) && isUpcomingEvent(f, now));
+    return mergeAgenda(trainingEvents, matches).map(e => (
+      e.isFixture ? { ...e, notes: `Convocatoria de combate contra ${e.opponent}` } : e
+    ));
   }, [schedule, futureFixtures, player?.teamCategory, matchesPlayerScope]);
 
   const handleOpenDetail = async (event) => {
     setSelectedEvent(event);
+    if (event.isFixture) { setRsvpList([]); return; } // los partidos usan su propia convocatoria
     try {
       const data = await fetchEventRsvps(event.id);
       if (data) setRsvpList(data);

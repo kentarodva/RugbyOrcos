@@ -1,4 +1,5 @@
 import React from 'react';
+import { localDateKey, formatEventTime } from '../../../utils/agendaItems.js';
 
 function WeeklyView({ teamEvents }) {
   const today = new Date();
@@ -15,9 +16,9 @@ function WeeklyView({ teamEvents }) {
         {days.map((dayName, i) => {
           const date = new Date(startOfWeek);
           date.setDate(startOfWeek.getDate() + i);
-          const dateStr = date.toISOString().split('T')[0];
-          const dayEvents = teamEvents.filter(e => e.date === dateStr).sort((a, b) => a.time.localeCompare(b.time));
-          const isToday = date.toISOString().split('T')[0] === today.toISOString().split('T')[0];
+          const dateStr = localDateKey(date);
+          const dayEvents = teamEvents.filter(e => e.date === dateStr).sort((a, b) => formatEventTime(a.time).localeCompare(formatEventTime(b.time)));
+          const isToday = dateStr === localDateKey(today);
           return (
             <div key={i} style={{
               display: 'flex', alignItems: 'stretch', gap: '8px',
@@ -44,7 +45,7 @@ function WeeklyView({ teamEvents }) {
                       color: e.type === 'partido' ? 'var(--color-gold)' : 'var(--color-primary)',
                       border: `1px solid ${e.type === 'partido' ? 'rgba(212, 175, 55, 0.2)' : 'rgba(46, 229, 122, 0.1)'}`
                     }}>
-                      {e.type === 'partido' ? '🏉' : '🏋️'} {e.time} - {e.title}
+                      {e.type === 'partido' ? '🏉' : '🏋️'} {e.time ? `${formatEventTime(e.time)} - ` : ''}{e.title}
                       {e.linkedRoutine && <span style={{ fontSize: '0.6rem', marginLeft: '4px', color: 'var(--color-text-muted)' }}>(rutina vinculada)</span>}
                     </span>
                   ))

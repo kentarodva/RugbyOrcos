@@ -1,7 +1,7 @@
 import React from 'react';
 import AgendaCard from './AgendaCard';
 
-function AgendaList({ events, onDelete, onEdit, onAdd, onWhatsApp, onToggleWeekly, showWeekly, onToggleMonthly, showMonthly, onDetail }) {
+function AgendaList({ events, onDelete, onEdit, onAdd, onWhatsApp, onToggleWeekly, showWeekly, onToggleMonthly, showMonthly, onDetail, onOpenFixture }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -35,6 +35,7 @@ function AgendaList({ events, onDelete, onEdit, onAdd, onWhatsApp, onToggleWeekl
             onEdit={onEdit}
             onWhatsApp={onWhatsApp}
             onDetail={onDetail}
+            onOpenFixture={onOpenFixture}
           />
         ))
       )}
