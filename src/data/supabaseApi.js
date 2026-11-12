@@ -47,7 +47,10 @@ const apisupabase = {
         if (clubScope) {
           return query.ilike('team_category', clubScope + '%');
         }
-        return query.eq('user_id', userId);
+        // Staff without a team or scope sees the whole club (RLS already
+        // allows tier <= 3 to read it). Filtering by user_id here hid
+        // everything someone else created.
+        return query;
       }
       return query;
     };
