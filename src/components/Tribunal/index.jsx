@@ -3,22 +3,24 @@ import { ClubContext } from '../../context/ClubContext';
 import { useToast } from '../../context/ToastContext';
 import { useTeamPlayers, useViewFilter } from '../../context/hooks/useFilterByView';
 import { useTribunalState } from './useTribunalState';
+import { attendanceOptions } from '../../utils/attendanceSources';
 import ControlTab from './ControlTab';
 import FaultBookTab from './FaultBookTab';
 import RankingsTab from './RankingsTab';
 
 function Tribunal() {
-  const { schedule, recordAttendance, recordMatchInfractions, redeemPenalty } = useContext(ClubContext);
+  const { schedule, futureFixtures, recordAttendance, recordMatchInfractions, redeemPenalty } = useContext(ClubContext);
   const { showToast } = useToast();
 
   const allTeamPlayers = useTeamPlayers();
   const teamPlayers = useMemo(() => allTeamPlayers.filter(p => p.rol !== 'Entrenador'), [allTeamPlayers]);
 
   const filterItems = useViewFilter();
-  const teamEvents = useMemo(() => {
-    const items = schedule || [];
-    return filterItems(items);
-  }, [schedule, filterItems]);
+  // Eventos del calendario y partidos programados: a los dos se les pasa lista (punto 8).
+  const teamEvents = useMemo(
+    () => attendanceOptions(filterItems(schedule || []), filterItems(futureFixtures || [])),
+    [schedule, futureFixtures, filterItems]
+  );
 
   const {
     activeSubTab, setActiveSubTab,

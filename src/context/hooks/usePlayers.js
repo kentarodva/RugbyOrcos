@@ -125,17 +125,18 @@ export function usePlayers(activeTeam, sendLocalNotification, pushPlayerToSupaba
     }
   }, [players, sendLocalNotification, user?.id]);
 
-  const recordAttendance = useCallback(async (sessionDate, attendanceList, eventId) => {
+  // eventId: evento del calendario; fixtureId: partido programado (migración 93). Uno u otro.
+  const recordAttendance = useCallback(async (sessionDate, attendanceList, eventId, fixtureId = null) => {
     const statusMap = { presente: 'present', tarde: 'late', falta_injustificada: 'absent_unjustified', falta_justificada: 'absent_justified' };
     const penaltyByStatus = { present: 0, late: 15, absent_unjustified: 50, absent_justified: 0 };
     const reverseStatusMap = Object.fromEntries(Object.entries(statusMap).map(([k, v]) => [v, k]));
 
     let existingByPlayer = {};
-    if (eventId) {
+    if (eventId || fixtureId) {
       const { data: existing } = await supabase
         .from('attendance')
         .select('player_id, status')
-        .eq('event_id', eventId);
+        .eq(fixtureId ? 'fixture_id' : 'event_id', fixtureId || eventId);
       if (existing) {
         existing.forEach(r => { existingByPlayer[r.player_id] = r.status; });
       }
@@ -145,11 +146,12 @@ export function usePlayers(activeTeam, sendLocalNotification, pushPlayerToSupaba
       player_id: playerId,
       event_date: sessionDate,
       status: statusMap[status] || status,
-      event_id: eventId || null
+      event_id: fixtureId ? null : (eventId || null),
+      ...(fixtureId ? { fixture_id: fixtureId } : {}),
     }));
 
     if (records.length > 0) {
-      const { error } = await supabase.from('attendance').upsert(records, { onConflict: 'player_id,event_id' });
+      const { error } = await supabase.from('attendance').upsert(records, { onConflict: fixtureId ? 'player_id,fixture_id' : 'player_id,event_id' });
       if (error) {
         handleError(error, 'usePlayers.recordAttendance', { notifyUser: true });
         return false;

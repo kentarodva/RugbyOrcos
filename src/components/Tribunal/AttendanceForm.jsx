@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { ATTENDANCE_STATUS } from './constants';
 import { PlayerPhoto } from '../PlayerPhoto';
+import { rsvpGroups } from '../../utils/attendanceSources';
 
 const ICON_MAP = {
   entrenamiento: '🏋️',
@@ -50,6 +51,11 @@ function AttendanceForm({
   }, [teamPlayers, playerSearch, onlyConfirmed, rsvpMap]);
 
   const confirmedCount = Object.values(rsvpMap).filter(s => s === 'going').length;
+  // Quién avisó antes del entreno o partido (punto 8): se ve antes de marcar.
+  const groups = useMemo(() => rsvpGroups(teamPlayers, rsvpMap), [teamPlayers, rsvpMap]);
+  const pendingNotGoing = groups.not_going.filter(p => !attendanceState[p.id]);
+  const justifyNotGoing = () => pendingNotGoing.forEach(p => onAttendanceChange(p.id, 'falta_justificada'));
+  const shortName = (p) => p.apodo || p.name;
   const markedCount = Object.keys(attendanceState).length;
 
   return (
@@ -70,11 +76,38 @@ function AttendanceForm({
             <option value="">Sin evento específico</option>
             {sortedEvents.map(e => (
               <option key={e.id} value={e.id}>
-                {ICON_MAP[e.type] || '📌'} {e.date} — {e.title} {e.time ? `(${e.time})` : ''}
+                {ICON_MAP[e.type] || '📌'} {e.date} — {e.title} {e.time ? `(${String(e.time).slice(0, 5)})` : ''}
               </option>
             ))}
           </select>
         </div>
+
+        {selectedEventId && (
+          <div
+            data-testid="rsvp-summary"
+            role="status"
+            style={{ marginBottom: '15px', padding: '10px 12px', borderRadius: 'var(--radius-md)', background: 'var(--bg-elevated)', border: '1px solid var(--border-glass)', fontSize: '0.78rem', lineHeight: 1.5 }}
+          >
+            <div style={{ fontWeight: 600, marginBottom: '4px' }}>
+              Lo que avisaron: ✅ {groups.going.length} van · ❓ {groups.maybe.length} tal vez · ❌ {groups.not_going.length} no van · {groups.silent.length} sin responder
+            </div>
+            {groups.not_going.length > 0 && (
+              <div style={{ color: 'var(--color-red)' }}>
+                ❌ Avisaron que no van: {groups.not_going.map(shortName).join(', ')}
+              </div>
+            )}
+            {groups.maybe.length > 0 && (
+              <div style={{ color: 'var(--color-gold)' }}>
+                ❓ Tal vez: {groups.maybe.map(shortName).join(', ')}
+              </div>
+            )}
+            {pendingNotGoing.length > 0 && (
+              <button type="button" onClick={justifyNotGoing} className="btn-outline" style={{ marginTop: '8px', padding: '6px 10px', fontSize: '0.72rem' }}>
+                Marcar falta justificada a quienes avisaron ({pendingNotGoing.length})
+              </button>
+            )}
+          </div>
+        )}
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', maxHeight: '60vh', overflowY: 'auto', marginBottom: '20px', paddingRight: '5px' }}>
           <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>

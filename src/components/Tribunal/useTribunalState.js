@@ -2,6 +2,8 @@ import { useState, useCallback, useEffect, useRef } from 'react';
 import { supabase } from '../../supabaseClient.js';
 import { fetchEventRsvps } from '../../services/dataService.js';
 import { useDataListener } from '../../context/hooks/useDataListener.js';
+import { localDateKey } from '../../utils/agendaItems';
+import { fixtureIdOf, rsvpFromAvailabilities } from '../../utils/attendanceSources';
 
 export function useTribunalState(teamPlayers, teamEvents, recordAttendance, recordMatchInfractions, redeemPenalty, showToast) {
   const [activeSubTab, setActiveSubTab] = useState('control');
@@ -10,7 +12,7 @@ export function useTribunalState(teamPlayers, teamEvents, recordAttendance, reco
   const [attendanceState, setAttendanceState] = useState({});
   const [rsvpMap, setRsvpMap] = useState({});
 
-  const [matchDate, setMatchDate] = useState(new Date().toISOString().split('T')[0]);
+  const [matchDate, setMatchDate] = useState(() => localDateKey());
   const [selectedPlayerForInf, setSelectedPlayerForInf] = useState('');
   const [infPenales, setInfPenales] = useState(0);
   const [infAmarillas, setInfAmarillas] = useState(0);
@@ -22,8 +24,18 @@ export function useTribunalState(teamPlayers, teamEvents, recordAttendance, reco
   const [infContext, setInfContext] = useState('partido');
   const [infNotes, setInfNotes] = useState('');
 
+  // Partido programado: lo avisado está en su disponibilidad (y se actualiza en vivo con el partido).
+  const selectedFixtureId = fixtureIdOf(selectedEventId);
+  const selectedFixtureAvail = selectedFixtureId
+    ? teamEvents.find(e => e.id === selectedEventId)?.availabilities
+    : null;
+  useEffect(() => {
+    if (selectedFixtureId) setRsvpMap(rsvpFromAvailabilities(selectedFixtureAvail));
+  }, [selectedFixtureId, selectedFixtureAvail]);
+
   useEffect(() => {
     if (!selectedEventId) { setRsvpMap({}); return; }
+    if (fixtureIdOf(selectedEventId)) return;
     let cancelled = false;
     fetchEventRsvps(selectedEventId).then((data) => {
       if (cancelled) return;
@@ -38,7 +50,7 @@ export function useTribunalState(teamPlayers, teamEvents, recordAttendance, reco
   selectedEventRef.current = selectedEventId;
   useDataListener('event_rsvp', () => {
     const eventId = selectedEventRef.current;
-    if (!eventId) return;
+    if (!eventId || fixtureIdOf(eventId)) return;
     fetchEventRsvps(eventId).then((data) => {
       const map = {};
       (data || []).forEach(r => { map[r.player_id] = r.status; });
@@ -86,11 +98,13 @@ export function useTribunalState(teamPlayers, teamEvents, recordAttendance, reco
       return;
     }
 
+    const fixtureId = fixtureIdOf(selectedEventId);
+    const eventId = fixtureId ? null : (selectedEventId || null);
     if (selectedEventId) {
       const { data: existing } = await supabase
         .from('attendance')
         .select('id')
-        .eq('event_id', selectedEventId)
+        .eq(fixtureId ? 'fixture_id' : 'event_id', fixtureId || eventId)
         .limit(1);
       if (existing?.length > 0) {
         const overwrite = window.confirm('Ya hay asistencia registrada para este evento. ¿Deseas sobrescribir?');
@@ -99,8 +113,8 @@ export function useTribunalState(teamPlayers, teamEvents, recordAttendance, reco
     }
 
     const selectedEvent = teamEvents.find(e => e.id === selectedEventId);
-    const eventDate = selectedEvent?.date || new Date().toISOString().split('T')[0];
-    const success = await recordAttendance(eventDate, list, selectedEventId || null);
+    const eventDate = selectedEvent?.date || localDateKey();
+    const success = await recordAttendance(eventDate, list, eventId, fixtureId);
     if (!success) return;
     if (unmarkedCount > 0) {
       showToast(`Asistencia registrada. ${unmarkedCount} jugador(es) sin marcar fueron omitidos.`, 'info');
