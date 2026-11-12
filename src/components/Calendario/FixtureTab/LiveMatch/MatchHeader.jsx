@@ -3,6 +3,7 @@ import MatchTimer from './MatchTimer';
 import MatchDelayModal from './MatchDelayModal';
 import { buildMatchWhatsAppText, copyOrDownloadMatchBanner } from '../../../../utils/exportMatchBanner';
 import { playRugbyWhistle, isSoundEnabled, setSoundEnabled } from '../../../../utils/rugbyAudio';
+import { liveScore } from '../../../../utils/liveScore';
 import {
   OrcosWhistleIcon,
   OrcosDelayClockIcon,
@@ -18,15 +19,10 @@ function MatchHeader({ liveMatch, liveEvents, onPause, onResume, onDelay, onEnd,
   const [showDelayModal, setShowDelayModal] = useState(false);
 
   const status = liveMatch?.status || 'finished';
-  const score = (() => {
-    let orcos = liveMatch?.orcos_score || 0, opponent = liveMatch?.opponent_score || 0;
-    const SCORING = { try: 5, conversion: 2, penalty: 3, drop_goal: 3 };
-    for (const ev of liveEvents) {
-      const pts = SCORING[ev.event_type] || 0;
-      if (ev.team === 'orcos') orcos += pts;
-    }
-    return { orcos, opponent };
-  })();
+  // Solo desde los eventos (misma regla que la BD); sin eventos, lo guardado.
+  const score = liveEvents?.length
+    ? liveScore(liveEvents)
+    : { orcos: liveMatch?.orcos_score || 0, opponent: liveMatch?.opponent_score || 0 };
 
   const opponentName = liveMatch?.opponent_name || 'Rival';
 

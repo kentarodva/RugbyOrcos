@@ -7,7 +7,8 @@ function FutureTab({
   rivals,
   handleSaveFutureFixture,
   deleteFutureFixture,
-  showToast
+  showToast,
+  onStartMatch,
 }) {
   const [showFutureForm, setShowFutureForm] = useState(false);
   const [futureOpponent, setFutureOpponent] = useState('');
@@ -95,6 +96,7 @@ function FutureTab({
       <FutureList
         fixtures={futureFixtures}
         onDelete={(id) => { deleteFutureFixture(id); showToast('Partido eliminado.', 'info'); }}
+        onStartMatch={onStartMatch}
       />
 
       {futureFixtures.sort((a, b) => new Date(a.date) - new Date(b.date)).map(f => (

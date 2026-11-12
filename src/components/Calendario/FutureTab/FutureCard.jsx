@@ -5,7 +5,7 @@ import { useToast } from '../../../context/ToastContext';
 import { formatLocalDate } from '../../../utils/dates.js';
 import { buildMatchAvailabilitySummaryText } from '../../../utils/whatsappUtils';
 
-function FutureCard({ future, onDelete }) {
+function FutureCard({ future, onDelete, onStartMatch }) {
   const { createInvitation, matchInvitations, players, setMatchAvailability, fixtures } = useContext(ClubContext);
   const { showToast } = useToast();
   const [showConvocatoria, setShowConvocatoria] = useState(false);
@@ -112,6 +112,16 @@ function FutureCard({ future, onDelete }) {
               style={{ padding: '4px 10px', fontSize: '0.72rem', borderColor: 'var(--color-gold)', color: 'var(--color-gold)', display: 'inline-flex', alignItems: 'center', gap: '5px' }}
             >
               <Share2 size={12} /> Invitar Rival
+            </button>
+          )}
+          {onStartMatch && (
+            <button
+              onClick={() => onStartMatch(future)}
+              className="btn-neon"
+              style={{ padding: '4px 10px', fontSize: '0.72rem' }}
+              title="Llevar este partido en vivo"
+            >
+              ▶ En vivo
             </button>
           )}
           <button

@@ -3,6 +3,7 @@ import { supabase } from '../../supabaseClient.js';
 import apisupabase from '../../data/supabaseApi.js';
 import { wrapCatch } from '../../utils/errorHandler';
 import { generateId, sanitize } from '../../utils/ids.js';
+import { liveScore } from '../../utils/liveScore';
 
 export function useFixtures(activeTeam, sendLocalNotification, pushEntityToSupabase, user) {
   const [fixtures, setFixtures] = useState(() => []);
@@ -116,18 +117,6 @@ export function useFutureFixtures(activeTeam, sendLocalNotification, pushEntityT
   return { futureFixtures, setFutureFixtures, addFutureFixture, deleteFutureFixture, setMatchAvailability };
 }
 
-const SCORING = { try: 5, conversion: 2, penalty: 3, drop_goal: 3 };
-
-function calcScore(events) {
-  let orcos = 0, opponent = 0;
-  for (const ev of events) {
-    const pts = SCORING[ev.event_type] || 0;
-    if (ev.team === 'orcos') orcos += pts;
-    else if (ev.team === 'opponent') opponent += pts;
-  }
-  return { orcos, opponent };
-}
-
 export function useLiveMatch(user) {
   const [liveMatch, setLiveMatch] = useState(null);
   const [liveEvents, setLiveEvents] = useState([]);
@@ -136,6 +125,7 @@ export function useLiveMatch(user) {
     const isDelayed = Boolean(opts.delayed || opts.delayReason);
     const match = {
       fixture_id: opts.fixtureId || null,
+      future_fixture_id: opts.futureFixtureId || null,
       opponent_name: sanitize(opts.opponentName || ''),
       team_category: opts.teamCategory || null,
       status: isDelayed ? 'delayed' : 'live',
@@ -222,21 +212,21 @@ export function useLiveMatch(user) {
     });
   }, [updateLiveMatch, liveMatch]);
 
+  // Cierra el partido en la BD (migración 94): marcador desde los eventos, un solo
+  // resultado, estadísticas por jugador y el partido programado queda como jugado.
   const endLiveMatch = useCallback(async () => {
-    if (!liveMatch) return;
-    const now = Date.now();
-    const start = new Date(liveMatch.started_at).getTime();
-    const additionalSeconds = liveMatch.status === 'live'
-      ? Math.max(0, Math.floor((now - start) / 1000)) : 0;
-    const totalElapsed = (liveMatch.elapsed_seconds || 0) + additionalSeconds;
-    const score = liveEvents.length > 0 ? calcScore(liveEvents) : liveMatch;
-    await updateLiveMatch({
-      status: 'finished',
-      elapsed_seconds: totalElapsed,
-      orcos_score: score.orcos,
-      opponent_score: score.opponent,
-    });
-  }, [updateLiveMatch, liveEvents, liveMatch]);
+    if (!liveMatch) return null;
+    const { data, error } = await supabase.rpc('finish_live_match', { p_match_id: liveMatch.id });
+    if (error) {
+      wrapCatch('useLiveMatch.end', { notifyUser: true })(error);
+      return null;
+    }
+    setLiveMatch(prev => (prev ? {
+      ...prev, status: 'finished', current_half: 'ft', fixture_id: data?.fixture_id ?? prev.fixture_id,
+      orcos_score: data?.orcos_score ?? prev.orcos_score, opponent_score: data?.opponent_score ?? prev.opponent_score,
+    } : prev));
+    return data;
+  }, [liveMatch]);
 
   const deleteLiveMatch = useCallback(async () => {
     if (!liveMatch) return;
@@ -250,6 +240,6 @@ export function useLiveMatch(user) {
     liveEvents, setLiveEvents,
     startLiveMatch, addLiveEvent, updateLiveMatch,
     pauseLiveMatch, resumeLiveMatch, delayLiveMatch, setDesignatedScorer, endLiveMatch, deleteLiveMatch,
-    calcScore: () => calcScore(liveEvents),
+    calcScore: () => liveScore(liveEvents),
   };
 }

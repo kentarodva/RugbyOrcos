@@ -393,6 +393,7 @@ export function useSyncPull(
             rivalId: f.rival_id,
             availabilities: f.availabilities || {},
             squad: f.squad || [],
+            resultFixtureId: f.result_fixture_id || null,
           }));
           setFutureFixtures(mapped);
         } else { setFutureFixtures([]); }

@@ -41,7 +41,8 @@ function Calendario() {
   const currentPlayer = useMemo(() => findOwnPlayer(players, user), [players, user]);
 
   const canManageEvents = hasPermission('manage_schedule');
-  const canManageMatch = hasPermission('admin_panel') || profile?.role === 'coach' || profile?.role === 'capitan';
+  // Llevan el partido en vivo: presidencia/desarrollo, entrenador y árbitro (el campo es system_role).
+  const canManageMatch = hasPermission('admin_panel') || ['entrenador', 'arbitro'].includes(profile?.system_role);
 
   const [activeTab, setActiveTab] = useState('agenda');
   const [showAddForm, setShowAddForm] = useState(false);
@@ -100,7 +101,11 @@ function Calendario() {
   }, [scheduleInView]);
 
   const filteredFixtures = useMemo(() => filterByView(fixtures), [fixtures, filterByView]);
-  const filteredFutureFixtures = useMemo(() => filterByView(futureFixtures), [futureFixtures, filterByView]);
+  // Los ya jugados (tienen resultado) salen de la lista de por jugar.
+  const filteredFutureFixtures = useMemo(
+    () => filterByView(futureFixtures).filter(f => !f.resultFixtureId),
+    [futureFixtures, filterByView]
+  );
 
   // La agenda muestra también los partidos programados (viven en otra tabla).
   // Lista: solo lo que no ha pasado. Vistas semanal/mensual: todo, para ver la semana completa.
@@ -208,17 +213,20 @@ function Calendario() {
     showToast('Resultado actualizado con exito.', 'success');
   }, [updateFixture, currentTeamCategory, showToast]);
 
+  // Desde un partido programado (future), un resultado ya creado (fixture) o a mano ({ opponent }).
   const handleStartLiveMatch = useCallback(async (fixture) => {
+    const isFuture = Boolean(fixture?.id) && futureFixtures.some(f => f.id === fixture.id);
     const match = await startLiveMatch({
-      fixtureId: fixture?.id || null,
+      fixtureId: !isFuture ? (fixture?.id || null) : null,
+      futureFixtureId: isFuture ? fixture.id : null,
       opponentName: fixture?.opponent || '',
-      teamCategory: currentTeamCategory,
+      teamCategory: fixture?.teamCategory || currentTeamCategory,
     });
     if (match) {
       setActiveTab('envivo');
       showToast('Partido iniciado!', 'success');
     }
-  }, [startLiveMatch, currentTeamCategory, showToast]);
+  }, [startLiveMatch, futureFixtures, currentTeamCategory, showToast]);
 
   const handleSaveSquad = useCallback(async (fixtureId, squad) => {
     const { error } = await supabase
@@ -241,8 +249,10 @@ function Calendario() {
   }, [deleteLiveMatch, showToast]);
 
   const handleEndLiveMatch = useCallback(async () => {
-    await endLiveMatch();
-    showToast('Partido finalizado.', 'success');
+    const result = await endLiveMatch();
+    if (!result) return null;
+    showToast(`Final ${result.orcos_score}-${result.opponent_score}: resultado y estadísticas de ${result.player_stats} jugador(es) guardados.`, 'success');
+    return result;
   }, [endLiveMatch, showToast]);
 
   const handleSaveFutureFixture = useCallback((futureData) => {
@@ -367,6 +377,7 @@ function Calendario() {
             handleSaveFutureFixture={handleSaveFutureFixture}
             deleteFutureFixture={deleteFutureFixture}
             showToast={showToast}
+            onStartMatch={canManageMatch && !hasActiveMatch ? handleStartLiveMatch : undefined}
           />
           <ChampionshipsSection />
           {canManageMatch && !hasActiveMatch && (
@@ -410,7 +421,6 @@ function Calendario() {
           onDelete={handleDeleteLiveMatch}
           onClose={() => setActiveTab('partidos')}
           onStart={handleStartLiveMatch}
-          addFixture={addFixture}
           showToast={showToast}
           currentUser={user}
           currentProfile={profile}
