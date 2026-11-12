@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { localDateKey } from '../../utils/agendaItems';
 
 function WellnessForm({ teamPlayers, recordWellness }) {
   const [selectedPlayer, setSelectedPlayer] = useState('');
@@ -11,7 +12,7 @@ function WellnessForm({ teamPlayers, recordWellness }) {
     e.preventDefault();
     if (!selectedPlayer) return;
 
-    const today = new Date().toISOString().split('T')[0];
+    const today = localDateKey();
     recordWellness(selectedPlayer, {
       date: today,
       sleep: Number(sleep),

@@ -37,7 +37,7 @@ export function usePlayers(activeTeam, sendLocalNotification, pushPlayerToSupaba
       console.warn('[usePlayers.addPlayer] Schema validation:', validation.error.issues.map(i => `${i.path.join('.')}: ${i.message}`).join('; '));
     }
     const computedAttrs = player.attributes || calculateAttributes(player);
-    const today = new Date().toISOString().split('T')[0];
+    const today = localDateKey();
 
     const parsed = player.name ? parseFullName(player.name) : null;
     const firstName = player.firstName ?? parsed?.firstName ?? '';
@@ -103,7 +103,7 @@ export function usePlayers(activeTeam, sendLocalNotification, pushPlayerToSupaba
     );
     if (physicalChanged) {
       const newAttrs = calculateAttributes(safePlayer);
-      const today = new Date().toISOString().split('T')[0];
+      const today = localDateKey();
       safePlayer.attributes = newAttrs;
       safePlayer.history = [...(prevPlayer.history || []), { date: today, source: 'auto', ...newAttrs }];
       saveAttributeHistory(safePlayer.id, today, newAttrs, 'auto');
@@ -246,7 +246,7 @@ export function usePlayers(activeTeam, sendLocalNotification, pushPlayerToSupaba
     }));
   }, []);
 
-  const recordInjury = useCallback((playerId, diagnosis, weeks, date = new Date().toISOString().split('T')[0]) => {
+  const recordInjury = useCallback((playerId, diagnosis, weeks, date = localDateKey()) => {
     setPlayers(prev => prev.map(p => {
       if (p.id !== playerId) return p;
       supabase.from('injury_log').upsert({ player_id: playerId, injury_date: date, diagnosis: sanitize(diagnosis), recovery_weeks: weeks, phase: 1 }).then(() => {}).catch(err => handleError(err, 'usePlayers', { notifyUser: true }));
@@ -280,7 +280,7 @@ export function usePlayers(activeTeam, sendLocalNotification, pushPlayerToSupaba
   const recordWellness = useCallback((playerId, wellnessData) => {
     setPlayers(prev => prev.map(p => {
       if (p.id !== playerId) return p;
-      supabase.from('wellness_logs').upsert({ player_id: playerId, log_date: wellnessData.date || new Date().toISOString().split('T')[0], sleep_quality: wellnessData.sleep, muscle_soreness: wellnessData.soreness, stress_level: wellnessData.stress }).then(() => {}).catch(err => handleError(err, 'usePlayers', { notifyUser: true }));
+      supabase.from('wellness_logs').upsert({ player_id: playerId, log_date: wellnessData.date || localDateKey(), sleep_quality: wellnessData.sleep, muscle_soreness: wellnessData.soreness, stress_level: wellnessData.stress }).then(() => {}).catch(err => handleError(err, 'usePlayers', { notifyUser: true }));
       const logs = p.wellnessLogs || [];
       return { ...p, wellnessLogs: [...logs, { id: generateId('wl_'), ...wellnessData }].slice(-30) };
     }));
@@ -290,7 +290,7 @@ export function usePlayers(activeTeam, sendLocalNotification, pushPlayerToSupaba
     setPlayers(prev => prev.map(p => {
       if (p.id !== playerId) return p;
       const currentHia = p.hiaAssessments || [];
-      const today = new Date().toISOString().split('T')[0];
+      const today = localDateKey();
       const symptoms = symptomsDetected ? ['Sintomas detectados'] : ['Sin sintomas'];
       supabase.from('hia_assessments').upsert({ player_id: playerId, assessment_date: today, symptoms }).then(() => {}).catch(err => handleError(err, 'usePlayers', { notifyUser: true }));
       let newEstado = p.estado;
@@ -309,7 +309,7 @@ export function usePlayers(activeTeam, sendLocalNotification, pushPlayerToSupaba
   const logWorkout = useCallback((playerId, workoutData) => {
     setPlayers(prev => prev.map(p => {
       if (p.id !== playerId) return p;
-      const today = new Date().toISOString().split('T')[0];
+      const today = localDateKey();
       supabase.from('workout_logs').upsert({
         player_id: playerId, workout_date: today,
         routine_name: workoutData.routineName || workoutData.routine || null,
@@ -335,7 +335,7 @@ export function usePlayers(activeTeam, sendLocalNotification, pushPlayerToSupaba
   }, [pushPlayerToSupabase]);
 
   const updateGymStats = useCallback((playerId, gymStats) => {
-    const today = new Date().toISOString().split('T')[0];
+    const today = localDateKey();
     const squat = Number(gymStats.squat || 0);
     const bench = Number(gymStats.bench || 0);
     const deadlift = Number(gymStats.deadlift || 0);

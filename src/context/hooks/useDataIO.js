@@ -1,4 +1,5 @@
 import { useCallback } from 'react';
+import { localDateKey } from '../../utils/agendaItems';
 
 export function useDataIO(
   players, schedule, championships, finances, inventory, fixtures, rivals, futureFixtures, activeTeam,
@@ -36,7 +37,7 @@ export function useDataIO(
     const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
     const linkElement = document.createElement('a');
     linkElement.setAttribute('href', dataUri);
-    linkElement.setAttribute('download', `rugby_orcos_database_${new Date().toISOString().split('T')[0]}.json`);
+    linkElement.setAttribute('download', `rugby_orcos_database_${localDateKey()}.json`);
     linkElement.click();
   }, [players, schedule, championships, finances, inventory, fixtures, rivals, futureFixtures, activeTeam, loans]);
 

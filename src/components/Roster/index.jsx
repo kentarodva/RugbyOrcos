@@ -23,6 +23,7 @@ import PositionSelect from './PositionSelect';
 import PlayerCompare from './PlayerCompare';
 
 import RosterSkeleton from '../Skeletons/RosterSkeleton';
+import { localDateKey } from '../../utils/agendaItems';
 
 function Roster() {
   const {
@@ -51,7 +52,7 @@ function Roster() {
     supabase.from('player_loans')
       .select('player_id, to_team_id, status')
       .eq('status', 'approved')
-      .gte('end_date', new Date().toISOString().split('T')[0])
+      .gte('end_date', localDateKey())
       .then(({ data }) => { if (data) setActiveLoans(data); })
       .catch(wrapCatch('Roster.fetchActiveLoans', { silent: true }));
   }, []);
@@ -130,7 +131,7 @@ function Roster() {
   };
 
   const handleTestSubmit = (stats) => {
-    const today = new Date().toISOString().split('T')[0];
+    const today = localDateKey();
     recordPhysicalTest(selectedPlayer.id, today, stats);
   };
 

@@ -2,6 +2,7 @@ import { useState, useMemo, useCallback } from 'react';
 import { MENSUALIDAD_BASE } from './constants';
 import { membershipStatus } from '../../utils/membership';
 import { useFilterByView } from '../../context/hooks/useFilterByView';
+import { localDateKey } from '../../utils/agendaItems';
 
 export function useFinanzasState({ finances, players, addFinanceRecord, recordMembershipPayment, updateInventoryItem, showToast, mensualidadBase }) {
   const [activeSubTab, setActiveSubTab] = useState('finances');
@@ -11,7 +12,7 @@ export function useFinanzasState({ finances, players, addFinanceRecord, recordMe
   const [finAmount, setFinAmount] = useState('');
   const [finType, setFinType] = useState('ingreso');
   const [finCategory, setFinCategory] = useState('general');
-  const [finDate, setFinDate] = useState(new Date().toISOString().split('T')[0]);
+  const [finDate, setFinDate] = useState(localDateKey());
   const filterByView = useFilterByView();
 
   const teamFinances = useMemo(

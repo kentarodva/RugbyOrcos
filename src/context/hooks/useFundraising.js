@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
 import { supabase } from '../../supabaseClient.js';
 import { generateId } from '../../utils/ids.js';
+import { localDateKey } from '../../utils/agendaItems';
 
 const emit = (table, action, payload = {}) => {
   window.dispatchEvent(new CustomEvent('data:changed', {
@@ -152,7 +153,7 @@ export function useFundraising(activeTeam, _user) {
     await supabase.from('raffle_tickets').update({
       is_sold: true,
       sold_to_name: soldToName,
-      sold_at: new Date().toISOString().split('T')[0],
+      sold_at: localDateKey(),
     }).eq('id', ticketId);
   }, []);
 
@@ -169,7 +170,7 @@ export function useFundraising(activeTeam, _user) {
   }, [allPayments]);
 
   const registerPayment = useCallback(async ({ playerId, amount, source, assignmentId, campaignId, notes }) => {
-    const today = new Date().toISOString().split('T')[0];
+    const today = localDateKey();
     const payment = {
       id: generateId(),
       player_id: playerId,
@@ -188,7 +189,7 @@ export function useFundraising(activeTeam, _user) {
   }, []);
 
   const sellTickets = useCallback(async ({ campaign, assignment, unsoldTickets, quantity, amount, soldToName }) => {
-    const today = new Date().toISOString().split('T')[0];
+    const today = localDateKey();
     const ticketsToSell = unsoldTickets.slice(0, quantity);
     const soldTicketIds = ticketsToSell.map(t => t.id);
 

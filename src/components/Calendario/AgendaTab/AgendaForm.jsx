@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import { EVENT_TYPES, normalizeEventType } from '../../../utils/eventTypes';
+import { localDateKey } from '../../../utils/agendaItems';
 
 const DAYS = [
   { num: 1, label: 'Lun' },
@@ -67,7 +68,7 @@ function AgendaForm({ initialData, onClose, onSave, existingEvents, currentTeamC
         const diff = (targetDay - currentDay + 7) % 7;
         target.setDate(target.getDate() + diff);
         if (target >= startDate) {
-          dates.push({ date: target.toISOString().split('T')[0], time: form.time });
+          dates.push({ date: localDateKey(target), time: form.time });
         }
       }
     }

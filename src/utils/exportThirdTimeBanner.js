@@ -1,3 +1,4 @@
+import { localDateKey } from './agendaItems';
 // ── Generador de Placa Oficial de Tercer Tiempo & MVP de la Batalla ──
 // Renderiza en Canvas 2D una tarjeta de honor de alta definición (1200x675px)
 // celebrando la hermandad entre Orcos Negros y el equipo rival visitante.
@@ -202,7 +203,7 @@ export async function generateThirdTimeBannerBlob(match = {}, thirdTime = {}) {
 
   ctx.fillStyle = '#64748b';
   ctx.font = '600 14px monospace';
-  ctx.fillText(`FECHA OFICIAL: ${match.date || new Date().toISOString().split('T')[0]} · TEMPORADA OFICIAL`, width / 2, height - 35);
+  ctx.fillText(`FECHA OFICIAL: ${match.date || localDateKey()} · TEMPORADA OFICIAL`, width / 2, height - 35);
 
   return new Promise((resolve) => {
     canvas.toBlob((blob) => resolve(blob), 'image/png');

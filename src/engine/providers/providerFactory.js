@@ -1,6 +1,7 @@
 import { PROVIDERS, RETRY_CONFIG } from '../aiConfig';
 import { getSetting, setSetting } from '../../data/clubSettings';
 import { callOpenAICompatible, streamOpenAICompatible, sleep } from './openaiCompatible';
+import { localDateKey } from '../../utils/agendaItems';
 
 export function createProvider(providerId) {
   const P = PROVIDERS[providerId];
@@ -30,19 +31,19 @@ export function createProvider(providerId) {
 
   function getRateLimitInfo() {
     const { model } = getConfig();
-    const key = `orcos_ai_rate_${providerId}_${model.id}_${new Date().toISOString().split('T')[0]}`;
+    const key = `orcos_ai_rate_${providerId}_${model.id}_${localDateKey()}`;
     return { used: Number(getSetting(key) || 0), limit: model.dailyLimit };
   }
 
   function checkRateLimit() {
     const { model } = getConfig();
-    const key = `orcos_ai_rate_${providerId}_${model.id}_${new Date().toISOString().split('T')[0]}`;
+    const key = `orcos_ai_rate_${providerId}_${model.id}_${localDateKey()}`;
     return Number(getSetting(key) || 0) < model.dailyLimit;
   }
 
   function incrementRateLimit() {
     const { model } = getConfig();
-    const key = `orcos_ai_rate_${providerId}_${model.id}_${new Date().toISOString().split('T')[0]}`;
+    const key = `orcos_ai_rate_${providerId}_${model.id}_${localDateKey()}`;
     const used = Number(getSetting(key) || 0);
     setSetting(key, String(used + 1));
   }

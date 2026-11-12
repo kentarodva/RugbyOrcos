@@ -1,3 +1,4 @@
+import { localDateKey } from './agendaItems';
 // ── Exportador Oficial de Roster a CSV / Excel para Torneos de Rugby ──
 // Genera archivo tabular con UTF-8 BOM (\uFEFF) y separador estándar para compatibilidad directa
 // con Microsoft Excel en español y planillas de la Federación Colombiana de Rugby (FCR).
@@ -80,7 +81,7 @@ export function downloadRosterCsv(players = [], teamLabel = 'Orcos_Rugby_Club') 
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   const safeLabel = teamLabel.replace(/\s+/g, '_').toLowerCase();
-  const dateStr = new Date().toISOString().split('T')[0];
+  const dateStr = localDateKey();
   a.href = url;
   a.download = `Planilla_Oficial_${safeLabel}_${dateStr}.csv`;
   document.body.appendChild(a);

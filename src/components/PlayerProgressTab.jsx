@@ -7,6 +7,7 @@ import { useToast } from '../context/ToastContext';
 import { HeightInput, WeightInput } from './common/FormattedInputs';
 import { formatHeightM, formatWeightKg } from '../utils/inputFormatters';
 import { TRACKABLE_EXERCISES } from '../constants/exerciseConstants';
+import { localDateKey } from '../utils/agendaItems';
 export { TRACKABLE_EXERCISES };
 
 const DEMO_DATA = [
@@ -495,10 +496,10 @@ function WorkoutStats({ playerId }) {
         if (!data || !data.length) return;
         const dates = [...new Set(data.map(d => d.workout_date))].sort().reverse();
         let streak = 0;
-        const today = new Date().toISOString().split('T')[0];
+        const today = localDateKey();
         for (let i = 0; i < dates.length; i++) {
           const d = new Date(); d.setDate(d.getDate() - i);
-          if (dates[i] === d.toISOString().split('T')[0] || (i === 0 && dates[0] === today)) streak++;
+          if (dates[i] === localDateKey(d) || (i === 0 && dates[0] === today)) streak++;
           else break;
         }
         const lastLog = data[0].exercise_logs || [];

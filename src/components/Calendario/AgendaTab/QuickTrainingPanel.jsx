@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { EVENT_TYPES } from '../../../utils/eventTypes';
 import { getSetting, setSetting, loadSettings } from '../../../data/clubSettings';
+import { localDateKey } from '../../../utils/agendaItems';
 
 const DAYS = [
   { num: 1, label: 'Lun', title: 'Lunes' },
@@ -121,7 +122,7 @@ function QuickTrainingPanel({ onCreate, existingLocations, currentTeamCategory, 
         }
       }
     }
-    return [...new Set(dates.map(d => d.toISOString().split('T')[0]))].sort();
+    return [...new Set(dates.map(d => localDateKey(d)))].sort();
   }, [selectedDays, weeks]);
 
   const previewText = useMemo(() => {
@@ -150,7 +151,7 @@ function QuickTrainingPanel({ onCreate, existingLocations, currentTeamCategory, 
     await onCreate({
       recurrenceDays: selectedDays,
       recurrenceWeeks: weeks,
-      date: new Date().toISOString().split('T')[0],
+      date: localDateKey(),
       time: hour,
       location: resolvedLocation,
       title: customTitle || 'Entrenamiento',

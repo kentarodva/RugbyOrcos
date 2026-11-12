@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { useToast } from '../context/ToastContext';
 import { HeartPulse, Moon, Zap, ShieldAlert, Brain, Droplets } from 'lucide-react';
+import { localDateKey } from '../utils/agendaItems';
 
 const WELLNESS_PILLARS = [
   {
@@ -96,7 +97,7 @@ function PlayerWellnessTab({ player, recordWellness }) {
 
   const handleSubmit = () => {
     recordWellness(player.id, {
-      date: new Date().toISOString().split('T')[0],
+      date: localDateKey(),
       sleep: scores.sleep,
       soreness: scores.soreness,
       stress: scores.stress,

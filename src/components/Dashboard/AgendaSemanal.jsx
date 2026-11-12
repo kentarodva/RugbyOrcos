@@ -3,6 +3,7 @@ import { Dumbbell, CircleDot, ClipboardList, MapPin } from 'lucide-react';
 import { ClubContext } from '../../context/ClubContext';
 import { useFilterByView } from '../../context/hooks/useFilterByView';
 import { formatLocalDate } from '../../utils/dates.js';
+import { localDateKey } from '../../utils/agendaItems';
 
 const DIAS = ['Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab', 'Dom'];
 
@@ -60,7 +61,7 @@ function AgendaSemanal({ onNavigate }) {
   for (let i = 0; i < 7; i++) {
     const d = new Date(monday);
     d.setDate(monday.getDate() + i);
-    const dateStr = d.toISOString().split('T')[0];
+    const dateStr = localDateKey(d);
     const dayEvents = filteredSchedule.filter(s => s.date === dateStr);
     const dayFixtures = filteredFuture.filter(f => f.date === dateStr);
     weekDays.push({

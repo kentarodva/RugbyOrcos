@@ -7,6 +7,7 @@ import {
   persistTrainingPlan,
   completeTrainingPlan,
 } from '../services/dataService';
+import { localDateKey } from '../utils/agendaItems';
 
 export function getWeekStart(date = new Date()) {
   const d = new Date(date);
@@ -14,7 +15,7 @@ export function getWeekStart(date = new Date()) {
   const diff = d.getDate() - day + (day === 0 ? -6 : 1);
   d.setDate(diff);
   d.setHours(0, 0, 0, 0);
-  return d.toISOString().split('T')[0];
+  return localDateKey(d);
 }
 
 export async function getActivePlan(playerId) {

@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { localDateKey } from '../../../utils/agendaItems';
 
 const MONTHS = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
 const DAY_LABELS = ['Dom','Lun','Mar','Mie','Jue','Vie','Sab'];
@@ -49,7 +50,7 @@ function MonthlyView({ teamEvents }) {
         ))}
         {calendarDays.map((day, i) => {
           if (!day) return <div key={`empty-${i}`} />;
-          const isToday = today.toISOString().split('T')[0] === day.date;
+          const isToday = localDateKey(today) === day.date;
           return (
             <div key={day.date} style={{
               minHeight: '70px', padding: '4px', borderRadius: 'var(--radius-sm)',

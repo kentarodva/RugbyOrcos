@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { KeyRound, CheckCircle2, Copy, MessageCircle, FileSpreadsheet, ShieldCheck } from 'lucide-react';
 import { useToast } from '../../../context/ToastContext';
 import { buildWhatsAppUrl } from '../../../utils/whatsappUtils';
+import { localDateKey } from '../../../utils/agendaItems';
 
 export default function BulkCredentialsModal({ players = [], onClose, createPlayerCredentials }) {
   const { showToast } = useToast();
@@ -124,7 +125,7 @@ export default function BulkCredentialsModal({ players = [], onClose, createPlay
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.setAttribute('download', `Accesos_Rugby_Orcos_${new Date().toISOString().slice(0, 10)}.csv`);
+    link.setAttribute('download', `Accesos_Rugby_Orcos_${localDateKey()}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
