@@ -1,12 +1,10 @@
-import React, { useState, useContext } from 'react';
+import React, { useState } from 'react';
 import { MessageCircle, Wallet } from 'lucide-react';
-import { ClubContext } from '../../context/ClubContext';
 import { useToast } from '../../context/ToastContext';
 import { CopInput } from '../common/FormattedInputs';
 import { buildWhatsAppUrl, buildPaymentReceiptText } from '../../utils/whatsappUtils';
 
 export function RegisterPaymentModal({ assignment, campaign, players, onClose, registerPayment, readOnly }) {
-  const { addFinanceRecord } = useContext(ClubContext);
   const { showToast } = useToast();
   const player = players.find(p => p.id === assignment.player_id);
   const [amount, setAmount] = useState('');
@@ -34,13 +32,7 @@ export function RegisterPaymentModal({ assignment, campaign, players, onClose, r
         notes: notes.trim(),
       });
 
-      await addFinanceRecord({
-        desc: `${campaign.type === 'raffle' ? 'Rifa' : 'Campaña'} ${campaign.name} - ${player?.name || 'Jugador'}${notes ? ' (' + notes + ')' : ''}`,
-        amount: payAmount,
-        type: 'ingreso',
-        category: 'general',
-        date: new Date().toISOString().split('T')[0],
-      });
+      // The database adds the cash-book entry for this payment (migration 88).
 
       const receiptText = buildPaymentReceiptText({
         playerName: player?.name || 'Guerrero',

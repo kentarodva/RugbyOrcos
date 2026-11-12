@@ -232,35 +232,45 @@ export const ClubProvider = ({ children }) => {
   );
 
   const handleMembershipPayment = async (playerId, amount) => {
-    const { playerName, date, paymentId } = await playerHooks.recordMembershipPayment(playerId, amount);
-    financeHooks.addMembershipPayment(playerName, amount, date, paymentId);
+    const { paymentId } = await playerHooks.recordMembershipPayment(playerId, amount);
+    await financeHooks.addMembershipPayment(amount, paymentId);
   };
+
+  // The payment and its cash-book entry are created together by the database
+  // (migration 88); here we only refresh the local copy of the ledger.
+  const handleRegisterPayment = React.useCallback(async (payment) => {
+    const paymentId = await fundraisingHooks.registerPayment(payment);
+    await financeHooks.loadPaymentLedger(paymentId);
+    return paymentId;
+  }, [fundraisingHooks, financeHooks]);
+
+  const handleSellTickets = React.useCallback(async (sale) => {
+    const result = await fundraisingHooks.sellTickets(sale);
+    await financeHooks.loadPaymentLedger(result?.paymentId);
+    return result;
+  }, [fundraisingHooks, financeHooks]);
 
   const handleDeleteFinanceRecord = React.useCallback(async (recordId) => {
     const record = finances.find(f => f.id === recordId);
-    if (record?.category === 'mensualidad') {
-      const pidMatch = record.desc.match(/\[pid:(.+?)\]/);
-      if (pidMatch) {
-        const paymentId = pidMatch[1];
-        const deletedInfo = await fundraisingHooks.deletePayment(paymentId);
-        if (deletedInfo) {
-          playerHooks.reverseMembershipPayment(deletedInfo.player_id, deletedInfo.amount);
-        }
+    if (record?.paymentId) {
+      // Deleting the payment also deletes its ledger entry (FK cascade).
+      const deletedInfo = await fundraisingHooks.deletePayment(record.paymentId);
+      if (deletedInfo?.source === 'membership') {
+        playerHooks.reverseMembershipPayment(deletedInfo.player_id, deletedInfo.amount);
       }
+      setFinances(prev => prev.filter(r => r.id !== recordId));
+      return;
     }
     financeHooks.deleteFinanceRecord(recordId);
-  }, [finances, fundraisingHooks, playerHooks, financeHooks]);
+  }, [finances, fundraisingHooks, playerHooks, financeHooks, setFinances]);
 
   const handleDeleteMembershipPayment = React.useCallback(async (paymentId) => {
     const deletedInfo = await fundraisingHooks.deletePayment(paymentId);
     if (!deletedInfo) return null;
     playerHooks.reverseMembershipPayment(deletedInfo.player_id, deletedInfo.amount);
-    const financeRecord = finances.find(f => f.desc?.includes(`[pid:${paymentId}]`));
-    if (financeRecord) {
-      financeHooks.deleteFinanceRecord(financeRecord.id);
-    }
+    setFinances(prev => prev.filter(r => r.paymentId !== paymentId));
     return deletedInfo;
-  }, [finances, fundraisingHooks, playerHooks, financeHooks]);
+  }, [fundraisingHooks, playerHooks, setFinances]);
 
   const handleMonthlyCharge = React.useCallback(async (playerIds) => {
     const count = await playerHooks.applyMonthlyCharge(playerIds, mensualidadBase);
@@ -329,9 +339,9 @@ export const ClubProvider = ({ children }) => {
       bulkAssignFood: fundraisingHooks.bulkAssignFood,
       updateAssignment: fundraisingHooks.updateAssignment,
       markTicketSold: fundraisingHooks.markTicketSold,
-      registerPayment: fundraisingHooks.registerPayment,
+      registerPayment: handleRegisterPayment,
       deletePayment: fundraisingHooks.deletePayment,
-      sellTickets: fundraisingHooks.sellTickets,
+      sellTickets: handleSellTickets,
       deleteMembershipPayment: handleDeleteMembershipPayment,
       reverseMembershipPayment: playerHooks.reverseMembershipPayment,
       handleMonthlyCharge,

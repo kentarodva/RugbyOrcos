@@ -3,7 +3,7 @@ import { ClubContext } from '../../context/ClubContext';
 import { useToast } from '../../context/ToastContext';
 
 export function RaffleTicketModal({ campaign, assignment, tickets, onClose, readOnly }) {
-  const { markTicketSold, registerPayment, addFinanceRecord } = useContext(ClubContext);
+  const { markTicketSold, registerPayment } = useContext(ClubContext);
   const { showToast } = useToast();
   const [soldName, setSoldName] = useState('');
 
@@ -28,14 +28,6 @@ export function RaffleTicketModal({ campaign, assignment, tickets, onClose, read
           assignmentId: assignment.id,
           campaignId: campaign.id,
           notes: `Boleto #${ticket.ticket_number} vendido a ${name}`,
-        });
-
-        addFinanceRecord({
-          desc: `🎟️ ${campaign.name} - Boleto #${ticket.ticket_number} (${name})`,
-          amount: ticketPrice,
-          type: 'ingreso',
-          category: 'general',
-          date: new Date().toISOString().split('T')[0],
         });
       }
 

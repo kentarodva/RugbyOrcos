@@ -4,7 +4,7 @@
 const GRACE_MS = 3 * 60 * 60 * 1000; // un evento sigue visible hasta 3 h después de empezar
 
 /** Fecha local YYYY-MM-DD (toISOString usa UTC y en Colombia cambia de día a las 19:00). */
-export function localDateKey(date) {
+export function localDateKey(date = new Date()) {
   const y = date.getFullYear();
   const m = String(date.getMonth() + 1).padStart(2, '0');
   const d = String(date.getDate()).padStart(2, '0');

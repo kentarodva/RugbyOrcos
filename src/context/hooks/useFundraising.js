@@ -183,21 +183,8 @@ export function useFundraising(activeTeam, _user) {
     const { error: insertError } = await supabase.from('player_payments').insert(payment);
     if (insertError) throw insertError;
     setAllPayments(prev => [payment, ...prev]);
-
-    if (assignmentId) {
-      const { data: assignment } = await supabase
-        .from('fundraising_assignments')
-        .select('amount_paid, amount_due')
-        .eq('id', assignmentId)
-        .single();
-      if (assignment) {
-        const newPaid = (assignment.amount_paid || 0) + amount;
-        const { error: updateError } = await supabase.from('fundraising_assignments').update({
-          amount_paid: newPaid,
-        }).eq('id', assignmentId);
-        if (updateError) throw updateError;
-      }
-    }
+    // amount_paid y el movimiento de caja los actualiza la BD (migración 88).
+    return payment.id;
   }, []);
 
   const sellTickets = useCallback(async ({ campaign, assignment, unsoldTickets, quantity, amount, soldToName }) => {
@@ -229,13 +216,7 @@ export function useFundraising(activeTeam, _user) {
     const { error: payError } = await supabase.from('player_payments').insert(payment);
     if (payError) throw payError;
     setAllPayments(prev => [payment, ...prev]);
-
-    const newPaid = (assignment.amount_paid || 0) + amount;
-    const { error: updateError } = await supabase
-      .from('fundraising_assignments')
-      .update({ amount_paid: newPaid })
-      .eq('id', assignment.id);
-    if (updateError) throw updateError;
+    // amount_paid y el movimiento de caja los actualiza la BD (migración 88).
 
     return { soldCount: ticketsToSell.length, amount, paymentId };
   }, []);

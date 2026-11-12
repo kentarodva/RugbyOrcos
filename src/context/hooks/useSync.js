@@ -4,6 +4,7 @@ import apisupabase, { supabasePlayerToReact } from '../../data/supabaseApi.js';
 import { handleError } from '../../utils/errorHandler';
 import { playerSchema } from '../../schemas/player.js';
 import { parseFullName } from '../../utils/nameParser.js';
+import { mapFinanceRow } from './useEntities.js';
 
 export function useSyncPush(user) {
   const convertPlayerToSupabase = useCallback((player) => {
@@ -365,10 +366,7 @@ export function useSyncPull(
         } else { setChampionships([]); }
 
         if (appData.finances) {
-          const mapped = appData.finances.map(f => ({
-            id: f.id, type: f.type, desc: f.descripcion, amount: f.amount,
-            date: f.date, category: f.category, teamCategory: f.team_category, teamId: f.team_id
-          }));
+          const mapped = appData.finances.map(mapFinanceRow);
           setFinances(mapped);
         } else { setFinances([]); }
 

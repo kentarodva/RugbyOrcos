@@ -4,6 +4,7 @@ export const ABONOS_RAPIDOS = [2000, 5000, 10000];
 export const FINANCE_CATEGORIES = [
   { value: 'general', label: 'General' },
   { value: 'mensualidad', label: 'Mensualidad' },
+  { value: 'pro_fondos', label: 'Pro-fondos (rifas, ventas)' },
   { value: 'eventualidad', label: 'Eventualidad (árbitro, cancha, ambulancia)' },
   { value: 'implementos', label: 'Implementos deportivos' },
   { value: 'tercer_tiempo', label: 'Tercer Tiempo' },
@@ -18,6 +19,7 @@ export const FINANCE_CATEGORIES = [
 export const CATEGORY_LABELS = {
   eventualidad: 'Eventualidad',
   mensualidad: 'Mensualidad',
+  pro_fondos: 'Pro-fondos',
   implementos: 'Implementos',
   tercer_tiempo: 'Tercer Tiempo',
   transporte: 'Transporte',

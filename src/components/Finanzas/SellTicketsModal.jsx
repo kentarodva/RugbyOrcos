@@ -4,7 +4,7 @@ import { useToast } from '../../context/ToastContext';
 import { CopInput } from '../common/FormattedInputs';
 
 export function SellTicketsModal({ campaign, assignment, tickets, onClose, readOnly }) {
-  const { sellTickets, addFinanceRecord } = useContext(ClubContext);
+  const { sellTickets } = useContext(ClubContext);
   const { showToast } = useToast();
   const ticketPrice = Number(campaign.ticket_price) || 0;
 
@@ -70,16 +70,6 @@ export function SellTicketsModal({ campaign, assignment, tickets, onClose, readO
         amount: finalAmount,
         soldToName: soldToName.trim(),
       });
-
-      if (finalAmount > 0) {
-        addFinanceRecord({
-          desc: `🎟️ ${campaign.name} - ${finalQuantity > 0 ? `${finalQuantity} boletas` : 'Abono'}${soldToName.trim() ? ` (${soldToName.trim()})` : ''}`,
-          amount: finalAmount,
-          type: 'ingreso',
-          category: 'general',
-          date: new Date().toISOString().split('T')[0],
-        });
-      }
 
       const msg = finalQuantity > 0
         ? `${finalQuantity} boleta(s) vendida(s) por $${finalAmount.toLocaleString()}.${remainder > 0 ? ` Abono de $${remainder.toLocaleString()} registrado.` : ''}`
