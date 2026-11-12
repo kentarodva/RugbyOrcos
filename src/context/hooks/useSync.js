@@ -5,6 +5,19 @@ import { handleError } from '../../utils/errorHandler';
 import { playerSchema } from '../../schemas/player.js';
 import { parseFullName } from '../../utils/nameParser.js';
 import { mapFinanceRow } from './useEntities.js';
+import { startRealtimeBridge } from '../../services/realtimeBridge.js';
+
+const RESYNC_DEBOUNCE_MS = 1200;
+
+// Tablas cuyo estado vive en ClubContext (las demás las recarga cada pantalla
+// con useDataListener: mensajes, campañas, torneos...).
+export const CONTEXT_TABLES = new Set([
+  'players', 'injury_log', 'hia_assessments', 'wellness_logs', 'workout_logs',
+  'attribute_history', 'match_stats', 'infractions', 'player_attendance_summary',
+  'penalties', 'player_payments', 'schedule_events', 'championships', 'finances',
+  'inventory', 'fixtures', 'rivals', 'future_fixtures', 'match_invitations',
+  'guest_players', 'player_loans',
+]);
 
 export function useSyncPush(user) {
   const convertPlayerToSupabase = useCallback((player) => {
@@ -172,8 +185,8 @@ export function useSyncPull(
   useEffect(() => {
     if (!user?.id) return;
 
-    const syncFromSupabase = async () => {
-      setSyncStatus('syncing');
+    const syncFromSupabase = async ({ silent = false } = {}) => {
+      if (!silent) setSyncStatus('syncing');
       if (import.meta.env.DEV) console.log('[Sync] Iniciando sync para user:', user.id);
 
       try {
@@ -443,6 +456,30 @@ export function useSyncPull(
     };
 
     syncFromSupabase();
+
+    // Lo que cambia otro usuario llega por Realtime (realtimeBridge) y se recarga en
+    // silencio. Varias filas seguidas (p. ej. una asistencia de 30 jugadores) se
+    // agrupan en una sola recarga.
+    const stopBridge = startRealtimeBridge(user.id);
+    let timer = null;
+    const scheduleResync = () => {
+      clearTimeout(timer);
+      timer = setTimeout(() => syncFromSupabase({ silent: true }), RESYNC_DEBOUNCE_MS);
+    };
+    const onRemoteChange = (e) => {
+      if (e.detail?.remote && CONTEXT_TABLES.has(e.detail.table)) scheduleResync();
+    };
+    // Al volver a la app (el teléfono suspende el socket en segundo plano).
+    const onVisible = () => { if (document.visibilityState === 'visible') scheduleResync(); };
+    window.addEventListener('data:changed', onRemoteChange);
+    document.addEventListener('visibilitychange', onVisible);
+
+    return () => {
+      clearTimeout(timer);
+      stopBridge();
+      window.removeEventListener('data:changed', onRemoteChange);
+      document.removeEventListener('visibilitychange', onVisible);
+    };
   }, [user?.id, userTier, profile?.system_role, profile?.club_scope, profile?.team_id, mensualidadBase]);
 
   return { syncStatus };
