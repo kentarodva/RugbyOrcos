@@ -8,10 +8,11 @@ import { isLoaded } from '../../data/clubSettings';
 import { analyzeMatch } from '../../engine/matchAnalyzer';
 import { getActivePlan } from '../../engine/trainingPlanService';
 import { useToast } from '../../context/ToastContext';
+import { findOwnPlayer } from '../../utils/currentPlayer';
 
 export function useAIChatState() {
   const { activeTeam, players, fixtures, schedule, championships, futureFixtures } = useContext(ClubContext);
-  const { user, profile } = useAuth();
+  const { user } = useAuth();
   const { showToast } = useToast();
   const messagesEndRef = useRef(null);
   const filterByView = useViewFilter();
@@ -71,11 +72,7 @@ export function useAIChatState() {
     return () => clearTimeout(timer);
   }, [messages, user?.id]);
 
-  const player = (players || []).find(p => {
-    if (profile?.display_name && p.name.toLowerCase() === profile.display_name.toLowerCase()) return true;
-    if (user?.email && p.contacto?.email === user.email) return true;
-    return false;
-  });
+  const player = findOwnPlayer(players, user);
 
   useEffect(() => {
     if (!player?.id) return;

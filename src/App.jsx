@@ -22,6 +22,7 @@ import { useGlobalShortcuts } from './utils/keyboardShortcuts';
 import { addPushNavigateListener } from './utils/pushNotifications';
 import ErrorBoundary from './components/ErrorBoundary';
 import { lazyWithRetry } from './utils/lazyWithRetry';
+import { findOwnPlayer } from './utils/currentPlayer';
 
 const Roster = lazyWithRetry(() => import('./components/Roster'));
 const Tribunal = lazyWithRetry(() => import('./components/Tribunal'));
@@ -73,7 +74,7 @@ function App() {
 
   // Avisos en vivo: anuncios, entrenos, partidos, jugadas y convocatorias que crea otro rol.
   const isPlayerAccount = profile?.system_role === 'jugador';
-  const ownPlayer = isPlayerAccount ? (players || []).find(p => p.userId && p.userId === user?.id) : null;
+  const ownPlayer = isPlayerAccount ? findOwnPlayer(players, user) : null;
   useLiveNotices(
     { userId: user?.id, playerId: ownPlayer?.id, teamCategory: ownPlayer?.teamCategory || null, isPlayer: isPlayerAccount },
     {

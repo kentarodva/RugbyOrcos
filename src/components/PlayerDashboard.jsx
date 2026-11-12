@@ -31,8 +31,8 @@ import { lazyWithRetry } from '../utils/lazyWithRetry';
 import { useIsMobile } from '../hooks/useIsMobile';
 import PlayerBottomNav from './PlayerBottomNav';
 import { PlayerPhoto } from './PlayerPhoto';
+import { findOwnPlayer } from '../utils/currentPlayer';
 
-const normalizeName = (s) => (s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/\s+/g, ' ').trim();
 
 const PlayerProgressTab = lazyWithRetry(() => import('./PlayerProgressTab'));
 const AIChat = lazyWithRetry(() => import('./AIChat'));
@@ -69,16 +69,7 @@ function PlayerDashboard() {
   // Staff-only manual pick (Mi Ficha from the admin panel). Never preselected, never offered to player accounts.
   const [adminSelectedPlayerId, setAdminSelectedPlayerId] = useState('');
 
-  const ownPlayer = players.find(p => p.userId && user?.id && p.userId === user.id)
-    ?? players.find(p => {
-      if (user?.email) {
-        const uEmail = user.email.toLowerCase();
-        if (p.contacto?.email && p.contacto.email.toLowerCase() === uEmail) return true;
-        if (p.email && p.email.toLowerCase() === uEmail) return true;
-      }
-      // Exact (accent/case-insensitive) name match only: partial matches could open another player's data.
-      return !!(profile?.display_name && p.name && normalizeName(p.name) === normalizeName(profile.display_name));
-    });
+  const ownPlayer = findOwnPlayer(players, user);
 
   const player = (!isPlayerAccount && adminSelectedPlayerId ? players.find(p => p.id === adminSelectedPlayerId) : null) ?? ownPlayer;
   const jersey = player ? (player.camiseta ?? player.jerseyNumber ?? player.position_id ?? null) : null;

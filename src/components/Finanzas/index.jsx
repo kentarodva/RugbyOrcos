@@ -10,6 +10,7 @@ import { FundraisingTab } from './FundraisingTab';
 import { InventoryTab } from './InventoryTab';
 
 import FinanzasSkeleton from '../Skeletons/FinanzasSkeleton';
+import { findOwnPlayer } from '../../utils/currentPlayer';
 
 const SUB_TAB_ICONS = {
   finances: Wallet,
@@ -18,14 +19,10 @@ const SUB_TAB_ICONS = {
 };
 
 function Finanzas() {
-  const { profile, user } = useAuth();
+  const { user } = useAuth();
   const { finances, addFinanceRecord, deleteFinanceRecord, players, activeTeam, inventory, addInventoryItem, updateInventoryItem, recordMembershipPayment, viewMode, divisionView, makgoraTeamId, syncStatus, userTier, isSuperRole, clubConfig, mensualidadBase, handleMonthlyCharge } = useContext(ClubContext);
   const isStaff = userTier <= 3;
-  const currentPlayer = players.find(p => {
-    if (profile?.display_name && p.name.toLowerCase() === profile.display_name.toLowerCase()) return true;
-    if (user?.email && p.contacto?.email === user.email) return true;
-    return false;
-  });
+  const currentPlayer = findOwnPlayer(players, user);
   const currentPlayerId = currentPlayer?.id;
   const { showToast } = useToast();
 

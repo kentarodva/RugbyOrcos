@@ -22,6 +22,7 @@ const LiveMatchInline = LiveMatch;
 import CalendarioSkeleton from '../Skeletons/CalendarioSkeleton';
 import { downloadCalendarIcs } from '../../utils/exportCalendarIcs';
 import { isUpcomingEvent, mergeAgenda } from '../../utils/agendaItems';
+import { findOwnPlayer } from '../../utils/currentPlayer';
 
 function Calendario() {
   const {
@@ -37,14 +38,7 @@ function Calendario() {
   const { user, profile } = useAuth();
   const filterByView = useFilterByView();
 
-  const currentPlayer = useMemo(() => {
-    if (!players || players.length === 0) return null;
-    return players.find(p => {
-      if (profile?.display_name && p.name?.toLowerCase() === profile.display_name.toLowerCase()) return true;
-      if (user?.email && p.contacto?.email === user.email) return true;
-      return false;
-    }) || null;
-  }, [players, profile?.display_name, user?.email]);
+  const currentPlayer = useMemo(() => findOwnPlayer(players, user), [players, user]);
 
   const canManageEvents = hasPermission('manage_schedule');
   const canManageMatch = hasPermission('admin_panel') || profile?.role === 'coach' || profile?.role === 'capitan';

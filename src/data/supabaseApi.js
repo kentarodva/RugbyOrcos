@@ -125,7 +125,8 @@ const apisupabase = {
       .from('players')
       .upsert({
         id: player.id,
-        user_id: player.user_id || player.userId || userId,
+        // user_id = cuenta del jugador, nunca quien edita (created_by lo pone la BD).
+        ...((player.user_id || player.userId) ? { user_id: player.user_id || player.userId } : {}),
         ...(player.username !== undefined ? { username: player.username } : {}),
         legacy_id: player.legacy_id,
         first_name: player.first_name,
