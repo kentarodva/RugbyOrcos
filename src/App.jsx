@@ -2,6 +2,7 @@ import React, { useState, useContext, useRef, useEffect, Suspense } from 'react'
 import { motion, AnimatePresence } from 'framer-motion';
 import { ClubContext } from './context/ClubContext';
 import { useAuth } from './context/AuthContext';
+import { useLiveNotices } from './context/hooks/useLiveNotices';
 import { useToast } from './context/ToastContext';
 import Login from './components/Login';
 import Dashboard from './components/Dashboard';
@@ -43,13 +44,15 @@ function App() {
     getAllClubsLabels, addClub, deleteClub, dynamicClubs, syncStatus,
     viewMode, setViewMode, divisionView, setDivisionView,
     makgoraTeamId, setMakgoraTeamId, makgoraTeams, setPlayers,
-    liveMatch,
+    liveMatch, players, sendLocalNotification,
   } = useContext(ClubContext);
   const { isAuthenticated, signOut, profile, user, requirePasswordChange, clearPasswordChangeFlag } = useAuth();
   const { showToast } = useToast();
   const [activeTab, setActiveTab] = useState('dashboard');
   const [showSettings, setShowSettings] = useState(false);
   const [showAnnouncements, setShowAnnouncements] = useState(true);
+  // Cambia con cada anuncio en vivo para que el modal (si ya estaba abierto) recargue.
+  const [announcementKey, setAnnouncementKey] = useState(0);
   const [showAdminPanel, setShowAdminPanel] = useState(false);
   const [adminSubTab, setAdminSubTab] = useState('users');
   const [showImportCSV, setShowImportCSV] = useState(false);
@@ -67,6 +70,24 @@ function App() {
   }, [theme]);
 
   useGlobalShortcuts(activeTab, setActiveTab);
+
+  // Avisos en vivo: anuncios, entrenos, partidos, jugadas y convocatorias que crea otro rol.
+  const isPlayerAccount = profile?.system_role === 'jugador';
+  const ownPlayer = isPlayerAccount ? (players || []).find(p => p.userId && p.userId === user?.id) : null;
+  useLiveNotices(
+    { userId: user?.id, playerId: ownPlayer?.id, teamCategory: ownPlayer?.teamCategory || null, isPlayer: isPlayerAccount },
+    {
+      notify: (title, body) => {
+        showToast(body ? `${title} — ${body}` : title, 'info');
+        sendLocalNotification?.(title, body);
+      },
+      onNotice: (notice) => {
+        if (notice.kind !== 'announcement') return;
+        setAnnouncementKey(k => k + 1);
+        setShowAnnouncements(true);
+      },
+    }
+  );
 
   useEffect(() => {
     return addPushNavigateListener(({ tab }) => {
@@ -93,6 +114,9 @@ function App() {
       <div className="app-container" style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
         <PlayerDashboard />
         <Footer />
+        {showAnnouncements && (
+          <AnnouncementModal key={announcementKey} onClose={() => setShowAnnouncements(false)} />
+        )}
       </div>
     );
   }
@@ -327,7 +351,7 @@ function App() {
       {showAnnouncements && isAuthenticated && (
         <motion.div key="announcements"
           initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
-          <AnnouncementModal onClose={() => setShowAnnouncements(false)} />
+          <AnnouncementModal key={announcementKey} onClose={() => setShowAnnouncements(false)} />
         </motion.div>
       )}
       </AnimatePresence>

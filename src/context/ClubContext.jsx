@@ -296,6 +296,7 @@ export const ClubProvider = ({ children }) => {
 
   return (
     <ClubContext.Provider value={{
+      sendLocalNotification,
       activeTeam, setActiveTeam, activeTeamId,
       players, setPlayers, addPlayer: playerHooks.addPlayer, updatePlayer: playerHooks.updatePlayer, deletePlayer: playerHooks.deletePlayer,
       recordAttendance: playerHooks.recordAttendance, recordMatchInfractions: playerHooks.recordMatchInfractions, redeemPenalty: playerHooks.redeemPenalty,
