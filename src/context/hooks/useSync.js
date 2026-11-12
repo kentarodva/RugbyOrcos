@@ -73,10 +73,7 @@ export function useSyncPush(user) {
       emergency_contact_phone: player.emergency_contact_phone || null,
       avatar_id: player.avatar_id || null,
       photo_url: player.photo_url || null,
-      memberships_paid: player.memberships?.paid ?? 0,
-      memberships_due: player.memberships?.due ?? 0,
-      last_payment_date: player.memberships?.lastPayment || null,
-      last_payment_amount: player.memberships?.lastAmount || null,
+      // memberships_* y last_payment_* los mantiene la BD (migración 92): no se envían.
       ...(player.userId !== undefined ? { user_id: player.userId } : {}),
       ...(player.username !== undefined ? { username: player.username } : {}),
       ...(player.deleted_at !== undefined ? { deleted_at: player.deleted_at } : {}),
@@ -207,27 +204,7 @@ export function useSyncPull(
         if (!playerError && dbPlayers?.length > 0) {
           const normalized = dbPlayers.map(supabasePlayerToReact);
 
-          const { data: payments, error: paymentsError } = await supabase
-            .from('player_payments')
-            .select('player_id, amount')
-            .eq('source', 'membership');
-
-          if (paymentsError) {
-            console.error('[Sync] Error al cargar pagos:', paymentsError);
-          } else if (payments?.length > 0) {
-            if (import.meta.env.DEV) console.log('[Sync] Pagos de membresia cargados:', payments.length);
-            const paymentTotals = {};
-            payments.forEach(p => {
-              paymentTotals[p.player_id] = (paymentTotals[p.player_id] || 0) + Number(p.amount);
-            });
-            normalized.forEach(player => {
-              const paid = paymentTotals[player.id] || 0;
-              if (paid > 0) player.memberships.paid = paid;
-              if (!player.memberships.due || player.memberships.due <= 0) {
-                player.memberships.due = mensualidadBase;
-              }
-            });
-          }
+          // Cuotas: memberships_due/paid vienen calculadas por la BD (migración 92).
 
           const { data: attendanceSummaries } = await supabase
             .from('player_attendance_summary')

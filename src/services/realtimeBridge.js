@@ -20,7 +20,7 @@ export const SHARED_TABLES = [
   'match_invitations', 'guest_players', 'championships', 'lineups', 'tactical_plays',
   'messages', 'message_reactions', 'announcement_views', 'notification_history',
   'finances', 'player_payments', 'fundraising_campaigns', 'fundraising_assignments',
-  'raffle_tickets', 'treasurer_deliveries', 'inventory',
+  'raffle_tickets', 'treasurer_deliveries', 'inventory', 'membership_charges',
   'makgora_teams', 'player_loans', 'tournaments', 'tournament_matches',
   'tournament_standings', 'tournament_teams',
 ];

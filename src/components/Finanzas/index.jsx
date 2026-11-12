@@ -29,7 +29,7 @@ function Finanzas() {
   const state = useFinanzasState({
     finances, addFinanceRecord, players, activeTeam,
     viewMode, divisionView, makgoraTeamId,
-    recordMembershipPayment, updateInventoryItem, showToast
+    recordMembershipPayment, updateInventoryItem, showToast, mensualidadBase
   });
 
   if (syncStatus === 'idle' || syncStatus === 'syncing') {

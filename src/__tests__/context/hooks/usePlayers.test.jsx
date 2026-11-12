@@ -343,7 +343,7 @@ describe('usePlayers — Membresia', () => {
     localStorage.clear();
   });
 
-  it('recordMembershipPayment actualiza paid y due', async () => {
+  it('recordMembershipPayment suma el abono; lo debido solo lo suben los cobros mensuales (BD)', async () => {
     const { result } = setup();
 
     await act(async () => {
@@ -358,7 +358,7 @@ describe('usePlayers — Membresia', () => {
 
     const p = result.current.players[0];
     expect(p.memberships.paid).toBe(5000);
-    expect(p.memberships.due).toBe(10000);
+    expect(p.memberships.due).toBe(0);
     expect(p.memberships.lastAmount).toBe(5000);
   });
 });

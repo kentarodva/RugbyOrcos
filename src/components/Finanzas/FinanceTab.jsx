@@ -8,6 +8,8 @@ import { CategorySummary } from './CategorySummary';
 import { MembershipList } from './MembershipList';
 import { MonthlyChargeModal } from './MonthlyChargeModal';
 import { PaymentHistoryModal } from './PaymentHistoryModal';
+import { useToast } from '../../context/ToastContext';
+import { localDateKey } from '../../utils/agendaItems';
 
 export function FinanceTab({
   financeSubTab, setFinanceSubTab,
@@ -26,19 +28,27 @@ export function FinanceTab({
   activeTeam, EQUIPOS_LABELS,
   mensualidadBase, lastMonthlyCharge, onMonthlyCharge
 }) {
+  const { showToast } = useToast() || {};
   const [showChargeModal, setShowChargeModal] = useState(false);
   const [confirmState, setConfirmState] = useState(null);
   const [historyPlayerId, setHistoryPlayerId] = useState(null);
 
+  // 'YYYY-MM-DD' local: comparar el mes como texto (new Date() lo leería en UTC).
   const hasChargeThisMonth = lastMonthlyCharge
-    ? new Date(lastMonthlyCharge).getMonth() === new Date().getMonth()
-      && new Date(lastMonthlyCharge).getFullYear() === new Date().getFullYear()
+    ? String(lastMonthlyCharge).slice(0, 7) === localDateKey().slice(0, 7)
     : false;
   const chargeMonthLabel = new Date().toLocaleString('es-ES', { month: 'long', year: 'numeric' });
 
   const handleConfirmCharge = async (playerIds) => {
-    await onMonthlyCharge(playerIds);
-    setShowChargeModal(false);
+    try {
+      const count = await onMonthlyCharge(playerIds);
+      showToast?.(count > 0
+        ? `Cobro de ${chargeMonthLabel} aplicado a ${count} jugador(es)`
+        : `Esos jugadores ya tenían el cobro de ${chargeMonthLabel}`, 'success');
+      setShowChargeModal(false);
+    } catch (err) {
+      showToast?.(err?.message || 'No se pudo aplicar el cobro mensual', 'error');
+    }
   };
 
   const handleRequestConfirm = (player, amount) => {

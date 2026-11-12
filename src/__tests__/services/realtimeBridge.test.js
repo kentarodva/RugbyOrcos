@@ -63,11 +63,13 @@ describe('realtimeBridge', () => {
     expect(missing).toEqual([]);
   });
 
-  it('publishes exactly the tables of migration 89', async () => {
+  it('listens to exactly the tables published by migrations 89 and 92', async () => {
     const fs = await import('node:fs');
     const sql = fs.readFileSync('supabase/migrations/89_realtime_publication.sql', 'utf8');
     const block = sql.slice(sql.indexOf('ARRAY['), sql.indexOf('];'));
-    const inMigration = [...block.matchAll(/'([a-z_]+)'/g)].map(m => m[1]).sort();
-    expect(inMigration).toEqual([...SHARED_TABLES].sort());
+    const inMigration = [...block.matchAll(/'([a-z_]+)'/g)].map(m => m[1]);
+    const sql92 = fs.readFileSync('supabase/migrations/92_membership_charges.sql', 'utf8');
+    const added = [...sql92.matchAll(/ADD TABLE public\.([a-z_]+)/g)].map(m => m[1]);
+    expect([...inMigration, ...added].sort()).toEqual([...SHARED_TABLES].sort());
   });
 });

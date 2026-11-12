@@ -11,6 +11,7 @@ import ClothingSection from './ClothingSection';
 import HiaSection from './HiaSection';
 import BattleHistory from './BattleHistory';
 import { formatHeightM, formatWeightKg } from '../../../utils/inputFormatters';
+import { membershipStatus } from '../../../utils/membership';
 
 function PlayerDetail({
   player,
@@ -66,8 +67,8 @@ function PlayerDetail({
     wellnessBadge = { score: wellnessScore, color: badgeColor, label };
   }
 
-  const m = player.memberships || { paid: 0, due: 10000 };
-  const memDebt = Math.max(0, (m.due || 0) - (m.paid || 0));
+  const mem = membershipStatus(player);
+  const memDebt = mem.owed;
 
   return (
     <div className="modal-overlay">
@@ -189,7 +190,7 @@ function PlayerDetail({
                 </div>
               ) : (
                 <p style={{ fontSize: '0.76rem', color: 'var(--color-text-muted)', margin: 0 }}>
-                  Abonado en membresía: <strong className="tabular-nums">${(m.paid || 0).toLocaleString()}</strong> / <span className="tabular-nums">${(m.due || 10000).toLocaleString()} COP</span>.
+                  Abonado en membresía: <strong className="tabular-nums">${mem.paid.toLocaleString()}</strong> / <span className="tabular-nums">${mem.due.toLocaleString()} COP cobrados</span>.
                 </p>
               )}
             </div>
