@@ -6,6 +6,7 @@ import { wrapCatch } from '../utils/errorHandler';
 import { registerWebPush } from '../utils/pushNotifications';
 import { CLUBS, CLUBS_LABELS, SYSTEM_ROLES, SYSTEM_ROLES_LABELS, RPG_ROLES, SUPER_ROLES, DIVISIONES, DIVISIONES_LABELS, EQUIPOS, EQUIPOS_LABELS, MAKGORA_TEAMS, getRpgRole, formatTeamCategory } from './constants';
 import { localDateKey } from '../utils/agendaItems';
+import { useDataListener } from './hooks/useDataListener.js';
 import {
   usePermissions,
   useClubs,
@@ -221,9 +222,14 @@ export const ClubProvider = ({ children }) => {
 
   const fundraisingHooks = useFundraising(activeTeam, user);
 
+  // Los pagos se leen con la sesión ya iniciada (RLS: el jugador solo ve los suyos) y se
+  // recargan cuando otro usuario registra o borra uno.
+  const { loadAllPayments } = fundraisingHooks;
   React.useEffect(() => {
-    fundraisingHooks.loadAllPayments();
-  }, []);
+    if (user?.id) loadAllPayments();
+  }, [user?.id, loadAllPayments]);
+  const reloadPayments = React.useCallback(() => { if (user?.id) loadAllPayments(); }, [user?.id, loadAllPayments]);
+  useDataListener('player_payments', reloadPayments);
 
   const dataIOHooks = useDataIO(
     players, schedule, championships, finances, inventory, fixtures, rivals, futureFixtures,

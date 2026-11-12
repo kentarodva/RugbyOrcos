@@ -100,6 +100,14 @@ function Login() {
         if (!player && players.length === 1) player = players[0];
       }
 
+      // El servidor solo entrega el email con el usuario exacto (migración 95): una
+      // coincidencia sin email es una sugerencia, no un inicio de sesión.
+      if (player && !player.email) {
+        setError(`Guerrero no encontrado. ¿Quisiste decir "${player.username}"? Escríbelo exacto.`);
+        setLoading(false);
+        return;
+      }
+
       if (!player) {
         setError(
           'Guerrero no encontrado. Verifica tu nombre de usuario o contacta a tu Comandante de Horda para que te cree credenciales en Roster.'

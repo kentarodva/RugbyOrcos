@@ -98,7 +98,7 @@ function PlayerDashboard() {
         height: player.height || '',
         position_id: player.position_id || null,
         posicion: player.posicion || '',
-        health_insurance: player.health_insurance || '',
+        health_insurance: player.health_insurance === 'No tiene EPS' ? 'NO_TIENE' : (player.health_insurance || ''),
         custom_eps: '',
         contacto_phone: player.contacto?.phone || '',
         emergency_contact_name: player.emergency_contact_name || '',
@@ -173,7 +173,8 @@ function PlayerDashboard() {
       height: Number(f.height),
       clothingSizes: { jersey: f.jersey || 'M', shorts: f.shorts || 'M', socks: f.socks || '40-42' },
       gymStats: { squat: squatVal, bench: benchVal, deadlift: deadliftVal },
-      health_insurance: f.health_insurance === 'OTRA' ? (f.custom_eps || null) : f.health_insurance || null,
+      health_insurance: f.health_insurance === 'OTRA' ? (f.custom_eps || null)
+        : f.health_insurance === 'NO_TIENE' ? 'No tiene EPS' : f.health_insurance || null,
       contacto: { phone: f.contacto_phone || null, email: player.contacto?.email },
       emergency_contact_name: f.emergency_contact_name || null,
       emergency_contact_phone: f.emergency_contact_phone || null,
@@ -687,7 +688,8 @@ function PlayerDashboard() {
                   <label style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)' }}>EPS / Seguro Médico</label>
                   <select value={setupForm.health_insurance} onChange={e => setSetupForm(p => ({ ...p, health_insurance: e.target.value }))}
                     className="form-input" style={{ padding: '6px 8px', fontSize: '0.78rem' }}>
-                    <option value="">No tiene EPS</option>
+                    <option value="" disabled>Selecciona tu EPS…</option>
+                    <option value="NO_TIENE">No tiene EPS</option>
                     <option value="Nueva EPS">Nueva EPS</option>
                     <option value="Sanitas">Sanitas</option>
                     <option value="Salud Total">Salud Total</option>
